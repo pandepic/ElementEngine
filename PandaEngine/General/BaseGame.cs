@@ -210,7 +210,7 @@ namespace PandaEngine
         {
             CommandList.Begin();
             CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-            //CommandList.SetViewport(0, Viewport);
+            CommandList.SetViewport(0, Viewport);
             CommandList.ClearColorTarget(0, ClearColour);
 
             Draw(GameTimer);

@@ -25,7 +25,7 @@ namespace SwordsAndSorceryGame
                 Height = 900
             };
 
-            SetupWindow(windowRect, "Swords and Sorcery", GraphicsBackend.OpenGL);
+            SetupWindow(windowRect, "Swords and Sorcery", GraphicsBackend.Direct3D11);
             SetupAssets();
             ClearColour = RgbaFloat.CornflowerBlue;
 

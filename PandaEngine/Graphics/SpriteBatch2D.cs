@@ -138,7 +138,7 @@ namespace PandaEngine
             var factory = GraphicsDevice.ResourceFactory;
             LoadStaticResources(factory);
 
-            _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, 0f, 1f);
+            _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
             //_projection = Matrix4x4.Transpose(_projection);
 
             _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)sizeof(Matrix4x4), BufferUsage.UniformBuffer));
@@ -167,7 +167,8 @@ namespace PandaEngine
                 DepthStencilState = new DepthStencilStateDescription(depthTestEnabled: true, depthWriteEnabled: true, ComparisonKind.LessEqual),
                 RasterizerState = new RasterizerStateDescription
                 {
-                    DepthClipEnabled = true
+                    DepthClipEnabled = false,
+                    CullMode = FaceCullMode.None,
                 },
                 PrimitiveTopology = PrimitiveTopology.TriangleList,
                 ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { vertexLayout }, shaders: _shaders),
@@ -181,11 +182,20 @@ namespace PandaEngine
 
             _pipeline = factory.CreateGraphicsPipeline(pipelineDescription);
 
+            // if culling this is the right order for bottom left
             var indicesTemplate = new ushort[]
             {
                 2, 1, 0, // tri 1
                 2, 3, 1 // tri 2
             };
+
+            /* if culling this is the right order for top left
+            var indicesTemplate = new ushort[]
+            {
+                2, 1, 0, // tri 1
+                2, 3, 1 // tri 2
+            };
+            */
 
             var indices = new ushort[_maxBatchSize * IndicesPerQuad];
 
