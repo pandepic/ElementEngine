@@ -9,7 +9,10 @@ namespace PandaEngine
         public static string DefaultSpriteVS = @"
             #version 450
 
-            layout(set = 0, binding = 0) uniform mProjectionViewBuffer { mat4x4 mProjectionView; };
+            layout(set = 0, binding = 0) uniform mProjectionViewBuffer {
+                mat4x4 mProjection;
+                mat4x4 mView;
+            };
 
             layout (location = 0) in vec2 vPosition;
             layout (location = 1) in vec2 vTexCoords;
@@ -22,7 +25,7 @@ namespace PandaEngine
             {
                 fTexCoords = vTexCoords;
                 fColour = vColour;
-                gl_Position = mProjectionView * vec4(vPosition.x, vPosition.y, 0.0, 1.0);
+                gl_Position = mProjection * mView * vec4(vPosition.x, vPosition.y, 0.0, 1.0);
             }
         ";
 

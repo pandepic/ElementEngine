@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Text;
 using Veldrid;
@@ -19,8 +21,10 @@ namespace PandaEngine
         public float TexelWidth { get => 1.0f / _texture.Width; }
         public float TexelHeight { get => 1.0f / _texture.Height; }
 
-        public uint Width { get => _texture.Width; }
-        public uint Height { get => _texture.Height; }
+        public int Width { get => (int)_texture.Width; }
+        public int Height { get => (int)_texture.Height; }
+        public Point Size { get => new Point(Width, Height); }
+        public Vector2 SizeF { get => Size.ToVector2(); }
 
         #region IDisposable
         protected bool _disposed = false;

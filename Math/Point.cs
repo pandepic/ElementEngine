@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace PandaEngine
@@ -33,6 +34,11 @@ namespace PandaEngine
         {
             return string.Format("{0}, {1}", X, Y);
         }
+
+        public static Point operator +(Point p1, Point p2) => new Point(p1.X + p2.X, p1.Y + p2.Y);
+        public static Point operator -(Point p1, Point p2) => new Point(p1.X - p2.X, p1.Y - p2.Y);
+        public static Point operator *(Point p1, Point p2) => new Point(p1.X * p2.X, p1.Y * p2.Y);
+        public static Point operator /(Point p1, Point p2) => new Point(p1.X / p2.X, p1.Y / p2.Y);
 
     } // Point
 }

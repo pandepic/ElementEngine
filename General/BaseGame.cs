@@ -11,38 +11,18 @@ namespace PandaEngine
 {
     public class BaseGame : IDisposable
     {
-        public GameTimer GameTimer { get; set; }
-
-        public Sdl2Window Window
-        {
-            get => PandaGlobals.Window;
-        }
-
-        public GraphicsDevice GraphicsDevice
-        {
-            get => PandaGlobals.GraphicsDevice;
-        }
-
-        public CommandList CommandList
-        {
-            get => PandaGlobals.CommandList;
-        }
-
-        public SpriteBatch2D SpriteBatch2D
-        {
-            get => PandaGlobals.SpriteBatch2D;
-        }
-
-        public AssetManager AssetManager
-        {
-            get => PandaGlobals.AssetManager;
-        }
+        public Sdl2Window Window => PandaGlobals.Window;
+        public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
+        public CommandList CommandList => PandaGlobals.CommandList;
+        public SpriteBatch2D SpriteBatch2D => PandaGlobals.SpriteBatch2D;
+        public AssetManager AssetManager => PandaGlobals.AssetManager;
 
         // Graphics settings
         public RgbaFloat ClearColour { get; set; } = RgbaFloat.Black;
         public Viewport Viewport { get; set; }
 
         // Timing
+        public GameTimer GameTimer { get; set; }
         public bool IsFixedTimeStep { get; set; } = false;
         protected Stopwatch _stopWatch;
         protected long _currentTicks, _prevTicks;

@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using SharpDX.Mathematics.Interop;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
@@ -42,20 +43,9 @@ namespace PandaEngine
 
     public class SpriteBatch2D : IDisposable
     {
-        public Sdl2Window Window
-        {
-            get => PandaGlobals.Window;
-        }
-
-        public GraphicsDevice GraphicsDevice
-        {
-            get => PandaGlobals.GraphicsDevice;
-        }
-
-        public CommandList CommandList
-        {
-            get => PandaGlobals.CommandList;
-        }
+        public Sdl2Window Window => PandaGlobals.Window;
+        public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
+        public CommandList CommandList => PandaGlobals.CommandList;
 
         // Constants
         public const int IndicesPerQuad = 6;
@@ -139,10 +129,11 @@ namespace PandaEngine
             LoadStaticResources(factory);
 
             _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
-            //_projection = Matrix4x4.Transpose(_projection);
 
-            _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)sizeof(Matrix4x4), BufferUsage.UniformBuffer));
+            _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Matrix4x4) * 2), BufferUsage.UniformBuffer));
             GraphicsDevice.UpdateBuffer(_transformBuffer, 0, Matrix4x4.Identity);
+            GraphicsDevice.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), Matrix4x4.Identity);
+
             _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("mProjectionViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
             _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
             
@@ -291,14 +282,19 @@ namespace PandaEngine
             if (!scale.HasValue)
                 scale = new Vector2(1f, 1f);
 
-            var spriteScale = new Vector2(texture.Width, texture.Height) * scale.Value;
+            var spriteScale = new Vector2(sourceRect.Value.Width, sourceRect.Value.Height) * scale.Value;
 
             var worldMatrix = Matrix3x2.Identity;
+
             worldMatrix *= Matrix3x2.CreateScale(spriteScale);
-            worldMatrix *= Matrix3x2.CreateTranslation(origin.Value);
             worldMatrix *= Matrix3x2.CreateRotation(rotation.ToRadians());
-            worldMatrix *= Matrix3x2.CreateTranslation(-origin.Value);
             worldMatrix *= Matrix3x2.CreateTranslation(position);
+
+            //worldMatrix *= Matrix3x2.CreateScale(spriteScale);
+            //worldMatrix *= Matrix3x2.CreateRotation(rotation.ToRadians());
+            //worldMatrix *= Matrix3x2.CreateTranslation(position);
+            //worldMatrix *= Matrix3x2.CreateTranslation(origin.Value);
+            //worldMatrix *= Matrix3x2.CreateRotation(rotation.ToRadians());
 
             Draw(texture, worldMatrix, colour, sourceRect, flip);
         }
@@ -368,12 +364,13 @@ namespace PandaEngine
             _batchItems.Add(batchItem);
         }
 
-        public void End()
+        public unsafe void End()
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call End.");
 
-            GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _projection * _view);
+            GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _projection);
+            GraphicsDevice.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
 
             Texture2D currentTexture = null;
             var currentBatchCount = 0;
