@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 
-<Assets>
-  <Asset Name="Logo" FilePath="Images/logo.png" />
+<Assets AutoFind="true">
 </Assets>

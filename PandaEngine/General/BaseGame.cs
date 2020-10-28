@@ -119,7 +119,7 @@ namespace PandaEngine
             Viewport = new Viewport(0f, 0f, PandaGlobals.Window.Width, PandaGlobals.Window.Height, 0f, 1f);
         }
 
-        public void SetupAssets(string modsPath = "Mods/")
+        public void SetupAssets(string modsPath = "Mods")
         {
             PandaGlobals.AssetManager.Load(modsPath);
         }

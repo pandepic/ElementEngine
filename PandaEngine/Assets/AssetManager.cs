@@ -1,10 +1,13 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Xml.Linq;
 using Veldrid.ImageSharp;
@@ -30,7 +33,7 @@ namespace PandaEngine
 
         public void Load(string modsPath)
         {
-            using (var fs = File.OpenRead(modsPath + "Mods.xml"))
+            using (var fs = File.OpenRead(Path.Combine(modsPath, "Mods.xml")))
             {
                 var modsDoc = XDocument.Load(fs);
 
@@ -39,9 +42,14 @@ namespace PandaEngine
                     var modName = mod.Attribute("Name").Value;
                     var modPath = mod.Attribute("Path").Value;
 
-                    using (var modFS = File.OpenRead(modsPath + modPath + "Assets.xml"))
+                    using (var modFS = File.OpenRead(Path.Combine(modsPath, modPath, "Assets.xml")))
                     {
                         var assetsDoc = XDocument.Load(modFS);
+
+                        var autoFind = false;
+                        var autoFindAtt = assetsDoc.Root.Attribute("AutoFind");
+                        if (autoFindAtt != null)
+                            autoFind = bool.Parse(autoFindAtt.Value);
 
                         foreach (var asset in assetsDoc.Root.Elements("Asset"))
                         {
@@ -49,10 +57,29 @@ namespace PandaEngine
                             var assetPath = asset.Attribute("FilePath").Value;
 
                             if (!_assetData.ContainsKey(assetName))
-                                _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = modsPath + modPath + assetPath });
+                                _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(modsPath, modPath, assetPath) });
                             else
                                 _assetData[assetName].FilePath = modsPath + modPath + assetPath;
                         } // foreach asset
+
+                        if (autoFind)
+                        {
+                            var dirPath = Path.Combine(modsPath, modPath);
+                            var directoryPaths = Directory.GetDirectories(dirPath);
+                            var directoryList = new List<DirectoryInfo>();
+
+                            directoryList.Add(new DirectoryInfo(Path.Combine(modsPath, modPath)));
+                            directoryList.AddRange(directoryPaths.Select(d => new DirectoryInfo(d)).ToList());
+
+                            foreach (var dir in directoryList)
+                            {
+                                foreach (var file in dir.GetFiles())
+                                {
+                                    if (!_assetData.ContainsKey(file.Name))
+                                        _assetData.Add(file.Name, new Asset() { Name = file.Name, FilePath = Path.Combine(modsPath, modPath, Path.GetRelativePath(dirPath, file.FullName)) });
+                                }
+                            }
+                        } // if autoFind
                     }
                 } // foreach mod
             }
