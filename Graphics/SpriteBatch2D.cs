@@ -27,6 +27,14 @@ namespace PandaEngine
         Both
     }
 
+    public enum VertexTemplateType
+    {
+        TopLeft = 0,
+        TopRight,
+        BottomLeft,
+        BottomRight
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SpriteBatch2DVertex
     {
@@ -69,6 +77,13 @@ namespace PandaEngine
         // Shared static resources
         protected static bool _staticResLoaded = false;
         protected static Shader[] _shaders;
+        protected static Vector2[] _vertexTemplate = new Vector2[]
+        {
+            new Vector2(0f, 0f),
+            new Vector2(1f, 0f),
+            new Vector2(0f, 1f),
+            new Vector2(1f, 1f),
+        };
 
         // Rendering
         protected Matrix4x4 _projection;
@@ -283,21 +298,146 @@ namespace PandaEngine
                 scale = new Vector2(1f, 1f);
 
             var spriteScale = new Vector2(sourceRect.Value.Width, sourceRect.Value.Height) * scale.Value;
+            var spriteOrigin = origin.Value * scale.Value;
+            var texelWidth = texture.TexelWidth;
+            var texelHeight = texture.TexelHeight;
+            var flipX = (flip == SpriteFlipType.Horizontal || flip == SpriteFlipType.Both);
+            var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
+            var source = sourceRect.Value;
+            
+            var sin = 0.0f;
+            var cos = 0.0f;
+            var nOriginX = -spriteOrigin.X;
+            var nOriginY = -spriteOrigin.Y;
 
-            var worldMatrix = Matrix3x2.Identity;
+            if (rotation != 0.0f)
+            {
+                var radians = rotation.ToRadians();
+                sin = MathF.Sin(radians);
+                cos = MathF.Cos(radians);
+            }
 
-            worldMatrix *= Matrix3x2.CreateScale(spriteScale);
-            worldMatrix *= Matrix3x2.CreateRotation(rotation.ToRadians());
-            worldMatrix *= Matrix3x2.CreateTranslation(position);
+            var batchItem = new SpriteBatchItem
+            {
+                Texture = texture,
+                VertexData = new SpriteBatch2DVertex[4],
+            };
 
-            //worldMatrix *= Matrix3x2.CreateScale(spriteScale);
-            //worldMatrix *= Matrix3x2.CreateRotation(rotation.ToRadians());
-            //worldMatrix *= Matrix3x2.CreateTranslation(position);
-            //worldMatrix *= Matrix3x2.CreateTranslation(origin.Value);
-            //worldMatrix *= Matrix3x2.CreateRotation(rotation.ToRadians());
+            for (var i = 0; i < _vertexTemplate.Length; i++)
+            {
+                var x = _vertexTemplate[i].X;
+                var y = _vertexTemplate[i].Y;
+                var w = spriteScale.X * x;
+                var h = spriteScale.Y * y;
 
-            Draw(texture, worldMatrix, colour, sourceRect, flip);
-        }
+                batchItem.VertexData[i].Colour = colour.Value;
+
+                switch ((VertexTemplateType)i)
+                {
+                    case VertexTemplateType.TopLeft:
+                        {
+                            if (flipX)
+                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
+                            else
+                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
+
+                            if (flipY)
+                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
+                            else
+                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
+
+                            if (rotation == 0.0f)
+                            {
+                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X);
+                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y);
+                            }
+                            else
+                            {
+                                batchItem.VertexData[i].Position.X = position.X + nOriginX * cos - nOriginY * sin;
+                                batchItem.VertexData[i].Position.Y = position.Y + nOriginX * sin + nOriginY * cos;
+                            }
+                        }
+                        break;
+
+                    case VertexTemplateType.TopRight:
+                        {
+                            if (flipX)
+                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
+                            else
+                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
+
+                            if (flipY)
+                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
+                            else
+                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
+
+                            if (rotation == 0.0f)
+                            {
+                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X) + w;
+                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y);
+                            }
+                            else
+                            {
+                                batchItem.VertexData[i].Position.X = position.X + (nOriginX + w) * cos - nOriginY * sin;
+                                batchItem.VertexData[i].Position.Y = position.Y + (nOriginX + w) * sin + nOriginY * cos;
+                            }
+                        }
+                        break;
+
+                    case VertexTemplateType.BottomLeft:
+                        {
+                            if (flipX)
+                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
+                            else
+                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
+
+                            if (flipY)
+                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
+                            else
+                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
+
+                            if (rotation == 0.0f)
+                            {
+                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X);
+                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y) + h;
+                            }
+                            else
+                            {
+                                batchItem.VertexData[i].Position.X = position.X + nOriginX * cos - (nOriginY + h) * sin;
+                                batchItem.VertexData[i].Position.Y = position.Y + nOriginX * sin + (nOriginY + h) * cos;
+                            }
+                        }
+                        break;
+
+                    case VertexTemplateType.BottomRight:
+                        {
+                            if (flipX)
+                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
+                            else
+                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
+
+                            if (flipY)
+                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
+                            else
+                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
+
+                            if (rotation == 0.0f)
+                            {
+                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X) + w;
+                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y) + h;
+                            }
+                            else
+                            {
+                                batchItem.VertexData[i].Position.X = position.X + (nOriginX + w) * cos - (nOriginY + h) * sin;
+                                batchItem.VertexData[i].Position.Y = position.Y + (nOriginX + w) * sin + (nOriginY + h) * cos;
+                            }
+                        }
+                        break;
+                }
+            }
+
+            _batchItems.Add(batchItem);
+        } // Draw
 
         public void Draw(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? colour = null, Rectangle? sourceRect = null, SpriteFlipType flip = SpriteFlipType.None)
         {
