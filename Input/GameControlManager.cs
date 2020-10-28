@@ -33,7 +33,7 @@ namespace PandaEngine
         {
 
         }
-                
+
         internal static void HandleKeyPressed(Key key)
         {
         }
