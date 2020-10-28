@@ -15,7 +15,6 @@ namespace PandaEngine
         public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
         public CommandList CommandList => PandaGlobals.CommandList;
         public SpriteBatch2D SpriteBatch2D => PandaGlobals.SpriteBatch2D;
-        public AssetManager AssetManager => PandaGlobals.AssetManager;
 
         // Graphics settings
         public RgbaFloat ClearColor { get; set; } = RgbaFloat.Black;
@@ -102,7 +101,7 @@ namespace PandaEngine
 
         public void SetupAssets(string modsPath = "Mods")
         {
-            PandaGlobals.AssetManager.Load(modsPath);
+            AssetManager.Load(modsPath);
         }
 
         public virtual void CreateGraphicsResources()
@@ -126,7 +125,7 @@ namespace PandaEngine
         {
             CurrentGameState?.Unload();
             CurrentGameState = newState;
-            CurrentGameState?.Load(PandaGlobals.AssetManager);
+            CurrentGameState?.Load();
         }
 
         public void Quit() => _quit = true;

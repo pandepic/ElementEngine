@@ -6,7 +6,7 @@ namespace PandaEngine
 {
     public class GameState
     {
-        public virtual void Load(AssetManager assetManager)
+        public virtual void Load()
         {
         }
 
