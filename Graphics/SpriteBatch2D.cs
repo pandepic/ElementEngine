@@ -11,14 +11,14 @@ using Veldrid.SPIRV;
 
 namespace PandaEngine
 {
-    public enum eSamplerType
+    public enum SamplerType
     {
         Point,
         Linear,
         Aniso4x
     }
 
-    public enum eSpriteFlip
+    public enum SpriteFlipType
     {
         None,
         Vertical,
@@ -245,19 +245,19 @@ namespace PandaEngine
                 _shaders[i]?.Dispose();
         }
 
-        public void Begin(eSamplerType samplerType, Matrix4x4? view = null)
+        public void Begin(SamplerType samplerType, Matrix4x4? view = null)
         {
             switch (samplerType)
             {
-                case eSamplerType.Point:
+                case SamplerType.Point:
                     Begin(GraphicsDevice.PointSampler, view);
                     break;
 
-                case eSamplerType.Linear:
+                case SamplerType.Linear:
                     Begin(GraphicsDevice.LinearSampler, view);
                     break;
 
-                case eSamplerType.Aniso4x:
+                case SamplerType.Aniso4x:
                     Begin(GraphicsDevice.Aniso4xSampler, view);
                     break;
 
@@ -280,7 +280,7 @@ namespace PandaEngine
             _begin = true;
         }
 
-        public void Draw(Texture2D texture, Vector2 position, RgbaFloat? colour = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, eSpriteFlip flip = eSpriteFlip.None)
+        public void Draw(Texture2D texture, Vector2 position, RgbaFloat? colour = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!colour.HasValue)
                 colour = RgbaFloat.White;
@@ -303,7 +303,7 @@ namespace PandaEngine
             Draw(texture, worldMatrix, colour, sourceRect, flip);
         }
 
-        public void Draw(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? colour = null, Rectangle? sourceRect = null, eSpriteFlip flip = eSpriteFlip.None)
+        public void Draw(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? colour = null, Rectangle? sourceRect = null, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
@@ -322,8 +322,8 @@ namespace PandaEngine
             var texelWidth = texture.TexelWidth;
             var texelHeight = texture.TexelHeight;
             var source = sourceRect.Value;
-            var flipX = (flip == eSpriteFlip.Horizontal || flip == eSpriteFlip.Both);
-            var flipY = (flip == eSpriteFlip.Vertical || flip == eSpriteFlip.Both);
+            var flipX = (flip == SpriteFlipType.Horizontal || flip == SpriteFlipType.Both);
+            var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
 
             // top left
             batchItem.VertexData[0] = new SpriteBatch2DVertex()
