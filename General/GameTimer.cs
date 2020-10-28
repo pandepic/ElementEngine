@@ -9,6 +9,9 @@ namespace PandaEngine
         protected TimeSpan _frameTime;
         public TimeSpan FrameTime { get => _frameTime; }
 
+        public float DeltaS { get => (float)FrameTime.TotalSeconds; }
+        public float DeltaMS { get => (float)FrameTime.TotalMilliseconds; }
+
         public GameTimer()
         {
             _frameTime = TimeSpan.Zero;

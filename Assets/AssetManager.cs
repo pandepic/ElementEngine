@@ -5,6 +5,7 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.PortableExecutable;
@@ -33,6 +34,8 @@ namespace PandaEngine
 
         public void Load(string modsPath)
         {
+            var stopWatch = Stopwatch.StartNew();
+
             using (var fs = File.OpenRead(Path.Combine(modsPath, "Mods.xml")))
             {
                 var modsDoc = XDocument.Load(fs);
@@ -76,13 +79,19 @@ namespace PandaEngine
                                 foreach (var file in dir.GetFiles())
                                 {
                                     if (!_assetData.ContainsKey(file.Name))
+                                    {
                                         _assetData.Add(file.Name, new Asset() { Name = file.Name, FilePath = Path.Combine(modsPath, modPath, Path.GetRelativePath(dirPath, file.FullName)) });
+                                        Logging.Logger.Information("Loaded asset {name} from {mod}.", file.Name, modName);
+                                    }
                                 }
                             }
                         } // if autoFind
                     }
                 } // foreach mod
             }
+
+            stopWatch.Stop();
+            Logging.Logger.Information("{count} mod assets loaded from {path} in {time:0.00} ms.", _assetData.Count, modsPath, stopWatch.ElapsedMilliseconds);
         } // Load
 
         public void Clear()
@@ -109,6 +118,8 @@ namespace PandaEngine
             if (_assetCache.ContainsKey(assetName))
                 return (Texture2D)_assetCache[assetName];
 
+            var stopWatch = Stopwatch.StartNew();
+
             using (var fs = GetAssetStream(assetName))
             {
                 var textureData = new ImageSharpTexture(fs, mipmap);
@@ -118,6 +129,9 @@ namespace PandaEngine
 
                 _assetCache.Add(assetName, newTexture);
                 _disposableAssets.Add(newTexture);
+
+                stopWatch.Stop();
+                Logging.Logger.Information("{type} loaded from asset {name} in {time:0.00} ms.", "Texture2D", assetName, stopWatch.ElapsedMilliseconds);
                 
                 return newTexture;
             }

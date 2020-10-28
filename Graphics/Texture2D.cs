@@ -63,12 +63,12 @@ namespace PandaEngine
                 _texture.Name = name;
         }
 
-        public Texture2D(uint width, uint height, RgbaFloat colour, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled)
+        public Texture2D(uint width, uint height, RgbaFloat color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled)
         {
             unsafe
             {
                 _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
-                PandaGlobals.GraphicsDevice.UpdateTexture(_texture, (IntPtr)(&colour), (uint)(sizeof(RgbaFloat) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
+                PandaGlobals.GraphicsDevice.UpdateTexture(_texture, (IntPtr)(&color), (uint)(sizeof(RgbaFloat) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
                 
                 Description = new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D);
 

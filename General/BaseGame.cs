@@ -18,7 +18,7 @@ namespace PandaEngine
         public AssetManager AssetManager => PandaGlobals.AssetManager;
 
         // Graphics settings
-        public RgbaFloat ClearColour { get; set; } = RgbaFloat.Black;
+        public RgbaFloat ClearColor { get; set; } = RgbaFloat.Black;
         public Viewport Viewport { get; set; }
 
         // Timing
@@ -74,6 +74,8 @@ namespace PandaEngine
 
         public void SetupWindow(Rectangle windowRect, string gameTitle, GraphicsBackend graphicsBackend, bool vsync = false)
         {
+            Logging.Load();
+
             GameTitle = gameTitle;
 
             var windowCI = new WindowCreateInfo()
@@ -93,7 +95,6 @@ namespace PandaEngine
             }, graphicsBackend);
 
             CreateGraphicsResources();
-
             PandaGlobals.Load(this);
 
             Viewport = new Viewport(0f, 0f, PandaGlobals.Window.Width, PandaGlobals.Window.Height, 0f, 1f);
@@ -191,7 +192,7 @@ namespace PandaEngine
             CommandList.Begin();
             CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
             CommandList.SetViewport(0, Viewport);
-            CommandList.ClearColorTarget(0, ClearColour);
+            CommandList.ClearColorTarget(0, ClearColor);
 
             Draw(GameTimer);
             CurrentGameState?.Draw(GameTimer);

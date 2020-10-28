@@ -28,7 +28,11 @@ namespace PandaEngine
                 Origin = new Vector2(Width / 2, Height / 2);
         }
 
-        public void Draw(Vector2 position, SpriteBatch2D spriteBatch)
+        public virtual void Update(GameTimer gameTimer)
+        {
+        }
+
+        public virtual void Draw(Vector2 position, SpriteBatch2D spriteBatch)
         {
             spriteBatch.Draw(Texture, position, Color, SourceRect, Scale, Origin, Rotation, Flip);
         }

@@ -40,7 +40,7 @@ namespace PandaEngine
     {
         public Vector2 Position;
         public Vector2 TexCoords;
-        public RgbaFloat Colour;
+        public RgbaFloat Color;
     }
 
     public struct SpriteBatchItem
@@ -286,10 +286,13 @@ namespace PandaEngine
             _begin = true;
         }
 
-        public void Draw(Texture2D texture, Vector2 position, RgbaFloat? colour = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, SpriteFlipType flip = SpriteFlipType.None)
+        public void Draw(Texture2D texture, Vector2 position, RgbaFloat? color = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, SpriteFlipType flip = SpriteFlipType.None)
         {
-            if (!colour.HasValue)
-                colour = RgbaFloat.White;
+            if (!_begin)
+                throw new Exception("You must begin a batch before you can call Draw.");
+
+            if (!color.HasValue)
+                color = RgbaFloat.White;
             if (!sourceRect.HasValue)
                 sourceRect = new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
             if (!origin.HasValue)
@@ -330,7 +333,7 @@ namespace PandaEngine
                 var w = spriteScale.X * x;
                 var h = spriteScale.Y * y;
 
-                batchItem.VertexData[i].Colour = colour.Value;
+                batchItem.VertexData[i].Color = color.Value;
 
                 switch ((VertexTemplateType)i)
                 {
@@ -439,13 +442,13 @@ namespace PandaEngine
             _batchItems.Add(batchItem);
         } // Draw
 
-        public void Draw(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? colour = null, Rectangle? sourceRect = null, SpriteFlipType flip = SpriteFlipType.None)
+        public void Draw(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? color = null, Rectangle? sourceRect = null, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
 
-            if (!colour.HasValue)
-                colour = RgbaFloat.White;
+            if (!color.HasValue)
+                color = RgbaFloat.White;
             if (!sourceRect.HasValue)
                 sourceRect = new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
             
@@ -468,7 +471,7 @@ namespace PandaEngine
                 TexCoords = new Vector2(
                     flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
                     flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                Colour = colour.Value
+                Color = color.Value
             };
 
             // top right
@@ -478,7 +481,7 @@ namespace PandaEngine
                 TexCoords = new Vector2(
                     flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
                     flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                Colour = colour.Value
+                Color = color.Value
             };
 
             // bottom left
@@ -488,7 +491,7 @@ namespace PandaEngine
                 TexCoords = new Vector2(
                     flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
                     flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                Colour = colour.Value
+                Color = color.Value
             };
 
             // bottom right
@@ -498,7 +501,7 @@ namespace PandaEngine
                 TexCoords = new Vector2(
                     flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
                     flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                Colour = colour.Value
+                Color = color.Value
             };
 
             _batchItems.Add(batchItem);
