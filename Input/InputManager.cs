@@ -91,7 +91,7 @@ namespace PandaEngine
                     else
                         HandleKeyReleased(keyEvent.Key);
                 }
-            } // for KeyEvents
+            } // KeyEvents
             
             for (var i = 0; i < snapshot.MouseEvents.Count; i++)
             {
@@ -122,7 +122,7 @@ namespace PandaEngine
                     else
                         HandleMouseButtonReleased(mouseEvent.MouseButton);
                 }
-            }
+            } // MouseEvents
 
             PrevSnapshot = snapshot;
         }
@@ -159,21 +159,18 @@ namespace PandaEngine
 
         public static void HandleMouseButtonPressed(MouseButton button)
         {
-            Console.WriteLine("Pressed " + button);
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i].HandleMouseButtonPressed(MousePosition, button);
         }
 
         public static void HandleMouseButtonReleased(MouseButton button)
         {
-            Console.WriteLine("Released " + button);
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i].HandleMouseButtonReleased(MousePosition, button);
         }
 
         public static void HandleMouseButtonDown(MouseButton button)
         {
-            Console.WriteLine("Down " + button);
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i].HandleMouseButtonDown(MousePosition, button);
         }
