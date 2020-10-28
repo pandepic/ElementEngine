@@ -14,18 +14,18 @@ namespace PandaEngine
 
     public interface IKeyboardHandler
     {
-        void HandleKeyPressed(Key key);
-        void HandleKeyReleased(Key key);
-        void HandleKeyDown(Key key);
+        public void HandleKeyPressed(Key key) { }
+        public void HandleKeyReleased(Key key) { }
+        public void HandleKeyDown(Key key) { }
     }
 
     public interface IMouseHandler
     {
-        void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition);
-        void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button);
-        void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button);
-        void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button);
-        void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta);
+        public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition) { }
+        public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button) { }
+        public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button) { }
+        public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button) { }
+        public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta) { }
     }
 
     public static class InputManager
