@@ -97,7 +97,7 @@ namespace PandaEngine
             throw new Exception("Couldn't delete object, wasn't found alive in pool.");
         }
 
-        public T New(bool resize = true)
+        public T New()
         {
             if ((_lastActiveIndex + 1) >= Size)
             {
@@ -133,8 +133,11 @@ namespace PandaEngine
 
             for (var i = 0; i < count; i++)
             {
-                var obj = new T();
-                obj.IsAlive = false;
+                var obj = new T
+                {
+                    IsAlive = false
+                };
+
                 Buffer[newIndex] = obj;
 
                 newIndex++;

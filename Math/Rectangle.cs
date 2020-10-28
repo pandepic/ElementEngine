@@ -12,9 +12,10 @@ namespace PandaEngine
         public int Width { get; set; }
         public int Height { get; set; }
 
-        public bool IsZero => (X == 0 && Y == 0 && Width == 0 && Height == 0);
+        public bool IsZero => X == 0 && Y == 0 && Width == 0 && Height == 0;
 
         public static Rectangle Empty = new Rectangle(0, 0, 0, 0);
+        public bool IsEmpty => this == Empty;
 
         public Point Location
         {
@@ -89,5 +90,21 @@ namespace PandaEngine
         {
             return string.Format("{0}, {1}, {2}, {3}", X, Y, Width, Height);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Rectangle rect)
+                return rect == this;
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode() ^ Width.GetHashCode() ^ Height.GetHashCode();
+        }
+
+        public static bool operator ==(Rectangle rect1, Rectangle rect2) => rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
+        public static bool operator !=(Rectangle rect1, Rectangle rect2) => rect1 != rect2;
     }
 }

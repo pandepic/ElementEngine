@@ -137,8 +137,6 @@ namespace PandaEngine
 
             while (Window.Exists && !_quit)
             {
-                var inputSnapshot = Window.PumpEvents();
-
                 _currentTicks = _stopWatch.Elapsed.Ticks;
                 var newTicks = TimeSpan.FromTicks(_currentTicks - _prevTicks);
                 _totalFrameTime += newTicks;
@@ -182,7 +180,8 @@ namespace PandaEngine
                     }
                 }
 
-                PandaGlobals.InputManager.Update(inputSnapshot, GameTimer);
+                var inputSnapshot = Window.PumpEvents();
+                InputManager.Update(inputSnapshot, GameTimer);
             }
         } // Run
 

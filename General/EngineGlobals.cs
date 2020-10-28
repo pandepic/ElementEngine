@@ -16,7 +16,6 @@ namespace PandaEngine
 
         // Engine systems
         public static BaseGame Game;
-        public static InputManager InputManager;
 
         protected static bool _loaded = false;
 
@@ -25,7 +24,6 @@ namespace PandaEngine
         public static void Load(BaseGame game)
         {
             Game = game;
-            InputManager = new InputManager();
             SpriteBatch2D = new SpriteBatch2D();
 
             _loaded = true;
