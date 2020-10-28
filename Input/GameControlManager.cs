@@ -10,12 +10,6 @@ namespace PandaEngine
     {
         private class GameControlInputManager : IKeyboardHandler, IMouseHandler
         {
-            public GameControlInputManager()
-            {
-                InputManager.AddKeyboardHandler(this);
-                InputManager.AddMouseHandler(this);
-            }
-
             public void HandleKeyPressed(Key key) { GameControlManager.HandleKeyPressed(key); }
             public void HandleKeyReleased(Key key) { GameControlManager.HandleKeyReleased(key); }
             public void HandleKeyDown(Key key) { GameControlManager.HandleKeyDown(key); }
@@ -27,11 +21,12 @@ namespace PandaEngine
             public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta) { GameControlManager.HandleMouseWheel(mousePosition, type, mouseWheelDelta); }
         } // GameControlInputManager
 
-        private static GameControlInputManager _gameControlInputManager = new GameControlInputManager();
+        private static readonly GameControlInputManager _gameControlInputManager = new GameControlInputManager();
 
         public static void Load()
         {
-
+            InputManager.AddKeyboardHandler(_gameControlInputManager);
+            InputManager.AddMouseHandler(_gameControlInputManager);
         }
 
         internal static void HandleKeyPressed(Key key)
