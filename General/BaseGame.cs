@@ -20,7 +20,6 @@ namespace PandaEngine
 
         // Graphics settings
         public RgbaFloat ClearColor { get; set; } = RgbaFloat.Black;
-        public Viewport Viewport { get; set; }
 
         // Timing
         public GameTimer GameTimer { get; set; }
@@ -99,7 +98,7 @@ namespace PandaEngine
             CreateGraphicsResources();
             PandaGlobals.Load(this);
 
-            Viewport = new Viewport(0f, 0f, PandaGlobals.Window.Width, PandaGlobals.Window.Height, 0f, 1f);
+            PandaGlobals.Viewport = new Viewport(0f, 0f, PandaGlobals.Window.Width, PandaGlobals.Window.Height, 0f, 1f);
         }
 
         public void SetupAssets(string modsPath = "Mods")
@@ -191,8 +190,8 @@ namespace PandaEngine
         protected void HandleDraw()
         {
             CommandList.Begin();
-            CommandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
-            CommandList.SetViewport(0, Viewport);
+            PandaGlobals.ResetFramebuffer();
+            PandaGlobals.ResetViewport();
             CommandList.ClearColorTarget(0, ClearColor);
 
             Draw(GameTimer);

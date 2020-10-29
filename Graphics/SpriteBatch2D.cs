@@ -135,6 +135,10 @@ namespace PandaEngine
         {
         }
 
+        public SpriteBatch2D(Texture2D target) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription)
+        {
+        }
+
         public unsafe SpriteBatch2D(int width, int height, OutputDescription output)
         {
             _batchItems = new List<SpriteBatchItem>();
@@ -567,7 +571,7 @@ namespace PandaEngine
                 _textureSets.Add(texture.AssetName, newTextureSet);
                 CommandList.SetGraphicsResourceSet(1, newTextureSet);
             }
-
+            
             CommandList.DrawIndexed((uint)(count * IndicesPerQuad));
             count = 0;
         }

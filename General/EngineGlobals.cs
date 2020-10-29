@@ -13,6 +13,7 @@ namespace PandaEngine
         public static GraphicsDevice GraphicsDevice;
         public static CommandList CommandList;
         public static SpriteBatch2D SpriteBatch2D;
+        public static Viewport Viewport;
 
         // Engine systems
         public static BaseGame Game;
@@ -40,5 +41,21 @@ namespace PandaEngine
 
             _loaded = false;
         }
-    }
+
+        public static void ResetFramebuffer(CommandList commandList = null)
+        {
+            if (commandList == null)
+                commandList = CommandList;
+
+            commandList.SetFramebuffer(GraphicsDevice.SwapchainFramebuffer);
+        }
+
+        public static void ResetViewport(CommandList commandList = null)
+        {
+            if (commandList == null)
+                commandList = CommandList;
+
+            commandList.SetViewport(0, Viewport);
+        }
+    } // PandaGlobals
 }

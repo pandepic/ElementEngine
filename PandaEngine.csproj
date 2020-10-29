@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AI\" />
+    <Folder Include="Audio\" />
     <Folder Include="UI\IMGUI\" />
   </ItemGroup>
 

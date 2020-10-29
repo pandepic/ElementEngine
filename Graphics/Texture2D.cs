@@ -16,6 +16,7 @@ namespace PandaEngine
 
         public TextureDescription Description { get; protected set; }
 
+        public string TextureName { get; set; }
         public string AssetName { get; set; }
 
         public float TexelWidth { get => 1.0f / _texture.Width; }
@@ -25,6 +26,9 @@ namespace PandaEngine
         public int Height { get => (int)_texture.Height; }
         public Vector2i Size { get => new Vector2i(Width, Height); }
         public Vector2 SizeF { get => Size.ToVector2(); }
+
+        protected Texture _framebufferTexture = null;
+        protected Framebuffer _framebuffer = null;
 
         #region IDisposable
         protected bool _disposed = false;
@@ -41,7 +45,8 @@ namespace PandaEngine
             {
                 if (disposing)
                 {
-                    _texture.Dispose();
+                    _texture?.Dispose();
+                    _framebuffer?.Dispose();
                 }
 
                 _disposed = true;
@@ -60,20 +65,38 @@ namespace PandaEngine
             _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
 
             if (name != null)
+            {
                 _texture.Name = name;
+                TextureName = name;
+            }
+
+            AssetName = Guid.NewGuid().ToString();
         }
 
-        public Texture2D(uint width, uint height, RgbaFloat color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled)
+        public Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled)
         {
             unsafe
             {
+                var data = new RgbaByte[width * height];
+                for (var i = 0; i < data.Length; i++)
+                    data[i] = color;
+
+                GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
+
                 _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
-                PandaGlobals.GraphicsDevice.UpdateTexture(_texture, (IntPtr)(&color), (uint)(sizeof(RgbaFloat) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
-                
+                PandaGlobals.GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
+
+                pinnedArray.Free();
+
                 Description = new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D);
 
                 if (name != null)
+                {
                     _texture.Name = name;
+                    TextureName = name;
+                }
+
+                AssetName = Guid.NewGuid().ToString();
             }
         }
 
@@ -91,6 +114,60 @@ namespace PandaEngine
         {
             PandaGlobals.GraphicsDevice.UpdateTexture(_texture, data.ToArray(), (uint)destination.X, (uint)destination.Y, 0u, (uint)destination.Width, (uint)destination.Height, 1u, 0u, 0u);
         }
+
+        public Framebuffer GetFramebuffer()
+        {
+            if (_framebuffer == null)
+            {
+                _framebuffer = PandaGlobals.GraphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription()
+                {
+                    ColorTargets = new FramebufferAttachmentDescription[]
+                    {
+                        new FramebufferAttachmentDescription(GetFramebufferTexture(), 0),
+                    },
+                });
+            }
+
+            return _framebuffer;
+
+        } // GetFramebuffer
+
+        public Texture GetFramebufferTexture()
+        {
+            if (_framebufferTexture == null)
+                _framebufferTexture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(Data.Width, Data.Height, Data.Depth, Data.MipLevels, Data.ArrayLayers, Data.Format, TextureUsage.RenderTarget, TextureType.Texture2D));
+
+            return _framebufferTexture;
+        }
+
+        public void BeginRenderTarget(CommandList commandList = null)
+        {
+            if (commandList == null)
+                commandList = PandaGlobals.CommandList;
+
+            commandList.SetFramebuffer(GetFramebuffer());
+            commandList.SetViewport(0, new Viewport(0, 0, Width, Height, 0f, 1f));
+
+        } // BeginRenderTarget
+
+        public void EndRenderTarget(CommandList commandList = null)
+        {
+            if (commandList == null)
+                commandList = PandaGlobals.CommandList;
+
+            PandaGlobals.ResetFramebuffer(commandList);
+            PandaGlobals.ResetViewport(commandList);
+            commandList.CopyTexture(GetFramebufferTexture(), Data);
+        }
+
+        public void RenderTargetClear(RgbaFloat color, CommandList commandList = null)
+        {
+            if (commandList == null)
+                commandList = PandaGlobals.CommandList;
+
+            commandList.ClearColorTarget(0, color);
+
+        } // RenderTargetClear
 
     } // Texture2D
 }

@@ -125,8 +125,10 @@ namespace PandaEngine
             var deviceTexture = textureData.CreateDeviceTexture(PandaGlobals.GraphicsDevice, PandaGlobals.GraphicsDevice.ResourceFactory);
             var newTexture = new Texture2D(deviceTexture)
             {
+                TextureName = assetName,
                 AssetName = assetName
             };
+            newTexture.Data.Name = assetName;
 
             _assetCache.Add(assetName, newTexture);
             _disposableAssets.Add(newTexture);
