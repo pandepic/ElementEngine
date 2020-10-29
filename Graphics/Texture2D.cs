@@ -27,7 +27,6 @@ namespace PandaEngine
         public Vector2i Size { get => new Vector2i(Width, Height); }
         public Vector2 SizeF { get => Size.ToVector2(); }
 
-        protected Texture _framebufferTexture = null;
         protected Framebuffer _framebuffer = null;
         protected SpriteBatch2D _renderTargetSpriteBatch2D = null;
 
@@ -61,7 +60,7 @@ namespace PandaEngine
             Description = _texture.GetDescription();
         }
 
-        public Texture2D(uint width, uint height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled)
+        public Texture2D(uint width, uint height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
             _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
 
@@ -74,7 +73,7 @@ namespace PandaEngine
             AssetName = Guid.NewGuid().ToString();
         }
 
-        public Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled)
+        public Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
             unsafe
             {
@@ -124,7 +123,7 @@ namespace PandaEngine
                 {
                     ColorTargets = new FramebufferAttachmentDescription[]
                     {
-                        new FramebufferAttachmentDescription(GetFramebufferTexture(), 0),
+                        new FramebufferAttachmentDescription(Data, 0),
                     },
                 });
             }
@@ -132,14 +131,6 @@ namespace PandaEngine
             return _framebuffer;
 
         } // GetFramebuffer
-
-        public Texture GetFramebufferTexture()
-        {
-            if (_framebufferTexture == null)
-                _framebufferTexture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(Data.Width, Data.Height, Data.Depth, Data.MipLevels, Data.ArrayLayers, Data.Format, TextureUsage.RenderTarget, TextureType.Texture2D));
-
-            return _framebufferTexture;
-        }
 
         public void BeginRenderTarget(CommandList commandList = null)
         {
@@ -158,7 +149,6 @@ namespace PandaEngine
 
             PandaGlobals.ResetFramebuffer(commandList);
             PandaGlobals.ResetViewport(commandList);
-            commandList.CopyTexture(GetFramebufferTexture(), Data);
         }
 
         public void RenderTargetClear(RgbaFloat color, CommandList commandList = null)
@@ -176,7 +166,7 @@ namespace PandaEngine
                 _renderTargetSpriteBatch2D = new SpriteBatch2D(this);
 
             return _renderTargetSpriteBatch2D;
-        }
+        } // GetRenderTargetSpriteBatch2D
 
     } // Texture2D
 }
