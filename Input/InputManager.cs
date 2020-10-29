@@ -14,18 +14,18 @@ namespace PandaEngine
 
     public interface IKeyboardHandler
     {
-        public void HandleKeyPressed(Key key) { }
-        public void HandleKeyReleased(Key key) { }
-        public void HandleKeyDown(Key key) { }
+        public void HandleKeyPressed(Key key, GameTimer gameTimer) { }
+        public void HandleKeyReleased(Key key, GameTimer gameTimer) { }
+        public void HandleKeyDown(Key key, GameTimer gameTimer) { }
     }
 
     public interface IMouseHandler
     {
-        public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition) { }
-        public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button) { }
-        public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button) { }
-        public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button) { }
-        public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta) { }
+        public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
+        public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer) { }
     }
 
     public static class InputManager
@@ -41,6 +41,25 @@ namespace PandaEngine
         private readonly static List<IKeyboardHandler> _keyboardHandlers = new List<IKeyboardHandler>();
         private readonly static List<IMouseHandler> _mouseHandlers = new List<IMouseHandler>();
 
+        private static GameControlsManager _gameControlsManager;
+
+        public static void LoadGameControls(string settingsSection = "Controls")
+        {
+            _gameControlsManager = new GameControlsManager(settingsSection);
+            AddKeyboardHandler(_gameControlsManager);
+            AddMouseHandler(_gameControlsManager);
+        }
+
+        public static void AddGameControlHandler(IHandleGameControls handler)
+        {
+            _gameControlsManager.Handlers.Add(handler);
+        }
+
+        public static void RemoveGameControlHandler(IHandleGameControls handler)
+        {
+            _gameControlsManager.Handlers.Remove(handler);
+        }
+
         public static bool IsKeyDown(Key key)
         {
             if (KeysDown.TryGetValue(key, out bool down))
@@ -49,18 +68,18 @@ namespace PandaEngine
                 return false;
         }
 
-        public static void Update(InputSnapshot snapshot)
+        public static void Update(InputSnapshot snapshot, GameTimer gameTimer)
         {
             PrevMousePosition = MousePosition;
             MousePosition = snapshot.MousePosition;
             
             if (MousePosition != PrevMousePosition)
-                HandleMouseMotion();
+                HandleMouseMotion(gameTimer);
 
             MouseWheelDelta = snapshot.WheelDelta;
 
             if (MouseWheelDelta != 0)
-                HandleMouseWheel();
+                HandleMouseWheel(gameTimer);
 
             for (var i = 0; i < snapshot.KeyEvents.Count; i++)
             {
@@ -73,13 +92,13 @@ namespace PandaEngine
                         KeysDown[keyEvent.Key] = keyEvent.Down;
 
                         if (keyEvent.Down)
-                            HandleKeyPressed(keyEvent.Key);
+                            HandleKeyPressed(keyEvent.Key, gameTimer);
                         else
-                            HandleKeyReleased(keyEvent.Key);
+                            HandleKeyReleased(keyEvent.Key, gameTimer);
                     }
                     else if (keyEvent.Down)
                     {
-                        HandleKeyDown(keyEvent.Key);
+                        HandleKeyDown(keyEvent.Key, gameTimer);
                     }
                 }
                 else
@@ -87,9 +106,9 @@ namespace PandaEngine
                     KeysDown.Add(keyEvent.Key, keyEvent.Down);
 
                     if (keyEvent.Down)
-                        HandleKeyPressed(keyEvent.Key);
+                        HandleKeyPressed(keyEvent.Key, gameTimer);
                     else
-                        HandleKeyReleased(keyEvent.Key);
+                        HandleKeyReleased(keyEvent.Key, gameTimer);
                 }
             } // KeyEvents
             
@@ -104,13 +123,13 @@ namespace PandaEngine
                         MouseButtonsDown[mouseEvent.MouseButton] = mouseEvent.Down;
 
                         if (mouseEvent.Down)
-                            HandleMouseButtonPressed(mouseEvent.MouseButton);
+                            HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
                         else
-                            HandleMouseButtonReleased(mouseEvent.MouseButton);
+                            HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
                     }
                     else if (mouseEvent.Down)
                     {
-                        HandleMouseButtonDown(mouseEvent.MouseButton);
+                        HandleMouseButtonDown(mouseEvent.MouseButton, gameTimer);
                     }
                 }
                 else
@@ -118,61 +137,61 @@ namespace PandaEngine
                     MouseButtonsDown.Add(mouseEvent.MouseButton, mouseEvent.Down);
 
                     if (mouseEvent.Down)
-                        HandleMouseButtonPressed(mouseEvent.MouseButton);
+                        HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
                     else
-                        HandleMouseButtonReleased(mouseEvent.MouseButton);
+                        HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
                 }
             } // MouseEvents
 
             PrevSnapshot = snapshot;
         }
 
-        public static void HandleKeyPressed(Key key)
+        public static void HandleKeyPressed(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
-                _keyboardHandlers[i].HandleKeyPressed(key);
+                _keyboardHandlers[i].HandleKeyPressed(key, gameTimer);
         }
 
-        public static void HandleKeyReleased(Key key)
+        public static void HandleKeyReleased(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
-                _keyboardHandlers[i].HandleKeyReleased(key);
+                _keyboardHandlers[i].HandleKeyReleased(key, gameTimer);
         }
 
-        public static void HandleKeyDown(Key key)
+        public static void HandleKeyDown(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
-                _keyboardHandlers[i].HandleKeyDown(key);
+                _keyboardHandlers[i].HandleKeyDown(key, gameTimer);
         }
 
-        public static void HandleMouseMotion()
+        public static void HandleMouseMotion(GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
-                _mouseHandlers[i].HandleMouseMotion(MousePosition, PrevMousePosition);
+                _mouseHandlers[i].HandleMouseMotion(MousePosition, PrevMousePosition, gameTimer);
         }
 
-        public static void HandleMouseWheel()
+        public static void HandleMouseWheel(GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
-                _mouseHandlers[i].HandleMouseWheel(MousePosition, MouseWheelDelta > 0 ? MouseWheelChangeType.Up : MouseWheelChangeType.Down, MouseWheelDelta);
+                _mouseHandlers[i].HandleMouseWheel(MousePosition, MouseWheelDelta > 0 ? MouseWheelChangeType.Up : MouseWheelChangeType.Down, MouseWheelDelta, gameTimer);
         }
 
-        public static void HandleMouseButtonPressed(MouseButton button)
+        public static void HandleMouseButtonPressed(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
-                _mouseHandlers[i].HandleMouseButtonPressed(MousePosition, button);
+                _mouseHandlers[i].HandleMouseButtonPressed(MousePosition, button, gameTimer);
         }
 
-        public static void HandleMouseButtonReleased(MouseButton button)
+        public static void HandleMouseButtonReleased(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
-                _mouseHandlers[i].HandleMouseButtonReleased(MousePosition, button);
+                _mouseHandlers[i].HandleMouseButtonReleased(MousePosition, button, gameTimer);
         }
 
-        public static void HandleMouseButtonDown(MouseButton button)
+        public static void HandleMouseButtonDown(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
-                _mouseHandlers[i].HandleMouseButtonDown(MousePosition, button);
+                _mouseHandlers[i].HandleMouseButtonDown(MousePosition, button, gameTimer);
         }
 
         public static void AddKeyboardHandler(IKeyboardHandler handler) => _keyboardHandlers.Add(handler);

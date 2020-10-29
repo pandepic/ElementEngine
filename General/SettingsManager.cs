@@ -32,8 +32,6 @@ namespace PandaEngine
 
         public static void Load(string filePath)
         {
-            Logging.Logger.Information("[{component}] loading settings from {path}", "SettingsManager", filePath);
-
             var stopWatch = Stopwatch.StartNew();
             var loadedCount = 0;
 

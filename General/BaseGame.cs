@@ -180,7 +180,7 @@ namespace PandaEngine
                 }
 
                 var inputSnapshot = Window.PumpEvents();
-                InputManager.Update(inputSnapshot);
+                InputManager.Update(inputSnapshot, GameTimer);
             }
         } // Run
 

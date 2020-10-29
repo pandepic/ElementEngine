@@ -132,7 +132,7 @@ namespace PandaEngine
             _disposableAssets.Add(newTexture);
 
             stopWatch.Stop();
-            Logging.Logger.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "Texture2D", "AssetManager", assetName, stopWatch.Elapsed.TotalMilliseconds);
+            Logging.Logger.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", "Texture2D", assetName, stopWatch.Elapsed.TotalMilliseconds);
 
             return newTexture;
         } // LoadTexture2D
