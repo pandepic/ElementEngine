@@ -74,31 +74,28 @@ namespace PandaEngine
             AssetName = Guid.NewGuid().ToString();
         }
 
-        public Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
+        public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
-            unsafe
+            var data = new RgbaByte[width * height];
+            for (var i = 0; i < data.Length; i++)
+                data[i] = color;
+
+            GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
+
+            _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
+            PandaGlobals.GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
+
+            pinnedArray.Free();
+
+            Description = new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D);
+
+            if (name != null)
             {
-                var data = new RgbaByte[width * height];
-                for (var i = 0; i < data.Length; i++)
-                    data[i] = color;
-
-                GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
-
-                _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
-                PandaGlobals.GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
-
-                pinnedArray.Free();
-
-                Description = new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D);
-
-                if (name != null)
-                {
-                    _texture.Name = name;
-                    TextureName = name;
-                }
-
-                AssetName = Guid.NewGuid().ToString();
+                _texture.Name = name;
+                TextureName = name;
             }
+
+            AssetName = Guid.NewGuid().ToString();
         }
 
         ~Texture2D()
