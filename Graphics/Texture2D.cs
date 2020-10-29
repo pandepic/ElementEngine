@@ -106,16 +106,6 @@ namespace PandaEngine
             Dispose(false);
         }
 
-        public void Update<T>(ReadOnlySpan<T> data, uint? x = null, uint? y = null, uint? width = null, uint? height = null) where T : unmanaged
-        {
-            PandaGlobals.GraphicsDevice.UpdateTexture(_texture, data.ToArray(), x.GetValueOrDefault(), y.GetValueOrDefault(), 0u, width ?? _texture.Width, height ?? _texture.Height, 1u, 0u, 0u);
-        }
-
-        public void Update<T>(ReadOnlySpan<T> data, Rectangle destination) where T : unmanaged
-        {
-            PandaGlobals.GraphicsDevice.UpdateTexture(_texture, data.ToArray(), (uint)destination.X, (uint)destination.Y, 0u, (uint)destination.Width, (uint)destination.Height, 1u, 0u, 0u);
-        }
-
         public Framebuffer GetFramebuffer()
         {
             if (_framebuffer == null)
