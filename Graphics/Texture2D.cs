@@ -47,6 +47,7 @@ namespace PandaEngine
                 {
                     _texture?.Dispose();
                     _framebuffer?.Dispose();
+                    _renderTargetSpriteBatch2D?.Dispose();
                 }
 
                 _disposed = true;
