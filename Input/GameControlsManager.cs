@@ -13,6 +13,8 @@ namespace PandaEngine
         Pressed,
         Released,
         Down,
+        WheelUp,
+        WheelDown,
     }
 
     public enum GameControlInputType
@@ -31,6 +33,7 @@ namespace PandaEngine
     {
         public string Name { get; set; }
         public List<MouseButton> ControlButtons { get; set; }
+        public List<MouseWheelChangeType> WheelInputs { get; set; }
     };
 
     public interface IHandleGameControls
@@ -94,11 +97,20 @@ namespace PandaEngine
                     {
                         Name = setting.Name,
                         ControlButtons = new List<MouseButton>(),
+                        WheelInputs = new List<MouseWheelChangeType>(),
                     };
 
                     foreach (var control in controlComboSplit)
-                        newMouseControl.ControlButtons.Add(control.ToEnum<MouseButton>());
-                    
+                    {
+                        if (Enum.TryParse(control, out MouseButton buttonType))
+                            newMouseControl.ControlButtons.Add(buttonType);
+                        else if (Enum.TryParse(control, out MouseWheelChangeType wheelType))
+                            newMouseControl.WheelInputs.Add(wheelType);
+                    }
+
+                    if (newMouseControl.ControlButtons.Count == 0 && newMouseControl.WheelInputs.Count == 0)
+                        continue;
+
                     MouseControls.Add(newMouseControl);
                     loadedCount += 1;
                     Logging.Logger.Information("[{component}] loaded mouse control {name}.", "GameControlsManager", newMouseControl.Name);
@@ -112,15 +124,65 @@ namespace PandaEngine
 
         public void HandleKeyPressed(Key key, GameTimer gameTimer)
         {
-        }
+            foreach (var control in KeyboardControls)
+                CheckKeyboardControl(control, key, GameControlState.Pressed, gameTimer);
+
+        } // HandleKeyPressed
 
         public void HandleKeyReleased(Key key, GameTimer gameTimer)
         {
-        }
+            foreach (var control in KeyboardControls)
+                CheckKeyboardControl(control, key, GameControlState.Released, gameTimer);
+
+        } // HandleKeyReleased
 
         public void HandleKeyDown(Key key, GameTimer gameTimer)
         {
-        }
+            foreach (var control in KeyboardControls)
+                CheckKeyboardControl(control, key, GameControlState.Down, gameTimer);
+
+        } // HandleKeyDown
+
+        public void CheckKeyboardControl(KeyboardGameControl control, Key key, GameControlState state, GameTimer gameTimer)
+        {
+            foreach (var controlKeyList in control.ControlKeys)
+            {
+                bool mainKey = false;
+                bool otherKeys = false;
+                bool firstOtherKey = true;
+
+                if (controlKeyList.Count == 1)
+                    otherKeys = true;
+
+                foreach (var controlKey in controlKeyList)
+                {
+                    if (controlKey == key)
+                    {
+                        mainKey = true;
+                    }
+                    else
+                    {
+                        var keyFound = false;
+
+                        if (InputManager.IsKeyDown(controlKey))
+                            keyFound = true;
+
+                        if (firstOtherKey && keyFound)
+                        {
+                            otherKeys = true;
+                            firstOtherKey = false;
+                        }
+                        else
+                        {
+                            otherKeys = otherKeys && keyFound;
+                        }
+                    }
+                }
+
+                if (mainKey && otherKeys)
+                    TriggerGameControl(control.Name, state, gameTimer);
+            }
+        } // CheckKeyboardControl
 
         public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
@@ -128,19 +190,58 @@ namespace PandaEngine
 
         public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-        }
+            foreach (var control in MouseControls)
+            {
+                foreach (var controlButton in control.ControlButtons)
+                {
+                    if (button == controlButton)
+                        TriggerGameControl(control.Name, GameControlState.Pressed, gameTimer);
+                }
+            }
+
+        } // HandleMouseButtonPressed
 
         public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-        }
+            foreach (var control in MouseControls)
+            {
+                foreach (var controlButton in control.ControlButtons)
+                {
+                    if (button == controlButton)
+                        TriggerGameControl(control.Name, GameControlState.Released, gameTimer);
+                }
+            }
+        } // HandleMouseButtonReleased
 
         public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-        }
+            foreach (var control in MouseControls)
+            {
+                foreach (var controlButton in control.ControlButtons)
+                {
+                    if (button == controlButton)
+                        TriggerGameControl(control.Name, GameControlState.Down, gameTimer);
+                }
+            }
+        } // HandleMouseButtonDown
 
         public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
-        }
+            foreach (var control in MouseControls)
+            {
+                foreach (var wheelInput in control.WheelInputs)
+                {
+                    if (wheelInput == type)
+                        TriggerGameControl(control.Name, type == MouseWheelChangeType.WheelUp ? GameControlState.WheelUp : GameControlState.WheelDown, gameTimer);
+                }
+            }
+        } // HandleMouseWheel
+
+        public void TriggerGameControl(string name, GameControlState state, GameTimer gameTimer)
+        {
+            foreach (var handler in Handlers)
+                handler.HandleGameControl(name, state, gameTimer);
+        } // TriggerGameControl
 
     } // GameControlManager
 }

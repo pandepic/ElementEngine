@@ -23,7 +23,7 @@ namespace PandaEngine
 
         public int Width { get => (int)_texture.Width; }
         public int Height { get => (int)_texture.Height; }
-        public Point Size { get => new Point(Width, Height); }
+        public Vector2i Size { get => new Vector2i(Width, Height); }
         public Vector2 SizeF { get => Size.ToVector2(); }
 
         #region IDisposable

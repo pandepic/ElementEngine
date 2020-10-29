@@ -9,7 +9,7 @@ namespace PandaEngine
     {
         public const int LOOP_FOREVER = -1;
 
-        public Point FrameSize { get; set; }
+        public Vector2i FrameSize { get; set; }
         public int TotalFrames { get; set; }
         public int CurrentFrame { get; set; }
         public int CurrentFrameIndex { get; set; }
@@ -20,7 +20,7 @@ namespace PandaEngine
         protected int _animationLoopCount = 0;
         protected SpriteFlipType _prevFlip;
 
-        public AnimatedSprite(Texture2D texture, Point? frameSize, bool centerOrigin = false) : base(texture, centerOrigin)
+        public AnimatedSprite(Texture2D texture, Vector2i? frameSize, bool centerOrigin = false) : base(texture, centerOrigin)
         {
             if (!frameSize.HasValue)
                 frameSize = texture.Size;

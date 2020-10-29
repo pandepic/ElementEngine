@@ -8,8 +8,8 @@ namespace PandaEngine
 {
     public enum MouseWheelChangeType
     {
-        Up,
-        Down
+        WheelUp,
+        WheelDown
     }
 
     public interface IKeyboardHandler
@@ -144,7 +144,8 @@ namespace PandaEngine
             } // MouseEvents
 
             PrevSnapshot = snapshot;
-        }
+
+        } // Update
 
         public static void HandleKeyPressed(Key key, GameTimer gameTimer)
         {
@@ -173,7 +174,7 @@ namespace PandaEngine
         public static void HandleMouseWheel(GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
-                _mouseHandlers[i].HandleMouseWheel(MousePosition, MouseWheelDelta > 0 ? MouseWheelChangeType.Up : MouseWheelChangeType.Down, MouseWheelDelta, gameTimer);
+                _mouseHandlers[i].HandleMouseWheel(MousePosition, MouseWheelDelta > 0 ? MouseWheelChangeType.WheelUp : MouseWheelChangeType.WheelDown, MouseWheelDelta, gameTimer);
         }
 
         public static void HandleMouseButtonPressed(MouseButton button, GameTimer gameTimer)

@@ -17,9 +17,9 @@ namespace PandaEngine
         public static Rectangle Empty = new Rectangle(0, 0, 0, 0);
         public bool IsEmpty => this == Empty;
 
-        public Point Location
+        public Vector2i Location
         {
-            get => new Point(X, Y);
+            get => new Vector2i(X, Y);
             set
             {
                 X = value.X;
@@ -37,9 +37,9 @@ namespace PandaEngine
             }
         }
 
-        public Point Size
+        public Vector2i Size
         {
-            get => new Point(Width, Height);
+            get => new Vector2i(Width, Height);
             set
             {
                 Width = value.X;
@@ -105,6 +105,6 @@ namespace PandaEngine
         }
 
         public static bool operator ==(Rectangle rect1, Rectangle rect2) => rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
-        public static bool operator !=(Rectangle rect1, Rectangle rect2) => rect1 != rect2;
+        public static bool operator !=(Rectangle rect1, Rectangle rect2) => !(rect1 == rect2);
     }
 }
