@@ -29,6 +29,7 @@ namespace PandaEngine
 
         protected Texture _framebufferTexture = null;
         protected Framebuffer _framebuffer = null;
+        protected SpriteBatch2D _renderTargetSpriteBatch2D = null;
 
         #region IDisposable
         protected bool _disposed = false;
@@ -168,6 +169,14 @@ namespace PandaEngine
             commandList.ClearColorTarget(0, color);
 
         } // RenderTargetClear
+
+        public SpriteBatch2D GetRenderTargetSpriteBatch2D()
+        {
+            if (_renderTargetSpriteBatch2D == null)
+                _renderTargetSpriteBatch2D = new SpriteBatch2D(this);
+
+            return _renderTargetSpriteBatch2D;
+        }
 
     } // Texture2D
 }
