@@ -108,6 +108,11 @@ namespace PandaEngine
             return new FileStream(GetAssetPath(assetName), mode, access);
         }
 
+        public static FileStream GetFileStream(string path, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read)
+        {
+            return new FileStream(path, mode, access);
+        }
+
         public static Texture2D LoadTexture2D(string assetName, bool mipmap = false)
         {
             if (_assetCache.ContainsKey(assetName))

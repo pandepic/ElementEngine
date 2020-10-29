@@ -49,7 +49,7 @@ namespace PandaEngine
                 return false;
         }
 
-        public static void Update(InputSnapshot snapshot, GameTimer gameTimer)
+        public static void Update(InputSnapshot snapshot)
         {
             PrevMousePosition = MousePosition;
             MousePosition = snapshot.MousePosition;

@@ -6,58 +6,43 @@ using Veldrid;
 
 namespace PandaEngine
 {
-    public static class GameControlManager
+    public enum GameControlInputType
     {
-        private class GameControlInputManager : IKeyboardHandler, IMouseHandler
-        {
-            public void HandleKeyPressed(Key key) { GameControlManager.HandleKeyPressed(key); }
-            public void HandleKeyReleased(Key key) { GameControlManager.HandleKeyReleased(key); }
-            public void HandleKeyDown(Key key) { GameControlManager.HandleKeyDown(key); }
+        Keyboard,
+        Mouse
+    }
 
-            public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition) { GameControlManager.HandleMouseMotion(mousePosition, prevMousePosition); }
-            public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button) { GameControlManager.HandleMouseButtonPressed(mousePosition, button); }
-            public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button) { GameControlManager.HandleMouseButtonReleased(mousePosition, button); }
-            public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button) { GameControlManager.HandleMouseButtonDown(mousePosition, button); }
-            public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta) { GameControlManager.HandleMouseWheel(mousePosition, type, mouseWheelDelta); }
-        } // GameControlInputManager
-
-        private static readonly GameControlInputManager _gameControlInputManager = new GameControlInputManager();
-
-        public static void Load()
-        {
-            InputManager.AddKeyboardHandler(_gameControlInputManager);
-            InputManager.AddMouseHandler(_gameControlInputManager);
-        }
-
-        internal static void HandleKeyPressed(Key key)
+    public class GameControlManager<T> : IKeyboardHandler, IMouseHandler where T : IConvertible
+    {
+        public void HandleKeyPressed(Key key)
         {
         }
 
-        internal static void HandleKeyReleased(Key key)
+        public void HandleKeyReleased(Key key)
         {
         }
 
-        internal static void HandleKeyDown(Key key)
+        public void HandleKeyDown(Key key)
         {
         }
 
-        internal static void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition)
+        public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition)
         {
         }
 
-        internal static void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button)
-        {
-        }
-        
-        internal static void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button)
+        public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button)
         {
         }
 
-        internal static void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button)
+        public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button)
         {
         }
-        
-        internal static void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta)
+
+        public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button)
+        {
+        }
+
+        public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta)
         {
         }
 

@@ -63,6 +63,7 @@ namespace PandaEngine
 
         public BaseGame()
         {
+            Logging.Load();
             Load();
         }
 
@@ -73,8 +74,6 @@ namespace PandaEngine
 
         public void SetupWindow(Rectangle windowRect, string gameTitle, GraphicsBackend graphicsBackend, bool vsync = false)
         {
-            Logging.Load();
-
             GameTitle = gameTitle;
 
             var windowCI = new WindowCreateInfo()
@@ -181,7 +180,7 @@ namespace PandaEngine
                 }
 
                 var inputSnapshot = Window.PumpEvents();
-                InputManager.Update(inputSnapshot, GameTimer);
+                InputManager.Update(inputSnapshot);
             }
         } // Run
 
