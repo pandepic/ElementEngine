@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FontStashSharp;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection.Metadata.Ecma335;
@@ -12,7 +13,7 @@ namespace PandaEngine
     public class Texture2D : IDisposable
     {
         protected Texture _texture;
-        public Texture Data { get => _texture; }
+        public Texture Texture { get => _texture; }
 
         public TextureDescription Description { get; protected set; }
 
@@ -103,6 +104,15 @@ namespace PandaEngine
             Dispose(false);
         }
 
+        public void SetData(System.Drawing.Rectangle bounds, FssColor[] fssData)
+        {
+            var data = new RgbaByte[bounds.Width * bounds.Height];
+            for (var i = 0; i < data.Length; i++)
+                data[i] = new RgbaByte(fssData[i].R, fssData[i].G, fssData[i].B, fssData[i].A);
+
+            PandaGlobals.GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
+        }
+
         public Framebuffer GetFramebuffer()
         {
             if (_framebuffer == null)
@@ -111,7 +121,7 @@ namespace PandaEngine
                 {
                     ColorTargets = new FramebufferAttachmentDescription[]
                     {
-                        new FramebufferAttachmentDescription(Data, 0),
+                        new FramebufferAttachmentDescription(Texture, 0),
                     },
                 });
             }

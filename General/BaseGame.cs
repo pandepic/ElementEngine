@@ -125,8 +125,11 @@ namespace PandaEngine
 
         public void SetGameState(GameState newState)
         {
+            CurrentGameState?.DeRegister();
             CurrentGameState?.Unload();
+
             CurrentGameState = newState;
+            CurrentGameState?.Register();
             CurrentGameState?.Load();
         }
 

@@ -1,4 +1,6 @@
-﻿using SharpDX.Mathematics.Interop;
+﻿using FontStashSharp;
+using FontStashSharp.Interfaces;
+using SharpDX.Mathematics.Interop;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
@@ -49,7 +51,7 @@ namespace PandaEngine
         public Texture2D Texture;
     }
 
-    public class SpriteBatch2D : IDisposable
+    public class SpriteBatch2D : IDisposable, IRenderer
     {
         public Sdl2Window Window => PandaGlobals.Window;
         public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
@@ -288,6 +290,22 @@ namespace PandaEngine
 
             _sampler = sampler;
             _begin = true;
+        }
+
+        public void DrawText(SpriteFont font, string text, Vector2 position, RgbaByte color, int size)
+        {
+            font.DrawText(this, text, position, color, size);
+        }
+
+        public void Draw(ITexture texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, FssColor fssColor, float depth)
+        {
+            var color = new RgbaFloat(fssColor.R, fssColor.G, fssColor.B, fssColor.A);
+            Draw((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), color, new Rectangle(source.X, source.Y, source.Width, source.Height));
+        }
+
+        public void Draw(Sprite sprite, Vector2 position)
+        {
+            sprite.Draw(this, position);
         }
 
         public void Draw(Texture2D texture, Vector2 position, RgbaFloat? color = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, SpriteFlipType flip = SpriteFlipType.None)
@@ -566,7 +584,7 @@ namespace PandaEngine
             }
             else
             {
-                var textureSetDescription = new ResourceSetDescription(_textureLayout, texture.Data, _sampler);
+                var textureSetDescription = new ResourceSetDescription(_textureLayout, texture.Texture, _sampler);
                 var newTextureSet = GraphicsDevice.ResourceFactory.CreateResourceSet(textureSetDescription);
                 _textureSets.Add(texture.AssetName, newTextureSet);
                 CommandList.SetGraphicsResourceSet(1, newTextureSet);

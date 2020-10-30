@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using FontStashSharp;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Png;
@@ -113,6 +114,12 @@ namespace PandaEngine
             return new FileStream(path, mode, access);
         }
 
+        private static void LogLoaded(string type, string assetName, Stopwatch stopWatch)
+        {
+            stopWatch.Stop();
+            Logging.Logger.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
+        }
+
         public static Texture2D LoadTexture2D(string assetName, bool mipmap = false)
         {
             if (_assetCache.ContainsKey(assetName))
@@ -128,15 +135,33 @@ namespace PandaEngine
                 TextureName = assetName,
                 AssetName = assetName
             };
-            newTexture.Data.Name = assetName;
+            newTexture.Texture.Name = assetName;
 
             _assetCache.Add(assetName, newTexture);
             _disposableAssets.Add(newTexture);
 
-            stopWatch.Stop();
-            Logging.Logger.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", "Texture2D", assetName, stopWatch.Elapsed.TotalMilliseconds);
+            LogLoaded("Texture2D", assetName, stopWatch);
 
             return newTexture;
         } // LoadTexture2D
+
+        public static SpriteFont LoadSpriteFont(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (SpriteFont)_assetCache[assetName];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(assetName);
+            
+            var newFont = new SpriteFont(fs);
+            _assetCache.Add(assetName, newFont);
+            _disposableAssets.Add(newFont);
+
+            LogLoaded("SpriteFont", assetName, stopWatch);
+
+            return newFont;
+
+        } // LoadSpriteFont
     }
 }

@@ -86,6 +86,13 @@ namespace PandaEngine
                     Matrix4x4.CreateTranslation(new Vector3(_origin, z));
         }
 
+        public void Center(Vector2 position)
+        {
+            _position.X = position.X - _view.Width / 2;
+            _position.Y = position.Y - _view.Height / 2;
+            CheckBoundingBox();
+        }
+
         public void CheckBoundingBox()
         {
             if (_boundingBox.IsEmpty || _boundingBox == null)
@@ -103,6 +110,12 @@ namespace PandaEngine
             if ((_view.Y + _view.Height) > (BoundingBox.Y + BoundingBox.Height))
                 _position.Y = (BoundingBox.Y + BoundingBox.Height) - _view.Height;
         } // CheckBoundingBox
+
+        public Vector2 ScreenToWorld(Vector2 position)
+        {
+            Matrix4x4.Invert(GetViewMatrix(), out var inverted);
+            return Vector2.Transform(position, inverted);
+        }
 
     } // Camera2D
 }
