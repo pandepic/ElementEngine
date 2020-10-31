@@ -77,7 +77,7 @@ namespace PandaEngine
 
         public void SetupWindow(Rectangle windowRect, string gameTitle, GraphicsBackend graphicsBackend, bool vsync = false)
         {
-            GameTitle = gameTitle;
+            GameTitle = gameTitle + " [" + graphicsBackend.ToString() + "]";
 
             var windowCI = new WindowCreateInfo()
             {

@@ -9,6 +9,13 @@ using Veldrid;
 
 namespace PandaEngine
 {
+    public enum AudioSourceType
+    {
+        Auto,
+        Ogg,
+        WAV
+    }
+
     public class AudioSource : IDisposable
     {
         public WaveFormat Format { get; set; }
@@ -153,9 +160,21 @@ namespace PandaEngine
             _removeList.Clear();
         } // Update
 
-        public static AudioInstance Play(string assetName, int type, bool loop = false, bool allowDuplicates = false)
+        public static AudioInstance Play(string assetName, int type, AudioSourceType sourceType = AudioSourceType.Auto, bool loop = false, bool allowDuplicates = false)
         {
-            return Play(AssetManager.LoadAudioSourceFromOggVorbis(assetName), type, loop, allowDuplicates);
+            switch (sourceType)
+            {
+                case AudioSourceType.Auto:
+                    return Play(AssetManager.LoadAudioSourceByExtension(assetName), type, loop, allowDuplicates);
+
+                case AudioSourceType.Ogg:
+                    return Play(AssetManager.LoadAudioSourceFromOggVorbis(assetName), type, loop, allowDuplicates);
+
+                case AudioSourceType.WAV:
+                    return Play(AssetManager.LoadAudioSourceFromWAV(assetName), type, loop, allowDuplicates);
+            }
+
+            return null;
         }
 
         public static AudioInstance Play(AudioSource source, int type, bool loop = false, bool allowDuplicates = false)

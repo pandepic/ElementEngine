@@ -165,6 +165,50 @@ namespace PandaEngine
 
         } // LoadSpriteFont
 
+        /// <summary>
+        /// Try to auto detect the audio format and load from the correct source type
+        /// </summary>
+        public static AudioSource LoadAudioSourceByExtension(string assetName)
+        {
+            var path = GetAssetPath(assetName);
+            var extension = Path.GetExtension(path);
+
+            switch (extension)
+            {
+                case ".wav":
+                    return LoadAudioSourceFromWAV(assetName);
+
+                case ".ogg":
+                    return LoadAudioSourceFromOggVorbis(assetName);
+
+                default:
+                    throw new Exception("Couldn't load audio source from unknown or unsupported audio format " + assetName);
+            }
+        } // LoadAudioSourceByExtension
+
+        public static AudioSource LoadAudioSourceFromWAV(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (AudioSource)_assetCache[assetName];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(assetName);
+            using var wav = new WaveFileReader(fs);
+
+            var newSource = new AudioSource(wav)
+            {
+                AssetName = assetName
+            };
+
+            _assetCache.Add(assetName, newSource);
+            _disposableAssets.Add(newSource);
+
+            LogLoaded("AudioSource", assetName, stopWatch);
+            return newSource;
+
+        } // LoadAudioSourceFromOggVorbis
+
         public static AudioSource LoadAudioSourceFromOggVorbis(string assetName)
         {
             if (_assetCache.ContainsKey(assetName))
