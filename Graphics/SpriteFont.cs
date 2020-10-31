@@ -70,9 +70,14 @@ namespace PandaEngine
         public SpriteFont(FileStream fs)
         {
             using var ms = new MemoryStream();
-            fs.CopyTo(ms);
 
+            fs.CopyTo(ms);
             FontSystem.AddFontMem(ms.ToArray());
+        }
+
+        ~SpriteFont()
+        {
+            Dispose(false);
         }
 
         public void DrawText(SpriteBatch2D spriteBatch, string text, Vector2 position, RgbaByte color, int size)
@@ -80,6 +85,14 @@ namespace PandaEngine
             FontSystem.FontSize = size;
             var fss = new FssColor(color.R, color.G, color.B, color.A);
             FontSystem.DrawText(spriteBatch, position.X, position.Y, text, fss, 0f);
+        }
+
+        public Vector2 MeasureText(string text, int size)
+        {
+            FontSystem.FontSize = size;
+            Bounds bounds = new Bounds();
+            FontSystem.TextBounds(0, 0, text, ref bounds);
+            return new Vector2(bounds.X2 - bounds.X, bounds.Y2 - bounds.Y);
         }
     } // SpriteFont
 }

@@ -107,6 +107,9 @@ namespace PandaEngine
         public void SetData(System.Drawing.Rectangle bounds, FssColor[] fssData)
         {
             var data = new RgbaByte[bounds.Width * bounds.Height];
+            //for (var i = 0; i < data.Length; i++)
+            //    data[i] = new RgbaByte((byte)(fssData[i].R * fssData[i].A / 255), (byte)(fssData[i].G * fssData[i].A / 255), (byte)(fssData[i].B * fssData[i].A / 255), fssData[i].A);
+
             for (var i = 0; i < data.Length; i++)
                 data[i] = new RgbaByte(fssData[i].R, fssData[i].G, fssData[i].B, fssData[i].A);
 

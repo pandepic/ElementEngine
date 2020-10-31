@@ -1,4 +1,6 @@
 ﻿using FontStashSharp;
+using NAudio.Vorbis;
+using NAudio.Wave;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Gif;
@@ -141,8 +143,8 @@ namespace PandaEngine
             _disposableAssets.Add(newTexture);
 
             LogLoaded("Texture2D", assetName, stopWatch);
-
             return newTexture;
+
         } // LoadTexture2D
 
         public static SpriteFont LoadSpriteFont(string assetName)
@@ -159,9 +161,28 @@ namespace PandaEngine
             _disposableAssets.Add(newFont);
 
             LogLoaded("SpriteFont", assetName, stopWatch);
-
             return newFont;
 
         } // LoadSpriteFont
-    }
+
+        public static AudioSource LoadAudioSourceFromOggVorbis(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (AudioSource)_assetCache[assetName];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(assetName);
+            using var vorbis = new VorbisWaveReader(fs);
+
+            var newSource = new AudioSource(vorbis);
+
+            _assetCache.Add(assetName, newSource);
+            _disposableAssets.Add(newSource);
+
+            LogLoaded("AudioSource", assetName, stopWatch);
+            return newSource;
+        } // LoadAudioSourceFromOggVorbis
+
+    } // AssetManager
 }

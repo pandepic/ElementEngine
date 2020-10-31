@@ -34,7 +34,7 @@ namespace PandaEngine
 
         public virtual void Draw(SpriteBatch2D spriteBatch, Vector2 position)
         {
-            spriteBatch.Draw(Texture, position, Color, SourceRect, Scale, Origin, Rotation, Flip);
+            spriteBatch.DrawTexture2D(Texture, position, Color, SourceRect, Scale, Origin, Rotation, Flip);
         }
     }
 }

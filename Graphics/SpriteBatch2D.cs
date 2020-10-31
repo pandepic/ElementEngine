@@ -299,16 +299,16 @@ namespace PandaEngine
 
         public void Draw(ITexture texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, FssColor fssColor, float depth)
         {
-            var color = new RgbaFloat(fssColor.R, fssColor.G, fssColor.B, fssColor.A);
-            Draw((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), color, new Rectangle(source.X, source.Y, source.Width, source.Height));
+            var color = new RgbaFloat(fssColor.R / 255, fssColor.G / 255, fssColor.B / 255, fssColor.A / 255);
+            DrawTexture2D((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), color, new Rectangle(source.X, source.Y, source.Width, source.Height));
         }
 
-        public void Draw(Sprite sprite, Vector2 position)
+        public void DrawSprite(Sprite sprite, Vector2 position)
         {
             sprite.Draw(this, position);
         }
 
-        public void Draw(Texture2D texture, Vector2 position, RgbaFloat? color = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, SpriteFlipType flip = SpriteFlipType.None)
+        public void DrawTexture2D(Texture2D texture, Vector2 position, RgbaFloat? color = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
@@ -464,7 +464,7 @@ namespace PandaEngine
             _batchItems.Add(batchItem);
         } // Draw
 
-        public void Draw(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? color = null, Rectangle? sourceRect = null, SpriteFlipType flip = SpriteFlipType.None)
+        public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? color = null, Rectangle? sourceRect = null, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
