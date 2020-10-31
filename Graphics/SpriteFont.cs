@@ -122,5 +122,6 @@ namespace PandaEngine
             fontSystem.TextBounds(0, 0, text, ref bounds);
             return new Vector2(bounds.X2 - bounds.X, bounds.Y2 - bounds.Y);
         } // MeasureText
+
     } // SpriteFont
 }

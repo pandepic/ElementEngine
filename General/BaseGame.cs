@@ -159,7 +159,7 @@ namespace PandaEngine
 
                     var sleepTime = (_totalFrameTime - _targetFrameTime).TotalMilliseconds;
                     if (sleepTime > 1.0f)
-                        System.Threading.Thread.Sleep((int)sleepTime);
+                        Thread.Sleep((int)sleepTime);
                 }
                 else
                 {

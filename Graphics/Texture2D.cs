@@ -12,6 +12,8 @@ namespace PandaEngine
 {
     public class Texture2D : IDisposable
     {
+        public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
+
         protected Texture _texture;
         public Texture Texture { get => _texture; }
 
@@ -64,7 +66,7 @@ namespace PandaEngine
 
         public Texture2D(uint width, uint height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
-            _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
+            _texture = GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
 
             if (name != null)
             {
@@ -84,7 +86,7 @@ namespace PandaEngine
             GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
 
             _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
-            PandaGlobals.GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
+            GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
 
             pinnedArray.Free();
 
@@ -104,6 +106,9 @@ namespace PandaEngine
             Dispose(false);
         }
 
+        /// <summary>
+        /// Specifically used by FontStashSharp for font atlas rendering.
+        /// </summary>
         public void SetData(System.Drawing.Rectangle bounds, FssColor[] fssData)
         {
             var data = new RgbaByte[bounds.Width * bounds.Height];
@@ -120,9 +125,21 @@ namespace PandaEngine
                     data[i] = new RgbaByte((byte)(fssData[i].R / ratio), (byte)(fssData[i].G / ratio), (byte)(fssData[i].B / ratio), fssData[i].A);
                 }
             }
+            
+            GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
+        } // SetData
 
-            PandaGlobals.GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
-        }
+        public void SetData<T>(Rectangle? area, T[] data) where T : unmanaged
+        {
+            Rectangle rect;
+
+            if (area.HasValue)
+                rect = area.Value;
+            else
+                rect = new Rectangle(0, 0, Width, Height);
+
+            GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
+        } // SetData
 
         public Framebuffer GetFramebuffer()
         {

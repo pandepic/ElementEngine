@@ -300,7 +300,7 @@ namespace PandaEngine
         public void Draw(ITexture texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, FssColor fssColor, float depth)
         {
             var color = new RgbaFloat(fssColor.R / 255f, fssColor.G / 255f, fssColor.B / 255f, fssColor.A / 255f);
-            DrawTexture2D((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), color, new Rectangle(source.X, source.Y, source.Width, source.Height));
+            DrawTexture2D((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), new Rectangle(source.X, source.Y, source.Width, source.Height), null, null, 0f, color);
         }
 
         public void DrawSprite(Sprite sprite, Vector2 position)
@@ -308,7 +308,20 @@ namespace PandaEngine
             sprite.Draw(this, position);
         }
 
-        public void DrawTexture2D(Texture2D texture, Vector2 position, RgbaFloat? color = null, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, SpriteFlipType flip = SpriteFlipType.None)
+        public void DrawTexture2D(Texture2D texture, Rectangle destination, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
+        {
+            if (!scale.HasValue)
+                scale = Vector2.One;
+
+            if (destination.Width > 0 && destination.Width != texture.Width)
+                scale = new Vector2(((float)destination.Width / (float)texture.Width) * scale.Value.X, scale.Value.Y);
+            if (destination.Height > 0 && destination.Height != texture.Height)
+                scale = new Vector2(scale.Value.X, ((float)destination.Height / (float)texture.Height) * scale.Value.Y);
+
+            DrawTexture2D(texture, new Vector2(destination.X, destination.Y), sourceRect, scale, origin, rotation, color, flip);
+        }
+
+        public void DrawTexture2D(Texture2D texture, Vector2 position, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
@@ -462,9 +475,9 @@ namespace PandaEngine
             }
 
             _batchItems.Add(batchItem);
-        } // Draw
+        } // DrawTexture2D
 
-        public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, RgbaFloat? color = null, Rectangle? sourceRect = null, SpriteFlipType flip = SpriteFlipType.None)
+        public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, Rectangle? sourceRect = null, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
@@ -527,15 +540,15 @@ namespace PandaEngine
             };
 
             _batchItems.Add(batchItem);
-        }
+        } // DrawTexture2D
 
         public unsafe void End()
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call End.");
 
-            GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _projection);
-            GraphicsDevice.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
+            CommandList.UpdateBuffer(_transformBuffer, 0, _projection);
+            CommandList.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
 
             Texture2D currentTexture = null;
             var currentBatchCount = 0;
