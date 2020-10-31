@@ -175,13 +175,17 @@ namespace PandaEngine
             using var fs = GetAssetStream(assetName);
             using var vorbis = new VorbisWaveReader(fs);
 
-            var newSource = new AudioSource(vorbis);
+            var newSource = new AudioSource(vorbis)
+            {
+                AssetName = assetName
+            };
 
             _assetCache.Add(assetName, newSource);
             _disposableAssets.Add(newSource);
 
             LogLoaded("AudioSource", assetName, stopWatch);
             return newSource;
+
         } // LoadAudioSourceFromOggVorbis
 
     } // AssetManager

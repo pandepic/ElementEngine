@@ -3,6 +3,7 @@ using NAudio.Wave;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Veldrid;
 
@@ -12,6 +13,7 @@ namespace PandaEngine
     {
         public WaveFormat Format { get; set; }
         public MemoryStream Data { get; set; }
+        public string AssetName { get; set; }
 
         #region IDisposable
         protected bool _disposed = false;
@@ -56,6 +58,7 @@ namespace PandaEngine
         public RawSourceWaveStream WaveStream { get; set; }
         public long StreamStartPosition { get; set; }
 
+        public int InstanceID { get; set; }
         public bool Looping { get; set; } = false;
         public int Type { get; set; }
         public string AssetName { get; set; }
@@ -95,6 +98,8 @@ namespace PandaEngine
 
         public AudioInstance(AudioSource source)
         {
+            AssetName = source.AssetName;
+
             Data = new MemoryStream(source.Data.ToArray());
             StreamStartPosition = source.Data.Position;
 
@@ -120,7 +125,6 @@ namespace PandaEngine
 
     public static class SoundManager
     {
-        public static readonly int AUDIO_ID_NONE = -1;
         public static float DefaultVolume { get; set; } = 0.2f;
         public static float MasterVolume { get; set; } = 1f;
 
@@ -132,58 +136,124 @@ namespace PandaEngine
 
         public static void Update()
         {
-            foreach (var kvp in AudioInstances)
+            foreach (var instance in AudioInstances)
             {
-                if (kvp.Value.PlaybackState == PlaybackState.Stopped)
+                if (instance.Value.PlaybackState == PlaybackState.Stopped)
                 {
-                    if (kvp.Value.Looping)
-                        kvp.Value.Play();
+                    if (instance.Value.Looping)
+                        instance.Value.Play();
                     else
-                        _removeList.Add(kvp.Key);
+                        _removeList.Add(instance.Key);
                 }
             }
 
-            foreach (var remove in _removeList)
-                AudioInstances.Remove(remove);
+            for (var i = 0; i < _removeList.Count; i++)
+                AudioInstances.Remove(_removeList[i]);
 
             _removeList.Clear();
+        } // Update
+
+        public static AudioInstance Play(string assetName, int type, bool loop = false, bool allowDuplicates = false)
+        {
+            return Play(AssetManager.LoadAudioSourceFromOggVorbis(assetName), type, loop, allowDuplicates);
         }
 
-        public static int Play(string assetName, int type, bool loop = false, bool allowDuplicates = false)
+        public static AudioInstance Play(AudioSource source, int type, bool loop = false, bool allowDuplicates = false)
         {
+            if (source == null)
+                throw new ArgumentException("Can't play sound from a null audio source.", "source");
+
             if (!allowDuplicates)
             {
                 foreach (var kvp in AudioInstances)
                 {
-                    if (kvp.Value.AssetName == assetName)
-                        return AUDIO_ID_NONE;
+                    if (kvp.Value.AssetName == source.AssetName)
+                        return null;
                 }
             }
 
             if (!VolumeSettings.ContainsKey(type))
                 VolumeSettings.Add(type, DefaultVolume);
 
-            var source = AssetManager.LoadAudioSourceFromOggVorbis(assetName);
             var instance = new AudioInstance(source)
             {
-                AssetName = assetName,
                 Type = type,
                 Looping = loop,
+                InstanceID = _nextID,
             };
 
-            instance.Volume = VolumeSettings[type] * MasterVolume;
-            instance.Play();
-
-            var id = _nextID;
             _nextID += 1;
 
             if (_nextID >= (int.MaxValue - 1))
                 _nextID = 0;
 
-            AudioInstances.Add(id, instance);
+            instance.Volume = VolumeSettings[type] * MasterVolume;
+            instance.Play();
 
-            return id;
+            AudioInstances.Add(instance.InstanceID, instance);
+            return instance;
+
         } // Play
+
+        public static void SetMasterVolume(float volume)
+        {
+            if (MasterVolume == volume)
+                return;
+
+            MasterVolume = volume;
+
+            foreach (var instance in AudioInstances)
+                instance.Value.Volume = VolumeSettings[instance.Value.Type] * MasterVolume;
+
+        } // SetMasterVolume
+
+        public static void SetVolume(int type, float volume)
+        {
+            if (!VolumeSettings.ContainsKey(type))
+                VolumeSettings.Add(type, volume);
+            else
+                VolumeSettings[type] = volume;
+
+            foreach (var instance in AudioInstances)
+            {
+                if (instance.Value.Type == type)
+                    instance.Value.Volume = VolumeSettings[type] * MasterVolume;
+            }
+        } // SetVolume
+
+        public static void StopByInstance(AudioInstance instance) => StopByID(instance.InstanceID);
+
+        public static void StopByID(int id)
+        {
+            if (AudioInstances.TryGetValue(id, out var instance))
+            {
+                instance.Stop();
+                AudioInstances.Remove(id);
+            }
+        } // StopByID
+
+        public static void StopByType(int type)
+        {
+            foreach (var instance in AudioInstances)
+            {
+                instance.Value.Stop();
+                _removeList.Add(instance.Key);
+            }
+
+            for (var i = 0; i < _removeList.Count; i++)
+                AudioInstances.Remove(_removeList[i]);
+
+            _removeList.Clear();
+
+        } // StopByType
+
+        public static void StopAll()
+        {
+            foreach (var instance in AudioInstances)
+                instance.Value.Stop();
+
+            AudioInstances.Clear();
+        } // StopAll
 
     } // SoundManager
 }
