@@ -299,7 +299,7 @@ namespace PandaEngine
 
         public void Draw(ITexture texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, FssColor fssColor, float depth)
         {
-            var color = new RgbaFloat(fssColor.R / 255, fssColor.G / 255, fssColor.B / 255, fssColor.A / 255);
+            var color = new RgbaFloat(fssColor.R / 255f, fssColor.G / 255f, fssColor.B / 255f, fssColor.A / 255f);
             DrawTexture2D((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), color, new Rectangle(source.X, source.Y, source.Width, source.Height));
         }
 

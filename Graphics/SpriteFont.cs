@@ -39,9 +39,12 @@ namespace PandaEngine
 
     public static class FontExtensions
     {
-        public static FssColor ToFssColor(this RgbaByte color)
+        public static FssColor ToFssColor(this RgbaByte color, bool premultiply = false)
         {
-            return new FssColor(color.R, color.G, color.B, color.A);
+            if (!premultiply)
+                return new FssColor(color.R, color.G, color.B, color.A);
+            else
+                return FssColor.FromNonPremultiplied(color.R, color.G, color.B, color.A);
         }
     } // FontExtensions
 

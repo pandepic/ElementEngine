@@ -107,11 +107,19 @@ namespace PandaEngine
         public void SetData(System.Drawing.Rectangle bounds, FssColor[] fssData)
         {
             var data = new RgbaByte[bounds.Width * bounds.Height];
-            //for (var i = 0; i < data.Length; i++)
-            //    data[i] = new RgbaByte((byte)(fssData[i].R * fssData[i].A / 255), (byte)(fssData[i].G * fssData[i].A / 255), (byte)(fssData[i].B * fssData[i].A / 255), fssData[i].A);
-
+            
             for (var i = 0; i < data.Length; i++)
-                data[i] = new RgbaByte(fssData[i].R, fssData[i].G, fssData[i].B, fssData[i].A);
+            {
+                if (fssData[i].A == 0)
+                {
+                    data[i] = new RgbaByte(fssData[i].R, fssData[i].G, fssData[i].B, fssData[i].A);
+                }
+                else
+                {
+                    float ratio = fssData[i].A / 255f;
+                    data[i] = new RgbaByte((byte)(fssData[i].R / ratio), (byte)(fssData[i].G / ratio), (byte)(fssData[i].B / ratio), fssData[i].A);
+                }
+            }
 
             PandaGlobals.GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
         }
