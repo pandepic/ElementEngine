@@ -207,7 +207,7 @@ namespace PandaEngine
             LogLoaded("AudioSource", assetName, stopWatch);
             return newSource;
 
-        } // LoadAudioSourceFromOggVorbis
+        } // LoadAudioSourceFromWAV
 
         public static AudioSource LoadAudioSourceFromOggVorbis(string assetName)
         {
