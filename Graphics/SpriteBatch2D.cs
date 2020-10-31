@@ -292,9 +292,9 @@ namespace PandaEngine
             _begin = true;
         }
 
-        public void DrawText(SpriteFont font, string text, Vector2 position, RgbaByte color, int size)
+        public void DrawText(SpriteFont font, string text, Vector2 position, RgbaByte color, int size, int outlineSize = 0)
         {
-            font.DrawText(this, text, position, color, size);
+            font.DrawText(this, text, position, color, size, outlineSize);
         }
 
         public void Draw(ITexture texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, FssColor fssColor, float depth)

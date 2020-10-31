@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using FontStashSharp;
@@ -36,13 +37,22 @@ namespace PandaEngine
         }
     } // FontTextureCreator
 
+    public static class FontExtensions
+    {
+        public static FssColor ToFssColor(this RgbaByte color)
+        {
+            return new FssColor(color.R, color.G, color.B, color.A);
+        }
+    } // FontExtensions
+
     public class SpriteFont : IDisposable
     {
         internal static readonly int FontStashSize = 8000;
         internal static StbTrueTypeSharpFontLoader FontLoader = new StbTrueTypeSharpFontLoader();
         internal static FontTextureCreator FontTextureCreator = new FontTextureCreator();
 
-        public FontSystem FontSystem = new FontSystem(FontLoader, FontTextureCreator, FontStashSize, FontStashSize);
+        public Dictionary<int, FontSystem> FontSystemsByOutlineSize { get; set; } = new Dictionary<int, FontSystem>();
+        public byte[] FontData;
 
         #region IDisposable
         protected bool _disposed = false;
@@ -59,7 +69,8 @@ namespace PandaEngine
             {
                 if (disposing)
                 {
-                    FontSystem?.Dispose();
+                    foreach (var system in FontSystemsByOutlineSize)
+                        system.Value?.Dispose();
                 }
 
                 _disposed = true;
@@ -72,7 +83,7 @@ namespace PandaEngine
             using var ms = new MemoryStream();
 
             fs.CopyTo(ms);
-            FontSystem.AddFontMem(ms.ToArray());
+            FontData = ms.ToArray();
         }
 
         ~SpriteFont()
@@ -80,19 +91,33 @@ namespace PandaEngine
             Dispose(false);
         }
 
-        public void DrawText(SpriteBatch2D spriteBatch, string text, Vector2 position, RgbaByte color, int size)
+        public FontSystem GetFontSystem(int outlineSize = 0)
         {
-            FontSystem.FontSize = size;
-            var fss = new FssColor(color.R, color.G, color.B, color.A);
-            FontSystem.DrawText(spriteBatch, position.X, position.Y, text, fss, 0f);
-        }
+            if (!FontSystemsByOutlineSize.ContainsKey(outlineSize))
+            {
+                var newSystem = new FontSystem(FontLoader, FontTextureCreator, FontStashSize, FontStashSize, 0, outlineSize);
+                newSystem.AddFontMem(FontData);
+                FontSystemsByOutlineSize.Add(outlineSize, newSystem);
+            }
 
-        public Vector2 MeasureText(string text, int size)
+            return FontSystemsByOutlineSize[outlineSize];
+
+        } // GetFontSystem
+
+        public void DrawText(SpriteBatch2D spriteBatch, string text, Vector2 position, RgbaByte color, int size, int outlineSize = 0)
         {
-            FontSystem.FontSize = size;
+            var fontSystem = GetFontSystem(outlineSize);
+            fontSystem.FontSize = size;
+            fontSystem.DrawText(spriteBatch, position.X, position.Y, text, color.ToFssColor(), 0f);
+        } // DrawText
+
+        public Vector2 MeasureText(string text, int size, int outlineSize = 0)
+        {
+            var fontSystem = GetFontSystem(outlineSize);
+            fontSystem.FontSize = size;
             Bounds bounds = new Bounds();
-            FontSystem.TextBounds(0, 0, text, ref bounds);
+            fontSystem.TextBounds(0, 0, text, ref bounds);
             return new Vector2(bounds.X2 - bounds.X, bounds.Y2 - bounds.Y);
-        }
+        } // MeasureText
     } // SpriteFont
 }
