@@ -37,17 +37,9 @@ namespace PandaEngine
         BottomRight
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct SpriteBatch2DVertex
-    {
-        public Vector2 Position;
-        public Vector2 TexCoords;
-        public RgbaFloat Color;
-    }
-
     public struct SpriteBatchItem
     {
-        public SpriteBatch2DVertex[] VertexData;
+        public Vertex2DPositionTexCoordsColor[] VertexData;
         public Texture2D Texture;
     }
 
@@ -95,7 +87,7 @@ namespace PandaEngine
         protected int _maxBatchSize = 1000;
         protected bool _begin = false;
         protected List<SpriteBatchItem> _batchItems;
-        protected SpriteBatch2DVertex[] _vertexData;
+        protected Vertex2DPositionTexCoordsColor[] _vertexData;
 
         #region IDisposable
         protected bool _disposed = false;
@@ -163,10 +155,10 @@ namespace PandaEngine
                     new ResourceLayoutElementDescription("fTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription("fTextureSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
 
-            _vertexData = new SpriteBatch2DVertex[_maxBatchSize * VerticesPerQuad];
+            _vertexData = new Vertex2DPositionTexCoordsColor[_maxBatchSize * VerticesPerQuad];
 
-            _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(SpriteBatch2DVertex)), BufferUsage.VertexBuffer));
-            GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_vertexData.Length * sizeof(SpriteBatch2DVertex)));
+            _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)), BufferUsage.VertexBuffer));
+            GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)));
 
             VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
                 new VertexElementDescription("vPosition", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
@@ -358,7 +350,7 @@ namespace PandaEngine
             var batchItem = new SpriteBatchItem
             {
                 Texture = texture,
-                VertexData = new SpriteBatch2DVertex[4],
+                VertexData = new Vertex2DPositionTexCoordsColor[4],
             };
 
             for (var i = 0; i < _vertexTemplate.Length; i++)
@@ -490,7 +482,7 @@ namespace PandaEngine
             var batchItem = new SpriteBatchItem
             {
                 Texture = texture,
-                VertexData = new SpriteBatch2DVertex[4]
+                VertexData = new Vertex2DPositionTexCoordsColor[4]
             };
 
             var texelWidth = texture.TexelWidth;
@@ -500,7 +492,7 @@ namespace PandaEngine
             var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
 
             // top left
-            batchItem.VertexData[0] = new SpriteBatch2DVertex()
+            batchItem.VertexData[0] = new Vertex2DPositionTexCoordsColor()
             {
                 Position = Vector2.Transform(new Vector2(0f, 0f), worldMatrix),
                 TexCoords = new Vector2(
@@ -510,7 +502,7 @@ namespace PandaEngine
             };
 
             // top right
-            batchItem.VertexData[1] = new SpriteBatch2DVertex()
+            batchItem.VertexData[1] = new Vertex2DPositionTexCoordsColor()
             {
                 Position = Vector2.Transform(new Vector2(1f, 0f), worldMatrix),
                 TexCoords = new Vector2(
@@ -520,7 +512,7 @@ namespace PandaEngine
             };
 
             // bottom left
-            batchItem.VertexData[2] = new SpriteBatch2DVertex()
+            batchItem.VertexData[2] = new Vertex2DPositionTexCoordsColor()
             {
                 Position = Vector2.Transform(new Vector2(0f, 1f), worldMatrix),
                 TexCoords = new Vector2(
@@ -530,7 +522,7 @@ namespace PandaEngine
             };
 
             // bottom right
-            batchItem.VertexData[3] = new SpriteBatch2DVertex()
+            batchItem.VertexData[3] = new Vertex2DPositionTexCoordsColor()
             {
                 Position = Vector2.Transform(new Vector2(1f, 1f), worldMatrix),
                 TexCoords = new Vector2(
@@ -585,7 +577,7 @@ namespace PandaEngine
             if (count == 0)
                 return;
 
-            CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(count * VerticesPerQuad * sizeof(SpriteBatch2DVertex)));
+            CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(count * VerticesPerQuad * sizeof(Vertex2DPositionTexCoordsColor)));
             CommandList.SetVertexBuffer(0, _vertexBuffer);
             CommandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
             CommandList.SetPipeline(_pipeline);

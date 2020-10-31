@@ -12,8 +12,10 @@ namespace PandaEngine
         public static Sdl2Window Window;
         public static GraphicsDevice GraphicsDevice;
         public static CommandList CommandList;
-        public static SpriteBatch2D SpriteBatch2D;
         public static Viewport Viewport;
+
+        public static bool IsUsingScreenSpaceSpriteBatch2D = false;
+        public static SpriteBatch2D ScreenSpaceSpriteBatch2D;
 
         // Engine systems
         public static BaseGame Game;
@@ -25,7 +27,7 @@ namespace PandaEngine
         public static void Load(BaseGame game)
         {
             Game = game;
-            SpriteBatch2D = new SpriteBatch2D();
+            ScreenSpaceSpriteBatch2D = new SpriteBatch2D();
 
             _loaded = true;
         }

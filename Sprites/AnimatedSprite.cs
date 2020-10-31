@@ -115,6 +115,7 @@ namespace PandaEngine
                     SetFrame((int)CurrentAnimation.Frames[CurrentFrameIndex]);
                 }
             }
-        }
+        } // Update
+
     } // AnimatedSprite
 }

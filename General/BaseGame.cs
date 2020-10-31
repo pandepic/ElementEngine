@@ -16,7 +16,7 @@ namespace PandaEngine
         public Sdl2Window Window => PandaGlobals.Window;
         public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
         public CommandList CommandList => PandaGlobals.CommandList;
-        public SpriteBatch2D SpriteBatch2D => PandaGlobals.SpriteBatch2D;
+        public SpriteBatch2D ScreenSpaceSpriteBatch2D => PandaGlobals.ScreenSpaceSpriteBatch2D;
 
         // Graphics settings
         public RgbaFloat ClearColor { get; set; } = RgbaFloat.Black;
@@ -200,6 +200,13 @@ namespace PandaEngine
 
             Draw(GameTimer);
             CurrentGameState?.Draw(GameTimer);
+
+            if (PandaGlobals.IsUsingScreenSpaceSpriteBatch2D)
+            {
+                ScreenSpaceSpriteBatch2D.Begin(SamplerType.Point);
+                CursorManager.Draw();
+                ScreenSpaceSpriteBatch2D.End();
+            }
 
             CommandList.End();
             GraphicsDevice.SubmitCommands(CommandList);
