@@ -101,20 +101,13 @@ namespace PandaEngine
         /// </summary>
         public void SetData(System.Drawing.Rectangle bounds, byte[] byteData)
         {
-            var data = byteData.ToRgbaByte();
-            GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
+            SetData(new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height), byteData.ToRgbaByte());
 
         } // SetData
 
         public void SetData<T>(Rectangle? area, T[] data) where T : unmanaged
         {
-            Rectangle rect;
-
-            if (area.HasValue)
-                rect = area.Value;
-            else
-                rect = new Rectangle(0, 0, Width, Height);
-
+            Rectangle rect = area ?? new Rectangle(0, 0, Width, Height);
             GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
 
         } // SetData
