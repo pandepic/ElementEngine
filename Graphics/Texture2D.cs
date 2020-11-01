@@ -93,7 +93,7 @@ namespace PandaEngine
 
         public void SetData<T>(ReadOnlySpan<T> data, Rectangle destination) where T : unmanaged
         {
-            GraphicsDevice.UpdateTexture(Texture, data.ToArray(), (uint)destination.X, (uint)destination.Y, 0u, (uint)destination.Width, (uint)destination.Height, 1u, 0u, 0u);
+            SetData(destination, data.ToArray());
         }
 
         /// <summary>
