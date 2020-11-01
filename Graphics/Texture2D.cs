@@ -162,8 +162,9 @@ namespace PandaEngine
             for (var i = 0; i < data.Length; i++)
                 data[i] = new SixLabors.ImageSharp.PixelFormats.Rgba32(tempData[(i * 4)], tempData[(i * 4) + 1], tempData[(i * 4) + 2], tempData[(i * 4) + 3]);
 
-            var image = SixLabors.ImageSharp.Image.LoadPixelData(data, Width, Height);
+            var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
+
             temp.Dispose();
 
         } // SaveAsPng
