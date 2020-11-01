@@ -77,12 +77,8 @@ namespace PandaEngine
         public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
             : this(width, height, name, format, usage)
         {
-
             var data = color.ToBuffer((int)(width * height));
-
-            GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
-            GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
-            pinnedArray.Free();
+            GraphicsDevice.UpdateTexture(_texture, data, 0, 0, 0, width, height, 1, 0, 0);
         } // Texture2D
 
         ~Texture2D()
