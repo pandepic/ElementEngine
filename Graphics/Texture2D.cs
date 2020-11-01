@@ -55,23 +55,18 @@ namespace PandaEngine
         }
         #endregion
 
-        public Texture2D(Texture texture)
+        public Texture2D(Texture texture, string name = null)
         {
             _texture = texture;
             Description = _texture.GetDescription();
+            SetName(name);
         }
 
         public Texture2D(uint width, uint height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
             _texture = GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
             Description = _texture.GetDescription();
-
-            if (name == null)
-                name = Guid.NewGuid().ToString();
-
-            _texture.Name = name;
-            TextureName = name;
-            AssetName = name;
+            SetName(name);
         } // Texture2D
 
         public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
@@ -85,6 +80,16 @@ namespace PandaEngine
         {
             Dispose(false);
         }
+
+        private void SetName(string name = null)
+        {
+            if (name == null)
+                name = Guid.NewGuid().ToString();
+
+            _texture.Name = name;
+            TextureName = name;
+            AssetName = name;
+        } // SetName
 
         public void SetData<T>(ReadOnlySpan<T> data, Rectangle destination) where T : unmanaged
         {
