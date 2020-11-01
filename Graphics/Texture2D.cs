@@ -64,7 +64,7 @@ namespace PandaEngine
         public Texture2D(uint width, uint height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
             _texture = GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
-            Description = new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D);
+            Description = _texture.GetDescription();
 
             if (name == null)
                 name = Guid.NewGuid().ToString();
