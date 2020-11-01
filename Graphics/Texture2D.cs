@@ -91,9 +91,9 @@ namespace PandaEngine
             AssetName = name;
         } // SetName
 
-        public void SetData<T>(ReadOnlySpan<T> data, Rectangle destination) where T : unmanaged
+        public void SetData<T>(ReadOnlySpan<T> data, Rectangle? area = null) where T : unmanaged
         {
-            SetData(destination, data.ToArray());
+            SetData(data.ToArray(), area);
         }
 
         /// <summary>
@@ -101,11 +101,11 @@ namespace PandaEngine
         /// </summary>
         public void SetData(System.Drawing.Rectangle bounds, byte[] byteData)
         {
-            SetData(new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height), byteData.ToRgbaByte());
+            SetData(byteData.ToRgbaByte(), new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height));
 
         } // SetData
 
-        public void SetData<T>(Rectangle? area, T[] data) where T : unmanaged
+        public void SetData<T>(T[] data, Rectangle? area = null) where T : unmanaged
         {
             Rectangle rect = area ?? new Rectangle(0, 0, Width, Height);
             GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
