@@ -158,6 +158,7 @@ namespace PandaEngine
 
         } // SaveAsPng
 
+        #region Render target methods
         public Framebuffer GetFramebuffer()
         {
             if (_framebuffer == null)
@@ -210,6 +211,7 @@ namespace PandaEngine
 
             return _renderTargetSpriteBatch2D;
         } // GetRenderTargetSpriteBatch2D
+        #endregion
 
     } // Texture2D
 }
