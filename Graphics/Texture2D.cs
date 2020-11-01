@@ -67,14 +67,14 @@ namespace PandaEngine
             _texture = GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
             Description = _texture.GetDescription();
             SetName(name);
-        } // Texture2D
+        }
 
         public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
             : this(width, height, name, format, usage)
         {
             var data = color.ToBuffer((int)(width * height));
             GraphicsDevice.UpdateTexture(_texture, data, 0, 0, 0, width, height, 1, 0, 0);
-        } // Texture2D
+        }
 
         ~Texture2D()
         {
@@ -102,15 +102,13 @@ namespace PandaEngine
         public void SetData(System.Drawing.Rectangle bounds, byte[] byteData)
         {
             SetData(byteData.ToRgbaByte(), new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height));
-
-        } // SetData
+        }
 
         public void SetData<T>(T[] data, Rectangle? area = null) where T : unmanaged
         {
             Rectangle rect = area ?? new Rectangle(0, 0, Width, Height);
             GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
-
-        } // SetData
+        }
 
         public unsafe byte[] GetData()
         {
