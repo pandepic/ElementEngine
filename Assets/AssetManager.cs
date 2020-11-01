@@ -130,14 +130,21 @@ namespace PandaEngine
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
+
             var textureData = new ImageSharpTexture(fs, mipmap);
             var deviceTexture = textureData.CreateDeviceTexture(PandaGlobals.GraphicsDevice, PandaGlobals.GraphicsDevice.ResourceFactory);
+            
             var newTexture = new Texture2D(deviceTexture)
             {
                 TextureName = assetName,
                 AssetName = assetName
             };
+
             newTexture.Texture.Name = assetName;
+
+            //var textureData = Image.Load<Rgba32>(fs);
+            //var newTexture = new Texture2D((uint)textureData.Width, (uint)textureData.Height, assetName);
+            //newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height));
 
             _assetCache.Add(assetName, newTexture);
             _disposableAssets.Add(newTexture);

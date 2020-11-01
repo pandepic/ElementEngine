@@ -1,6 +1,9 @@
 ﻿using FontStashSharp;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Numerics;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
@@ -67,43 +70,37 @@ namespace PandaEngine
         public Texture2D(uint width, uint height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
             _texture = GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
+            Description = new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D);
 
-            if (name != null)
-            {
-                _texture.Name = name;
-                TextureName = name;
-            }
+            if (name == null)
+                name = Guid.NewGuid().ToString();
 
-            AssetName = Guid.NewGuid().ToString();
-        }
+            _texture.Name = name;
+            TextureName = name;
+            AssetName = name;
+        } // Texture2D
 
         public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
+            : this(width, height, name, format, usage)
         {
+
             var data = new RgbaByte[width * height];
             for (var i = 0; i < data.Length; i++)
                 data[i] = color;
 
             GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
-
-            _texture = PandaGlobals.GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
             GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
-
             pinnedArray.Free();
-
-            Description = new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D);
-
-            if (name != null)
-            {
-                _texture.Name = name;
-                TextureName = name;
-            }
-
-            AssetName = Guid.NewGuid().ToString();
-        }
+        } // Texture2D
 
         ~Texture2D()
         {
             Dispose(false);
+        }
+
+        public void SetData<T>(ReadOnlySpan<T> data, Rectangle destination) where T : unmanaged
+        {
+            GraphicsDevice.UpdateTexture(Texture, data.ToArray(), (uint)destination.X, (uint)destination.Y, 0u, (uint)destination.Width, (uint)destination.Height, 1u, 0u, 0u);
         }
 
         /// <summary>
@@ -112,11 +109,11 @@ namespace PandaEngine
         public void SetData(System.Drawing.Rectangle bounds, byte[] byteData)
         {
             var data = new RgbaByte[bounds.Width * bounds.Height];
-            
+
             // convert flat byte array to RGBA with a pixel every 4 bytes   
             for (var i = 0; i < data.Length; i++)
                 data[i] = new RgbaByte(byteData[(i * 4)], byteData[(i * 4) + 1], byteData[(i * 4) + 2], byteData[(i * 4) + 3]);
-            
+
             GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
 
         } // SetData
@@ -131,7 +128,51 @@ namespace PandaEngine
                 rect = new Rectangle(0, 0, Width, Height);
 
             GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
+
         } // SetData
+
+        public unsafe byte[] GetData()
+        {
+            var view = GraphicsDevice.Map<byte>(Texture, MapMode.Read);
+
+            var data = new byte[view.SizeInBytes];
+            Marshal.Copy(view.MappedResource.Data, data, 0, (int)view.SizeInBytes);
+
+            GraphicsDevice.Unmap(Texture);
+
+            return data;
+
+        } // GetData
+
+        public void SaveAsPng(string filePath)
+        {
+            using var fs = new FileStream(filePath, FileMode.OpenOrCreate);
+            SaveAsPng(fs);
+        } // SaveAsPng
+
+        public void SaveAsPng(FileStream fs)
+        {
+            var temp = new Texture2D((uint)Width, (uint)Height, null, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Staging);
+
+            var commandList = GraphicsDevice.ResourceFactory.CreateCommandList();
+            commandList.Begin();
+            commandList.CopyTexture(Texture, temp.Texture);
+            commandList.End();
+            GraphicsDevice.SubmitCommands(commandList);
+            GraphicsDevice.WaitForIdle();
+
+            var tempData = temp.GetData();
+            var data = new SixLabors.ImageSharp.PixelFormats.Rgba32[Width * Height];
+
+            // convert flat byte array to RGBA with a pixel every 4 bytes
+            for (var i = 0; i < data.Length; i++)
+                data[i] = new SixLabors.ImageSharp.PixelFormats.Rgba32(tempData[(i * 4)], tempData[(i * 4) + 1], tempData[(i * 4) + 2], tempData[(i * 4) + 3]);
+
+            var image = SixLabors.ImageSharp.Image.LoadPixelData(data, Width, Height);
+            image.SaveAsPng(fs);
+            temp.Dispose();
+
+        } // SaveAsPng
 
         public Framebuffer GetFramebuffer()
         {

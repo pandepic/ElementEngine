@@ -212,7 +212,6 @@ namespace PandaEngine
             CommandList.End();
             GraphicsDevice.SubmitCommands(CommandList);
             GraphicsDevice.SwapBuffers();
-            //GraphicsDevice.WaitForIdle();
         }
 
         public virtual void Load()
