@@ -1,6 +1,7 @@
 ﻿using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Veldrid;
 
@@ -38,6 +39,69 @@ namespace PandaEngine
         {
             return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
         }
+        #endregion
+
+        #region Veldrid buffer extensions
+        public static RgbaByte[] ToRgbaByte(this byte[] buffer)
+        {
+            if (buffer.Length % 4 != 0)
+                throw new Exception("Byte buffer has invalid format, must be 4 bytes per pixel in RGBA order.");
+
+            var data = new RgbaByte[buffer.Length / 4];
+
+            // convert flat byte array to RGBA with a pixel every 4 bytes   
+            for (var i = 0; i < data.Length; i++)
+                data[i] = new RgbaByte(buffer[(i * 4)], buffer[(i * 4) + 1], buffer[(i * 4) + 2], buffer[(i * 4) + 3]);
+
+            return data;
+        }
+
+        public static RgbaFloat[] ToRgbaFloat(this byte[] buffer)
+        {
+            if (buffer.Length % 4 != 0)
+                throw new Exception("Byte buffer has invalid format, must be 4 bytes per pixel in RGBA order.");
+
+            var data = new RgbaFloat[buffer.Length / 4];
+
+            // convert flat byte array to RGBA with a pixel every 4 bytes   
+            for (var i = 0; i < data.Length; i++)
+                data[i] = new RgbaFloat(buffer[(i * 4)] / 255f, buffer[(i * 4) + 1] / 255f, buffer[(i * 4) + 2] / 255f, buffer[(i * 4) + 3] / 255f);
+
+            return data;
+        }
+
+        public static Rgba32[] ToRgba32(this byte[] buffer)
+        {
+            if (buffer.Length % 4 != 0)
+                throw new Exception("Byte buffer has invalid format, must be 4 bytes per pixel in RGBA order.");
+
+            var data = new Rgba32[buffer.Length / 4];
+
+            // convert flat byte array to RGBA with a pixel every 4 bytes   
+            for (var i = 0; i < data.Length; i++)
+                data[i] = new Rgba32(buffer[(i * 4)], buffer[(i * 4) + 1], buffer[(i * 4) + 2], buffer[(i * 4) + 3]);
+
+            return data;
+        }
+
+        public static RgbaByte[] ToBuffer(this RgbaByte color, int size)
+        {
+            var data = new RgbaByte[size];
+            for (var i = 0; i < data.Length; i++)
+                data[i] = color;
+
+            return data;
+        }
+
+        public static RgbaFloat[] ToBuffer(this RgbaFloat color, int size)
+        {
+            var data = new RgbaFloat[size];
+            for (var i = 0; i < data.Length; i++)
+                data[i] = color;
+
+            return data;
+        }
+
         #endregion
 
     } // Extensions

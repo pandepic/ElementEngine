@@ -78,9 +78,7 @@ namespace PandaEngine
             : this(width, height, name, format, usage)
         {
 
-            var data = new RgbaByte[width * height];
-            for (var i = 0; i < data.Length; i++)
-                data[i] = color;
+            var data = color.ToBuffer((int)(width * height));
 
             GCHandle pinnedArray = GCHandle.Alloc(data, GCHandleType.Pinned);
             GraphicsDevice.UpdateTexture(_texture, pinnedArray.AddrOfPinnedObject(), (uint)(sizeof(RgbaByte) * (width * height)), 0, 0, 0, width, height, 1, 0, 0);
@@ -102,12 +100,7 @@ namespace PandaEngine
         /// </summary>
         public void SetData(System.Drawing.Rectangle bounds, byte[] byteData)
         {
-            var data = new RgbaByte[bounds.Width * bounds.Height];
-
-            // convert flat byte array to RGBA with a pixel every 4 bytes   
-            for (var i = 0; i < data.Length; i++)
-                data[i] = new RgbaByte(byteData[(i * 4)], byteData[(i * 4) + 1], byteData[(i * 4) + 2], byteData[(i * 4) + 3]);
-
+            var data = byteData.ToRgbaByte();
             GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
 
         } // SetData
@@ -156,11 +149,7 @@ namespace PandaEngine
             GraphicsDevice.WaitForIdle();
 
             var tempData = temp.GetData();
-            var data = new SixLabors.ImageSharp.PixelFormats.Rgba32[Width * Height];
-
-            // convert flat byte array to RGBA with a pixel every 4 bytes
-            for (var i = 0; i < data.Length; i++)
-                data[i] = new SixLabors.ImageSharp.PixelFormats.Rgba32(tempData[(i * 4)], tempData[(i * 4) + 1], tempData[(i * 4) + 2], tempData[(i * 4) + 3]);
+            var data = tempData.ToRgba32();
 
             var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
