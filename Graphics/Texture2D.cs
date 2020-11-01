@@ -109,24 +109,16 @@ namespace PandaEngine
         /// <summary>
         /// Specifically used by FontStashSharp for font atlas rendering.
         /// </summary>
-        public void SetData(System.Drawing.Rectangle bounds, FssColor[] fssData)
+        public void SetData(System.Drawing.Rectangle bounds, byte[] byteData)
         {
             var data = new RgbaByte[bounds.Width * bounds.Height];
             
+            // convert flat byte array to RGBA with a pixel every 4 bytes   
             for (var i = 0; i < data.Length; i++)
-            {
-                if (fssData[i].A == 0)
-                {
-                    data[i] = new RgbaByte(fssData[i].R, fssData[i].G, fssData[i].B, fssData[i].A);
-                }
-                else
-                {
-                    float ratio = fssData[i].A / 255f;
-                    data[i] = new RgbaByte((byte)(fssData[i].R / ratio), (byte)(fssData[i].G / ratio), (byte)(fssData[i].B / ratio), fssData[i].A);
-                }
-            }
+                data[i] = new RgbaByte(byteData[(i * 4)], byteData[(i * 4) + 1], byteData[(i * 4) + 2], byteData[(i * 4) + 3]);
             
             GraphicsDevice.UpdateTexture(Texture, data, (uint)bounds.X, (uint)bounds.Y, 0, (uint)bounds.Width, (uint)bounds.Height, 1, 0, 0);
+
         } // SetData
 
         public void SetData<T>(Rectangle? area, T[] data) where T : unmanaged

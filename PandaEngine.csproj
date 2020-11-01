@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FontStashSharp" Version="0.8.2" />
-    <PackageReference Include="FontStashSharp.StbTrueTypeSharp" Version="0.8.2" />
+    <PackageReference Include="FontStashSharp" Version="0.8.3" />
+    <PackageReference Include="FontStashSharp.StbTrueTypeSharp" Version="0.8.3" />
     <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="NAudio.Vorbis" Version="1.2.0" />
     <PackageReference Include="Serilog" Version="2.10.0" />

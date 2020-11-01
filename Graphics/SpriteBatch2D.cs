@@ -43,7 +43,7 @@ namespace PandaEngine
         public Texture2D Texture;
     }
 
-    public class SpriteBatch2D : IDisposable, IRenderer
+    public class SpriteBatch2D : IDisposable, IFontStashRenderer
     {
         public Sdl2Window Window => PandaGlobals.Window;
         public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
@@ -289,10 +289,10 @@ namespace PandaEngine
             font.DrawText(this, text, position, color, size, outlineSize);
         }
 
-        public void Draw(ITexture texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, FssColor fssColor, float depth)
+        public void Draw(ITexture2D texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, System.Drawing.Color color, float depth)
         {
-            var color = new RgbaFloat(fssColor.R / 255f, fssColor.G / 255f, fssColor.B / 255f, fssColor.A / 255f);
-            DrawTexture2D((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), new Rectangle(source.X, source.Y, source.Width, source.Height), null, null, 0f, color);
+            var colorF = new RgbaFloat(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
+            DrawTexture2D((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), new Rectangle(source.X, source.Y, source.Width, source.Height), null, null, 0f, colorF);
         }
 
         public void DrawSprite(Sprite sprite, Vector2 position)

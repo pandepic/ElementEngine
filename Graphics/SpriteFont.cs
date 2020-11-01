@@ -8,7 +8,7 @@ using Veldrid;
 
 namespace PandaEngine
 {
-    public class FontTexture : ITexture
+    public class FontTexture : ITexture2D
     {
         public Texture2D Texture { get; set; }
 
@@ -23,35 +23,23 @@ namespace PandaEngine
             Texture = null;
         }
 
-        public void SetData(System.Drawing.Rectangle bounds, FssColor[] data)
+        public void SetData(System.Drawing.Rectangle bounds, byte[] data)
         {
             Texture.SetData(bounds, data);
         }
     } // FontTexture
 
-    public class FontTextureCreator : ITextureCreator
+    public class FontTextureCreator : ITexture2DCreator
     {
-        public ITexture Create(int width, int height)
+        public ITexture2D Create(int width, int height)
         {
             return new FontTexture(width, height);
         }
     } // FontTextureCreator
 
-    public static class FontExtensions
-    {
-        public static FssColor ToFssColor(this RgbaByte color, bool premultiply = false)
-        {
-            if (!premultiply)
-                return new FssColor(color.R, color.G, color.B, color.A);
-            else
-                return FssColor.FromNonPremultiplied(color.R, color.G, color.B, color.A);
-        }
-    } // FontExtensions
-
     public class SpriteFont : IDisposable
     {
         internal static readonly int FontStashSize = 8000;
-        internal static StbTrueTypeSharpFontLoader FontLoader = new StbTrueTypeSharpFontLoader();
         internal static FontTextureCreator FontTextureCreator = new FontTextureCreator();
 
         public Dictionary<int, FontSystem> FontSystemsByOutlineSize { get; set; } = new Dictionary<int, FontSystem>();
@@ -98,8 +86,8 @@ namespace PandaEngine
         {
             if (!FontSystemsByOutlineSize.ContainsKey(outlineSize))
             {
-                var newSystem = new FontSystem(FontLoader, FontTextureCreator, FontStashSize, FontStashSize, 0, outlineSize);
-                newSystem.AddFontMem(FontData);
+                var newSystem = new FontSystem(StbTrueTypeSharpFontLoader.Instance, FontTextureCreator, FontStashSize, FontStashSize, 0, outlineSize, false);
+                newSystem.AddFont(FontData);
                 FontSystemsByOutlineSize.Add(outlineSize, newSystem);
             }
 
@@ -110,16 +98,16 @@ namespace PandaEngine
         public void DrawText(SpriteBatch2D spriteBatch, string text, Vector2 position, RgbaByte color, int size, int outlineSize = 0)
         {
             var fontSystem = GetFontSystem(outlineSize);
-            fontSystem.FontSize = size;
-            fontSystem.DrawText(spriteBatch, position.X, position.Y, text, color.ToFssColor(), 0f);
+            var font = fontSystem.GetFont(size);
+            font.DrawText(spriteBatch, position.X, position.Y, text, color.ToDrawingColor());
         } // DrawText
 
         public Vector2 MeasureText(string text, int size, int outlineSize = 0)
         {
             var fontSystem = GetFontSystem(outlineSize);
-            fontSystem.FontSize = size;
+            var font = fontSystem.GetFont(size);
             Bounds bounds = new Bounds();
-            fontSystem.TextBounds(0, 0, text, ref bounds);
+            font.TextBounds(0, 0, text, ref bounds);
             return new Vector2(bounds.X2 - bounds.X, bounds.Y2 - bounds.Y);
         } // MeasureText
 

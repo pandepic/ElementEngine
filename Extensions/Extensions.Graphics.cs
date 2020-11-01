@@ -33,6 +33,11 @@ namespace PandaEngine
         {
             return new RgbaVector(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }
+        
+        public static System.Drawing.Color ToDrawingColor(this RgbaByte color)
+        {
+            return System.Drawing.Color.FromArgb(color.R, color.G, color.B, color.A);
+        }
         #endregion
 
     } // Extensions
