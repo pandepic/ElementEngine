@@ -14,8 +14,8 @@ namespace PandaEngine
         public static CommandList CommandList;
         public static Viewport Viewport;
 
-        public static bool IsUsingScreenSpaceSpriteBatch2D = false;
-        public static SpriteBatch2D ScreenSpaceSpriteBatch2D;
+        internal static SpriteBatch2D ScreenSpaceSpriteBatch2D;
+        internal static List<Action> ScreenSpaceDrawList = new List<Action>();
 
         // Engine systems
         public static BaseGame Game;
@@ -27,7 +27,6 @@ namespace PandaEngine
         public static void Load(BaseGame game)
         {
             Game = game;
-            ScreenSpaceSpriteBatch2D = new SpriteBatch2D();
 
             _loaded = true;
         }
@@ -38,11 +37,27 @@ namespace PandaEngine
                 return;
 
             SpriteBatch2D.CleanupStaticResources();
-            CommandList.Dispose();
-            GraphicsDevice.Dispose();
+
+            CommandList?.Dispose();
+            CommandList = null;
+
+            GraphicsDevice?.Dispose();
+            GraphicsDevice = null;
+
+            ScreenSpaceSpriteBatch2D?.Dispose();
+            ScreenSpaceSpriteBatch2D = null;
 
             _loaded = false;
-        }
+        } // Unload
+
+        internal static void TryRegisterScreenSpaceDraw(Action action)
+        {
+            if (!ScreenSpaceDrawList.Contains(action))
+                ScreenSpaceDrawList.Add(action);
+
+            if (ScreenSpaceSpriteBatch2D == null)
+                ScreenSpaceSpriteBatch2D = new SpriteBatch2D();
+        } // TryRegisterScreenSpaceDraw
 
         public static void ResetFramebuffer(CommandList commandList = null)
         {

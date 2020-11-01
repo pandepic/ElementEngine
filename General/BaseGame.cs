@@ -96,10 +96,10 @@ namespace PandaEngine
             }, graphicsBackend);
 
             CreateGraphicsResources();
-            PandaGlobals.Load(this);
 
+            PandaGlobals.Load(this);
             PandaGlobals.Viewport = new Viewport(0f, 0f, PandaGlobals.Window.Width, PandaGlobals.Window.Height, 0f, 1f);
-        }
+        } // SetupWindow
 
         public void SetupAssets(string modsPath = "Mods")
         {
@@ -201,10 +201,11 @@ namespace PandaEngine
             Draw(GameTimer);
             CurrentGameState?.Draw(GameTimer);
 
-            if (PandaGlobals.IsUsingScreenSpaceSpriteBatch2D)
+            if (PandaGlobals.ScreenSpaceSpriteBatch2D != null && PandaGlobals.ScreenSpaceDrawList.Count > 0)
             {
                 ScreenSpaceSpriteBatch2D.Begin(SamplerType.Point);
-                CursorManager.Draw();
+                for (var i = 0; i < PandaGlobals.ScreenSpaceDrawList.Count; i++)
+                    PandaGlobals.ScreenSpaceDrawList[i]();
                 ScreenSpaceSpriteBatch2D.End();
             }
 

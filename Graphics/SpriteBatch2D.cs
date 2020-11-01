@@ -84,7 +84,7 @@ namespace PandaEngine
         protected Matrix4x4 _view;
 
         // Batch state
-        protected int _maxBatchSize = 1000;
+        protected int _maxBatchSize = 10000;
         protected bool _begin = false;
         protected List<SpriteBatchItem> _batchItems;
         protected Vertex2DPositionTexCoordsColor[] _vertexData;

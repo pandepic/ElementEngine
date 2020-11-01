@@ -25,12 +25,14 @@ namespace PandaEngine
 
     public static class CursorManager
     {
+        internal static bool _registered = false;
+
         public static Dictionary<string, Cursor> Cursors { get; set; } = new Dictionary<string, Cursor>();
         public static Cursor CurrentCursor { get; set; }
 
         public static void SetCursor(string name, string assetName, Vector2? offset = null)
         {
-            PandaGlobals.IsUsingScreenSpaceSpriteBatch2D = true;
+            PandaGlobals.TryRegisterScreenSpaceDraw(Draw);
 
             if (Cursors.TryGetValue(name, out var cursor))
             {
