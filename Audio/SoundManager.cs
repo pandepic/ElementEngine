@@ -132,6 +132,7 @@ namespace PandaEngine
 
     public static class SoundManager
     {
+        public static int UISoundType = -1;
         public static float DefaultVolume { get; set; } = 0.2f;
         public static float MasterVolume { get; set; } = 1f;
 
@@ -168,10 +169,10 @@ namespace PandaEngine
                     return Play(AssetManager.LoadAudioSourceByExtension(assetName), type, loop, allowDuplicates);
 
                 case AudioSourceType.Ogg:
-                    return Play(AssetManager.LoadAudioSourceFromOggVorbis(assetName), type, loop, allowDuplicates);
+                    return Play(AssetManager.LoadAudioSourceOggVorbis(assetName), type, loop, allowDuplicates);
 
                 case AudioSourceType.WAV:
-                    return Play(AssetManager.LoadAudioSourceFromWAV(assetName), type, loop, allowDuplicates);
+                    return Play(AssetManager.LoadAudioSourceWAV(assetName), type, loop, allowDuplicates);
             }
 
             return null;

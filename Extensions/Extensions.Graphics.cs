@@ -1,6 +1,7 @@
 ﻿using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Veldrid;
@@ -38,6 +39,42 @@ namespace PandaEngine
         public static System.Drawing.Color ToDrawingColor(this RgbaByte color)
         {
             return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+        }
+
+        public static RgbaByte FromHex(this RgbaByte color, string hexString)
+        {
+            if (string.IsNullOrWhiteSpace(hexString))
+                return color;
+            if (hexString.StartsWith("#"))
+                hexString = hexString.Substring(1);
+
+            uint hex = uint.Parse(hexString, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+
+            if (hexString.Length == 8)
+            {
+                return new RgbaByte(
+                    (byte)(hex >> 16), // R
+                    (byte)(hex >> 8), // G
+                    (byte)(hex), // B
+                    (byte)(hex >> 24)); // A
+            }
+            else if (hexString.Length == 6)
+            {
+                return new RgbaByte(
+                    (byte)(hex >> 16), // R
+                    (byte)(hex >> 8), // G
+                    (byte)(hex), // B
+                    255); // A
+            }
+            else
+            {
+                throw new InvalidOperationException("Invald hex representation of an ARGB or RGB color value.");
+            }
+        } // FromHex
+
+        public static RgbaFloat FromHex(string hexString)
+        {
+            return new RgbaByte().FromHex(hexString).ToRgbaFloat();
         }
         #endregion
 

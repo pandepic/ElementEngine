@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -30,57 +31,65 @@ namespace PandaEngine
     {
         public static Dictionary<string, SettingsSection> Sections { get; set; } = new Dictionary<string, SettingsSection>();
 
-        public static void Load(string filePath)
+        public static void LoadFromAsset(string assetName)
+        {
+            LoadFromPath(AssetManager.GetAssetPath(assetName));
+        }
+
+        public static void LoadFromPath(string filePath)
+        {
+            using var fs = AssetManager.GetFileStream(filePath);
+            LoadFromStream(fs);
+        }
+
+        public static void LoadFromStream(FileStream fs)
         {
             var stopWatch = Stopwatch.StartNew();
             var loadedCount = 0;
 
             Sections.Clear();
 
-            using (var fs = AssetManager.GetFileStream(filePath))
-            {
-                XDocument doc = XDocument.Load(fs);
-                XElement settingsRoot = doc.Element("Settings");
-                List<XElement> docSections = settingsRoot.Elements("Section").ToList();
+            XDocument doc = XDocument.Load(fs);
+            XElement settingsRoot = doc.Element("Settings");
+            List<XElement> docSections = settingsRoot.Elements("Section").ToList();
 
-                foreach (var docSection in docSections)
+            foreach (var docSection in docSections)
+            {
+                SettingsSection section = new SettingsSection
                 {
-                    SettingsSection section = new SettingsSection
+                    Name = docSection.Attribute("Name").Value
+                };
+
+                List<XElement> sectionSettings = docSection.Elements("Setting").ToList();
+
+                foreach (var sectionSetting in sectionSettings)
+                {
+                    var newSetting = new Setting()
                     {
-                        Name = docSection.Attribute("Name").Value
+                        Name = sectionSetting.Attribute("Name").Value,
+                        Value = sectionSetting.Attribute("Value").Value,
+                        OtherAttributes = new Dictionary<string, string>(),
                     };
 
-                    List<XElement> sectionSettings = docSection.Elements("Setting").ToList();
-
-                    foreach (var sectionSetting in sectionSettings)
+                    foreach (var att in sectionSetting.Attributes())
                     {
-                        var newSetting = new Setting()
-                        {
-                            Name = sectionSetting.Attribute("Name").Value,
-                            Value = sectionSetting.Attribute("Value").Value,
-                            OtherAttributes = new Dictionary<string, string>(),
-                        };
+                        if (att.Name != "Name" && att.Name != "Value")
+                            newSetting.OtherAttributes.Add(att.Name.ToString(), att.Value);
+                    }
 
-                        foreach (var att in sectionSetting.Attributes())
-                        {
-                            if (att.Name != "Name" && att.Name != "Value")
-                                newSetting.OtherAttributes.Add(att.Name.ToString(), att.Value);
-                        }
+                    section.Settings.Add(sectionSetting.Attribute("Name").Value, newSetting);
+                    loadedCount += 1;
 
-                        section.Settings.Add(sectionSetting.Attribute("Name").Value, newSetting);
-                        loadedCount += 1;
-
-                        Logging.Logger.Information("[{component}] ({section}) loaded setting {name} - {value}", "SettingsManager", section.Name, newSetting.Name, newSetting.Value);
-                    } // foreach
-
-                    Sections.Add(section.Name, section);
-
+                    Logging.Logger.Information("[{component}] ({section}) loaded setting {name} - {value}", "SettingsManager", section.Name, newSetting.Name, newSetting.Value);
                 } // foreach
-            }
+
+                Sections.Add(section.Name, section);
+
+            } // foreach
 
             stopWatch.Stop();
-            Logging.Logger.Information("[{component}] loaded {count} settings from {path} in {time:0.00} ms.", "SettingsManager", loadedCount, filePath, stopWatch.Elapsed.TotalMilliseconds);
-        } // load
+            Logging.Logger.Information("[{component}] loaded {count} settings from {path} in {time:0.00} ms.", "SettingsManager", loadedCount, fs.Name, stopWatch.Elapsed.TotalMilliseconds);
+        } // Load
 
         public static void Save(string filePath)
         {

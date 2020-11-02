@@ -36,14 +36,14 @@ namespace PandaEngine
         public List<MouseWheelChangeType> WheelInputs { get; set; }
     };
 
-    public interface IHandleGameControls
+    public interface IGameControlHandler
     {
         public void HandleGameControl(string controlName, GameControlState state, GameTimer gameTimer);
     }
 
     public class GameControlsManager : IKeyboardHandler, IMouseHandler
     {
-        public List<IHandleGameControls> Handlers = new List<IHandleGameControls>();
+        public List<IGameControlHandler> Handlers = new List<IGameControlHandler>();
 
         public List<KeyboardGameControl> KeyboardControls = new List<KeyboardGameControl>();
         public List<MouseGameControl> MouseControls = new List<MouseGameControl>();

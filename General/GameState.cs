@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PandaEngine
 {
-    public class GameState : IKeyboardHandler, IMouseHandler, IHandleGameControls
+    public class GameState : IKeyboardHandler, IMouseHandler, IGameControlHandler
     {
         internal bool _registered = false;
 

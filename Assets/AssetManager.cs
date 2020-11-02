@@ -18,6 +18,13 @@ using Veldrid.ImageSharp;
 
 namespace PandaEngine
 {
+    public enum TexturePremultiplyType
+    {
+        None,
+        Premultiply,
+        UnPremultiply
+    }
+
     public class Asset
     {
         public string Name;
@@ -28,7 +35,6 @@ namespace PandaEngine
     {
         private static readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
         private static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
-        private static readonly List<IDisposable> _disposableAssets = new List<IDisposable>();
 
         public static void Load(string modsPath)
         {
@@ -51,6 +57,11 @@ namespace PandaEngine
                     if (autoFindAtt != null)
                         autoFind = bool.Parse(autoFindAtt.Value);
 
+                    var autoAppendFolderFind = false;
+                    var autoAppendFolderFindAtt = assetsDoc.Root.Attribute("AutoAppendFolder");
+                    if (autoAppendFolderFindAtt != null)
+                        autoAppendFolderFind = bool.Parse(autoAppendFolderFindAtt.Value);
+
                     foreach (var asset in assetsDoc.Root.Elements("Asset"))
                     {
                         var assetName = asset.Attribute("Name").Value;
@@ -65,24 +76,30 @@ namespace PandaEngine
                     if (autoFind)
                     {
                         var dirPath = Path.Combine(modsPath, modPath);
-                        var directoryPaths = Directory.GetDirectories(dirPath);
+                        var directoryPaths = Directory.GetDirectories(dirPath, "*", SearchOption.AllDirectories);
+
                         var directoryList = new List<DirectoryInfo>
                         {
                             new DirectoryInfo(Path.Combine(modsPath, modPath))
                         };
 
                         directoryList.AddRange(directoryPaths.Select(d => new DirectoryInfo(d)).ToList());
+                        var baseDirProcessed = false;
 
                         foreach (var dir in directoryList)
                         {
                             foreach (var file in dir.GetFiles())
                             {
-                                if (!_assetData.ContainsKey(file.Name))
+                                var assetName = (autoAppendFolderFind && baseDirProcessed ? dir.Name + "/" : "") + file.Name;
+
+                                if (!_assetData.ContainsKey(assetName))
                                 {
-                                    _assetData.Add(file.Name, new Asset() { Name = file.Name, FilePath = Path.Combine(modsPath, modPath, Path.GetRelativePath(dirPath, file.FullName)) });
+                                    _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(modsPath, modPath, Path.GetRelativePath(dirPath, file.FullName)) });
                                     Logging.Logger.Information("[{component}] loaded asset {name} from {mod}.", "AssetManager", file.Name, modName);
                                 }
                             }
+
+                            baseDirProcessed = true;
                         }
                     } // if autoFind
                 } // foreach mod
@@ -94,10 +111,12 @@ namespace PandaEngine
 
         public static void Clear()
         {
-            for (var i = 0; i < _disposableAssets.Count; i++)
-                _disposableAssets[i].Dispose();
+            foreach (var kvp in _assetCache)
+            {
+                if (kvp.Value is IDisposable disposable)
+                    disposable?.Dispose();
+            }
 
-            _disposableAssets.Clear();
             _assetCache.Clear();
         }
 
@@ -122,7 +141,7 @@ namespace PandaEngine
             Logging.Logger.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
 
-        public static Texture2D LoadTexture2D(string assetName, bool mipmap = false)
+        public static Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None, bool mipmap = false)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (Texture2D)_assetCache[assetName];
@@ -136,7 +155,6 @@ namespace PandaEngine
             newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height));
 
             _assetCache.Add(assetName, newTexture);
-            _disposableAssets.Add(newTexture);
 
             LogLoaded("Texture2D", assetName, stopWatch);
             return newTexture;
@@ -151,12 +169,11 @@ namespace PandaEngine
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
-            
             var newFont = new SpriteFont(fs);
-            _assetCache.Add(assetName, newFont);
-            _disposableAssets.Add(newFont);
 
+            _assetCache.Add(assetName, newFont);
             LogLoaded("SpriteFont", assetName, stopWatch);
+
             return newFont;
 
         } // LoadSpriteFont
@@ -172,17 +189,17 @@ namespace PandaEngine
             switch (extension)
             {
                 case ".wav":
-                    return LoadAudioSourceFromWAV(assetName);
+                    return LoadAudioSourceWAV(assetName);
 
                 case ".ogg":
-                    return LoadAudioSourceFromOggVorbis(assetName);
+                    return LoadAudioSourceOggVorbis(assetName);
 
                 default:
                     throw new Exception("Couldn't load audio source from unknown or unsupported audio format " + assetName);
             }
         } // LoadAudioSourceByExtension
 
-        public static AudioSource LoadAudioSourceFromWAV(string assetName)
+        public static AudioSource LoadAudioSourceWAV(string assetName)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (AudioSource)_assetCache[assetName];
@@ -198,14 +215,13 @@ namespace PandaEngine
             };
 
             _assetCache.Add(assetName, newSource);
-            _disposableAssets.Add(newSource);
-
             LogLoaded("AudioSource", assetName, stopWatch);
+
             return newSource;
 
-        } // LoadAudioSourceFromWAV
+        } // LoadAudioSourceWAV
 
-        public static AudioSource LoadAudioSourceFromOggVorbis(string assetName)
+        public static AudioSource LoadAudioSourceOggVorbis(string assetName)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (AudioSource)_assetCache[assetName];
@@ -221,12 +237,11 @@ namespace PandaEngine
             };
 
             _assetCache.Add(assetName, newSource);
-            _disposableAssets.Add(newSource);
-
             LogLoaded("AudioSource", assetName, stopWatch);
+
             return newSource;
 
-        } // LoadAudioSourceFromOggVorbis
+        } // LoadAudioSourceOggVorbis
 
     } // AssetManager
 }

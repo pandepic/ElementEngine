@@ -20,7 +20,7 @@ namespace PandaEngine
         protected int _animationLoopCount = 0;
         protected SpriteFlipType _prevFlip;
 
-        public AnimatedSprite(Texture2D texture, Vector2i? frameSize, bool centerOrigin = false) : base(texture, centerOrigin)
+        public AnimatedSprite(Texture2D texture, Vector2i? frameSize = null, bool centerOrigin = false) : base(texture, centerOrigin)
         {
             if (!frameSize.HasValue)
                 frameSize = texture.Size;

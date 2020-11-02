@@ -8,6 +8,8 @@ namespace PandaEngine
 {
     public class PandaGlobals
     {
+        protected static bool _loaded = false;
+
         // Graphics resources
         public static Sdl2Window Window;
         public static GraphicsDevice GraphicsDevice;
@@ -17,17 +19,29 @@ namespace PandaEngine
         internal static SpriteBatch2D ScreenSpaceSpriteBatch2D;
         internal static List<Action> ScreenSpaceDrawList = new List<Action>();
 
+        // Target resolution
+        public static int TargetResolutionWidth => Window.Width;
+        public static int TargetResolutionHeight => Window.Height;
+
         // Engine systems
         public static BaseGame Game;
 
-        protected static bool _loaded = false;
+        // UI
+        public static Dictionary<Type, string> UIWidgetTypes { get; set; } = new Dictionary<Type, string>()
+        {
+            { typeof(PUIWBasicButton), "Button" },
+            //{ typeof(PUIWLabel), "Label" },
+            //{ typeof(PUIWTextBox), "Textbox" },
+            //{ typeof(PUIWImageBox), "ImageBox" },
+            //{ typeof(PUIWHScrollBar), "HScrollBar" },
+            //{ typeof(PUIWHProgressBar), "HProgressBar" },
+        };
 
         protected PandaGlobals() { }
 
         public static void Load(BaseGame game)
         {
             Game = game;
-
             _loaded = true;
         }
 
