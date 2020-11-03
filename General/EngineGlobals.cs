@@ -32,7 +32,7 @@ namespace ElementEngine
             { typeof(PUIWLabel), "Label" },
             { typeof(PUIWTextBox), "Textbox" },
             { typeof(PUIWImageBox), "ImageBox" },
-            //{ typeof(PUIWHScrollBar), "HScrollBar" },
+            { typeof(PUIWHScrollBar), "HScrollBar" },
             { typeof(PUIWHProgressBar), "HProgressBar" },
         };
 
