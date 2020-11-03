@@ -3,7 +3,7 @@ using System.Numerics;
 using System.Xml.Linq;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class WidgetPositionFlags
     {
@@ -353,13 +353,13 @@ namespace PandaEngine
 
         public static void RegisterWidgetType(Type type, string elementName)
         {
-            if (PandaGlobals.UIWidgetTypes.ContainsKey(type))
+            if (ElementGlobals.UIWidgetTypes.ContainsKey(type))
                 throw new Exception("Type already exists.");
 
-            if (PandaGlobals.UIWidgetTypes.ContainsValue(elementName))
+            if (ElementGlobals.UIWidgetTypes.ContainsValue(elementName))
                 throw new Exception("Element name already exists.");
 
-            PandaGlobals.UIWidgetTypes.Add(type, elementName);
+            ElementGlobals.UIWidgetTypes.Add(type, elementName);
         } // RegisterWidgetType
 
     } // PUIWidget

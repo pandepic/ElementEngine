@@ -1,6 +1,6 @@
 ﻿//using System.Xml.Linq;
 
-//namespace PandaEngine
+//namespace ElementEngine
 //{
 //    public class PUIWHProgressBar : PUIWidget
 //    {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PandaEngine
+namespace ElementEngine
 {
-    public class PandaMath
+    public class MathHelper
     {
         public static readonly float ToRadians = (MathF.PI * 2f) / 360f;
         public static readonly float ToDegrees = 360f / (MathF.PI * 2f);

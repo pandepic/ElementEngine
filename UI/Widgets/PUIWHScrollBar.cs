@@ -1,7 +1,7 @@
 ﻿//using System;
 //using System.Xml.Linq;
 
-//namespace PandaEngine
+//namespace ElementEngine
 //{
 //    public class PUIWHScrollBar : PUIWidget
 //    {

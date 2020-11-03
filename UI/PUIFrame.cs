@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Xml.Linq;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class CommonWidgetResources
     {
@@ -108,8 +108,8 @@ namespace PandaEngine
 
         public PUIFrame(PUIMenu parent, XElement el, Dictionary<string, XElement> templates)
         {
-            var screenWidth = PandaGlobals.TargetResolutionWidth;
-            var screenHeight = PandaGlobals.TargetResolutionHeight;
+            var screenWidth = ElementGlobals.TargetResolutionWidth;
+            var screenHeight = ElementGlobals.TargetResolutionHeight;
 
             _parent = parent;
             Templates = templates;
@@ -199,7 +199,7 @@ namespace PandaEngine
 
             var tempWidgets = new List<PUIWidget>();
 
-            foreach (var kvp in PandaGlobals.UIWidgetTypes)
+            foreach (var kvp in ElementGlobals.UIWidgetTypes)
             {
                 var type = kvp.Key;
                 var xmlElements = widgetsRoot.Elements(kvp.Value).ToList();

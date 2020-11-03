@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Veldrid;
 using Veldrid.Sdl2;
 
-namespace PandaEngine
+namespace ElementEngine
 {
-    public class PandaGlobals
+    public class ElementGlobals
     {
         protected static bool _loaded = false;
 
@@ -36,7 +36,7 @@ namespace PandaEngine
             //{ typeof(PUIWHProgressBar), "HProgressBar" },
         };
 
-        protected PandaGlobals() { }
+        protected ElementGlobals() { }
 
         public static void Load(BaseGame game)
         {

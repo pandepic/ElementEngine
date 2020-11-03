@@ -2,7 +2,7 @@
 using Serilog.Core;
 using Serilog.Events;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public static class Logging
     {

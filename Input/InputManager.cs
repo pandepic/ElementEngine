@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Text;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public enum MouseWheelChangeType
     {

@@ -6,7 +6,7 @@ using FontStashSharp;
 using FontStashSharp.Interfaces;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class FontTexture : ITexture2D
     {

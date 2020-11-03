@@ -16,7 +16,7 @@ using System.Text;
 using System.Xml.Linq;
 using Veldrid.ImageSharp;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public enum TexturePremultiplyType
     {

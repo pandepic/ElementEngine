@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public static partial class Extensions
     {

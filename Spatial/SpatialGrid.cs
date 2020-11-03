@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public interface ISpatialGridObject
     {

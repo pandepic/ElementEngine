@@ -6,14 +6,14 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class BaseGame : IDisposable
     {
-        public Sdl2Window Window => PandaGlobals.Window;
-        public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
-        public CommandList CommandList => PandaGlobals.CommandList;
-        public SpriteBatch2D ScreenSpaceSpriteBatch2D => PandaGlobals.ScreenSpaceSpriteBatch2D;
+        public Sdl2Window Window => ElementGlobals.Window;
+        public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
+        public CommandList CommandList => ElementGlobals.CommandList;
+        public SpriteBatch2D ScreenSpaceSpriteBatch2D => ElementGlobals.ScreenSpaceSpriteBatch2D;
 
         // Graphics settings
         public RgbaFloat ClearColor { get; set; } = RgbaFloat.Black;
@@ -51,7 +51,7 @@ namespace PandaEngine
             {
                 if (disposing)
                 {
-                    PandaGlobals.Unload();
+                    ElementGlobals.Unload();
                 }
 
                 _disposed = true;
@@ -86,16 +86,16 @@ namespace PandaEngine
                 WindowTitle = GameTitle,
             };
 
-            PandaGlobals.Window = VeldridStartup.CreateWindow(ref windowCI);
-            PandaGlobals.GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new GraphicsDeviceOptions()
+            ElementGlobals.Window = VeldridStartup.CreateWindow(ref windowCI);
+            ElementGlobals.GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new GraphicsDeviceOptions()
             {
                 SyncToVerticalBlank = vsync,
             }, graphicsBackend);
 
             CreateGraphicsResources();
 
-            PandaGlobals.Load(this);
-            PandaGlobals.Viewport = new Viewport(0f, 0f, PandaGlobals.Window.Width, PandaGlobals.Window.Height, 0f, 1f);
+            ElementGlobals.Load(this);
+            ElementGlobals.Viewport = new Viewport(0f, 0f, ElementGlobals.Window.Width, ElementGlobals.Window.Height, 0f, 1f);
         } // SetupWindow
 
         public void SetupAssets(string modsPath = "Mods")
@@ -106,7 +106,7 @@ namespace PandaEngine
         public virtual void CreateGraphicsResources()
         {
             var factory = GraphicsDevice.ResourceFactory;
-            PandaGlobals.CommandList = factory.CreateCommandList();
+            ElementGlobals.CommandList = factory.CreateCommandList();
         } // CreateGraphicsResources
 
         public void EnableFixedTimeStep(int targetFPS)
@@ -191,18 +191,18 @@ namespace PandaEngine
         protected void HandleDraw()
         {
             CommandList.Begin();
-            PandaGlobals.ResetFramebuffer();
-            PandaGlobals.ResetViewport();
+            ElementGlobals.ResetFramebuffer();
+            ElementGlobals.ResetViewport();
             CommandList.ClearColorTarget(0, ClearColor);
 
             Draw(GameTimer);
             CurrentGameState?.Draw(GameTimer);
 
-            if (PandaGlobals.ScreenSpaceSpriteBatch2D != null && PandaGlobals.ScreenSpaceDrawList.Count > 0)
+            if (ElementGlobals.ScreenSpaceSpriteBatch2D != null && ElementGlobals.ScreenSpaceDrawList.Count > 0)
             {
                 ScreenSpaceSpriteBatch2D.Begin(SamplerType.Point);
-                for (var i = 0; i < PandaGlobals.ScreenSpaceDrawList.Count; i++)
-                    PandaGlobals.ScreenSpaceDrawList[i]();
+                for (var i = 0; i < ElementGlobals.ScreenSpaceDrawList.Count; i++)
+                    ElementGlobals.ScreenSpaceDrawList[i]();
                 ScreenSpaceSpriteBatch2D.End();
             }
 

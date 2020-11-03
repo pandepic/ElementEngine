@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class WidgetListException : Exception
     {

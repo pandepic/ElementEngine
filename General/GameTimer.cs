@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class GameTimer
     {

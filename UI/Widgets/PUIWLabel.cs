@@ -4,7 +4,7 @@
 //using System.Text;
 //using System.Xml.Linq;
 
-//namespace PandaEngine
+//namespace ElementEngine
 //{
 //    public class PUIWLabel : PUIWidget
 //    {

@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Vertex2DPositionTexCoordsColor

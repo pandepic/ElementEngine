@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public static partial class Extensions
     {

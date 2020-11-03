@@ -12,7 +12,7 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.SPIRV;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public enum SamplerType
     {
@@ -45,9 +45,9 @@ namespace PandaEngine
 
     public class SpriteBatch2D : IDisposable, IFontStashRenderer
     {
-        public Sdl2Window Window => PandaGlobals.Window;
-        public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
-        public CommandList CommandList => PandaGlobals.CommandList;
+        public Sdl2Window Window => ElementGlobals.Window;
+        public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
+        public CommandList CommandList => ElementGlobals.CommandList;
 
         // Constants
         public const int IndicesPerQuad = 6;
@@ -121,11 +121,11 @@ namespace PandaEngine
         }
         #endregion
 
-        public SpriteBatch2D() : this(PandaGlobals.Window.Width, PandaGlobals.Window.Height)
+        public SpriteBatch2D() : this(ElementGlobals.Window.Width, ElementGlobals.Window.Height)
         {
         }
 
-        public SpriteBatch2D(int width, int height) : this(width, height, PandaGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
+        public SpriteBatch2D(int width, int height) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
         {
         }
 

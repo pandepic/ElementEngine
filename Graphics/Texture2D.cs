@@ -5,11 +5,11 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class Texture2D : IDisposable
     {
-        public GraphicsDevice GraphicsDevice => PandaGlobals.GraphicsDevice;
+        public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
 
         protected Texture _texture;
         public Texture Texture { get => _texture; }
@@ -155,7 +155,7 @@ namespace PandaEngine
         {
             if (_framebuffer == null)
             {
-                _framebuffer = PandaGlobals.GraphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription()
+                _framebuffer = ElementGlobals.GraphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription()
                 {
                     ColorTargets = new FramebufferAttachmentDescription[]
                     {
@@ -171,7 +171,7 @@ namespace PandaEngine
         public void BeginRenderTarget(CommandList commandList = null)
         {
             if (commandList == null)
-                commandList = PandaGlobals.CommandList;
+                commandList = ElementGlobals.CommandList;
 
             commandList.SetFramebuffer(GetFramebuffer());
             commandList.SetViewport(0, new Viewport(0, 0, Width, Height, 0f, 1f));
@@ -181,16 +181,16 @@ namespace PandaEngine
         public void EndRenderTarget(CommandList commandList = null)
         {
             if (commandList == null)
-                commandList = PandaGlobals.CommandList;
+                commandList = ElementGlobals.CommandList;
 
-            PandaGlobals.ResetFramebuffer(commandList);
-            PandaGlobals.ResetViewport(commandList);
+            ElementGlobals.ResetFramebuffer(commandList);
+            ElementGlobals.ResetViewport(commandList);
         }
 
         public void RenderTargetClear(RgbaFloat color, CommandList commandList = null)
         {
             if (commandList == null)
-                commandList = PandaGlobals.CommandList;
+                commandList = ElementGlobals.CommandList;
 
             commandList.ClearColorTarget(0, color);
 

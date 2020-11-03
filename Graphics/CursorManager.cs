@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public class Cursor
     {
@@ -32,7 +32,7 @@ namespace PandaEngine
 
         public static void SetCursor(string name, string assetName, Vector2? offset = null)
         {
-            PandaGlobals.TryRegisterScreenSpaceDraw(Draw);
+            ElementGlobals.TryRegisterScreenSpaceDraw(Draw);
 
             if (Cursors.TryGetValue(name, out var cursor))
             {
@@ -46,14 +46,14 @@ namespace PandaEngine
                 var newCursor = new Cursor(name, assetName, offset);
                 Cursors.Add(name, newCursor);
                 CurrentCursor = newCursor;
-                PandaGlobals.Window.CursorVisible = false;
+                ElementGlobals.Window.CursorVisible = false;
             }
         } // SetCursor
 
         public static void Disable()
         {
             CurrentCursor = null;
-            PandaGlobals.Window.CursorVisible = true;
+            ElementGlobals.Window.CursorVisible = true;
         }
 
         public static void Draw()
@@ -61,7 +61,7 @@ namespace PandaEngine
             if (CurrentCursor == null)
                 return;
 
-            PandaGlobals.ScreenSpaceSpriteBatch2D.DrawSprite(CurrentCursor.Sprite, InputManager.MousePosition + CurrentCursor.Offset);
+            ElementGlobals.ScreenSpaceSpriteBatch2D.DrawSprite(CurrentCursor.Sprite, InputManager.MousePosition + CurrentCursor.Offset);
         }
     } // CursorManager
 }

@@ -3,7 +3,7 @@ using System;
 using System.Globalization;
 using Veldrid;
 
-namespace PandaEngine
+namespace ElementEngine
 {
     public static partial class Extensions
     {
