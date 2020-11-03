@@ -87,5 +87,5 @@ namespace ElementEngine
 
             commandList.SetViewport(0, Viewport);
         }
-    } // PandaGlobals
+    } // ElementGlobals
 }
