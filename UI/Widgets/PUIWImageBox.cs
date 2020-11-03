@@ -1,40 +1,35 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
-//namespace ElementEngine
-//{
-//    public class PUIWImageBox : PUIWidget
-//    {
-//        protected AnimatedSprite _image = null;
+namespace ElementEngine
+{
+    public class PUIWImageBox : PUIWidget
+    {
+        protected AnimatedSprite _image = null;
 
-//        public PUIWImageBox() { }
+        public PUIWImageBox() { }
 
-//        public override void Load(PUIFrame parent, XElement el)
-//        {
-//            Init(parent, el);
+        public override void Load(PUIFrame parent, XElement el)
+        {
+            Init(parent, el);
 
-//            bool preMultiplyAlpha = false;
+            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None;
 
-//            var elAlpha = GetXMLElement("PreMultiplyAlpha");
-//            if (elAlpha != null)
-//                preMultiplyAlpha = bool.Parse(elAlpha.Value);
+            var elAlpha = GetXMLElement("PreMultiplyAlpha");
+            if (elAlpha != null)
+                preMultiplyAlpha = elAlpha.Value.ToEnum<TexturePremultiplyType>();
 
-//            Texture2D texture = AssetManager.LoadTexture2D(parent.CommonWidgetResources.Graphics, GetXMLElement("AssetName").Value, preMultiplyAlpha);
+            Texture2D texture = AssetManager.LoadTexture2D(GetXMLElement("AssetName").Value, preMultiplyAlpha);
 
-//            Width = texture.Width;
-//            Height = texture.Height;
+            Width = texture.Width;
+            Height = texture.Height;
 
-//            _image = new AnimatedSprite(texture, texture.Width, texture.Height);
-//        }
+            _image = new AnimatedSprite(texture, texture.Size);
+        }
 
-//        public override void Draw(SpriteBatch spriteBatch)
-//        {
-//            if (_image != null)
-//                _image.Draw(spriteBatch, Position + Parent.Position);
-//        }
-//    }
-//}
+        public override void Draw(SpriteBatch2D spriteBatch)
+        {
+            if (_image != null)
+                _image.Draw(spriteBatch, Position + Parent.Position);
+        }
+    } // PUIWImageBox
+}

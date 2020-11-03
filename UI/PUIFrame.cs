@@ -410,6 +410,11 @@ namespace ElementEngine
             Widgets.OnKeyDown(key, gameTimer);
         }
 
+        public void OnTextInput(char key, GameTimer gameTimer)
+        {
+            Widgets.OnTextInput(key, gameTimer);
+        }
+
         public bool PointInsideDraggableRect(Vector2 point)
         {
             if (_draggableRect.IsEmpty)

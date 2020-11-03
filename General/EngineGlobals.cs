@@ -29,11 +29,11 @@ namespace ElementEngine
         public static Dictionary<Type, string> UIWidgetTypes { get; set; } = new Dictionary<Type, string>()
         {
             { typeof(PUIWBasicButton), "Button" },
-            //{ typeof(PUIWLabel), "Label" },
-            //{ typeof(PUIWTextBox), "Textbox" },
-            //{ typeof(PUIWImageBox), "ImageBox" },
+            { typeof(PUIWLabel), "Label" },
+            { typeof(PUIWTextBox), "Textbox" },
+            { typeof(PUIWImageBox), "ImageBox" },
             //{ typeof(PUIWHScrollBar), "HScrollBar" },
-            //{ typeof(PUIWHProgressBar), "HProgressBar" },
+            { typeof(PUIWHProgressBar), "HProgressBar" },
         };
 
         protected ElementGlobals() { }

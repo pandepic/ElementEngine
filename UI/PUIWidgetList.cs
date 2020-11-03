@@ -179,17 +179,12 @@ namespace ElementEngine
             }
         }
 
-        public Dictionary<string, object> GetWidgetScriptList()
+        public void OnTextInput(char key, GameTimer gameTimer)
         {
-            var result = new Dictionary<string, object>();
-
-            for (var i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < _widgets.Count; i++)
             {
-                var widget = _widgets[i];
-                result.Add(widget.Name, widget);
+                _widgets[i].OnTextInput(key, gameTimer);
             }
-
-            return result;
         }
     }
 }

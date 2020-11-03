@@ -116,6 +116,7 @@ namespace ElementEngine
         public virtual void OnKeyPressed(Key key, GameTimer gameTimer) { }
         public virtual void OnKeyReleased(Key key, GameTimer gameTimer) { }
         public virtual void OnKeyDown(Key key, GameTimer gameTimer) { }
+        public virtual void OnTextInput(char key, GameTimer gameTimer) { }
 
         public virtual void Draw(SpriteBatch2D spriteBatch) { }
 

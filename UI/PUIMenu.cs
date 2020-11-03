@@ -180,6 +180,11 @@ namespace ElementEngine
             Frames.OnKeyDown(key, gameTimer);
         } // HandleKeyDown
 
+        public void HandleTextInput(char key, GameTimer gameTimer)
+        {
+            Frames.OnTextInput(key, gameTimer);
+        }
+
         public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             Frames.OnMouseMoved(mousePosition, prevMousePosition, gameTimer);

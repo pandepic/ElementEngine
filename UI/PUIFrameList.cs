@@ -99,19 +99,6 @@ namespace ElementEngine
             return result;
         }
 
-        public Dictionary<string, object> GetWidgetScriptList()
-        {
-            var result = new Dictionary<string, object>();
-
-            foreach (var f in _frames)
-            {
-                foreach (var w in f.Widgets.GetWidgetScriptList())
-                    result.Add(f.Name + "_" + w.Key, w.Value);
-            }
-
-            return result;
-        }
-
         public void Draw(SpriteBatch2D spriteBatch)
         {
             foreach (var frame in _frames)
@@ -195,6 +182,14 @@ namespace ElementEngine
             foreach (var frame in _reverseFrames)
             {
                 frame.OnKeyDown(key, gameTimer);
+            }
+        }
+
+        public void OnTextInput(char key, GameTimer gameTimer)
+        {
+            foreach (var frame in _reverseFrames)
+            {
+                frame.OnTextInput(key, gameTimer);
             }
         }
     } // PUIFrameList

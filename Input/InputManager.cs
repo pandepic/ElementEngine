@@ -17,6 +17,7 @@ namespace ElementEngine
         public void HandleKeyPressed(Key key, GameTimer gameTimer) { }
         public void HandleKeyReleased(Key key, GameTimer gameTimer) { }
         public void HandleKeyDown(Key key, GameTimer gameTimer) { }
+        public void HandleTextInput(char key, GameTimer gameTimer) { }
     }
 
     public interface IMouseHandler
@@ -96,6 +97,12 @@ namespace ElementEngine
 
             if (MouseWheelDelta != 0)
                 HandleMouseWheel(gameTimer);
+
+            for (var i = 0; i < snapshot.KeyCharPresses.Count; i++)
+            {
+                for (var h = 0; h < _keyboardHandlers.Count; h++)
+                    _keyboardHandlers[h]?.HandleTextInput(snapshot.KeyCharPresses[i], gameTimer);
+            }
 
             for (var i = 0; i < snapshot.KeyEvents.Count; i++)
             {
