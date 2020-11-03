@@ -72,7 +72,7 @@ namespace PandaEngine
             }
 
             stopWatch.Stop();
-            Logging.Logger.Information("[{component}] loaded {count} animations from {asset} in {time:0.00} ms.", "AnimationManager", loadedCount, assetName, stopWatch.Elapsed.TotalMilliseconds);
+            Logging.Information("[{component}] loaded {count} animations from {asset} in {time:0.00} ms.", "AnimationManager", loadedCount, assetName, stopWatch.Elapsed.TotalMilliseconds);
         } // LoadAnimations
 
         public static Animation GetAnimation(string name)

@@ -95,7 +95,7 @@ namespace PandaEngine
                                 if (!_assetData.ContainsKey(assetName))
                                 {
                                     _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(modsPath, modPath, Path.GetRelativePath(dirPath, file.FullName)) });
-                                    Logging.Logger.Information("[{component}] loaded asset {name} from {mod}.", "AssetManager", file.Name, modName);
+                                    Logging.Information("[{component}] loaded asset {name} from {mod}.", "AssetManager", file.Name, modName);
                                 }
                             }
 
@@ -106,7 +106,7 @@ namespace PandaEngine
             }
 
             stopWatch.Stop();
-            Logging.Logger.Information("[{component}] {count} mod assets loaded from {path} in {time:0.00} ms.", "AssetManager", _assetData.Count, modsPath, stopWatch.Elapsed.TotalMilliseconds);
+            Logging.Information("[{component}] {count} mod assets loaded from {path} in {time:0.00} ms.", "AssetManager", _assetData.Count, modsPath, stopWatch.Elapsed.TotalMilliseconds);
         } // Load
 
         public static void Clear()
@@ -138,7 +138,7 @@ namespace PandaEngine
         private static void LogLoaded(string type, string assetName, Stopwatch stopWatch)
         {
             stopWatch.Stop();
-            Logging.Logger.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
+            Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
 
         public static Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None, bool mipmap = false)

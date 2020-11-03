@@ -1,9 +1,6 @@
-﻿using SixLabors.ImageSharp;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Text;
 using System.Threading;
 using Veldrid;
 using Veldrid.Sdl2;

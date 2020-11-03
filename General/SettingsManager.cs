@@ -80,7 +80,7 @@ namespace PandaEngine
                     section.Settings.Add(sectionSetting.Attribute("Name").Value, newSetting);
                     loadedCount += 1;
 
-                    Logging.Logger.Information("[{component}] ({section}) loaded setting {name} - {value}", "SettingsManager", section.Name, newSetting.Name, newSetting.Value);
+                    Logging.Information("[{component}] ({section}) loaded setting {name} - {value}", "SettingsManager", section.Name, newSetting.Name, newSetting.Value);
                 } // foreach
 
                 Sections.Add(section.Name, section);
@@ -88,12 +88,12 @@ namespace PandaEngine
             } // foreach
 
             stopWatch.Stop();
-            Logging.Logger.Information("[{component}] loaded {count} settings from {path} in {time:0.00} ms.", "SettingsManager", loadedCount, fs.Name, stopWatch.Elapsed.TotalMilliseconds);
+            Logging.Information("[{component}] loaded {count} settings from {path} in {time:0.00} ms.", "SettingsManager", loadedCount, Path.GetFileName(fs.Name), stopWatch.Elapsed.TotalMilliseconds);
         } // Load
 
         public static void Save(string filePath)
         {
-            Logging.Logger.Information("[{component}] saving settings to {path}", "SettingsManager", filePath);
+            Logging.Information("[{component}] saving settings to {path}", "SettingsManager", filePath);
 
             XDocument doc = new XDocument();
 

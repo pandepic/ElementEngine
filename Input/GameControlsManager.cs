@@ -89,7 +89,7 @@ namespace PandaEngine
 
                     KeyboardControls.Add(newKeyboardControl);
                     loadedCount += 1;
-                    Logging.Logger.Information("[{component}] loaded keyboard control {name}.", "GameControlsManager", newKeyboardControl.Name);
+                    Logging.Information("[{component}] loaded keyboard control {name}.", "GameControlsManager", newKeyboardControl.Name);
                 }
                 else if (controlType == GameControlInputType.Mouse)
                 {
@@ -113,12 +113,12 @@ namespace PandaEngine
 
                     MouseControls.Add(newMouseControl);
                     loadedCount += 1;
-                    Logging.Logger.Information("[{component}] loaded mouse control {name}.", "GameControlsManager", newMouseControl.Name);
+                    Logging.Information("[{component}] loaded mouse control {name}.", "GameControlsManager", newMouseControl.Name);
                 }
             } // foreach setting
 
             stopWatch.Stop();
-            Logging.Logger.Information("[{component}] loaded {count} controls from {section} in {time:0.00} ms.", "GameControlsManager", loadedCount, settingsSection, stopWatch.Elapsed.TotalMilliseconds);
+            Logging.Information("[{component}] loaded {count} controls from {section} in {time:0.00} ms.", "GameControlsManager", loadedCount, settingsSection, stopWatch.Elapsed.TotalMilliseconds);
 
         } // GameControlsManager
 
