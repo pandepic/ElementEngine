@@ -14,7 +14,15 @@ namespace ElementEngine
         public Rectangle BoundingBox { get => _boundingBox; }
         
         protected Rectangle _view = Rectangle.Empty;
-        public Rectangle View { get => _view; }
+        public Rectangle View
+        {
+            get
+            {
+                _view.X = (int)_position.X;
+                _view.Y = (int)_position.Y;
+                return _view;
+            }
+        }
 
         protected Vector2 _position = Vector2.Zero;
         public Vector2 Position

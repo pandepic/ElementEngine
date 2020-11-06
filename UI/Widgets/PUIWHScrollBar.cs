@@ -180,8 +180,8 @@ namespace ElementEngine
                 LabelTextColor = new RgbaByte().FromHex(labelColor.Value);
                 LabelTemplate = GetXMLElement("Label", "Template").Value;
 
-                var labelX = labelPosition.Element("X").Value;
-                var labelY = labelPosition.Element("Y").Value;
+                var labelX = labelPosition.Attribute("X").Value;
+                var labelY = labelPosition.Attribute("Y").Value;
 
                 if (labelX.ToUpper() == "CENTER")
                     _labelCenterX = true;

@@ -37,10 +37,22 @@ namespace ElementEngine
         BottomRight
     }
 
-    public struct SpriteBatchItem
+    public class SpriteBatchItem : IPoolable
     {
         public Vertex2DPositionTexCoordsColor[] VertexData;
         public Texture2D Texture;
+
+        public SpriteBatchItem()
+        {
+            VertexData = new Vertex2DPositionTexCoordsColor[SpriteBatch2D.VerticesPerQuad];
+        }
+
+        public bool IsAlive { get; set; }
+
+        public void Reset()
+        {
+            Texture = null;
+        }
     }
 
     public class SpriteBatch2D : IDisposable, IFontStashRenderer
@@ -69,6 +81,7 @@ namespace ElementEngine
         protected ResourceSetDescription _textureSetDescription;
 
         // Shared static resources
+        protected static ObjectPool<SpriteBatchItem> SpriteBatchItemPool { get; set; } = new ObjectPool<SpriteBatchItem>(1000, true);
         protected static bool _staticResLoaded = false;
         protected static Shader[] _shaders;
         protected static Vector2[] _vertexTemplate = new Vector2[]
@@ -347,11 +360,8 @@ namespace ElementEngine
                 cos = MathF.Cos(radians);
             }
 
-            var batchItem = new SpriteBatchItem
-            {
-                Texture = texture,
-                VertexData = new Vertex2DPositionTexCoordsColor[4],
-            };
+            var batchItem = SpriteBatchItemPool.New();
+            batchItem.Texture = texture;
 
             for (var i = 0; i < _vertexTemplate.Length; i++)
             {
@@ -478,12 +488,9 @@ namespace ElementEngine
                 color = RgbaFloat.White;
             if (!sourceRect.HasValue)
                 sourceRect = new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
-            
-            var batchItem = new SpriteBatchItem
-            {
-                Texture = texture,
-                VertexData = new Vertex2DPositionTexCoordsColor[4]
-            };
+
+            var batchItem = SpriteBatchItemPool.New();
+            batchItem.Texture = texture;
 
             var texelWidth = texture.TexelWidth;
             var texelHeight = texture.TexelHeight;
@@ -492,44 +499,32 @@ namespace ElementEngine
             var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
 
             // top left
-            batchItem.VertexData[0] = new Vertex2DPositionTexCoordsColor()
-            {
-                Position = Vector2.Transform(new Vector2(0f, 0f), worldMatrix),
-                TexCoords = new Vector2(
+            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(0f, 0f), worldMatrix);
+            batchItem.VertexData[0].TexCoords = new Vector2(
                     flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
-                    flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                Color = color.Value
-            };
+                    flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight);
+            batchItem.VertexData[0].Color = color.Value;
 
             // top right
-            batchItem.VertexData[1] = new Vertex2DPositionTexCoordsColor()
-            {
-                Position = Vector2.Transform(new Vector2(1f, 0f), worldMatrix),
-                TexCoords = new Vector2(
+            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(1f, 0f), worldMatrix);
+            batchItem.VertexData[0].TexCoords = new Vector2(
                     flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
-                    flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                Color = color.Value
-            };
+                    flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight);
+            batchItem.VertexData[0].Color = color.Value;
 
             // bottom left
-            batchItem.VertexData[2] = new Vertex2DPositionTexCoordsColor()
-            {
-                Position = Vector2.Transform(new Vector2(0f, 1f), worldMatrix),
-                TexCoords = new Vector2(
+            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(0f, 1f), worldMatrix);
+            batchItem.VertexData[0].TexCoords = new Vector2(
                     flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
-                    flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                Color = color.Value
-            };
+                    flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight);
+            batchItem.VertexData[0].Color = color.Value;
 
             // bottom right
-            batchItem.VertexData[3] = new Vertex2DPositionTexCoordsColor()
-            {
-                Position = Vector2.Transform(new Vector2(1f, 1f), worldMatrix),
-                TexCoords = new Vector2(
+            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(1f, 1f), worldMatrix);
+            batchItem.VertexData[0].TexCoords = new Vector2(
                     flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
-                    flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                Color = color.Value
-            };
+                    flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight);
+            batchItem.VertexData[0].Color = color.Value;
 
             _batchItems.Add(batchItem);
         } // DrawTexture2D
@@ -569,6 +564,8 @@ namespace ElementEngine
             Flush(currentTexture, ref currentBatchCount);
 
             _begin = false;
+
+            SpriteBatchItemPool.FastClear();
             _batchItems.Clear();
         }
 

@@ -243,6 +243,9 @@ namespace ElementEngine
 
         public override void OnTextInput(char key, GameTimer gameTimer)
         {
+            if (!Focused)
+                return;
+
             AddCharacter(key);
             UpdateTextTexture();
         }

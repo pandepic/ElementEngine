@@ -1,4 +1,5 @@
-﻿using FontStashSharp;
+﻿using ElementEngine.Tiled;
+using FontStashSharp;
 using NAudio.Vorbis;
 using NAudio.Wave;
 using SixLabors.ImageSharp;
@@ -177,6 +178,23 @@ namespace ElementEngine
             return newFont;
 
         } // LoadSpriteFont
+
+        public static TiledMap LoadTiledMap(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (TiledMap)_assetCache[assetName];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(assetName);
+            var newMap = new TiledMap(fs);
+
+            _assetCache.Add(assetName, newMap);
+            LogLoaded("TiledMap", assetName, stopWatch);
+
+            return newMap;
+
+        } // LoadTiledMap
 
         /// <summary>
         /// Try to auto detect the audio format and load from the correct source type

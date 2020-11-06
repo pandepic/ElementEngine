@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ElementEngine
@@ -97,6 +98,7 @@ namespace ElementEngine
             throw new Exception("Couldn't delete object, wasn't found alive in pool.");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T New()
         {
             if ((_lastActiveIndex + 1) >= Size)
