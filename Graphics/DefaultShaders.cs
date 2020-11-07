@@ -65,15 +65,11 @@ namespace ElementEngine
 
             layout (location = 0) out vec2 fPixelCoord;
             layout (location = 1) out vec2 fTexCoord;
-            layout (location = 2) out vec2 fTileSize;
-            layout (location = 3) out vec2 fInverseSpriteTextureSize;
 
             void main()
             {
                fPixelCoord = (vTexture * viewportSize) + viewOffset;
                fTexCoord = fPixelCoord * inverseTileTextureSize * inverseTileSize;
-               fTileSize = tileSize;
-               fInverseSpriteTextureSize = inverseSpriteTextureSize;
                gl_Position = vec4(vPosition, 0.0, 1.0);
             }
         ";
@@ -85,8 +81,15 @@ namespace ElementEngine
 
             layout (location = 0) in vec2 fPixelCoord;
             layout (location = 1) in vec2 fTexCoord;
-            layout (location = 2) in vec2 fTileSize;
-            layout (location = 3) in vec2 fInverseSpriteTextureSize;
+
+            layout(set = 0, binding = 0) uniform TransformBuffer {
+                vec2 inverseTileTextureSize;
+                vec2 inverseSpriteTextureSize;
+                vec2 tileSize;
+                vec2 viewOffset;
+                vec2 viewportSize;
+                vec2 inverseTileSize;
+            };
 
             layout (set = 1, binding = 0) uniform texture2D fAtlasImage;
             layout (set = 1, binding = 1) uniform sampler fAtlasImageSampler;
@@ -102,13 +105,11 @@ namespace ElementEngine
 
                vec4 tile = texture(sampler2D(fDataImage, fDataImageSampler), fTexCoord);
                if(tile.x == 1.0 && tile.y == 1.0) { discard; }
-               
-               vec2 testfInverseSpriteTextureSize = vec2(0.000600961561, 0.00026709403);
 
-               vec2 spriteOffset = floor(tile.xy * 256.0) * fTileSize;
-               vec2 spriteCoord = mod(fPixelCoord, fTileSize);
+               vec2 spriteOffset = floor(tile.xy * 256.0) * tileSize;
+               vec2 spriteCoord = mod(fPixelCoord, tileSize);
 
-               fFragColor = texture(sampler2D(fAtlasImage, fAtlasImageSampler), (spriteOffset + spriteCoord) * fInverseSpriteTextureSize);
+               fFragColor = texture(sampler2D(fAtlasImage, fAtlasImageSampler), (spriteOffset + spriteCoord) * inverseSpriteTextureSize);
             }
         ";
 

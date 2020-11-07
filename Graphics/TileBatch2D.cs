@@ -121,7 +121,7 @@ namespace ElementEngine.Graphics
             _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector2) * _transformBufferData.Length), BufferUsage.UniformBuffer));
             GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _transformBufferData);
 
-            _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("TransformBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
+            _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("TransformBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)));
             _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
 
             _textureLayoutData = factory.CreateResourceLayout(
