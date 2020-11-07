@@ -1,11 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ElementEngine.Graphics;
 
 namespace ElementEngine.Tiled
 {
     public class TiledMapRenderer
     {
+        public TiledMap Map { get; set; }
 
+        protected TileBatch2D _tileBatch;
+
+        public TiledMapRenderer(TiledMap map)
+        {
+            Map = map;
+            _tileBatch = new TileBatch2D(Map.MapSize.X, Map.MapSize.Y, Map.TileSize.X, Map.TileSize.Y, AssetManager.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value));
+
+            var belowLayers = Map.GetLayersByCustomProperty("Below", "true");
+            var aboveLayers = Map.GetLayersByCustomProperty("Below", "false");
+
+            _tileBatch.BeginBuild();
+
+            foreach (var layer in belowLayers)
+                BuildTilebatchLayer(layer, true);
+
+            foreach (var layer in aboveLayers)
+                BuildTilebatchLayer(layer, false);
+
+            _tileBatch.EndBuild(true);
+        } // TiledMapRenderer
+
+        public void BuildTilebatchLayer(TiledMapLayer layer, bool below)
+        {
+            for (int y = 0; y < Map.MapSize.Y; y++)
+            {
+                for (int x = 0; x < Map.MapSize.X; x++)
+                {
+                    var tileID = layer.Tiles[x + Map.MapSize.X * y];
+
+                    if (tileID == 0)
+                        continue;
+
+                    _tileBatch.SetTileAtPosition(x, y, tileID - 1);
+                }
+            }
+
+            _tileBatch.EndLayer(below);
+        } // BuildTilebatchLayer
+
+        public void Draw(Camera2D camera, bool below)
+        {
+            _tileBatch.Draw(camera.Position, below, camera.Zoom);
+        }
     }
 }

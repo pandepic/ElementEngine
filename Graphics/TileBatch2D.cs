@@ -296,6 +296,10 @@ namespace ElementEngine.Graphics
             for (var i = 0; i < Layers.Count; i++)
             {
                 var layer = Layers[i];
+
+                if (layer.IsBelow != below)
+                    continue;
+
                 CommandList.SetGraphicsResourceSet(2, layer.TextureSetData);
                 CommandList.Draw((uint)_vertexData.Length);
             }
