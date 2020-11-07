@@ -145,7 +145,7 @@ namespace ElementEngine.Graphics
                 DepthStencilState = new DepthStencilStateDescription(depthTestEnabled: true, depthWriteEnabled: true, ComparisonKind.LessEqual),
                 RasterizerState = new RasterizerStateDescription
                 {
-                    DepthClipEnabled = false,
+                    DepthClipEnabled = true,
                     CullMode = FaceCullMode.None,
                 },
                 PrimitiveTopology = PrimitiveTopology.TriangleList,
