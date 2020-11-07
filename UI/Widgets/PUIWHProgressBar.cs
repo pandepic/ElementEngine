@@ -130,7 +130,7 @@ namespace ElementEngine
 
             if (_background == null)
             {
-                var backgroundTexture = new Texture2D((uint)_backgroundWidth, (uint)bgCenter.Height);
+                var backgroundTexture = new Texture2D(_backgroundWidth, bgCenter.Height);
                 backgroundTexture.BeginRenderTarget();
                 backgroundTexture.RenderTargetClear(RgbaFloat.Clear);
 
@@ -227,7 +227,7 @@ namespace ElementEngine
 
             _fillWidth = (int)(_maxFillWidth * FValue);
 
-            var fillTexture = new Texture2D((uint)_fillWidth, (uint)_fillCenter.Height);
+            var fillTexture = new Texture2D(_fillWidth, _fillCenter.Height);
             fillTexture.BeginRenderTarget();
             fillTexture.RenderTargetClear(RgbaFloat.Clear);
 

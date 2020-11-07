@@ -14,7 +14,7 @@ namespace ElementEngine
 
         public FontTexture(int width, int height)
         {
-            Texture = new Texture2D((uint)width, (uint)height);
+            Texture = new Texture2D(width, height);
         }
 
         public void Dispose()

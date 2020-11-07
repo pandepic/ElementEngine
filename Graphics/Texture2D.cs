@@ -19,8 +19,9 @@ namespace ElementEngine
         public string TextureName { get; set; }
         public string AssetName { get; set; }
 
-        public float TexelWidth { get => 1.0f / _texture.Width; }
-        public float TexelHeight { get => 1.0f / _texture.Height; }
+        public float TexelWidth => 1.0f / _texture.Width;
+        public float TexelHeight => 1.0f / _texture.Height;
+        public Vector2 TexelSize => new Vector2(TexelWidth, TexelHeight);
 
         public int Width { get => (int)_texture.Width; }
         public int Height { get => (int)_texture.Height; }
@@ -61,6 +62,9 @@ namespace ElementEngine
             Description = _texture.GetDescription();
             SetName(name);
         }
+
+        public Texture2D(int width, int height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
+            : this((uint)width, (uint)height, name, format, usage) { }
 
         public Texture2D(uint width, uint height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
         {
@@ -131,7 +135,7 @@ namespace ElementEngine
 
         public void SaveAsPng(FileStream fs)
         {
-            var temp = new Texture2D((uint)Width, (uint)Height, null, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Staging);
+            var temp = new Texture2D(Width, Height, null, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Staging);
 
             var commandList = GraphicsDevice.ResourceFactory.CreateCommandList();
             commandList.Begin();

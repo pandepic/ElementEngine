@@ -76,9 +76,7 @@ namespace ElementEngine
         protected ResourceLayout _textureLayout;
 
         protected Dictionary<string, ResourceSet> _textureSets;
-
         protected Sampler _sampler;
-        protected ResourceSetDescription _textureSetDescription;
 
         // Shared static resources
         protected static ObjectPool<SpriteBatchItem> SpriteBatchItemPool { get; set; } = new ObjectPool<SpriteBatchItem>(1000, true);
@@ -173,11 +171,6 @@ namespace ElementEngine
             _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)), BufferUsage.VertexBuffer));
             GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)));
 
-            VertexLayoutDescription vertexLayout = new VertexLayoutDescription(
-                new VertexElementDescription("vPosition", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("vTexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-                new VertexElementDescription("vColor", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4));
-
             GraphicsPipelineDescription pipelineDescription = new GraphicsPipelineDescription
             {
                 BlendState = BlendStateDescription.SingleAlphaBlend,
@@ -188,8 +181,8 @@ namespace ElementEngine
                     CullMode = FaceCullMode.None,
                 },
                 PrimitiveTopology = PrimitiveTopology.TriangleList,
-                ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { vertexLayout }, shaders: _shaders),
-                ResourceLayouts = new ResourceLayout[2]
+                ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { Vertex2DPositionTexCoordsColor.VertexLayout }, shaders: _shaders),
+                ResourceLayouts = new ResourceLayout[]
                 {
                     _transformLayout,
                     _textureLayout
@@ -249,7 +242,6 @@ namespace ElementEngine
             ShaderDescription fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteFS), "main");
 
             _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: true));
-
             _staticResLoaded = true;
         }
 

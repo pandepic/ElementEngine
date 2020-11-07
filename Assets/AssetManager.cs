@@ -152,7 +152,7 @@ namespace ElementEngine
             using var fs = GetAssetStream(assetName);
 
             var textureData = Image.Load<Rgba32>(fs);
-            var newTexture = new Texture2D((uint)textureData.Width, (uint)textureData.Height, assetName);
+            var newTexture = new Texture2D(textureData.Width, textureData.Height, assetName);
             newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height));
 
             _assetCache.Add(assetName, newTexture);
