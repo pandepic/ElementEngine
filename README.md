@@ -17,6 +17,7 @@ Still very much an early stage work in progress with an initial focus on optimis
 * Keyboard and mouse input management
 * A game controls system that transforms keyboard and mouse input combinations into meaningful control names like "Move Up", "Attack" etc.
 * Import maps created in Tiled with a built in optimised renderer for them that makes use of custom properties to load assets and control layer ordering
+* An XML based UI system that includes most common widget types, and can be easily extended to support custom widgets
 
 ### Graphics Backends
 Only OpenGL, OpenGLES and Direct3D11 have been tested with all library features, other backends aren't guaranteed to work with all features at the moment.

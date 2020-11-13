@@ -25,10 +25,17 @@ namespace ElementEngine.Tiled
         public void Draw(SpriteBatch2D spriteBatch, bool below, Camera2D camera = null, Vector2? offset = null)
         {
             var drawLayers = below ? BelowLayers : AboveLayers;
-            var cameraView = camera.View - (offset ?? Vector2.Zero);
+            var cameraView = new Rectangle(0, 0, ElementGlobals.Window.Width, ElementGlobals.Window.Height);
+            var zoom = 1f;
 
-            var cameraWidth = cameraView.Width / camera.Zoom;
-            var cameraHeight = cameraView.Height / camera.Zoom;
+            if (camera != null)
+            {
+                cameraView = camera.View - (offset ?? Vector2.Zero);
+                zoom = camera.Zoom;
+            }
+
+            var cameraWidth = cameraView.Width / zoom;
+            var cameraHeight = cameraView.Height / zoom;
 
             var tileWidth = Map.TileSize.X;
             var tileHeight = Map.TileSize.Y;

@@ -78,7 +78,6 @@ namespace ElementEngine
         protected Sampler _sampler;
 
         // Shared static resources
-        protected static ObjectPool<SpriteBatchItem> SpriteBatchItemPool { get; set; } = new ObjectPool<SpriteBatchItem>(1000, true);
         protected static bool _staticResLoaded = false;
         protected static Shader[] _shaders;
         protected static Vector2[] _vertexTemplate = new Vector2[]
@@ -96,8 +95,9 @@ namespace ElementEngine
         // Batch state
         protected int _maxBatchSize = 10000;
         protected bool _begin = false;
-        protected List<SpriteBatchItem> _batchItems;
         protected Vertex2DPositionTexCoordsColor[] _vertexData;
+        protected int _currentBatchCount = 0;
+        protected Texture2D _currentTexture = null;
 
         #region IDisposable
         protected bool _disposed = false;
@@ -137,7 +137,6 @@ namespace ElementEngine
 
         public unsafe SpriteBatch2D(int width, int height, OutputDescription output)
         {
-            _batchItems = new List<SpriteBatchItem>();
             _textureSets = new Dictionary<string, ResourceSet>();
 
             var factory = GraphicsDevice.ResourceFactory;
@@ -266,7 +265,7 @@ namespace ElementEngine
             }
         }
 
-        public void Begin(Sampler sampler, Matrix4x4? view = null)
+        public unsafe void Begin(Sampler sampler, Matrix4x4? view = null)
         {
             if (_begin)
                 throw new Exception("You must end the current batch before starting a new one.");
@@ -278,6 +277,9 @@ namespace ElementEngine
 
             _sampler = sampler;
             _begin = true;
+
+            CommandList.UpdateBuffer(_transformBuffer, 0, _projection);
+            CommandList.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
         }
 
         public void DrawText(SpriteFont font, string text, Vector2 position, RgbaByte color, int size, int outlineSize = 0)
@@ -343,123 +345,79 @@ namespace ElementEngine
                 cos = MathF.Cos(radians);
             }
 
-            var batchItem = SpriteBatchItemPool.New();
-            batchItem.Texture = texture;
-
-            for (var i = 0; i < _vertexTemplate.Length; i++)
+            var topLeft = new Vertex2DPositionTexCoordsColor()
             {
-                var x = _vertexTemplate[i].X;
-                var y = _vertexTemplate[i].Y;
-                var w = spriteScale.X * x;
-                var h = spriteScale.Y * y;
+                Position =  rotation == 0.0f
+                            ? new Vector2(
+                                position.X - spriteOrigin.X,
+                                position.Y - spriteOrigin.Y)
+                            : new Vector2(
+                                position.X + nOriginX * cos - nOriginY * sin,
+                                position.Y + nOriginX * sin + nOriginY * cos),
+                TexCoords = new Vector2(
+                            flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
+                            flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
+                Color = color.Value
+            };
 
-                batchItem.VertexData[i].Color = color.Value;
+            var x = _vertexTemplate[(int)VertexTemplateType.TopRight].X;
+            var w = spriteScale.X * x;
 
-                switch ((VertexTemplateType)i)
-                {
-                    case VertexTemplateType.TopLeft:
-                        {
-                            if (flipX)
-                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
-                            else
-                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
+            var topRight = new Vertex2DPositionTexCoordsColor()
+            {
+                Position =  rotation == 0.0f
+                            ? new Vector2(
+                                (position.X - spriteOrigin.X) + w,
+                                position.Y - spriteOrigin.Y)
+                            : new Vector2(
+                                position.X + (nOriginX + w) * cos - nOriginY * sin,
+                                position.Y + (nOriginX + w) * sin + nOriginY * cos),
+                TexCoords = new Vector2(
+                            flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
+                            flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
+                Color = color.Value
+            };
 
-                            if (flipY)
-                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
-                            else
-                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
+            var y = _vertexTemplate[(int)VertexTemplateType.BottomLeft].Y;
+            var h = spriteScale.Y * y;
 
-                            if (rotation == 0.0f)
-                            {
-                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X);
-                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y);
-                            }
-                            else
-                            {
-                                batchItem.VertexData[i].Position.X = position.X + nOriginX * cos - nOriginY * sin;
-                                batchItem.VertexData[i].Position.Y = position.Y + nOriginX * sin + nOriginY * cos;
-                            }
-                        }
-                        break;
+            var bottomLeft = new Vertex2DPositionTexCoordsColor()
+            {
+                Position = rotation == 0.0f
+                            ? new Vector2(
+                                (position.X - spriteOrigin.X),
+                                (position.Y - spriteOrigin.Y) + h)
+                            : new Vector2(
+                                position.X + nOriginX * cos - (nOriginY + h) * sin,
+                                position.Y + nOriginX * sin + (nOriginY + h) * cos),
+                TexCoords = new Vector2(
+                            flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
+                            flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
+                Color = color.Value
+            };
 
-                    case VertexTemplateType.TopRight:
-                        {
-                            if (flipX)
-                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
-                            else
-                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
+            x = _vertexTemplate[(int)VertexTemplateType.BottomRight].X;
+            y = _vertexTemplate[(int)VertexTemplateType.BottomRight].Y;
+            w = spriteScale.X * x;
+            h = spriteScale.Y * y;
 
-                            if (flipY)
-                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
-                            else
-                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
+            var bottomRight = new Vertex2DPositionTexCoordsColor()
+            {
+                Position = rotation == 0.0f
+                            ? new Vector2(
+                                (position.X - spriteOrigin.X) + w,
+                                (position.Y - spriteOrigin.Y) + h)
+                            : new Vector2(
+                                position.X + (nOriginX + w) * cos - (nOriginY + h) * sin,
+                                position.Y + (nOriginX + w) * sin + (nOriginY + h) * cos),
+                TexCoords = new Vector2(
+                            flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
+                            flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
+                Color = color.Value
+            };
 
-                            if (rotation == 0.0f)
-                            {
-                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X) + w;
-                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y);
-                            }
-                            else
-                            {
-                                batchItem.VertexData[i].Position.X = position.X + (nOriginX + w) * cos - nOriginY * sin;
-                                batchItem.VertexData[i].Position.Y = position.Y + (nOriginX + w) * sin + nOriginY * cos;
-                            }
-                        }
-                        break;
+            AddQuad(texture, topLeft, topRight, bottomLeft, bottomRight);
 
-                    case VertexTemplateType.BottomLeft:
-                        {
-                            if (flipX)
-                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
-                            else
-                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
-
-                            if (flipY)
-                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
-                            else
-                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
-
-                            if (rotation == 0.0f)
-                            {
-                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X);
-                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y) + h;
-                            }
-                            else
-                            {
-                                batchItem.VertexData[i].Position.X = position.X + nOriginX * cos - (nOriginY + h) * sin;
-                                batchItem.VertexData[i].Position.Y = position.Y + nOriginX * sin + (nOriginY + h) * cos;
-                            }
-                        }
-                        break;
-
-                    case VertexTemplateType.BottomRight:
-                        {
-                            if (flipX)
-                                batchItem.VertexData[i].TexCoords.X = source.X * texelWidth;
-                            else
-                                batchItem.VertexData[i].TexCoords.X = (source.X + source.Width) * texelWidth;
-
-                            if (flipY)
-                                batchItem.VertexData[i].TexCoords.Y = source.Y * texelHeight;
-                            else
-                                batchItem.VertexData[i].TexCoords.Y = (source.Y + source.Height) * texelHeight;
-
-                            if (rotation == 0.0f)
-                            {
-                                batchItem.VertexData[i].Position.X = (position.X - spriteOrigin.X) + w;
-                                batchItem.VertexData[i].Position.Y = (position.Y - spriteOrigin.Y) + h;
-                            }
-                            else
-                            {
-                                batchItem.VertexData[i].Position.X = position.X + (nOriginX + w) * cos - (nOriginY + h) * sin;
-                                batchItem.VertexData[i].Position.Y = position.Y + (nOriginX + w) * sin + (nOriginY + h) * cos;
-                            }
-                        }
-                        break;
-                }
-            }
-
-            _batchItems.Add(batchItem);
         } // DrawTexture2D
 
         public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, Rectangle? sourceRect = null, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
@@ -472,92 +430,87 @@ namespace ElementEngine
             if (!sourceRect.HasValue)
                 sourceRect = new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
 
-            var batchItem = SpriteBatchItemPool.New();
-            batchItem.Texture = texture;
-
             var texelWidth = texture.TexelWidth;
             var texelHeight = texture.TexelHeight;
             var source = sourceRect.Value;
             var flipX = (flip == SpriteFlipType.Horizontal || flip == SpriteFlipType.Both);
             var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
 
-            // top left
-            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(0f, 0f), worldMatrix);
-            batchItem.VertexData[0].TexCoords = new Vector2(
-                    flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
-                    flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight);
-            batchItem.VertexData[0].Color = color.Value;
-
-            // top right
-            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(1f, 0f), worldMatrix);
-            batchItem.VertexData[0].TexCoords = new Vector2(
-                    flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
-                    flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight);
-            batchItem.VertexData[0].Color = color.Value;
-
-            // bottom left
-            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(0f, 1f), worldMatrix);
-            batchItem.VertexData[0].TexCoords = new Vector2(
-                    flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
-                    flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight);
-            batchItem.VertexData[0].Color = color.Value;
-
-            // bottom right
-            batchItem.VertexData[0].Position = Vector2.Transform(new Vector2(1f, 1f), worldMatrix);
-            batchItem.VertexData[0].TexCoords = new Vector2(
-                    flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
-                    flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight);
-            batchItem.VertexData[0].Color = color.Value;
-
-            _batchItems.Add(batchItem);
+            AddQuad(
+                    texture,
+                    new Vertex2DPositionTexCoordsColor() // top left
+                    {
+                        Position = Vector2.Transform(new Vector2(0f, 0f), worldMatrix),
+                        TexCoords = new Vector2(
+                            flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
+                            flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
+                        Color = color.Value
+                    },
+                    new Vertex2DPositionTexCoordsColor() // top right
+                    {
+                        Position = Vector2.Transform(new Vector2(1f, 0f), worldMatrix),
+                        TexCoords = new Vector2(
+                            flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
+                            flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
+                        Color = color.Value
+                    },
+                    new Vertex2DPositionTexCoordsColor() // bottom left
+                    {
+                        Position = Vector2.Transform(new Vector2(0f, 1f), worldMatrix),
+                        TexCoords = new Vector2(
+                            flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
+                            flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
+                        Color = color.Value
+                    },
+                    new Vertex2DPositionTexCoordsColor() // bottom right
+                    {
+                        Position = Vector2.Transform(new Vector2(1f, 1f), worldMatrix),
+                        TexCoords = new Vector2(
+                            flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
+                            flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
+                        Color = color.Value
+                    }
+                );
         } // DrawTexture2D
 
-        public unsafe void End()
+        protected void AddQuad(Texture2D texture, Vertex2DPositionTexCoordsColor topLeft, Vertex2DPositionTexCoordsColor topRight, Vertex2DPositionTexCoordsColor bottomLeft, Vertex2DPositionTexCoordsColor bottomRight)
+        {
+            if (_currentTexture == null || _currentTexture != texture)
+            {
+                if (_currentBatchCount > 0 && _currentTexture != null)
+                    Flush(_currentTexture);
+
+                _currentTexture = texture;
+            }
+
+            if (_currentBatchCount >= (_maxBatchSize - 1))
+                Flush(_currentTexture);
+
+            var index = _currentBatchCount * VerticesPerQuad;
+
+            _vertexData[index] = topLeft;
+            _vertexData[index + 1] = topRight;
+            _vertexData[index + 2] = bottomLeft;
+            _vertexData[index + 3] = bottomRight;
+
+            _currentBatchCount += 1;
+        }
+
+        public void End()
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call End.");
 
-            CommandList.UpdateBuffer(_transformBuffer, 0, _projection);
-            CommandList.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
-
-            Texture2D currentTexture = null;
-            var currentBatchCount = 0;
-
-            for (var i = 0; i < _batchItems.Count; i++)
-            {
-                var batchItem = _batchItems[i];
-
-                if (currentTexture == null || currentTexture != batchItem.Texture)
-                {
-                    if (currentBatchCount > 0 && currentTexture != null)
-                        Flush(currentTexture, ref currentBatchCount);
-
-                    currentTexture = batchItem.Texture;
-                }
-
-                if (currentBatchCount >= (_maxBatchSize - 1))
-                    Flush(currentTexture, ref currentBatchCount);
-
-                for (var j = 0; j < VerticesPerQuad; j++)
-                    _vertexData[(currentBatchCount * VerticesPerQuad) + j] = batchItem.VertexData[j];
-
-                currentBatchCount += 1;
-            }
-
-            Flush(currentTexture, ref currentBatchCount);
-
+            Flush(_currentTexture);
             _begin = false;
-
-            SpriteBatchItemPool.FastClear();
-            _batchItems.Clear();
         }
 
-        public unsafe void Flush(Texture2D texture, ref int count)
+        public unsafe void Flush(Texture2D texture)
         {
-            if (count == 0)
+            if (_currentBatchCount == 0)
                 return;
 
-            CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(count * VerticesPerQuad * sizeof(Vertex2DPositionTexCoordsColor)));
+            CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_currentBatchCount * VerticesPerQuad * sizeof(Vertex2DPositionTexCoordsColor)));
             CommandList.SetVertexBuffer(0, _vertexBuffer);
             CommandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
             CommandList.SetPipeline(_pipeline);
@@ -575,8 +528,8 @@ namespace ElementEngine
                 CommandList.SetGraphicsResourceSet(1, newTextureSet);
             }
             
-            CommandList.DrawIndexed((uint)(count * IndicesPerQuad));
-            count = 0;
+            CommandList.DrawIndexed((uint)(_currentBatchCount * IndicesPerQuad));
+            _currentBatchCount = 0;
         }
     }
 }
