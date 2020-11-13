@@ -5,16 +5,26 @@ namespace ElementEngine.Tiled
     public class TiledMapRenderer
     {
         public TiledMap Map { get; set; }
+        public TiledTileset TileSet { get; set; }
 
         protected TileBatch2D _tileBatch;
+        protected bool _hasAnimatedTiles = false;
 
-        public TiledMapRenderer(TiledMap map)
+        public TiledMapRenderer(TiledMap map, TiledTileset tileSet = null, Texture2D tilesTexture = null)
         {
             Map = map;
-            _tileBatch = new TileBatch2D(Map.MapSize.X, Map.MapSize.Y, Map.TileSize.X, Map.TileSize.Y, AssetManager.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value));
+            TileSet = tileSet;
+
+            if (tilesTexture == null)
+                tilesTexture = AssetManager.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value);
+
+            _tileBatch = new TileBatch2D(Map.MapSize.X, Map.MapSize.Y, Map.TileSize.X, Map.TileSize.Y, tilesTexture, TileSet?.TileAnimations);
 
             var belowLayers = Map.GetLayersByCustomProperty("Below", "true");
             var aboveLayers = Map.GetLayersByCustomProperty("Below", "false");
+
+            if (TileSet != null && TileSet.TileAnimations.Count > 0)
+                _hasAnimatedTiles = true;
 
             _tileBatch.BeginBuild();
 
@@ -44,6 +54,11 @@ namespace ElementEngine.Tiled
 
             _tileBatch.EndLayer(below);
         } // BuildTilebatchLayer
+
+        public void Update(GameTimer gameTimer)
+        {
+            _tileBatch.Update(gameTimer);
+        }
 
         public void Draw(Camera2D camera, bool below)
         {

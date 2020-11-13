@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 using System.Xml.Linq;
 
 namespace ElementEngine.Tiled

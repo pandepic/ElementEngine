@@ -68,9 +68,9 @@ namespace ElementEngine
 
             void main()
             {
-               fPixelCoord = (vTexture * viewportSize) + viewOffset;
-               fTexCoord = fPixelCoord * inverseTileTextureSize * inverseTileSize;
-               gl_Position = vec4(vPosition, 0.0, 1.0);
+                fPixelCoord = (vTexture * viewportSize) + viewOffset;
+                fTexCoord = fPixelCoord * inverseTileTextureSize * inverseTileSize;
+                gl_Position = vec4(vPosition, 0.0, 1.0);
             }
         ";
 
@@ -91,25 +91,64 @@ namespace ElementEngine
                 vec2 inverseTileSize;
             };
 
-            layout (set = 1, binding = 0) uniform texture2D fAtlasImage;
-            layout (set = 1, binding = 1) uniform sampler fAtlasImageSampler;
+            layout(set = 1, binding = 0) uniform AnimationBuffer {
+                vec4[{ANIM_COUNT}] animationOffsets;
+            };
 
-            layout (set = 2, binding = 0) uniform texture2D fDataImage;
-            layout (set = 2, binding = 1) uniform sampler fDataImageSampler;
+            layout (set = 2, binding = 0) uniform texture2D fAtlasImage;
+            layout (set = 2, binding = 1) uniform sampler fAtlasImageSampler;
+
+            layout (set = 3, binding = 0) uniform texture2D fDataImage;
+            layout (set = 3, binding = 1) uniform sampler fDataImageSampler;
 
             layout (location = 0) out vec4 fFragColor;
 
             void main()
             {
-               if(fTexCoord.x < 0 || fTexCoord.y < 0 || fTexCoord.x > 1 || fTexCoord.y > 1) { discard; }
+                if(fTexCoord.x < 0 || fTexCoord.y < 0 || fTexCoord.x > 1 || fTexCoord.y > 1) { discard; }
 
-               vec4 tile = texture(sampler2D(fDataImage, fDataImageSampler), fTexCoord);
-               if(tile.x == 1.0 && tile.y == 1.0) { discard; }
+                vec4 tile = texture(sampler2D(fDataImage, fDataImageSampler), fTexCoord);
+                if(tile.x == 1.0 && tile.y == 1.0) { discard; }
 
-               vec2 spriteOffset = floor(tile.xy * 256.0) * tileSize;
-               vec2 spriteCoord = mod(fPixelCoord, tileSize);
+                int animIndex = int(tile.z * 256.0);
 
-               fFragColor = texture(sampler2D(fAtlasImage, fAtlasImageSampler), (spriteOffset + spriteCoord) * inverseSpriteTextureSize);
+                vec2 spriteOffset = (floor(tile.xy * 256.0) * tileSize) + animationOffsets[animIndex].xy;
+                vec2 spriteCoord = mod(fPixelCoord, tileSize);
+
+                fFragColor = texture(sampler2D(fAtlasImage, fAtlasImageSampler), (spriteOffset + spriteCoord) * inverseSpriteTextureSize);
+            }
+        ";
+
+        public static string DefaultPrimitiveVS = @"
+            #version 450
+
+            layout(set = 0, binding = 0) uniform mProjectionViewBuffer {
+                mat4x4 mProjection;
+                mat4x4 mView;
+            };
+
+            layout (location = 0) in vec2 vPosition;
+            layout (location = 2) in vec4 vColor;
+
+            layout (location = 1) out vec4 fColor;
+
+            void main()
+            {
+                fColor = vColor;
+                gl_Position = mProjection * mView * vec4(vPosition.x, vPosition.y, 0.0, 1.0);
+            }
+        ";
+
+        public static string DefaultPrimitiveFS = @"
+            #version 450
+
+            layout (location = 1) in vec4 fColor;
+
+            layout (location = 0) out vec4 fFragColor;
+
+            void main()
+            {
+                fFragColor = fColor;
             }
         ";
 

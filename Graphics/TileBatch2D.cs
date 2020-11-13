@@ -1,13 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.SPIRV;
+using Vulkan;
 
 namespace ElementEngine.Graphics
 {
+    public class TileBatch2DAnimation
+    {
+        public int Index { get; set; }
+        public int CurrentTileIndex { get; set; }
+        public int CurrentFrame => Animation.Frames[CurrentTileIndex];
+        public int FirstFrame => Animation.TileID;
+        public TileAnimation Animation { get; set; }
+        public float Timer { get; set; }
+    }
+
     public class TileBatch2DLayer
     {
         public bool IsBelow { get; set; }
@@ -28,13 +41,15 @@ namespace ElementEngine.Graphics
         protected DeviceBuffer _transformBuffer;
         protected ResourceLayout _transformLayout;
         protected ResourceSet _transformSet;
+        protected DeviceBuffer _animationBuffer;
+        protected ResourceLayout _animationLayout;
+        protected ResourceSet _animationSet;
         protected ResourceLayout _textureLayoutData;
         protected ResourceLayout _textureLayoutAtlas;
         protected ResourceSet _textureSetAtlas;
+        protected Shader[] _shaders;
 
         // Shared static resources
-        protected static bool _staticResLoaded = false;
-        protected static Shader[] _shaders;
         protected static Sampler _sampler = ElementGlobals.GraphicsDevice.PointSampler;
 
         protected static Vertex2DTileBatch[] _vertexData = new Vertex2DTileBatch[6]
@@ -62,6 +77,9 @@ namespace ElementEngine.Graphics
         public Texture2D AtlasTexture { get; set; }
         public List<TileBatch2DLayer> Layers { get; set; } = new List<TileBatch2DLayer>();
 
+        protected Dictionary<int, TileBatch2DAnimation> _animationLookup = new Dictionary<int, TileBatch2DAnimation>();
+        protected TileBatch2DAnimation[] _animations;
+        protected Vector4[] _animationOffsets;
         protected RgbaByte[] _dataArray;
         protected bool _currentLayerEnded = false;
 
@@ -88,6 +106,12 @@ namespace ElementEngine.Graphics
                     _textureLayoutData?.Dispose();
                     _textureLayoutAtlas?.Dispose();
 
+                    if (_shaders != null)
+                    {
+                        for (var i = 0; i < _shaders.Length; i++)
+                            _shaders[i]?.Dispose();
+                    }
+
                     ClearLayers();
                 }
 
@@ -96,10 +120,10 @@ namespace ElementEngine.Graphics
         }
         #endregion
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture)
-            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription) { }
+        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, Dictionary<int, TileAnimation> tileAnimations = null)
+            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, tileAnimations) { }
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, OutputDescription output)
+        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, OutputDescription output, Dictionary<int, TileAnimation> tileAnimations = null)
         {
             MapWidth = mapWidth;
             MapHeight = mapHeight;
@@ -116,14 +140,69 @@ namespace ElementEngine.Graphics
             TileSheetTilesHeight = AtlasTexture.Height / tileHeight;
 
             var factory = GraphicsDevice.ResourceFactory;
-            LoadStaticResources(factory);
 
+            if (tileAnimations != null && tileAnimations.Count > 0)
+            {
+                _animations = new TileBatch2DAnimation[tileAnimations.Count];
+
+                var index = 0;
+
+                foreach (var kvp in tileAnimations)
+                {
+                    var newAnim = new TileBatch2DAnimation()
+                    {
+                        Index = index + 1,
+                        Animation = kvp.Value,
+                        Timer = kvp.Value.DurationPerFrame,
+                        CurrentTileIndex = 0,
+                    };
+
+                    _animations[index] = newAnim;
+                    _animationLookup.Add(kvp.Value.TileID, newAnim);
+                    index += 1;
+                }
+
+                var animOffsetCount = tileAnimations.Count + 1;
+
+                while ((sizeof(Vector4) * animOffsetCount) % 16 != 0)
+                    animOffsetCount += 1;
+
+                _animationOffsets = new Vector4[animOffsetCount];
+            }
+            else
+            {
+                var animOffsetCount = 1;
+
+                while ((sizeof(Vector4) * animOffsetCount) % 16 != 0)
+                    animOffsetCount += 1;
+
+                _animationOffsets = new Vector4[animOffsetCount];
+            }
+
+            for (var i = 0; i < _animationOffsets.Length; i++)
+                _animationOffsets[i] = Vector4.Zero;
+
+            // shaders
+            var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileVS), "main");
+            var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS.Replace("{ANIM_COUNT}", _animationOffsets.Length.ToString())), "main");
+
+            _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
+
+            // transform uniforms
             _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector2) * _transformBufferData.Length), BufferUsage.UniformBuffer));
             GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _transformBufferData);
 
             _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("TransformBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)));
             _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
 
+            // animation uniforms
+            _animationBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector4) * _animationOffsets.Length), BufferUsage.UniformBuffer));
+            GraphicsDevice.UpdateBuffer(_animationBuffer, 0, _animationOffsets);
+
+            _animationLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("AnimationBuffer", ResourceKind.UniformBuffer, ShaderStages.Fragment)));
+            _animationSet = factory.CreateResourceSet(new ResourceSetDescription(_animationLayout, _animationBuffer));
+
+            // texture layouts
             _textureLayoutData = factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("fDataImage", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
@@ -153,6 +232,7 @@ namespace ElementEngine.Graphics
                 ResourceLayouts = new ResourceLayout[]
                 {
                     _transformLayout,
+                    _animationLayout,
                     _textureLayoutAtlas,
                     _textureLayoutData
                 },
@@ -177,18 +257,6 @@ namespace ElementEngine.Graphics
             _transformBufferData[5] = inverseTileSize;
         }
 
-        public static void LoadStaticResources(ResourceFactory factory)
-        {
-            if (_staticResLoaded)
-                return;
-
-            ShaderDescription vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileVS), "main");
-            ShaderDescription fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS), "main");
-
-            _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
-            _staticResLoaded = true;
-        }
-
         public void ClearLayers()
         {
             foreach (var layer in Layers)
@@ -204,15 +272,15 @@ namespace ElementEngine.Graphics
                 for (var x = 0; x < MapWidth; x++)
                 {
                     var index = x + MapWidth * y;
-                    _dataArray[index] = new RgbaByte(255, 255, 255, 255);
+                    _dataArray[index] = new RgbaByte(255, 255, 0, 255);
                 }
             }
         } // ClearDataArray
 
-        public void SetTileAtPosition(int posx, int posy, byte x, byte y)
+        public void SetTileAtPosition(int posx, int posy, byte x, byte y, byte animIndex = 0)
         {
             var index = posx + MapWidth * posy;
-            SetTileAtIndex(index, x, y);
+            SetTileAtIndex(index, x, y, animIndex);
         }
 
         public void SetTileAtPosition(int posx, int posy, int tileIndex)
@@ -220,19 +288,23 @@ namespace ElementEngine.Graphics
             byte x = (byte)(tileIndex % TileSheetTilesWidth);
             byte y = (byte)(tileIndex / TileSheetTilesWidth);
 
-            SetTileAtPosition(posx, posy, x, y);
+            byte animIndex = 0;
+            if (_animationLookup.TryGetValue(tileIndex, out var animation))
+                animIndex = (byte)animation.Index;
+
+            SetTileAtPosition(posx, posy, x, y, animIndex);
         }
 
-        public void SetTileAtIndex(int index, byte x, byte y)
+        public void SetTileAtIndex(int index, byte x, byte y, byte animIndex = 0)
         {
-            _dataArray[index] = new RgbaByte(x, y, 255, 255);
+            _dataArray[index] = new RgbaByte(x, y, animIndex, 255);
             _currentLayerEnded = false;
         }
 
         public void SetTileAtIndex(int index, int tileIndex)
         {
-            byte x = (byte)(tileIndex % MapWidth);
-            byte y = (byte)(tileIndex / MapWidth);
+            byte x = (byte)(tileIndex % TileSheetTilesWidth);
+            byte y = (byte)(tileIndex / TileSheetTilesWidth);
 
             SetTileAtIndex(index, x, y);
         }
@@ -272,6 +344,40 @@ namespace ElementEngine.Graphics
             _dataArray = null;
         }
 
+        public unsafe void Update(GameTimer gameTimer)
+        {
+            for (var i = 0; i < _animations.Length; i++)
+            {
+                var animation = _animations[i];
+                animation.Timer -= gameTimer.DeltaMS;
+
+                if (animation.Timer <= 0)
+                {
+                    animation.Timer = animation.Animation.DurationPerFrame;
+                    animation.CurrentTileIndex += 1;
+                    if (animation.CurrentTileIndex >= animation.Animation.Frames.Count)
+                        animation.CurrentTileIndex = 0;
+
+                    var firstFrame = animation.FirstFrame;
+                    var currentFrame = animation.CurrentFrame;
+
+                    var firstFramePos = new Vector4()
+                    {
+                        X = (firstFrame % TileSheetTilesWidth) * TileSize.X,
+                        Y = (firstFrame / TileSheetTilesWidth) * TileSize.Y,
+                    };
+
+                    var currentFramePos = new Vector4()
+                    {
+                        X = (currentFrame % TileSheetTilesWidth) * TileSize.X,
+                        Y = (currentFrame / TileSheetTilesWidth) * TileSize.Y,
+                    };
+
+                    _animationOffsets[animation.Index] = currentFramePos - firstFramePos;
+                }
+            }
+        } // Update
+
         public void Draw(Vector2 position, bool below, float scale = 1f)
         {
             if (Layers.Count <= 0)
@@ -288,10 +394,12 @@ namespace ElementEngine.Graphics
                 InverseTileSize);
 
             CommandList.UpdateBuffer(_transformBuffer, 0, _transformBufferData);
+            CommandList.UpdateBuffer(_animationBuffer, 0, _animationOffsets);
             CommandList.SetVertexBuffer(0, _vertexBuffer);
             CommandList.SetPipeline(_pipeline);
             CommandList.SetGraphicsResourceSet(0, _transformSet);
-            CommandList.SetGraphicsResourceSet(1, _textureSetAtlas);
+            CommandList.SetGraphicsResourceSet(1, _animationSet);
+            CommandList.SetGraphicsResourceSet(2, _textureSetAtlas);
 
             for (var i = 0; i < Layers.Count; i++)
             {
@@ -300,7 +408,7 @@ namespace ElementEngine.Graphics
                 if (layer.IsBelow != below)
                     continue;
 
-                CommandList.SetGraphicsResourceSet(2, layer.TextureSetData);
+                CommandList.SetGraphicsResourceSet(3, layer.TextureSetData);
                 CommandList.Draw((uint)_vertexData.Length);
             }
         }

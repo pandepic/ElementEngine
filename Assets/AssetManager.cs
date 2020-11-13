@@ -196,6 +196,23 @@ namespace ElementEngine
 
         } // LoadTiledMap
 
+        public static TiledTileset LoadTiledTileset(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (TiledTileset)_assetCache[assetName];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(assetName);
+            var newSet = new TiledTileset(fs);
+
+            _assetCache.Add(assetName, newSet);
+            LogLoaded("TiledTileset", assetName, stopWatch);
+
+            return newSet;
+
+        } // LoadTiledTileset
+
         /// <summary>
         /// Try to auto detect the audio format and load from the correct source type
         /// </summary>
@@ -204,17 +221,12 @@ namespace ElementEngine
             var path = GetAssetPath(assetName);
             var extension = Path.GetExtension(path);
 
-            switch (extension)
+            return extension.ToUpper() switch
             {
-                case ".wav":
-                    return LoadAudioSourceWAV(assetName);
-
-                case ".ogg":
-                    return LoadAudioSourceOggVorbis(assetName);
-
-                default:
-                    throw new Exception("Couldn't load audio source from unknown or unsupported audio format " + assetName);
-            }
+                ".WAV" => LoadAudioSourceWAV(assetName),
+                ".OGG" => LoadAudioSourceOggVorbis(assetName),
+                _ => throw new Exception("Couldn't load audio source from unknown or unsupported audio format " + assetName),
+            };
         } // LoadAudioSourceByExtension
 
         public static AudioSource LoadAudioSourceWAV(string assetName)

@@ -90,6 +90,7 @@ namespace ElementEngine
             ElementGlobals.GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new GraphicsDeviceOptions()
             {
                 SyncToVerticalBlank = vsync,
+                PreferStandardClipSpaceYDirection = true,
             }, graphicsBackend);
 
             CreateGraphicsResources();

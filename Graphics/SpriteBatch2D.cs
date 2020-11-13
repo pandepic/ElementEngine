@@ -69,7 +69,6 @@ namespace ElementEngine
         protected Pipeline _pipeline;
         protected DeviceBuffer _vertexBuffer;
         protected DeviceBuffer _indexBuffer;
-
         protected DeviceBuffer _transformBuffer;
         protected ResourceLayout _transformLayout;
         protected ResourceSet _transformSet;
@@ -132,17 +131,9 @@ namespace ElementEngine
         }
         #endregion
 
-        public SpriteBatch2D() : this(ElementGlobals.Window.Width, ElementGlobals.Window.Height)
-        {
-        }
-
-        public SpriteBatch2D(int width, int height) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription)
-        {
-        }
-
-        public SpriteBatch2D(Texture2D target) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription)
-        {
-        }
+        public SpriteBatch2D() : this(ElementGlobals.Window.Width, ElementGlobals.Window.Height) { }
+        public SpriteBatch2D(int width, int height) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription) { }
+        public SpriteBatch2D(Texture2D target) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription) { }
 
         public unsafe SpriteBatch2D(int width, int height, OutputDescription output)
         {
@@ -238,8 +229,8 @@ namespace ElementEngine
             if (_staticResLoaded)
                 return;
 
-            ShaderDescription vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteVS), "main");
-            ShaderDescription fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteFS), "main");
+            var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteVS), "main");
+            var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteFS), "main");
 
             _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: true));
             _staticResLoaded = true;

@@ -35,4 +35,16 @@ namespace ElementEngine
             Texture = new Vector2(u, v);
         }
     }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct Vertex2DPositionColor
+    {
+        public Vector2 Position;
+        public RgbaFloat Color;
+
+        public static VertexLayoutDescription VertexLayout = new VertexLayoutDescription(
+            new VertexElementDescription("vPosition", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+            new VertexElementDescription("vColor", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4)
+        );
+    }
 }
