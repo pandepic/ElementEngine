@@ -20,7 +20,14 @@ namespace ElementEngine
         protected int _animationLoopCount = 0;
         protected SpriteFlipType _prevFlip;
 
-        public AnimatedSprite(Texture2D texture, Vector2i? frameSize = null, bool centerOrigin = false) : base(texture, centerOrigin)
+        public AnimatedSprite() { }
+
+        public AnimatedSprite(Texture2D texture, Vector2i? frameSize = null, int defaultFrame = 1, bool centerOrigin = false) : base(texture, centerOrigin)
+        {
+            InitAnimatedSprite(texture, frameSize, defaultFrame, centerOrigin);
+        }
+
+        protected void InitAnimatedSprite(Texture2D texture, Vector2i? frameSize = null, int defaultFrame = 1, bool centerOrigin = false)
         {
             if (!frameSize.HasValue)
                 frameSize = texture.Size;
@@ -31,7 +38,7 @@ namespace ElementEngine
                 Origin = new Vector2(FrameSize.X / 2, FrameSize.Y / 2);
 
             TotalFrames = (texture.Size.X / FrameSize.X) * (texture.Size.Y / FrameSize.Y);
-            SetFrame(1);
+            SetFrame(defaultFrame);
         }
 
         public void SetFrame(int frame)

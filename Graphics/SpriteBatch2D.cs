@@ -437,40 +437,40 @@ namespace ElementEngine
             var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
 
             AddQuad(
-                    texture,
-                    new Vertex2DPositionTexCoordsColor() // top left
-                    {
-                        Position = Vector2.Transform(new Vector2(0f, 0f), worldMatrix),
-                        TexCoords = new Vector2(
-                            flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
-                            flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                        Color = color.Value
-                    },
-                    new Vertex2DPositionTexCoordsColor() // top right
-                    {
-                        Position = Vector2.Transform(new Vector2(1f, 0f), worldMatrix),
-                        TexCoords = new Vector2(
-                            flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
-                            flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                        Color = color.Value
-                    },
-                    new Vertex2DPositionTexCoordsColor() // bottom left
-                    {
-                        Position = Vector2.Transform(new Vector2(0f, 1f), worldMatrix),
-                        TexCoords = new Vector2(
-                            flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
-                            flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                        Color = color.Value
-                    },
-                    new Vertex2DPositionTexCoordsColor() // bottom right
-                    {
-                        Position = Vector2.Transform(new Vector2(1f, 1f), worldMatrix),
-                        TexCoords = new Vector2(
-                            flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
-                            flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                        Color = color.Value
-                    }
-                );
+                texture,
+                new Vertex2DPositionTexCoordsColor() // top left
+                {
+                    Position = Vector2.Transform(new Vector2(0f, 0f), worldMatrix),
+                    TexCoords = new Vector2(
+                        flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
+                        flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
+                    Color = color.Value
+                },
+                new Vertex2DPositionTexCoordsColor() // top right
+                {
+                    Position = Vector2.Transform(new Vector2(1f, 0f), worldMatrix),
+                    TexCoords = new Vector2(
+                        flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
+                        flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
+                    Color = color.Value
+                },
+                new Vertex2DPositionTexCoordsColor() // bottom left
+                {
+                    Position = Vector2.Transform(new Vector2(0f, 1f), worldMatrix),
+                    TexCoords = new Vector2(
+                        flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
+                        flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
+                    Color = color.Value
+                },
+                new Vertex2DPositionTexCoordsColor() // bottom right
+                {
+                    Position = Vector2.Transform(new Vector2(1f, 1f), worldMatrix),
+                    TexCoords = new Vector2(
+                        flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
+                        flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
+                    Color = color.Value
+                }
+            );
         } // DrawTexture2D
 
         protected void AddQuad(Texture2D texture, Vertex2DPositionTexCoordsColor topLeft, Vertex2DPositionTexCoordsColor topRight, Vertex2DPositionTexCoordsColor bottomLeft, Vertex2DPositionTexCoordsColor bottomRight)

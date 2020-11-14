@@ -19,7 +19,14 @@ namespace ElementEngine
         public int Width { get => Texture.Width; }
         public int Height { get => Texture.Height; }
 
+        public Sprite() { }
+
         public Sprite(Texture2D texture, bool centerOrigin = false)
+        {
+            InitSprite(texture, centerOrigin);
+        }
+
+        protected void InitSprite(Texture2D texture, bool centerOrigin = false)
         {
             Texture = texture;
             SourceRect = new Rectangle(0, 0, Width, Height);

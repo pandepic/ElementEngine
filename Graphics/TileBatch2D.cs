@@ -103,6 +103,9 @@ namespace ElementEngine.Graphics
                     _transformBuffer?.Dispose();
                     _transformLayout?.Dispose();
                     _transformSet?.Dispose();
+                    _animationBuffer?.Dispose();
+                    _animationLayout?.Dispose();
+                    _animationSet?.Dispose();
                     _textureLayoutData?.Dispose();
                     _textureLayoutAtlas?.Dispose();
 

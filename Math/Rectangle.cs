@@ -89,6 +89,31 @@ namespace ElementEngine
             Height = (int)height;
         }
 
+        public bool Contains(Vector2i vec) => (X <= vec.X) && (vec.X < (X + Width)) && (Y <= vec.Y) && (vec.Y < (Y + Height));
+        public bool Contains(Vector2 vec) => (X <= vec.X) && (vec.X < (X + Width)) && (Y <= vec.Y) && (vec.Y < (Y + Height));
+        public bool Contains(Rectangle rect) => (X <= rect.X) && ((rect.X + rect.Width) <= (X + Width)) && (Y <= rect.Y) && ((rect.Y + rect.Height) <= (Y + Height));
+
+        public bool Intersects(Rectangle rect)
+        {
+            return rect.Left < Right &&
+                   Left < rect.Right &&
+                   rect.Top < Bottom &&
+                   Top < rect.Bottom;
+        }
+
+        public Rectangle Intersect(Rectangle rect)
+        {
+            if (!Intersects(rect))
+                return Empty;
+
+            int rightSide = Math.Min(X + Width, rect.X + rect.Width);
+            int leftSide = Math.Max(X, rect.X);
+            int topSide = Math.Max(Y, rect.Y);
+            int bottomSide = Math.Min(Y + Height, rect.Y + rect.Height);
+
+            return new Rectangle(leftSide, topSide, rightSide - leftSide, bottomSide - topSide);
+        }
+
         public override string ToString()
         {
             return string.Format("{0}, {1}, {2}, {3}", X, Y, Width, Height);

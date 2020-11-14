@@ -9,12 +9,14 @@ namespace ElementEngine.Tiled
     {
         public TiledMap Map { get; set; }
         public Texture2D Tilesheet { get; set; }
+        public TiledTileset TileSet { get; set; }
         public List<TiledMapLayer> BelowLayers { get; set; }
         public List<TiledMapLayer> AboveLayers { get; set; }
 
-        public TiledSpriteBatchRenderer(TiledMap map)
+        public TiledSpriteBatchRenderer(TiledMap map, TiledTileset tileSet = null, Texture2D tilesTexture = null)
         {
             Map = map;
+            TileSet = tileSet;
 
             BelowLayers = Map.GetLayersByCustomProperty("Below", "true");
             AboveLayers = Map.GetLayersByCustomProperty("Below", "false");

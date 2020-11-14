@@ -39,6 +39,7 @@ namespace ElementEngine
         protected ResourceSet _transformSet;
 
         protected const int _maxBatchSize = 10000;
+        protected Vertex2DPositionColor[] _vertexData;
 
         #region IDisposable
         protected bool _disposed = false;
