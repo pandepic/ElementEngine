@@ -11,7 +11,15 @@ namespace ElementEngine
         public float Zoom { get; set; } = 1f;
 
         protected Rectangle _boundingBox = Rectangle.Empty;
-        public Rectangle BoundingBox { get => _boundingBox; }
+        public Rectangle BoundingBox
+        {
+            get => _boundingBox;
+            set
+            {
+                _boundingBox = value;
+                CheckBoundingBox();
+            }
+        }
         
         protected Rectangle _view = Rectangle.Empty;
         public Rectangle View

@@ -52,8 +52,18 @@ namespace ElementEngine
 
         public PUIMenu()
         {
+        }
+
+        public void EnableInput()
+        {
             InputManager.AddKeyboardHandler(this);
             InputManager.AddMouseHandler(this);
+        }
+
+        public void DisableInput()
+        {
+            InputManager.RemoveKeyboardHandler(this);
+            InputManager.RemoveMouseHandler(this);
         }
 
         public void Load(string assetName, string templatesName = "")
