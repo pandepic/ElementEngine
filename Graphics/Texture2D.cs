@@ -95,9 +95,9 @@ namespace ElementEngine
             AssetName = name;
         } // SetName
 
-        public void SetData<T>(ReadOnlySpan<T> data, Rectangle? area = null) where T : unmanaged
+        public void SetData<T>(ReadOnlySpan<T> data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None) where T : unmanaged
         {
-            SetData(data.ToArray(), area);
+            SetData(data.ToArray(), area, premultiplyType);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace ElementEngine
             SetData(byteData.ToRgbaByte(), new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height));
         }
 
-        public void SetData<T>(T[] data, Rectangle? area = null) where T : unmanaged
+        public void SetData<T>(T[] data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None) where T : unmanaged
         {
             Rectangle rect = area ?? new Rectangle(0, 0, Width, Height);
             GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
@@ -126,6 +126,27 @@ namespace ElementEngine
             return data;
 
         } // GetData
+
+        public void ApplyPremultiply(TexturePremultiplyType type)
+        {
+            if (type == TexturePremultiplyType.None)
+                return;
+
+            var data = GetData().ToRgbaByte();
+
+            for (var i = 0; i < data.Length; i++)
+            {
+                var color = data[i];
+                float ratio = color.A / 255f;
+
+                if (type == TexturePremultiplyType.Premultiply)
+                    data[i] = new RgbaByte((byte)(color.R * ratio), (byte)(color.G * ratio), (byte)(color.B * ratio), color.A);
+                else if (type == TexturePremultiplyType.UnPremultiply)
+                    data[i] = new RgbaByte((byte)(color.R / ratio), (byte)(color.G / ratio), (byte)(color.B / ratio), color.A);
+            }
+
+            SetData(data);
+        } // ApplyPremultiply
 
         public void SaveAsPng(string filePath)
         {

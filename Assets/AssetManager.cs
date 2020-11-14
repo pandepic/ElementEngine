@@ -142,7 +142,7 @@ namespace ElementEngine
             Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
 
-        public static Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None, bool mipmap = false)
+        public static Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (Texture2D)_assetCache[assetName];
@@ -154,6 +154,9 @@ namespace ElementEngine
             var textureData = Image.Load<Rgba32>(fs);
             var newTexture = new Texture2D(textureData.Width, textureData.Height, assetName);
             newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height));
+
+            if (premultiply != TexturePremultiplyType.None)
+                newTexture.ApplyPremultiply(premultiply);
 
             _assetCache.Add(assetName, newTexture);
 
