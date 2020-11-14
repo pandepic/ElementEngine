@@ -10,6 +10,7 @@ namespace ElementEngine
     public enum PUIEventType
     {
         ButtonClick,
+        ValueChanged,
     } // PUIEventType
 
     public interface IPUIEventHandler

@@ -242,6 +242,8 @@ namespace ElementEngine
 
                 TextPosition = new Vector2(textX, textY);
             }
+
+            TriggerPUIEvent(PUIEventType.ValueChanged);
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)

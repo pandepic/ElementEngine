@@ -30,25 +30,21 @@ namespace ElementEngine
         public static Dictionary<string, Cursor> Cursors { get; set; } = new Dictionary<string, Cursor>();
         public static Cursor CurrentCursor { get; set; }
 
-        public static void SetCursor(string name, string assetName, Vector2? offset = null)
+        public static void AddCursor(string name, string assetName, Vector2? offset = null)
         {
             ElementGlobals.TryRegisterScreenSpaceDraw(Draw);
 
-            if (Cursors.TryGetValue(name, out var cursor))
-            {
-                CurrentCursor = cursor;
+            var newCursor = new Cursor(name, assetName, offset);
+            Cursors.Add(name, newCursor);
+            CurrentCursor = newCursor;
 
-                if (offset.HasValue)
-                    CurrentCursor.Offset = offset.Value;
-            }
-            else
-            {
-                var newCursor = new Cursor(name, assetName, offset);
-                Cursors.Add(name, newCursor);
-                CurrentCursor = newCursor;
-                ElementGlobals.Window.CursorVisible = false;
-            }
-        } // SetCursor
+        } // AddCursor
+
+        public static void SetCursor(string name)
+        {
+            CurrentCursor = Cursors[name];
+            ElementGlobals.Window.CursorVisible = false;
+        }
 
         public static void Disable()
         {

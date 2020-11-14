@@ -96,7 +96,7 @@ namespace ElementEngine
                                 if (!_assetData.ContainsKey(assetName))
                                 {
                                     _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(modsPath, modPath, Path.GetRelativePath(dirPath, file.FullName)) });
-                                    Logging.Information("[{component}] loaded asset {name} from {mod}.", "AssetManager", file.Name, modName);
+                                    Logging.Information("[{component}] loaded asset {name} from {mod}.", "AssetManager", assetName, modName);
                                 }
                             }
 

@@ -270,7 +270,10 @@ namespace ElementEngine
         public override void Draw(SpriteBatch2D spriteBatch)
         {
             if (_isDirty)
+            {
                 UpdateFillTexture();
+                TriggerPUIEvent(PUIEventType.ValueChanged);
+            }
 
             _background?.Draw(spriteBatch, Position + _bgPosition + Parent.Position);
             _fill?.Draw(spriteBatch, Position + _fillPosition + Parent.Position);
