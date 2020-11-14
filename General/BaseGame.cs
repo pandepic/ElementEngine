@@ -124,13 +124,16 @@ namespace ElementEngine
         public void SetGameState(GameState newState)
         {
             CommandList.Begin();
+
             CurrentGameState?.DeRegister();
             CurrentGameState?.Unload();
 
             CurrentGameState = newState;
             CurrentGameState?.Register();
             CurrentGameState?.Load();
+
             CommandList.End();
+            GraphicsDevice.SubmitCommands(CommandList);
         }
 
         public void Quit() => _quit = true;

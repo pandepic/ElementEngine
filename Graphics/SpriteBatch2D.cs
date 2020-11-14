@@ -132,17 +132,20 @@ namespace ElementEngine
         #endregion
 
         public SpriteBatch2D() : this(ElementGlobals.Window.Width, ElementGlobals.Window.Height) { }
-        public SpriteBatch2D(int width, int height) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription) { }
-        public SpriteBatch2D(Texture2D target) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription) { }
+        public SpriteBatch2D(int width, int height, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, invertY) { }
+        public SpriteBatch2D(Texture2D target, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, invertY) { }
 
-        public unsafe SpriteBatch2D(int width, int height, OutputDescription output)
+        public unsafe SpriteBatch2D(int width, int height, OutputDescription output, bool invertY = false)
         {
             _textureSets = new Dictionary<string, ResourceSet>();
 
             var factory = GraphicsDevice.ResourceFactory;
             LoadStaticResources(factory);
 
-            _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
+            _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, 0f, 1f);
+
+            if (invertY && !GraphicsDevice.IsUvOriginTopLeft)
+                _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
 
             _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Matrix4x4) * 2), BufferUsage.UniformBuffer));
             GraphicsDevice.UpdateBuffer(_transformBuffer, 0, Matrix4x4.Identity);
@@ -150,7 +153,7 @@ namespace ElementEngine
 
             _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("mProjectionViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
             _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
-            
+
             _textureLayout = factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription("fTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
@@ -231,7 +234,7 @@ namespace ElementEngine
             var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteVS), "main");
             var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteFS), "main");
 
-            _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: true));
+            _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
             _staticResLoaded = true;
         }
 
@@ -332,7 +335,7 @@ namespace ElementEngine
             var flipX = (flip == SpriteFlipType.Horizontal || flip == SpriteFlipType.Both);
             var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
             var source = sourceRect.Value;
-            
+
             var sin = 0.0f;
             var cos = 0.0f;
             var nOriginX = -spriteOrigin.X;
@@ -347,7 +350,7 @@ namespace ElementEngine
 
             var topLeft = new Vertex2DPositionTexCoordsColor()
             {
-                Position =  rotation == 0.0f
+                Position = rotation == 0.0f
                             ? new Vector2(
                                 position.X - spriteOrigin.X,
                                 position.Y - spriteOrigin.Y)
@@ -365,7 +368,7 @@ namespace ElementEngine
 
             var topRight = new Vertex2DPositionTexCoordsColor()
             {
-                Position =  rotation == 0.0f
+                Position = rotation == 0.0f
                             ? new Vector2(
                                 (position.X - spriteOrigin.X) + w,
                                 position.Y - spriteOrigin.Y)
@@ -527,7 +530,7 @@ namespace ElementEngine
                 _textureSets.Add(texture.AssetName, newTextureSet);
                 CommandList.SetGraphicsResourceSet(1, newTextureSet);
             }
-            
+
             CommandList.DrawIndexed((uint)(_currentBatchCount * IndicesPerQuad));
             _currentBatchCount = 0;
         }

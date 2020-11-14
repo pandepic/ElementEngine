@@ -224,7 +224,7 @@ namespace ElementEngine
         public SpriteBatch2D GetRenderTargetSpriteBatch2D()
         {
             if (_renderTargetSpriteBatch2D == null)
-                _renderTargetSpriteBatch2D = new SpriteBatch2D(this);
+                _renderTargetSpriteBatch2D = new SpriteBatch2D(this, true);
 
             return _renderTargetSpriteBatch2D;
         } // GetRenderTargetSpriteBatch2D
