@@ -25,7 +25,7 @@ namespace ElementEngine
 
         public int Width { get => (int)_texture.Width; }
         public int Height { get => (int)_texture.Height; }
-        public Vector2i Size { get => new Vector2i(Width, Height); }
+        public Vector2I Size { get => new Vector2I(Width, Height); }
         public Vector2 SizeF { get => Size.ToVector2(); }
 
         protected Framebuffer _framebuffer = null;

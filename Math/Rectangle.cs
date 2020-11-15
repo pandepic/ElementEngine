@@ -17,9 +17,9 @@ namespace ElementEngine
         public static Rectangle Empty = new Rectangle(0, 0, 0, 0);
         public bool IsEmpty => this == Empty;
 
-        public Vector2i Location
+        public Vector2I Location
         {
-            get => new Vector2i(X, Y);
+            get => new Vector2I(X, Y);
             set
             {
                 X = value.X;
@@ -37,9 +37,9 @@ namespace ElementEngine
             }
         }
 
-        public Vector2i Size
+        public Vector2I Size
         {
-            get => new Vector2i(Width, Height);
+            get => new Vector2I(Width, Height);
             set
             {
                 Width = value.X;
@@ -62,7 +62,7 @@ namespace ElementEngine
         public int Top => Y;
         public int Bottom => Y + Height;
 
-        public Vector2i Center => new Vector2i(X + Width / 2, Y + Height / 2);
+        public Vector2I Center => new Vector2I(X + Width / 2, Y + Height / 2);
         public Vector2 CenterF => new Vector2(X + Width / 2f, Y + Height / 2f);
 
         public Rectangle(Vector2 location, Vector2 size)
@@ -89,7 +89,7 @@ namespace ElementEngine
             Height = (int)height;
         }
 
-        public bool Contains(Vector2i vec) => (X <= vec.X) && (vec.X < (X + Width)) && (Y <= vec.Y) && (vec.Y < (Y + Height));
+        public bool Contains(Vector2I vec) => (X <= vec.X) && (vec.X < (X + Width)) && (Y <= vec.Y) && (vec.Y < (Y + Height));
         public bool Contains(Vector2 vec) => (X <= vec.X) && (vec.X < (X + Width)) && (Y <= vec.Y) && (vec.Y < (Y + Height));
         public bool Contains(Rectangle rect) => (X <= rect.X) && ((rect.X + rect.Width) <= (X + Width)) && (Y <= rect.Y) && ((rect.Y + rect.Height) <= (Y + Height));
 

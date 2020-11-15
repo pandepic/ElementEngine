@@ -1,4 +1,5 @@
-﻿using ElementEngine.Tiled;
+﻿using ElementEngine.Ogmo;
+using ElementEngine.Tiled;
 using FontStashSharp;
 using NAudio.Vorbis;
 using NAudio.Wave;
@@ -36,6 +37,7 @@ namespace ElementEngine
     {
         private static readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
         private static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
+        private static readonly List<string> _removeList = new List<string>();
 
         public static void Load(string modsPath)
         {
@@ -119,6 +121,29 @@ namespace ElementEngine
             }
 
             _assetCache.Clear();
+        }
+
+        public static void Unload(string assetName)
+        {
+            var asset = _assetCache[assetName];
+            _assetCache.Remove(assetName);
+
+            if (asset is IDisposable disposable)
+                disposable?.Dispose();
+        }
+
+        public static void Unload<T>()
+        {
+            foreach (var kvp in _assetCache)
+            {
+                if (kvp.Value is T)
+                    _removeList.Add(kvp.Key);
+
+                if (kvp.Value is IDisposable disposable)
+                    disposable?.Dispose();
+            }
+
+            _removeList.Clear();
         }
 
         public static string GetAssetPath(string assetName)
@@ -215,6 +240,23 @@ namespace ElementEngine
             return newSet;
 
         } // LoadTiledTileset
+
+        public static OgmoLevel LoadOgmoLevel(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (OgmoLevel)_assetCache[assetName];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(assetName);
+            var newLevel = new OgmoLevel(fs);
+
+            _assetCache.Add(assetName, newLevel);
+            LogLoaded("OgmoLevel", assetName, stopWatch);
+
+            return newLevel;
+
+        } // LoadOgmoLevel
 
         /// <summary>
         /// Try to auto detect the audio format and load from the correct source type

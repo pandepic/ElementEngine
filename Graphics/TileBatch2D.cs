@@ -9,7 +9,7 @@ using Veldrid.Sdl2;
 using Veldrid.SPIRV;
 using Vulkan;
 
-namespace ElementEngine.Graphics
+namespace ElementEngine
 {
     public class TileBatch2DAnimation
     {
@@ -349,6 +349,9 @@ namespace ElementEngine.Graphics
 
         public unsafe void Update(GameTimer gameTimer)
         {
+            if (_animations == null)
+                return;
+
             for (var i = 0; i < _animations.Length; i++)
             {
                 var animation = _animations[i];

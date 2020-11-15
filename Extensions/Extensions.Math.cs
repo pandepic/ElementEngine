@@ -28,9 +28,9 @@ namespace ElementEngine
             return f * MathHelper.ToRadians;
         }
 
-        public static Vector2i ToVector2i(this Vector2 v)
+        public static Vector2I ToVector2i(this Vector2 v)
         {
-            return new Vector2i((int)v.X, (int)v.Y);
+            return new Vector2I((int)v.X, (int)v.Y);
         }
 
         public static float GetDistance(this Vector2 vec1, Vector2 vec2)

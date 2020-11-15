@@ -34,6 +34,7 @@ namespace ElementEngine
 
                     var newAnimation = new Animation()
                     {
+                        Name = name,
                         Flip = flip
                     };
 

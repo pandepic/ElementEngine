@@ -1,6 +1,4 @@
-﻿using ElementEngine.Graphics;
-
-namespace ElementEngine.Tiled
+﻿namespace ElementEngine.Tiled
 {
     public class TiledMapRenderer
     {
@@ -8,7 +6,7 @@ namespace ElementEngine.Tiled
         public TiledTileset TileSet { get; set; }
 
         protected TileBatch2D _tileBatch;
-        protected bool _hasAnimatedTiles = false;
+        public bool HasAnimatedTiles { get; protected set; }
 
         public TiledMapRenderer(TiledMap map, TiledTileset tileSet = null, Texture2D tilesTexture = null)
         {
@@ -24,7 +22,7 @@ namespace ElementEngine.Tiled
             var aboveLayers = Map.GetLayersByCustomProperty("Below", "false");
 
             if (TileSet != null && TileSet.TileAnimations.Count > 0)
-                _hasAnimatedTiles = true;
+                HasAnimatedTiles = true;
 
             _tileBatch.BeginBuild();
 

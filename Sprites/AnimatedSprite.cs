@@ -9,7 +9,7 @@ namespace ElementEngine
     {
         public const int LOOP_FOREVER = -1;
 
-        public Vector2i FrameSize { get; set; }
+        public Vector2I FrameSize { get; set; }
         public int TotalFrames { get; set; }
         public int CurrentFrame { get; set; }
         public int CurrentFrameIndex { get; set; }
@@ -22,12 +22,12 @@ namespace ElementEngine
 
         public AnimatedSprite() { }
 
-        public AnimatedSprite(Texture2D texture, Vector2i? frameSize = null, int defaultFrame = 1, bool centerOrigin = false) : base(texture, centerOrigin)
+        public AnimatedSprite(Texture2D texture, Vector2I? frameSize = null, int defaultFrame = 1, bool centerOrigin = false) : base(texture, centerOrigin)
         {
             InitAnimatedSprite(texture, frameSize, defaultFrame, centerOrigin);
         }
 
-        protected void InitAnimatedSprite(Texture2D texture, Vector2i? frameSize = null, int defaultFrame = 1, bool centerOrigin = false)
+        protected void InitAnimatedSprite(Texture2D texture, Vector2I? frameSize = null, int defaultFrame = 1, bool centerOrigin = false)
         {
             if (!frameSize.HasValue)
                 frameSize = texture.Size;

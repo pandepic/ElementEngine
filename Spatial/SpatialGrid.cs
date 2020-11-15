@@ -8,7 +8,7 @@ namespace ElementEngine
 {
     public interface ISpatialGridObject
     {
-        Vector2i SpatialCellPosition { get; set; }
+        Vector2I SpatialCellPosition { get; set; }
     }
 
     public struct SpatialGridCell<T> where T : ISpatialGridObject
@@ -96,9 +96,9 @@ namespace ElementEngine
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vector2i GetCellPosition(Vector2 position)
+        public Vector2I GetCellPosition(Vector2 position)
         {
-            return new Vector2i((int)position.X / CellWidth, (int)position.Y / CellHeight);
+            return new Vector2I((int)position.X / CellWidth, (int)position.Y / CellHeight);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

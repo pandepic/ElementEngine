@@ -35,15 +35,15 @@ namespace ElementEngine.Tiled
         public List<TiledCustomProperty> CustomProperties { get; set; } = new List<TiledCustomProperty>();
         public List<TiledMapLayer> Layers { get; set; } = new List<TiledMapLayer>();
 
-        public Vector2i TileSize { get; set; } = Vector2i.Zero; // in pixels
-        public Vector2i MapSize { get; set; } = Vector2i.Zero; // in tiles
+        public Vector2I TileSize { get; set; } = Vector2I.Zero; // in pixels
+        public Vector2I MapSize { get; set; } = Vector2I.Zero; // in tiles
 
         public TiledMap(FileStream fs)
         {
             var doc = XDocument.Load(fs);
 
-            TileSize = new Vector2i(int.Parse(doc.Root.Attribute("tilewidth").Value), int.Parse(doc.Root.Attribute("tileheight").Value));
-            MapSize = new Vector2i(int.Parse(doc.Root.Attribute("width").Value), int.Parse(doc.Root.Attribute("height").Value));
+            TileSize = new Vector2I(int.Parse(doc.Root.Attribute("tilewidth").Value), int.Parse(doc.Root.Attribute("tileheight").Value));
+            MapSize = new Vector2I(int.Parse(doc.Root.Attribute("width").Value), int.Parse(doc.Root.Attribute("height").Value));
 
             var elMapCustomProperties = doc.Root.Element("properties");
 

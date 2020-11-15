@@ -12,7 +12,7 @@ namespace ElementEngine
 
         protected List<string> _layers = new List<string>();
 
-        public LayeredSprite(List<string> layers, Vector2i? frameSize = null, int defaultFrame = 1, bool centerOrigin = false)
+        public LayeredSprite(List<string> layers, Vector2I? frameSize = null, int defaultFrame = 1, bool centerOrigin = false)
         {
             SetLayers(layers);
             BuildSprite();

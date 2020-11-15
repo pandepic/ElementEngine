@@ -117,7 +117,7 @@ namespace ElementEngine
             _view.X = (int)_position.X;
             _view.Y = (int)_position.Y;
 
-            if (_view.X < BoundingBox.X)
+            if (_position.X < BoundingBox.X)
                 _position.X = BoundingBox.X;
             if (_view.X + _view.Width > BoundingBox.X + BoundingBox.Width)
                 _position.X = (BoundingBox.X + BoundingBox.Width) - _view.Width;
@@ -125,6 +125,7 @@ namespace ElementEngine
                 _position.Y = BoundingBox.Y;
             if ((_view.Y + _view.Height) > (BoundingBox.Y + BoundingBox.Height))
                 _position.Y = (BoundingBox.Y + BoundingBox.Height) - _view.Height;
+
         } // CheckBoundingBox
 
         public Vector2 ScreenToWorld(Vector2 position)
