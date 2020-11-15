@@ -161,7 +161,7 @@ namespace ElementEngine
 
                 return new List<Vector2>(path);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }

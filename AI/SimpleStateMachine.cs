@@ -104,8 +104,8 @@ namespace ElementEngine
         {
             foreach (var kvp in States)
             {
-                if (kvp.Value is T)
-                    return (T)kvp.Value;
+                if (kvp.Value is T val)
+                    return val;
             }
 
             return null;
