@@ -57,6 +57,8 @@ namespace ElementEngine
             }
         }
 
+        public System.Drawing.Rectangle DrawingRectangle => new System.Drawing.Rectangle(X, Y, Width, Height);
+
         public int Left => X;
         public int Right => X + Width;
         public int Top => Y;
