@@ -27,6 +27,31 @@ namespace ElementEngine
             FrameAddRange(min, max);
         }
 
+        public void SetFramesFromString(string str)
+        {
+            Frames.Clear();
+
+            foreach (var frameString in str.Split(",", StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (frameString.Contains(">"))
+                {
+                    var frameRange = frameString.Split(">", StringSplitOptions.RemoveEmptyEntries);
+
+                    if (frameRange.Length < 2)
+                        throw new FormatException("Invalid frame range " + frameString);
+
+                    var min = int.Parse(frameRange[0]);
+                    var max = int.Parse(frameRange[1]);
+
+                    FrameAddRange(min, max);
+                }
+                else
+                {
+                    Frames.Add(int.Parse(frameString));
+                }
+            }
+        } // SetFramesFromString
+
         public void FrameSetRange(int min, int max)
         {
             if (min >= max)

@@ -7,6 +7,20 @@ using System.Text;
 namespace ElementEngine.Ogmo
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "External JSON format")]
+    public class OgmoEntity
+    {
+        public string name { get; set; }
+        public int id { get; set; }
+        public string _eid { get; set; }
+        public int x { get; set; }
+        public int y { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+        public int originX { get; set; }
+        public int originY { get; set; }
+    }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "External JSON format")]
     public class OgmoLayer
     {
         public string name { get; set; }
@@ -22,6 +36,7 @@ namespace ElementEngine.Ogmo
         public int exportMode { get; set; }
         public int arrayMode { get; set; }
         public string[] grid { get; set; }
+        public OgmoEntity[] entities { get; set; }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "External JSON format")]

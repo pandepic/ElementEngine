@@ -63,7 +63,7 @@ namespace ElementEngine
             }
         }
 
-        protected Vector2 _origin = Vector2.Zero;
+        public Vector2 Origin = Vector2.Zero;
         public Vector2 Velocity = Vector2.Zero;
 
         public Camera2D() { }
@@ -71,7 +71,7 @@ namespace ElementEngine
         public Camera2D(Rectangle view, Rectangle? boundingBox = null)
         {
             _view = view;
-            _origin = new Vector2(view.Width / 2f, view.Height / 2f);
+            Origin = new Vector2(view.Width / 2f, view.Height / 2f);
             _position.X = _view.X;
             _position.Y = _view.Y;
 
@@ -96,10 +96,15 @@ namespace ElementEngine
         public Matrix4x4 GetViewMatrix(float z = 0f)
         {
             return Matrix4x4.CreateTranslation(new Vector3(-_position, z)) *
-                    Matrix4x4.CreateTranslation(new Vector3(-_origin, z)) *
+                    Matrix4x4.CreateTranslation(new Vector3(-Origin, z)) *
                     Matrix4x4.CreateScale(Zoom, Zoom, 1) *
                     Matrix4x4.CreateRotationZ(Rotation) *
-                    Matrix4x4.CreateTranslation(new Vector3(_origin, z));
+                    Matrix4x4.CreateTranslation(new Vector3(Origin, z));
+        }
+
+        public void Center(Vector2I position)
+        {
+            Center(position.ToVector2());
         }
 
         public void Center(Vector2 position)

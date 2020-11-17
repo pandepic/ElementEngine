@@ -384,6 +384,15 @@ namespace ElementEngine
             }
         } // Update
 
+        public void Draw(Camera2D camera, bool below, float scale = 1f)
+        {
+            var totalScale = scale * camera.Zoom;
+            var scaledOrigin = camera.Origin / totalScale;
+            var offsetOrigin = camera.Origin - scaledOrigin;
+
+            Draw(camera.Position + offsetOrigin, below, totalScale);
+        }
+
         public void Draw(Vector2 position, bool below, float scale = 1f)
         {
             if (Layers.Count <= 0)
@@ -395,7 +404,7 @@ namespace ElementEngine
                 Layers[0].DataTexture.TexelSize,
                 AtlasTexture.TexelSize,
                 TileSize,
-                new Vector2(MathF.Floor(position.X * TileScale / scale), MathF.Floor(position.Y * TileScale / scale)),
+                new Vector2(MathF.Floor(position.X * TileScale ), MathF.Floor(position.Y * TileScale)),
                 ScaledViewportSize,
                 InverseTileSize);
 

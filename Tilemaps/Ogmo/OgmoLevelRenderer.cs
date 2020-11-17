@@ -62,7 +62,7 @@ namespace ElementEngine.Ogmo
 
         public void Draw(Camera2D camera, bool below)
         {
-            _tileBatch.Draw(camera.Position, below, Scale * camera.Zoom);
+            _tileBatch.Draw(camera, below, Scale);
         }
 
     } // OgmoLevelRenderer
