@@ -404,7 +404,7 @@ namespace ElementEngine
                 Layers[0].DataTexture.TexelSize,
                 AtlasTexture.TexelSize,
                 TileSize,
-                new Vector2(MathF.Floor(position.X * TileScale ), MathF.Floor(position.Y * TileScale)),
+                new Vector2(MathF.Floor(position.X * TileScale), MathF.Floor(position.Y * TileScale)),
                 ScaledViewportSize,
                 InverseTileSize);
 
