@@ -65,6 +65,7 @@ namespace ElementEngine
 
         public Vector2 Origin = Vector2.Zero;
         public Vector2 Velocity = Vector2.Zero;
+        public Vector2 ScaledOrigin => Origin / Zoom;
 
         public Camera2D() { }
 
@@ -119,17 +120,26 @@ namespace ElementEngine
             if (_boundingBox.IsEmpty || _boundingBox == null)
                 return;
 
+            var worldCameraXY = ScreenToWorld(Vector2.Zero);
+            var worldCameraWH = ScreenToWorld(new Vector2(BoundingBox.X * Zoom + _view.Width, BoundingBox.Y * Zoom + _view.Height));
+
+            if (_boundingBox.Width * Zoom > _view.Width)
+            {
+                if (worldCameraXY.X < BoundingBox.X)
+                    _position.X += (worldCameraXY.X * -1.0f) + BoundingBox.X;
+                if (worldCameraWH.X > BoundingBox.Right)
+                    _position.X -= (worldCameraWH.X - BoundingBox.Right);
+            }
+            if (_boundingBox.Height * Zoom > _view.Height)
+            {
+                if (worldCameraXY.Y < BoundingBox.Y)
+                    _position.Y += (worldCameraXY.Y * -1.0f) + BoundingBox.Y;
+                if (worldCameraWH.Y > BoundingBox.Bottom)
+                    _position.Y -= (worldCameraWH.Y - BoundingBox.Bottom);
+            }
+
             _view.X = (int)_position.X;
             _view.Y = (int)_position.Y;
-
-            if (_position.X < BoundingBox.X)
-                _position.X = BoundingBox.X;
-            if (_view.X + _view.Width > BoundingBox.X + BoundingBox.Width)
-                _position.X = (BoundingBox.X + BoundingBox.Width) - _view.Width;
-            if (_view.Y < BoundingBox.Y)
-                _position.Y = BoundingBox.Y;
-            if ((_view.Y + _view.Height) > (BoundingBox.Y + BoundingBox.Height))
-                _position.Y = (BoundingBox.Y + BoundingBox.Height) - _view.Height;
 
         } // CheckBoundingBox
 
@@ -137,6 +147,17 @@ namespace ElementEngine
         {
             Matrix4x4.Invert(GetViewMatrix(), out var inverted);
             return Vector2.Transform(position, inverted);
+        }
+
+        public Rectangle ScreenToWorld(Rectangle rect)
+        {
+            Matrix4x4.Invert(GetViewMatrix(), out var inverted);
+            return new Rectangle(Vector2.Transform(rect.LocationF, inverted), Vector2.Transform(rect.SizeF, inverted));
+        }
+
+        public override string ToString()
+        {
+            return _view.ToString();
         }
 
     } // Camera2D

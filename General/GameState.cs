@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Veldrid;
 
 namespace ElementEngine
 {
@@ -55,5 +56,7 @@ namespace ElementEngine
         public virtual void HandleGameControl(string controlName, GameControlState state, GameTimer gameTimer)
         {
         }
+
+        public virtual void HandleKeyReleased(Key key, GameTimer gameTimer) { }
     }
 }

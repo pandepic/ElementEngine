@@ -116,9 +116,12 @@ namespace ElementEngine
             return new Rectangle(leftSide, topSide, rightSide - leftSide, bottomSide - topSide);
         }
 
+        public static bool Intersects(Rectangle rect1, Rectangle rect2) => rect1.Intersects(rect2);
+        public static Rectangle Intersect(Rectangle rect1, Rectangle rect2) => rect1.Intersect(rect2);
+
         public override string ToString()
         {
-            return string.Format("{0}, {1}, {2}, {3}", X, Y, Width, Height);
+            return string.Format("{0}, {1}, {2}, {3}, {4}, {5}", X, Y, Right, Bottom, Width, Height);
         }
 
         public override bool Equals(object obj)
@@ -135,10 +138,27 @@ namespace ElementEngine
         }
 
         public static bool operator ==(Rectangle rect1, Rectangle rect2) => rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
-        public static bool operator !=(Rectangle rect1, Rectangle rect2) => !(rect1 == rect2);
+        public static bool operator !=(Rectangle rect1, Rectangle vec) => !(rect1 == vec);
+
+        public static bool operator ==(Rectangle rect1, Vector2 vec) => rect1.X == vec.X && rect1.Y == vec.Y;
+        public static bool operator !=(Rectangle rect1, Vector2 vec) => !(rect1 == vec);
+
+        public static bool operator ==(Rectangle rect1, Vector2I vec) => rect1.X == vec.X && rect1.Y == vec.Y;
+        public static bool operator !=(Rectangle rect1, Vector2I vec) => !(rect1 == vec);
 
         public static Rectangle operator -(Rectangle rect, Vector2 vec) => new Rectangle(rect.X - vec.X, rect.Y - vec.Y, rect.Width, rect.Height);
+        public static Rectangle operator +(Rectangle rect, Vector2 vec) => new Rectangle(rect.X + vec.X, rect.Y + vec.Y, rect.Width, rect.Height);
+        public static Rectangle operator *(Rectangle rect, Vector2 vec) => new Rectangle(rect.X * vec.X, rect.Y * vec.Y, rect.Width, rect.Height);
+        public static Rectangle operator /(Rectangle rect, Vector2 vec) => new Rectangle(rect.X / vec.X, rect.Y / vec.Y, rect.Width, rect.Height);
 
+        public static Rectangle operator -(Rectangle rect1, Rectangle rect2) => new Rectangle(rect1.X - rect2.X, rect1.Y - rect2.Y, rect1.Width - rect2.Width, rect1.Height - rect2.Height);
         public static Rectangle operator +(Rectangle rect1, Rectangle rect2) => new Rectangle(rect1.X + rect2.X, rect1.Y + rect2.Y, rect1.Width + rect2.Width, rect1.Height + rect2.Height);
+        public static Rectangle operator *(Rectangle rect1, Rectangle rect2) => new Rectangle(rect1.X * rect2.X, rect1.Y * rect2.Y, rect1.Width * rect2.Width, rect1.Height * rect2.Height);
+        public static Rectangle operator /(Rectangle rect1, Rectangle rect2) => new Rectangle(rect1.X / rect2.X, rect1.Y / rect2.Y, rect1.Width / rect2.Width, rect1.Height / rect2.Height);
+
+        public static Rectangle operator -(Rectangle rect, float val) => new Rectangle(rect.X - val, rect.Y - val, rect.Width - val, rect.Height - val);
+        public static Rectangle operator +(Rectangle rect, float val) => new Rectangle(rect.X + val, rect.Y + val, rect.Width + val, rect.Height + val);
+        public static Rectangle operator *(Rectangle rect, float val) => new Rectangle(rect.X * val, rect.Y * val, rect.Width * val, rect.Height * val);
+        public static Rectangle operator /(Rectangle rect, float val) => new Rectangle(rect.X / val, rect.Y / val, rect.Width / val, rect.Height / val);
     }
 }
