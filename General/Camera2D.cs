@@ -152,7 +152,7 @@ namespace ElementEngine
         public Rectangle ScreenToWorld(Rectangle rect)
         {
             Matrix4x4.Invert(GetViewMatrix(), out var inverted);
-            return new Rectangle(Vector2.Transform(rect.LocationF, inverted), Vector2.Transform(rect.SizeF, inverted));
+            return new Rectangle(Vector2.Transform(rect.LocationF, inverted), rect.SizeF);
         }
 
         public override string ToString()
