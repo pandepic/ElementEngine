@@ -22,7 +22,7 @@ namespace ElementEngine
 {
     public enum TexturePremultiplyType
     {
-        None,//
+        None,
         Premultiply,
         UnPremultiply
     }
