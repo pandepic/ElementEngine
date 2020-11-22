@@ -21,7 +21,9 @@ namespace ElementEngine
     {
         protected XElement _template = null;
         protected Rectangle _widgetRect = new Rectangle(0, 0, 0, 0);
+        
         protected Vector2 _offset = Vector2.Zero;
+        public Vector2 Offset => _offset;
 
         public XElement XmlRoot { get; set; } = null;
         public PUIFrame Parent { get; set; }
@@ -31,8 +33,10 @@ namespace ElementEngine
         public int DrawOrder { get; set; }
         public bool Visible { get; set; }
         public bool Active { get; set; }
+        public PUILayoutGroup LayoutGroup { get; set; }
 
         protected WidgetPositionFlags _positionFlags = new WidgetPositionFlags();
+        public WidgetPositionFlags PositionFlags => _positionFlags;
 
         public Vector2 Position
         {
@@ -302,8 +306,14 @@ namespace ElementEngine
 
         } // LoadStandardXML
 
-        protected void UpdatePositionFromFlags()
+        protected void UpdatePositionFromFlags(bool updateLayout = false)
         {
+            if (LayoutGroup != null)
+            {
+                LayoutGroup.UpdateWidgetPositions();
+                return;
+            }
+
             if (_positionFlags.CenterX)
                 CenterX();
             else if (_positionFlags.AnchorLeft)
@@ -321,7 +331,8 @@ namespace ElementEngine
                 AnchorBottom();
             else if (_positionFlags.SetY.HasValue)
                 Y = _positionFlags.SetY.Value;
-        }
+
+        } // UpdatePositionFromFlags
 
         public void AnchorTop() { Y = 0; }
         public void AnchorBottom() { Y = Parent.Height - Height; }
@@ -340,13 +351,13 @@ namespace ElementEngine
             if (_widgetRect.Width == 0 && _widgetRect.Height == 0)
                 return false;
 
-            if (point.X < _widgetRect.X)
+            if (point.X < X)
                 return false;
-            if (point.Y < _widgetRect.Y)
+            if (point.Y < Y)
                 return false;
-            if (point.X > (_widgetRect.X + _widgetRect.Width))
+            if (point.X > (X + _widgetRect.Width))
                 return false;
-            if (point.Y > (_widgetRect.Y + _widgetRect.Height))
+            if (point.Y > (Y + _widgetRect.Height))
                 return false;
 
             return true;
