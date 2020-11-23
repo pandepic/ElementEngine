@@ -3,6 +3,8 @@ A simple C#/Veldrid based 2D game engine.
 
 Still very much an early stage work in progress with an initial focus on optimised 2D game development.
 
+There's currently no documentation but feel free to ask any questions on discord: https://discord.gg/5Q6AHHQwdM
+
 ### Features
 * Simply inherit from the base game class and overload the load, update and draw methods, and you'll get a fully working game loop out of the box
 * Game states are built into the core game loop so you can change states through a single easy method call
