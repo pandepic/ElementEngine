@@ -11,7 +11,7 @@ namespace ElementEngine.Ogmo
         protected TileBatch2D _tileBatch;
         public bool HasAnimatedTiles { get; protected set; }
 
-        public OgmoLevelRenderer(OgmoLevel level, List<string> aboveLayers = null, Texture2D tilesTexture = null)
+        public OgmoLevelRenderer(OgmoLevel level, Texture2D tilesTexture = null)
         {
             if (level.Data.layers.Count == 0)
                 throw new ArgumentException("OgmoLevel must have at least one layer to be renderable.", "level");
@@ -31,11 +31,6 @@ namespace ElementEngine.Ogmo
                 if (layer.data == null)
                     continue;
 
-                var below = true;
-
-                if (aboveLayers != null && aboveLayers.Contains(layer.name))
-                    below = false;
-
                 for (int y = 0; y < firstLayer.gridCellsY; y++)
                 {
                     for (int x = 0; x < firstLayer.gridCellsX; x++)
@@ -49,10 +44,10 @@ namespace ElementEngine.Ogmo
                     }
                 }
 
-                _tileBatch.EndLayer(below);
+                _tileBatch.EndLayer();
             }
 
-            _tileBatch.EndBuild(true);
+            _tileBatch.EndBuild();
         }
 
         public void Update(GameTimer gameTimer)
@@ -60,9 +55,24 @@ namespace ElementEngine.Ogmo
             _tileBatch.Update(gameTimer);
         }
 
-        public void Draw(Camera2D camera, bool below)
+        public void DrawAllLayers(Camera2D camera)
         {
-            _tileBatch.Draw(camera, below, Scale);
+            _tileBatch.DrawAll(camera.Position, camera.Zoom);
+        }
+
+        public void DrawLayersFrom(int from, Camera2D camera)
+        {
+            _tileBatch.DrawLayersFrom(from, camera.Position, camera.Zoom);
+        }
+
+        public void DrawLayersTo(int to, Camera2D camera)
+        {
+            _tileBatch.DrawLayersTo(to, camera.Position, camera.Zoom);
+        }
+
+        public void DrawLayers(int start, int end, Camera2D camera)
+        {
+            _tileBatch.DrawLayers(start, end, camera.Position, camera.Zoom);
         }
 
     } // OgmoLevelRenderer

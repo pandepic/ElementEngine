@@ -26,16 +26,13 @@
 
             _tileBatch.BeginBuild();
 
-            foreach (var layer in belowLayers)
-                BuildTilebatchLayer(layer, true);
+            foreach (var layer in map.Layers)
+                BuildTilebatchLayer(layer);
 
-            foreach (var layer in aboveLayers)
-                BuildTilebatchLayer(layer, false);
-
-            _tileBatch.EndBuild(true);
+            _tileBatch.EndBuild();
         } // TiledMapRenderer
 
-        public void BuildTilebatchLayer(TiledMapLayer layer, bool below)
+        public void BuildTilebatchLayer(TiledMapLayer layer)
         {
             for (int y = 0; y < Map.MapSize.Y; y++)
             {
@@ -50,7 +47,7 @@
                 }
             }
 
-            _tileBatch.EndLayer(below);
+            _tileBatch.EndLayer();
         } // BuildTilebatchLayer
 
         public void Update(GameTimer gameTimer)
@@ -58,9 +55,24 @@
             _tileBatch.Update(gameTimer);
         }
 
-        public void Draw(Camera2D camera, bool below)
+        public void DrawAllLayers(Camera2D camera)
         {
-            _tileBatch.Draw(camera.Position, below, camera.Zoom);
+            _tileBatch.DrawAll(camera.Position, camera.Zoom);
+        }
+
+        public void DrawLayersFrom(int from, Camera2D camera)
+        {
+            _tileBatch.DrawLayersFrom(from, camera.Position, camera.Zoom);
+        }
+
+        public void DrawLayersTo(int to, Camera2D camera)
+        {
+            _tileBatch.DrawLayersTo(to, camera.Position, camera.Zoom);
+        }
+
+        public void DrawLayers(int start, int end, Camera2D camera)
+        {
+            _tileBatch.DrawLayers(start, end, camera.Position, camera.Zoom);
         }
     }
 }

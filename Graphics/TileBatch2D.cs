@@ -23,7 +23,6 @@ namespace ElementEngine
 
     public class TileBatch2DLayer
     {
-        public bool IsBelow { get; set; }
         public Texture2D DataTexture { get; set; }
         public ResourceSet TextureSetData { get; set; }
     }
@@ -322,11 +321,10 @@ namespace ElementEngine
             _currentLayerEnded = false;
         }
 
-        public void EndLayer(bool below)
+        public void EndLayer()
         {
             var newLayer = new TileBatch2DLayer()
             {
-                IsBelow = below,
                 DataTexture = new Texture2D(MapWidth, MapHeight),
             };
 
@@ -339,10 +337,10 @@ namespace ElementEngine
             _currentLayerEnded = true;
         }
 
-        public void EndBuild(bool below)
+        public void EndBuild()
         {
             if (!_currentLayerEnded)
-                EndLayer(below);
+                EndLayer();
 
             _dataArray = null;
         }
@@ -384,16 +382,46 @@ namespace ElementEngine
             }
         } // Update
 
-        public void Draw(Camera2D camera, bool below, float scale = 1f)
+        public void DrawAll(Camera2D camera, float scale = 1f)
+        {
+            DrawLayers(0, Layers.Count - 1, camera, scale);
+        }
+
+        public void DrawLayersFrom(int from, Camera2D camera, float scale = 1f)
+        {
+            DrawLayers(from, Layers.Count - 1, camera, scale);
+        }
+
+        public void DrawLayersTo(int to, Camera2D camera, float scale = 1f)
+        {
+            DrawLayers(0, to, camera, scale);
+        }
+
+        public void DrawLayers(int start, int end, Camera2D camera, float scale = 1f)
         {
             var totalScale = scale * camera.Zoom;
             var scaledOrigin = camera.Origin / totalScale;
             var offsetOrigin = camera.Origin - scaledOrigin;
 
-            Draw(camera.Position + offsetOrigin, below, totalScale);
+            DrawLayers(start, end, camera.Position + offsetOrigin, totalScale);
         }
 
-        public void Draw(Vector2 position, bool below, float scale = 1f)
+        public void DrawAll(Vector2 position, float scale = 1f)
+        {
+            DrawLayers(0, Layers.Count - 1, position, scale);
+        }
+
+        public void DrawLayersFrom(int from, Vector2 position, float scale = 1f)
+        {
+            DrawLayers(from, Layers.Count - 1, position, scale);
+        }
+
+        public void DrawLayersTo(int to, Vector2 position, float scale = 1f)
+        {
+            DrawLayers(0, to, position, scale);
+        }
+
+        public void DrawLayers(int start, int end, Vector2 position, float scale = 1f)
         {
             if (Layers.Count <= 0)
                 return;
@@ -416,13 +444,9 @@ namespace ElementEngine
             CommandList.SetGraphicsResourceSet(1, _animationSet);
             CommandList.SetGraphicsResourceSet(2, _textureSetAtlas);
 
-            for (var i = 0; i < Layers.Count; i++)
+            for (var i = start; i <= end; i++)
             {
                 var layer = Layers[i];
-
-                if (layer.IsBelow != below)
-                    continue;
-
                 CommandList.SetGraphicsResourceSet(3, layer.TextureSetData);
                 CommandList.Draw((uint)_vertexData.Length);
             }
