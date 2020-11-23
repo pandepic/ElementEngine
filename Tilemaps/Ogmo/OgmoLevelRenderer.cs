@@ -57,22 +57,22 @@ namespace ElementEngine.Ogmo
 
         public void DrawAllLayers(Camera2D camera)
         {
-            _tileBatch.DrawAll(camera.Position, camera.Zoom);
+            _tileBatch.DrawAll(camera);
         }
 
         public void DrawLayersFrom(int from, Camera2D camera)
         {
-            _tileBatch.DrawLayersFrom(from, camera.Position, camera.Zoom);
+            _tileBatch.DrawLayersFrom(from, camera);
         }
 
         public void DrawLayersTo(int to, Camera2D camera)
         {
-            _tileBatch.DrawLayersTo(to, camera.Position, camera.Zoom);
+            _tileBatch.DrawLayersTo(to, camera);
         }
 
         public void DrawLayers(int start, int end, Camera2D camera)
         {
-            _tileBatch.DrawLayers(start, end, camera.Position, camera.Zoom);
+            _tileBatch.DrawLayers(start, end, camera);
         }
 
     } // OgmoLevelRenderer
