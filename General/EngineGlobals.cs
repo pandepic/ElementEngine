@@ -36,6 +36,17 @@ namespace ElementEngine
             { typeof(PUIWHProgressBar), "HProgressBar" },
         };
 
+        public static void RegisterWidgetType(Type type, string elementName)
+        {
+            if (UIWidgetTypes.ContainsKey(type))
+                throw new Exception("Type already exists.");
+
+            if (UIWidgetTypes.ContainsValue(elementName))
+                throw new Exception("Element name already exists.");
+
+            UIWidgetTypes.Add(type, elementName);
+        }
+
         protected ElementGlobals() { }
 
         public static void Load(BaseGame game)

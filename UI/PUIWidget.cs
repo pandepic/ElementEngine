@@ -131,6 +131,28 @@ namespace ElementEngine
             LoadTemplate();
         } // init
 
+        public void Show()
+        {
+            Visible = true;
+            Active = true;
+        }
+
+        public void Hide()
+        {
+            Visible = false;
+            Active = false;
+        }
+
+        public void ToggleVisible()
+        {
+            Visible = !Visible;
+            Active = Visible;
+        }
+
+        public void Enable() { Active = true; }
+        public void Disable() { Active = false; }
+        public void ToggleActive() { Active = !Active; }
+
         protected virtual void GrabFocus()
         {
             Parent.GrabFocus(this);

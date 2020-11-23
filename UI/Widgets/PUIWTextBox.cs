@@ -69,7 +69,7 @@ namespace ElementEngine
             var textureRight = backgroundElRight == null ? null : (string.IsNullOrWhiteSpace(backgroundElRight.Value) ? null : AssetManager.LoadTexture2D(backgroundElRight.Value, preMultiplyAlpha));
             var textureCenter = backgroundElCenter == null ? null : (string.IsNullOrWhiteSpace(backgroundElCenter.Value) ? null : AssetManager.LoadTexture2D(backgroundElCenter.Value, preMultiplyAlpha));
 
-            var bgWidth = int.Parse(GetXMLElement("Background", "Width").Value);
+            var bgWidth = int.Parse(GetXMLAttribute("Background", "Width").Value);
             var backgroundTexture = new Texture2D(bgWidth, textureCenter.Height);
             backgroundTexture.BeginRenderTarget();
             backgroundTexture.RenderTargetClear(RgbaFloat.Clear);
