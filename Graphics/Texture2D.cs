@@ -114,14 +114,44 @@ namespace ElementEngine
             GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
         }
 
+        /// <summary>
+        /// If the current texture already has the staging flag, it'll just return the current texture, otherwise it'll create a new staging copy.
+        /// </summary>
+        /// <param name="texture">The resulting staging texture.</param>
+        /// <returns>True if a staging copy was created, false if the current texture was used. Use this to determine if you need to dispose the resulting texture or not.</returns>
+        public bool TryCreateStagingCopy(out Texture2D texture)
+        {
+            if (Description.Usage.HasFlag(TextureUsage.Staging))
+            {
+                texture = this;
+                return false;
+            }
+
+            var temp = new Texture2D(Width, Height, null, Description.Format, TextureUsage.Staging);
+
+            var commandList = GraphicsDevice.ResourceFactory.CreateCommandList();
+            commandList.Begin();
+            commandList.CopyTexture(Texture, temp.Texture);
+            commandList.End();
+            GraphicsDevice.SubmitCommands(commandList);
+            GraphicsDevice.WaitForIdle();
+
+            texture = temp;
+            return true;
+        }
+
         public unsafe byte[] GetData()
         {
-            var view = GraphicsDevice.Map<byte>(Texture, MapMode.Read);
+            var disposeMapTexture = TryCreateStagingCopy(out var mapTexture);
 
+            var view = GraphicsDevice.Map<byte>(mapTexture.Texture, MapMode.Read);
             var data = new byte[view.SizeInBytes];
             Marshal.Copy(view.MappedResource.Data, data, 0, (int)view.SizeInBytes);
 
-            GraphicsDevice.Unmap(Texture);
+            GraphicsDevice.Unmap(mapTexture.Texture);
+
+            if (disposeMapTexture)
+                mapTexture.Dispose();
 
             return data;
 
@@ -156,22 +186,11 @@ namespace ElementEngine
 
         public void SaveAsPng(FileStream fs)
         {
-            var temp = new Texture2D(Width, Height, null, PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage.Staging);
-
-            var commandList = GraphicsDevice.ResourceFactory.CreateCommandList();
-            commandList.Begin();
-            commandList.CopyTexture(Texture, temp.Texture);
-            commandList.End();
-            GraphicsDevice.SubmitCommands(commandList);
-            GraphicsDevice.WaitForIdle();
-
-            var tempData = temp.GetData();
+            var tempData = GetData();
             var data = tempData.ToRgba32();
 
             var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
-
-            temp.Dispose();
 
         } // SaveAsPng
 
