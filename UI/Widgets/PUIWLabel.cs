@@ -5,9 +5,9 @@ namespace ElementEngine
 {
     public class PUIWLabel : PUIWidget
     {
-        public string UpdateArg = "";
-        public SpriteFont Font = null;
-        public int FontSize = 0;
+        public SpriteFont Font { get; set; } = null;
+        public int FontSize { get; set; } = 0;
+        public int Outline { get; set; } = 0;
         public RgbaByte Color = RgbaByte.White;
 
         protected string _text = "";
@@ -30,6 +30,10 @@ namespace ElementEngine
             FontSize = int.Parse(GetXMLElement("FontSize").Value);
             Color = new RgbaByte().FromHex(GetXMLElement("Color").Value);
 
+            var attOutline = GetXMLAttribute("Outline");
+            if (attOutline != null)
+                Outline = int.Parse(attOutline.Value);
+
             UpdateText(GetXMLElement("Text").Value);
         }
 
@@ -37,7 +41,7 @@ namespace ElementEngine
         {
             _text = text;
 
-            var tSize = Font.MeasureText(_text, FontSize);
+            var tSize = Font.MeasureText(_text, FontSize, Outline);
             Width = (int)tSize.X;
             Height = (int)tSize.Y;
 
@@ -50,7 +54,7 @@ namespace ElementEngine
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(Font, _text, Position + Parent.Position, Color, FontSize);
+            spriteBatch.DrawText(Font, _text, Position + Parent.Position, Color, FontSize, Outline);
         }
 
     } // PUIWLabel

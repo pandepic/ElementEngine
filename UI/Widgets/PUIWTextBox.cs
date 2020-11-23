@@ -57,7 +57,7 @@ namespace ElementEngine
 
             TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None;
 
-            var elAlpha = GetXMLElement("PreMultiplyAlpha");
+            var elAlpha = GetXMLAttribute("PremultiplyAlpha");
             if (elAlpha != null)
                 preMultiplyAlpha = elAlpha.Value.ToEnum<TexturePremultiplyType>();
 
