@@ -8,7 +8,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class FontTexture : ITexture2D
+    internal class FontTexture : ITexture2D
     {
         public Texture2D Texture { get; set; }
 
@@ -29,7 +29,7 @@ namespace ElementEngine
         }
     } // FontTexture
 
-    public class FontTextureCreator : ITexture2DCreator
+    internal class FontTextureCreator : ITexture2DCreator
     {
         public ITexture2D Create(int width, int height)
         {
@@ -82,7 +82,7 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public FontSystem GetFontSystem(int outlineSize = 0)
+        protected FontSystem GetFontSystem(int outlineSize = 0)
         {
             if (!FontSystemsByOutlineSize.ContainsKey(outlineSize))
             {
