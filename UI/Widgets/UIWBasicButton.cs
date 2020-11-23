@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class PUIWBasicButton : PUIWidget
+    public class UIWBasicButton : UIWidget
     {
         protected AnimatedSprite _buttonSprite = null;
         protected AnimatedSprite _buttonPressedSprite = null;
@@ -24,9 +24,9 @@ namespace ElementEngine
 
         public bool Disabled = false;
 
-        public PUIWBasicButton() { }
+        public UIWBasicButton() { }
 
-        public override void Load(PUIFrame parent, XElement el)
+        public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
@@ -124,7 +124,7 @@ namespace ElementEngine
                 if (!string.IsNullOrWhiteSpace(_clickSound))
                     SoundManager.Play(_clickSound, SoundManager.UISoundType);
 
-                TriggerPUIEvent(PUIEventType.ButtonClick);
+                TriggerUIEvent(UIEventType.ButtonClick);
                 _buttonPressed = false;
             }
         }
@@ -206,5 +206,5 @@ namespace ElementEngine
             }
 
         } // Draw
-    } // PUIBasicButton
+    } // UIBasicButton
 }

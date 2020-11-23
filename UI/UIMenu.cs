@@ -7,22 +7,22 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public enum PUIEventType
+    public enum UIEventType
     {
         ButtonClick,
         ValueChanged,
-    } // PUIEventType
+    } // UIEventType
 
-    public interface IPUIEventHandler
+    public interface IUIEventHandler
     {
-        public void HandlePUIEvent(PUIMenu source, PUIEventType type, PUIWidget widget);
+        public void HandleUIEvent(UIMenu source, UIEventType type, UIWidget widget);
     }
 
-    public class PUIMenu : IDisposable, IKeyboardHandler, IMouseHandler
+    public class UIMenu : IDisposable, IKeyboardHandler, IMouseHandler
     {
-        public PUIFrameList Frames { get; set; } = new PUIFrameList();
+        public UIFrameList Frames { get; set; } = new UIFrameList();
         public Dictionary<string, XElement> Templates { get; set; } = new Dictionary<string, XElement>();
-        protected List<IPUIEventHandler> _eventHandlers { get; set; } = new List<IPUIEventHandler>();
+        protected List<IUIEventHandler> _eventHandlers { get; set; } = new List<IUIEventHandler>();
 
         public bool Focused { get; private set; } = false;
 
@@ -50,7 +50,7 @@ namespace ElementEngine
         }
         #endregion
 
-        public PUIMenu()
+        public UIMenu()
         {
         }
 
@@ -92,7 +92,7 @@ namespace ElementEngine
 
             foreach (var frame in frames)
             {
-                PUIFrame newFrame = new PUIFrame(this, frame, Templates);
+                UIFrame newFrame = new UIFrame(this, frame, Templates);
                 Frames.Add(newFrame);
             } // foreach
 
@@ -100,7 +100,7 @@ namespace ElementEngine
 
         } // Load
 
-        public void AddPUIEventHandler(IPUIEventHandler handler)
+        public void AddUIEventHandler(IUIEventHandler handler)
         {
             if (_eventHandlers.Contains(handler))
                 return;
@@ -108,15 +108,15 @@ namespace ElementEngine
             _eventHandlers.Add(handler);
         }
 
-        public void RemovePUIEventHandler(IPUIEventHandler handler) => _eventHandlers.Remove(handler);
+        public void RemoveUIEventHandler(IUIEventHandler handler) => _eventHandlers.Remove(handler);
 
-        internal void TriggerPUIEvent(PUIEventType type, PUIWidget widget)
+        internal void TriggerUIEvent(UIEventType type, UIWidget widget)
         {
             for (var i = 0; i < _eventHandlers.Count; i++)
-                _eventHandlers[i]?.HandlePUIEvent(this, type, widget);
+                _eventHandlers[i]?.HandleUIEvent(this, type, widget);
         }
 
-        public PUIFrame GetFrame(string frame)
+        public UIFrame GetFrame(string frame)
         {
             return Frames[frame];
         }
@@ -126,7 +126,7 @@ namespace ElementEngine
             return Frames[frame].Widgets[widget];
         }
 
-        public T GetWidget<T>(string frame, string widget) where T : PUIWidget
+        public T GetWidget<T>(string frame, string widget) where T : UIWidget
         {
             return (T)GetWidget(frame, widget);
         }
@@ -144,7 +144,7 @@ namespace ElementEngine
             return default;
         }
 
-        public T GetWidget<T>(string name) where T : PUIWidget
+        public T GetWidget<T>(string name) where T : UIWidget
         {
             return (T)GetWidget(name);
         }
@@ -155,13 +155,13 @@ namespace ElementEngine
             Focused = false;
         }
 
-        internal void GrabFocus(PUIFrame frame)
+        internal void GrabFocus(UIFrame frame)
         {
             Frames.UnFocusAllExcept(frame.Name);
             Focused = true;
         }
 
-        internal void DropFocus(PUIFrame frame)
+        internal void DropFocus(UIFrame frame)
         {
             Focused = false;
         }
@@ -221,5 +221,5 @@ namespace ElementEngine
             Frames.OnMouseScroll(type, mouseWheelDelta, gameTimer);
         } // HandleMouseWheel
 
-    } // PUIMenu
+    } // UIMenu
 }

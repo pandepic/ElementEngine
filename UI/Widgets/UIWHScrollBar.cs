@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class PUIWHScrollBar : PUIWidget
+    public class UIWHScrollBar : UIWidget
     {
         protected AnimatedSprite _background = null;
         protected AnimatedSprite _slider = null;
@@ -60,9 +60,9 @@ namespace ElementEngine
         protected Vector2 _bgPosition = Vector2.Zero;
         protected Vector2 _sliderPosition = Vector2.Zero;
 
-        public PUIWHScrollBar() { }
+        public UIWHScrollBar() { }
 
-        ~PUIWHScrollBar()
+        ~UIWHScrollBar()
         {
             if (_background != null)
                 _background.Texture?.Dispose();
@@ -74,7 +74,7 @@ namespace ElementEngine
                 _sliderHover.Texture?.Dispose();
         }
 
-        public override void Load(PUIFrame parent, XElement el)
+        public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
@@ -242,7 +242,7 @@ namespace ElementEngine
                 TextPosition = new Vector2(textX, textY);
             }
 
-            TriggerPUIEvent(PUIEventType.ValueChanged);
+            TriggerUIEvent(UIEventType.ValueChanged);
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
@@ -286,5 +286,5 @@ namespace ElementEngine
 
             SetSliderPosition(currentPosition);
         }
-    } // PUIWHScrollBar
+    } // UIWHScrollBar
 }

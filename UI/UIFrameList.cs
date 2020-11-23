@@ -13,17 +13,17 @@ namespace ElementEngine
         public FrameListException(string message) : base(message) { }
     }
 
-    public class PUIFrameList
+    public class UIFrameList
     {
-        protected List<PUIFrame> _frames = new List<PUIFrame>();
-        protected List<PUIFrame> _reverseFrames = new List<PUIFrame>();
+        protected List<UIFrame> _frames = new List<UIFrame>();
+        protected List<UIFrame> _reverseFrames = new List<UIFrame>();
         protected int _position = -1;
 
         public int Count { get => _frames.Count; }
 
-        public PUIFrameList() { }
+        public UIFrameList() { }
 
-        public PUIFrame this[int index]
+        public UIFrame this[int index]
         {
             get
             {
@@ -36,7 +36,7 @@ namespace ElementEngine
             }
         }
 
-        public PUIFrame this[string name]
+        public UIFrame this[string name]
         {
             get
             {
@@ -50,7 +50,7 @@ namespace ElementEngine
             _reverseFrames = _frames.OrderByDescending(f => f.DrawOrder).ToList();
         }
 
-        public void Add(PUIFrame frame)
+        public void Add(UIFrame frame)
         {
             foreach (var f in _frames)
                 if (f.Name == frame.Name)
@@ -64,7 +64,7 @@ namespace ElementEngine
             _frames.Remove(_frames[index]);
         }
 
-        public void Remove(PUIFrame frame)
+        public void Remove(UIFrame frame)
         {
             _frames.Remove(frame);
         }
@@ -192,5 +192,5 @@ namespace ElementEngine
                 frame.OnTextInput(key, gameTimer);
             }
         }
-    } // PUIFrameList
+    } // UIFrameList
 }

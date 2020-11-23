@@ -28,12 +28,12 @@ namespace ElementEngine
         // UI
         public static Dictionary<Type, string> UIWidgetTypes { get; set; } = new Dictionary<Type, string>()
         {
-            { typeof(PUIWBasicButton), "Button" },
-            { typeof(PUIWLabel), "Label" },
-            { typeof(PUIWTextBox), "Textbox" },
-            { typeof(PUIWImageBox), "ImageBox" },
-            { typeof(PUIWHScrollBar), "HScrollBar" },
-            { typeof(PUIWHProgressBar), "HProgressBar" },
+            { typeof(UIWBasicButton), "Button" },
+            { typeof(UIWLabel), "Label" },
+            { typeof(UIWTextBox), "Textbox" },
+            { typeof(UIWImageBox), "ImageBox" },
+            { typeof(UIWHScrollBar), "HScrollBar" },
+            { typeof(UIWHProgressBar), "HProgressBar" },
         };
 
         public static void RegisterWidgetType(Type type, string elementName)

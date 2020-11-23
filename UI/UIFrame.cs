@@ -7,26 +7,26 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public enum PUILayoutGroupDirection
+    public enum UILayoutGroupDirection
     {
         Vertical,
         Horizontal,
     }
 
-    public class PUILayoutGroup
+    public class UILayoutGroup
     {
         public string Name { get; set; }
-        public PUILayoutGroupDirection Direction { get; set; }
+        public UILayoutGroupDirection Direction { get; set; }
         public int Spacing { get; set; }
-        public PUIFrame ParentFrame { get; set; }
-        public List<PUIWidget> Widgets { get; set; } = new List<PUIWidget>();
+        public UIFrame ParentFrame { get; set; }
+        public List<UIWidget> Widgets { get; set; } = new List<UIWidget>();
         public WidgetPositionFlags PositionFlags { get; set; } = new WidgetPositionFlags();
 
-        public PUILayoutGroup(XElement el, PUIFrame parentFrame)
+        public UILayoutGroup(XElement el, UIFrame parentFrame)
         {
             ParentFrame = parentFrame;
             Name = el.Attribute("Name").Value;
-            Direction = el.Attribute("Direction").Value.ToEnum<PUILayoutGroupDirection>();
+            Direction = el.Attribute("Direction").Value.ToEnum<UILayoutGroupDirection>();
             Spacing = 0;
 
             var attSpacing = el.Attribute("Spacing");
@@ -95,7 +95,7 @@ namespace ElementEngine
             {
                 var offset = widget.Offset.ToVector2I();
 
-                if (Direction == PUILayoutGroupDirection.Vertical)
+                if (Direction == UILayoutGroupDirection.Vertical)
                 {
                     if (widget.PositionFlags.CenterX)
                         currentPosition.X = startPosition.X - (width / 2);
@@ -111,7 +111,7 @@ namespace ElementEngine
 
                     currentPosition.Y += widget.Height + Spacing + offset.Y;
                 }
-                else if (Direction == PUILayoutGroupDirection.Horizontal)
+                else if (Direction == UILayoutGroupDirection.Horizontal)
                 {
                     if (widget.PositionFlags.CenterY)
                         currentPosition.Y = startPosition.Y - (height / 2);
@@ -130,22 +130,22 @@ namespace ElementEngine
             }
 
         } // UpdateWidgetPositions
-    } // PUILayoutGroup
+    } // UILayoutGroup
 
     public class CommonWidgetResources
     {
         public Dictionary<string, XElement> Templates { get; set; } = null;
-        public Dictionary<string, PUILayoutGroup> LayoutGroups { get; set; } = new Dictionary<string, PUILayoutGroup>();
+        public Dictionary<string, UILayoutGroup> LayoutGroups { get; set; } = new Dictionary<string, UILayoutGroup>();
     }
 
-    public class PUIFrame
+    public class UIFrame
     {
-        protected PUIMenu _parent = null;
+        protected UIMenu _parent = null;
         protected Rectangle _frameRect = Rectangle.Empty;
 
         public string Name { get; set; } = "";
         public AnimatedSprite FrameSprite { get; set; } = null;
-        public PUIWidgetList Widgets { get; set; } = new PUIWidgetList();
+        public UIWidgetList Widgets { get; set; } = new UIWidgetList();
         public Dictionary<string, XElement> Templates { get; set; } = null;
 
         public int DrawOrder { get; set; } = 0;
@@ -232,7 +232,7 @@ namespace ElementEngine
             }
         }
 
-        public PUIFrame(PUIMenu parent, XElement el, Dictionary<string, XElement> templates)
+        public UIFrame(UIMenu parent, XElement el, Dictionary<string, XElement> templates)
         {
             var screenWidth = ElementGlobals.TargetResolutionWidth;
             var screenHeight = ElementGlobals.TargetResolutionHeight;
@@ -323,7 +323,7 @@ namespace ElementEngine
 
             CommonWidgetResources.Templates = templates;
 
-            var tempWidgets = new List<PUIWidget>();
+            var tempWidgets = new List<UIWidget>();
 
             foreach (var kvp in ElementGlobals.UIWidgetTypes)
             {
@@ -332,7 +332,7 @@ namespace ElementEngine
 
                 foreach (var xmlElement in xmlElements)
                 {
-                    PUIWidget widget = (PUIWidget)Activator.CreateInstance(type);
+                    UIWidget widget = (UIWidget)Activator.CreateInstance(type);
                     widget.Load(this, xmlElement);
                     tempWidgets.Add(widget);
                 }
@@ -392,7 +392,7 @@ namespace ElementEngine
 
             foreach (var elLayoutGroup in el.Elements("LayoutGroup"))
             {
-                var layoutGroup = new PUILayoutGroup(elLayoutGroup, this);
+                var layoutGroup = new UILayoutGroup(elLayoutGroup, this);
                 CommonWidgetResources.LayoutGroups.Add(layoutGroup.Name, layoutGroup);
             }
 
@@ -415,14 +415,14 @@ namespace ElementEngine
 
             Widgets.OrderByDrawOrder();
 
-        } // PUIFrame
+        } // UIFrame
 
-        internal void TriggerPUIEvent(PUIEventType type, PUIWidget widget)
+        internal void TriggerUIEvent(UIEventType type, UIWidget widget)
         {
-            _parent.TriggerPUIEvent(type, widget);
+            _parent.TriggerUIEvent(type, widget);
         }
 
-        internal void GrabFocus(PUIWidget widget)
+        internal void GrabFocus(UIWidget widget)
         {
             _parent.GrabFocus(this);
             Widgets.UnFocusAllExcept(widget.Name);
@@ -430,7 +430,7 @@ namespace ElementEngine
             Focused = true;
         }
 
-        internal void DropFocus(PUIWidget widget)
+        internal void DropFocus(UIWidget widget)
         {
             _parent.DropFocus(this);
             widget.UnFocus();
@@ -465,7 +465,7 @@ namespace ElementEngine
                 Open();
         }
 
-        public void AddWidget(PUIWidget widget, bool order = true)
+        public void AddWidget(UIWidget widget, bool order = true)
         {
             Widgets.Add(widget);
 
@@ -478,7 +478,7 @@ namespace ElementEngine
             return Widgets[name];
         }
 
-        public T GetWidget<T>(string name) where T : PUIWidget
+        public T GetWidget<T>(string name) where T : UIWidget
         {
             return (T)GetWidget(name);
         }

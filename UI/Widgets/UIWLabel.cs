@@ -3,7 +3,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class PUIWLabel : PUIWidget
+    public class UIWLabel : UIWidget
     {
         public SpriteFont Font { get; set; } = null;
         public int FontSize { get; set; } = 0;
@@ -20,9 +20,9 @@ namespace ElementEngine
             }
         }
 
-        public PUIWLabel() { }
+        public UIWLabel() { }
 
-        public override void Load(PUIFrame parent, XElement el)
+        public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
@@ -57,5 +57,5 @@ namespace ElementEngine
             spriteBatch.DrawText(Font, _text, Position + Parent.Position, Color, FontSize, Outline);
         }
 
-    } // PUIWLabel
+    } // UIWLabel
 }

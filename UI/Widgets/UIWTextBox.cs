@@ -7,7 +7,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class PUIWTextBox : PUIWidget
+    public class UIWTextBox : UIWidget
     {
         protected string _text = "";
 
@@ -40,9 +40,9 @@ namespace ElementEngine
 
         public RgbaByte Colour { get; set; } = RgbaByte.White;
 
-        public PUIWTextBox() { }
+        public UIWTextBox() { }
 
-        ~PUIWTextBox()
+        ~UIWTextBox()
         {
             if (_textTexture != null)
                 _textTexture.Dispose();
@@ -51,7 +51,7 @@ namespace ElementEngine
                 _background.Texture?.Dispose();
         }
 
-        public override void Load(PUIFrame parent, XElement el)
+        public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
@@ -157,7 +157,7 @@ namespace ElementEngine
             if ((_textRect.Width + _textRect.X) > _textTexture.Width)
                 _textRect.Width = _textTexture.Width - _textRect.X;
 
-            TriggerPUIEvent(PUIEventType.ValueChanged);
+            TriggerUIEvent(UIEventType.ValueChanged);
         }
 
         public override void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
@@ -316,5 +316,5 @@ namespace ElementEngine
         {
         }
 
-    } // PUIWTextBox
+    } // UIWTextBox
 }

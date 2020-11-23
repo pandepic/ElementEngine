@@ -7,14 +7,14 @@ using System.Xml.Linq;
 
 namespace ElementEngine
 {
-    public class PUIPanel : PUIWidget
+    public class UIPanel : UIWidget
     {
-        public PUIPanel()
+        public UIPanel()
         {
 
         }
 
-        public PUIPanel(XElement el)
+        public UIPanel(XElement el)
         {
 
         }

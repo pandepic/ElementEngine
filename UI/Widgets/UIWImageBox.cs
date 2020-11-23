@@ -2,13 +2,13 @@
 
 namespace ElementEngine
 {
-    public class PUIWImageBox : PUIWidget
+    public class UIWImageBox : UIWidget
     {
         protected AnimatedSprite _image = null;
 
-        public PUIWImageBox() { }
+        public UIWImageBox() { }
 
-        public override void Load(PUIFrame parent, XElement el)
+        public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
@@ -31,5 +31,5 @@ namespace ElementEngine
             if (_image != null)
                 _image.Draw(spriteBatch, Position + Parent.Position);
         }
-    } // PUIWImageBox
+    } // UIWImageBox
 }

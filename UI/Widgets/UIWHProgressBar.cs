@@ -4,7 +4,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class PUIWHProgressBar : PUIWidget
+    public class UIWHProgressBar : UIWidget
     {
         protected AnimatedSprite _background = null;
         protected AnimatedSprite _fill = null;
@@ -63,9 +63,9 @@ namespace ElementEngine
             }
         }
 
-        public PUIWHProgressBar() { }
+        public UIWHProgressBar() { }
 
-        ~PUIWHProgressBar()
+        ~UIWHProgressBar()
         {
             if (_background != null)
                 _background.Texture?.Dispose();
@@ -74,7 +74,7 @@ namespace ElementEngine
                 _fill.Texture?.Dispose();
         }
 
-        public override void Load(PUIFrame parent, XElement el)
+        public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
@@ -272,7 +272,7 @@ namespace ElementEngine
             if (_isDirty)
             {
                 UpdateFillTexture();
-                TriggerPUIEvent(PUIEventType.ValueChanged);
+                TriggerUIEvent(UIEventType.ValueChanged);
             }
 
             _background?.Draw(spriteBatch, Position + _bgPosition + Parent.Position);
@@ -308,5 +308,5 @@ namespace ElementEngine
             _background?.Update(gameTimer);
             _fill?.Update(gameTimer);
         }
-    } // PUIWHProgressBar
+    } // UIWHProgressBar
 }

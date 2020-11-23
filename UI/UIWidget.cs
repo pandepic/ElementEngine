@@ -17,7 +17,7 @@ namespace ElementEngine
         public int? SetY = null;
     }
 
-    public class PUIWidget
+    public class UIWidget
     {
         protected XElement _template = null;
         protected Rectangle _widgetRect = new Rectangle(0, 0, 0, 0);
@@ -26,14 +26,14 @@ namespace ElementEngine
         public Vector2 Offset => _offset;
 
         public XElement XmlRoot { get; set; } = null;
-        public PUIFrame Parent { get; set; }
+        public UIFrame Parent { get; set; }
 
         public string Name { get; set; }
         public bool Focused { get; private set; } = false;
         public int DrawOrder { get; set; }
         public bool Visible { get; set; }
         public bool Active { get; set; }
-        public PUILayoutGroup LayoutGroup { get; set; }
+        public UILayoutGroup LayoutGroup { get; set; }
 
         protected WidgetPositionFlags _positionFlags = new WidgetPositionFlags();
         public WidgetPositionFlags PositionFlags => _positionFlags;
@@ -94,15 +94,15 @@ namespace ElementEngine
             }
         }
 
-        public PUIWidget() { DrawOrder = 0; Visible = true; Active = true; }
-        public PUIWidget(int x, int y)
+        public UIWidget() { DrawOrder = 0; Visible = true; Active = true; }
+        public UIWidget(int x, int y)
         {
             _widgetRect.X = x; _widgetRect.Y = y;
             DrawOrder = 0;
             Visible = true;
             Active = true;
         }
-        public PUIWidget(int x, int y, int width, int height)
+        public UIWidget(int x, int y, int width, int height)
         {
             _widgetRect.X = x; _widgetRect.Y = y; _widgetRect.Height = height; _widgetRect.Width = width;
             DrawOrder = 0;
@@ -110,7 +110,7 @@ namespace ElementEngine
             Active = true;
         }
 
-        public virtual void Load(PUIFrame parent, XElement el) { }
+        public virtual void Load(UIFrame parent, XElement el) { }
 
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void OnMouseMoved(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
@@ -124,7 +124,7 @@ namespace ElementEngine
 
         public virtual void Draw(SpriteBatch2D spriteBatch) { }
 
-        public void Init(PUIFrame parent, XElement el)
+        public void Init(UIFrame parent, XElement el)
         {
             Parent = parent;
             XmlRoot = el;
@@ -360,9 +360,9 @@ namespace ElementEngine
         public void CenterX() { X = (Parent.Width / 2) - (Width / 2); }
         public void CenterY() { Y = (Parent.Height / 2) - (Height / 2); }
 
-        internal void TriggerPUIEvent(PUIEventType type)
+        internal void TriggerUIEvent(UIEventType type)
         {
-            Parent.TriggerPUIEvent(type, this);
+            Parent.TriggerUIEvent(type, this);
         }
 
         public bool PointInsideWidget(Vector2 point)
@@ -393,5 +393,5 @@ namespace ElementEngine
             ElementGlobals.UIWidgetTypes.Add(type, elementName);
         } // RegisterWidgetType
 
-    } // PUIWidget
+    } // UIWidget
 }

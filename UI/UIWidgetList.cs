@@ -12,16 +12,16 @@ namespace ElementEngine
         public WidgetListException(string message) : base(message) { }
     }
 
-    public class PUIWidgetList
+    public class UIWidgetList
     {
-        protected List<PUIWidget> _widgets = new List<PUIWidget>();
+        protected List<UIWidget> _widgets = new List<UIWidget>();
 
-        public PUIWidgetList()
+        public UIWidgetList()
         {
 
         }
 
-        public PUIWidget this[int index]
+        public UIWidget this[int index]
         {
             get
             {
@@ -34,7 +34,7 @@ namespace ElementEngine
             }
         }
 
-        public PUIWidget this[string name]
+        public UIWidget this[string name]
         {
             get
             {
@@ -42,7 +42,7 @@ namespace ElementEngine
             }
         }
 
-        public void Add(PUIWidget widget)
+        public void Add(UIWidget widget)
         {
             foreach (var w in _widgets)
                 if (w.Name == widget.Name)
@@ -56,7 +56,7 @@ namespace ElementEngine
             _widgets.Remove(_widgets[index]);
         }
 
-        public void Remove(PUIWidget widget)
+        public void Remove(UIWidget widget)
         {
             _widgets.Remove(widget);
         }
