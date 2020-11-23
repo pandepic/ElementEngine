@@ -21,7 +21,7 @@ namespace ElementEngine
     {
         protected XElement _template = null;
         protected Rectangle _widgetRect = new Rectangle(0, 0, 0, 0);
-        
+
         protected Vector2 _offset = Vector2.Zero;
         public Vector2 Offset => _offset;
 
@@ -243,16 +243,13 @@ namespace ElementEngine
         {
             XAttribute att = null;
 
-            if (_template != null)
-            {
-                var p = _template.Element(parent);
-                if (p != null)
-                    att = p.Attribute(name);
-            }
+            var p = XmlRoot.Element(parent);
+            if (p != null)
+                att = p.Attribute(name);
 
-            if (att == null)
+            if (_template != null && att == null)
             {
-                var p = XmlRoot.Element(parent);
+                p = _template.Element(parent);
                 if (p != null)
                     att = p.Attribute(name);
             }

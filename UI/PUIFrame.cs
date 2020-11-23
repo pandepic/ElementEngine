@@ -457,6 +457,14 @@ namespace ElementEngine
             UnFocus();
         }
 
+        public void Toggle()
+        {
+            if (Visible)
+                Close();
+            else
+                Open();
+        }
+
         public void AddWidget(PUIWidget widget, bool order = true)
         {
             Widgets.Add(widget);

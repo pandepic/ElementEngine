@@ -165,7 +165,6 @@ namespace ElementEngine
             _bgPosition.Y = (Height - _background.Height) / 2;
 
             _totalNotches = ((_maxValue - _minValue) / _increment) + 1;
-
             _sliderIncrementX = (Width - _slider.Width - (_sliderOffsetX * 2)) / ((_maxValue - _minValue) / _increment);
 
             var elLabel = GetXMLElement("Label");
@@ -217,7 +216,7 @@ namespace ElementEngine
 
         protected void UpdateSliderPosition()
         {
-            _sliderPosition.X = _sliderOffsetX + (_sliderIncrementX * (_sliderIndex - 1));
+            _sliderPosition.X = _sliderOffsetX + (_sliderIncrementX * (_sliderIndex - 1)) - (_slider.Width / 2);
         }
 
         protected void UpdateCurrentValue(int value)
