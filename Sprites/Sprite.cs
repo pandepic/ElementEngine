@@ -16,8 +16,8 @@ namespace ElementEngine
         public Vector2 Origin = Vector2.Zero;
         public float Rotation;
 
-        public int Width { get => Texture.Width; }
-        public int Height { get => Texture.Height; }
+        public virtual int Width { get => Texture.Width; }
+        public virtual int Height { get => Texture.Height; }
 
         public Sprite() { }
 

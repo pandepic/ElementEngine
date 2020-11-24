@@ -131,6 +131,11 @@ namespace ElementEngine
             LoadTemplate();
         } // init
 
+        public void Init(UIFrame parent)
+        {
+            Parent = parent;
+        }
+
         public void Show()
         {
             Visible = true;

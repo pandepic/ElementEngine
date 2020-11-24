@@ -20,6 +20,9 @@ namespace ElementEngine
         protected int _animationLoopCount = 0;
         protected SpriteFlipType _prevFlip;
 
+        public override int Width => FrameSize.X;
+        public override int Height => FrameSize.Y;
+
         public AnimatedSprite() { }
 
         public AnimatedSprite(Texture2D texture, Vector2I? frameSize = null, int defaultFrame = 1, bool centerOrigin = false) : base(texture, centerOrigin)

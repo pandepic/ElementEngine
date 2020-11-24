@@ -6,10 +6,10 @@ namespace ElementEngine
 {
     public class UIWBasicButton : UIWidget
     {
-        protected AnimatedSprite _buttonSprite = null;
-        protected AnimatedSprite _buttonPressedSprite = null;
-        protected AnimatedSprite _buttonHoverSprite = null;
-        protected AnimatedSprite _buttonDisabledSprite = null;
+        protected Sprite _buttonSprite = null;
+        protected Sprite _buttonPressedSprite = null;
+        protected Sprite _buttonHoverSprite = null;
+        protected Sprite _buttonDisabledSprite = null;
 
         public SpriteFont Font { get; set; } = null;
         public int FontSize { get; set; } = 0;
@@ -58,11 +58,11 @@ namespace ElementEngine
             XElement buttonLabelPosition = GetXMLElement("Label", "Position");
             XElement buttonLabelColor = GetXMLElement("Label", "Color");
 
-            Font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
-            FontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
+            var font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
+            var fontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
 
-            ButtonText = GetXMLAttribute("Label", "Text").Value;
-            var labelSize = Font.MeasureText(ButtonText, FontSize);
+            var buttonText = GetXMLAttribute("Label", "Text").Value;
+            var labelSize = font.MeasureText(buttonText, fontSize);
 
             int textX = (buttonLabelPosition.Attribute("X").Value.ToUpper() != "CENTER"
                 ? int.Parse(buttonLabelPosition.Attribute("X").Value)
@@ -72,20 +72,52 @@ namespace ElementEngine
                 ? int.Parse(buttonLabelPosition.Attribute("Y").Value)
                 : (int)((buttonImage.Height / 2) - (labelSize.Y / 2)));
 
-            _buttonSprite = buttonImage == null ? null : new AnimatedSprite(buttonImage, buttonImage.Size);
-            _buttonPressedSprite = buttonImagePressed == null ? null : new AnimatedSprite(buttonImagePressed, buttonImagePressed.Size);
-            _buttonHoverSprite = buttonImageHover == null ? null : new AnimatedSprite(buttonImageHover, buttonImageHover.Size);
-            _buttonDisabledSprite = buttonImageDisabled == null ? null : new AnimatedSprite(buttonImageDisabled, buttonImageDisabled.Size);
+            var textPosition = new Vector2() { X = textX, Y = textY };
+            var buttonTextColor = new RgbaByte().FromHex(buttonLabelColor.Value);
 
-            Width = buttonImage.Width;
-            Height = buttonImage.Height;
-
-            TextPosition = new Vector2() { X = textX, Y = textY };
-            ButtonTextColor = new RgbaByte().FromHex(buttonLabelColor.Value);
-
+            string clickSound = null;
             var clickSoundElement = GetXMLElement("ClickSound");
             if (clickSoundElement != null)
-                _clickSound = clickSoundElement.Value;
+                clickSound = clickSoundElement.Value;
+
+            Load(parent,
+                buttonImage == null ? null : new AnimatedSprite(buttonImage, buttonImage.Size),
+                buttonImagePressed == null ? null : new AnimatedSprite(buttonImagePressed, buttonImagePressed.Size),
+                buttonImageHover == null ? null : new AnimatedSprite(buttonImageHover, buttonImageHover.Size),
+                buttonImageDisabled == null ? null : new AnimatedSprite(buttonImageDisabled, buttonImageDisabled.Size),
+                buttonText, font, fontSize, 0, textPosition, buttonTextColor, clickSound, preMultiplyAlpha);
+        }
+
+        public void Load(UIFrame parent,
+            Sprite buttonSprite,
+            Sprite buttonSpritePressed,
+            Sprite buttonSpriteHover,
+            Sprite buttonSpriteDisabled,
+            string buttonText,
+            SpriteFont font,
+            int fontSize,
+            int fontOutline,
+            Vector2 textPosition,
+            RgbaByte buttonTextColor,
+            string clickSound = null,
+            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None)
+        {
+            Init(parent);
+
+            Font = font;
+            FontSize = fontSize;
+            ButtonText = buttonText;
+
+            _buttonSprite = buttonSprite;
+            _buttonPressedSprite = buttonSpritePressed;
+            _buttonHoverSprite = buttonSpriteHover;
+            _buttonDisabledSprite = buttonSpriteDisabled;
+
+            Width = _buttonSprite.Width;
+            Height = _buttonSprite.Height;
+            TextPosition = textPosition;
+            ButtonTextColor = buttonTextColor;
+            _clickSound = clickSound;
 
             UpdateRect();
         }
@@ -94,8 +126,8 @@ namespace ElementEngine
         {
             if (_buttonSprite != null)
             {
-                Width = _buttonSprite.FrameSize.X;
-                Height = _buttonSprite.FrameSize.Y;
+                Width = _buttonSprite.Width;
+                Height = _buttonSprite.Height;
             }
         }
 
