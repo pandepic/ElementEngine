@@ -10,7 +10,13 @@ namespace ElementEngine
     {
         public static Texture2D Create3SliceTexture(int width, Texture2D left, Texture2D center, Texture2D right, string name = null)
         {
-            var newTexture = new Texture2D(width, center.Height, name);
+            var height = left.Height;
+            if (center.Height > height)
+                height = center.Height;
+            if (right.Height > height)
+                height = right.Height;
+
+            var newTexture = new Texture2D(width, height, name);
 
             newTexture.BeginRenderTarget();
             newTexture.RenderTargetClear(RgbaFloat.Clear);
@@ -77,8 +83,8 @@ namespace ElementEngine
             while (middleHeight > 0)
             {
                 spriteBatch.DrawTexture2D(middleTexture, middleDrawPos, new Rectangle(0, 0, middleTexture.Width, middleHeight >= middleTexture.Height ? middleTexture.Height : middleHeight));
-                middleHeight -= middleTexture.Height;
                 middleDrawPos.Y += (middleHeight >= middleTexture.Height ? middleTexture.Height : middleHeight);
+                middleHeight -= middleTexture.Height;
             }
 
             if (middleDrawPos.Y < height)
