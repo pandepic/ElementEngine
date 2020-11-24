@@ -130,43 +130,7 @@ namespace ElementEngine
 
             if (_background == null)
             {
-                var backgroundTexture = new Texture2D(_backgroundWidth, bgCenter.Height);
-                backgroundTexture.BeginRenderTarget();
-                backgroundTexture.RenderTargetClear(RgbaFloat.Clear);
-
-                var spriteBatch = backgroundTexture.GetRenderTargetSpriteBatch2D();
-                spriteBatch.Begin(SamplerType.Point);
-
-                var currentX = 0;
-                var endX = _backgroundWidth;
-
-                if (bgLeft != null)
-                {
-                    currentX += bgLeft.Width;
-                    spriteBatch.DrawTexture2D(bgLeft, new Vector2(0, 0));
-                }
-
-                if (bgRight != null)
-                {
-                    endX = _backgroundWidth - bgRight.Width;
-                    spriteBatch.DrawTexture2D(bgRight, new Vector2(endX, 0));
-                }
-
-                while (currentX < endX)
-                {
-                    var drawWidth = bgCenter.Width;
-
-                    if ((currentX + drawWidth) > endX)
-                        drawWidth = endX - currentX;
-
-                    spriteBatch.DrawTexture2D(bgCenter, new Rectangle(currentX, 0, drawWidth, bgCenter.Height));
-                    currentX += bgCenter.Width;
-                }
-
-                spriteBatch.End();
-
-                backgroundTexture.EndRenderTarget();
-
+                var backgroundTexture = GraphicsHelper.Create3SliceTexture(_backgroundWidth, bgLeft, bgCenter, bgRight);
                 _background = new AnimatedSprite(backgroundTexture, backgroundTexture.Size);
             }
 
@@ -227,42 +191,7 @@ namespace ElementEngine
 
             _fillWidth = (int)(_maxFillWidth * FValue);
 
-            var fillTexture = new Texture2D(_fillWidth, _fillCenter.Height);
-            fillTexture.BeginRenderTarget();
-            fillTexture.RenderTargetClear(RgbaFloat.Clear);
-
-            var spriteBatch = fillTexture.GetRenderTargetSpriteBatch2D();
-            spriteBatch.Begin(SamplerType.Point);
-
-            var currentX = 0;
-            var endX = _maxFillWidth;
-
-            if (_fillLeft != null)
-            {
-                currentX += _fillLeft.Width;
-                spriteBatch.DrawTexture2D(_fillLeft, new Vector2(0, 0));
-            }
-
-            if (_fillRight != null)
-            {
-                endX = _maxFillWidth - _fillRight.Width;
-                spriteBatch.DrawTexture2D(_fillRight, new Vector2(endX, 0));
-            }
-
-            while (currentX < endX)
-            {
-                var drawWidth = _fillCenter.Width;
-
-                if ((currentX + drawWidth) > endX)
-                    drawWidth = endX - currentX;
-
-                spriteBatch.DrawTexture2D(_fillCenter, new Rectangle(currentX, 0, drawWidth, _fillCenter.Height));
-                currentX += _fillCenter.Width;
-            }
-
-            spriteBatch.End();
-            fillTexture.EndRenderTarget();
-            
+            var fillTexture = GraphicsHelper.Create3SliceTexture(_fillWidth, _fillLeft, _fillCenter, _fillRight);
             _fill = new AnimatedSprite(fillTexture, fillTexture.Size);
 
         } // UpdateFillTexture

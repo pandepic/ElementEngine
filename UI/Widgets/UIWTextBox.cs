@@ -70,42 +70,7 @@ namespace ElementEngine
             var textureCenter = backgroundElCenter == null ? null : (string.IsNullOrWhiteSpace(backgroundElCenter.Value) ? null : AssetManager.LoadTexture2D(backgroundElCenter.Value, preMultiplyAlpha));
 
             var bgWidth = int.Parse(GetXMLAttribute("Background", "Width").Value);
-            var backgroundTexture = new Texture2D(bgWidth, textureCenter.Height);
-            backgroundTexture.BeginRenderTarget();
-            backgroundTexture.RenderTargetClear(RgbaFloat.Clear);
-
-            var spriteBatch = backgroundTexture.GetRenderTargetSpriteBatch2D();
-            spriteBatch.Begin(SamplerType.Point);
-
-            var currentX = 0;
-            var endX = 0;
-
-            if (textureLeft != null)
-            {
-                currentX += textureLeft.Width;
-                spriteBatch.DrawTexture2D(textureLeft, new Vector2(0, 0));
-            }
-
-            if (textureRight != null)
-            {
-                endX = bgWidth - textureRight.Width;
-                spriteBatch.DrawTexture2D(textureRight, new Vector2(endX, 0));
-            }
-
-            while (currentX < endX)
-            {
-                var drawWidth = textureCenter.Width;
-
-                if ((currentX + drawWidth) > endX)
-                    drawWidth = endX - currentX;
-
-                spriteBatch.DrawTexture2D(textureCenter, new Rectangle(currentX, 0, drawWidth, textureCenter.Height));
-                currentX += textureCenter.Width;
-            }
-
-            spriteBatch.End();
-            backgroundTexture.EndRenderTarget();
-
+            var backgroundTexture = GraphicsHelper.Create3SliceTexture(bgWidth, textureLeft, textureCenter, textureRight);
             _background = new AnimatedSprite(backgroundTexture, backgroundTexture.Size);
 
             Height = _background.Height;

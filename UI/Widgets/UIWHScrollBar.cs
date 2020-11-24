@@ -98,50 +98,14 @@ namespace ElementEngine
             var textureCenter = backgroundElCenter == null ? null : (string.IsNullOrWhiteSpace(backgroundElCenter.Value) ? null : AssetManager.LoadTexture2D(backgroundElCenter.Value, preMultiplyAlpha));
 
             var bgWidth = int.Parse(GetXMLElement("Background", "Width").Value);
-            var backgroundTexture = new Texture2D(bgWidth, textureCenter.Height);
-            
-            backgroundTexture.BeginRenderTarget();
-            backgroundTexture.RenderTargetClear(RgbaFloat.Clear);
-
-            var spriteBatch = backgroundTexture.GetRenderTargetSpriteBatch2D();
-            spriteBatch.Begin(SamplerType.Point);
-
-            var currentX = 0;
-            var endX = bgWidth;
-
-            if (textureLeft != null)
-            {
-                currentX += textureLeft.Width;
-                spriteBatch.DrawTexture2D(textureLeft, new Vector2(0, 0));
-            }
-
-            if (textureRight != null)
-            {
-                endX = bgWidth - textureRight.Width;
-                spriteBatch.DrawTexture2D(textureRight, new Vector2(endX, 0));
-            }
-
-            while (currentX < endX)
-            {
-                var drawWidth = textureCenter.Width;
-
-                if ((currentX + drawWidth) > endX)
-                    drawWidth = endX - currentX;
-
-                spriteBatch.DrawTexture2D(textureCenter, new Rectangle(currentX, 0, drawWidth, textureCenter.Height));
-                currentX += textureCenter.Width;
-            }
-
-            spriteBatch.End();
-            backgroundTexture.EndRenderTarget();
+            var backgroundTexture = GraphicsHelper.Create3SliceTexture(bgWidth, textureLeft, textureCenter, textureRight);
+            _background = new AnimatedSprite(backgroundTexture, backgroundTexture.Size);
 
             var atStartValue = GetXMLAttribute("StartValue");
             var atMinValue = GetXMLAttribute("MinValue");
             var atMaxValue = GetXMLAttribute("MaxValue");
             var atIncrement = GetXMLAttribute("Increment");
             var elSliderOffsetX = GetXMLElement("SliderOffsetX");
-
-            _background = new AnimatedSprite(backgroundTexture, backgroundTexture.Size);
 
             if (atStartValue != null)
                 _currentValue = int.Parse(atStartValue.Value);
@@ -205,13 +169,7 @@ namespace ElementEngine
             UpdateSliderPosition();
 
             if (_previousValue != _currentValue)
-            {
-                //HandleEvents?.Invoke((_onValueChanged == null ? null
-                //    : _onValueChanged.Replace("{value}", _currentValue.ToString()).Replace("{fvalue}", FValue.ToString("0.00")))
-                //);
-
                 _previousValue = _currentValue;
-            }
         }
 
         protected void UpdateSliderPosition()
