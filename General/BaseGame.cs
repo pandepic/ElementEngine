@@ -158,6 +158,7 @@ namespace ElementEngine
 
                         GameTimer.SetFrameTime(_targetFrameTime);
                         Update(GameTimer);
+                        CurrentGameState?.Update(GameTimer);
                     }
 
                     var sleepTime = (_totalFrameTime - _targetFrameTime).TotalMilliseconds;
