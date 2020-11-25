@@ -94,12 +94,6 @@ namespace ElementEngine
         {
             Init(parent, el);
 
-            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None;
-
-            var elAlpha = GetXMLAttribute("PremultiplyAlpha");
-            if (elAlpha != null)
-                preMultiplyAlpha = elAlpha.Value.ToEnum<TexturePremultiplyType>();
-
             var atStartValue = GetXMLAttribute("StartValue");
             var atMinValue = GetXMLAttribute("MinValue");
             var atMaxValue = GetXMLAttribute("MaxValue");
