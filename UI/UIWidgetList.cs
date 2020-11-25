@@ -12,9 +12,9 @@ namespace ElementEngine
         public WidgetListException(string message) : base(message) { }
     }
 
-    public class UIWidgetList
+    public class UIWidgetList : IDisposable
     {
-        protected List<UIWidget> _widgets = new List<UIWidget>();
+        public List<UIWidget> Widgets = new List<UIWidget>();
 
         public UIWidgetList()
         {
@@ -25,84 +25,116 @@ namespace ElementEngine
         {
             get
             {
-                return _widgets[index];
+                return Widgets[index];
             }
 
             set
             {
-                _widgets[index] = value;
+                Widgets[index] = value;
             }
+        }
+
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    foreach (var widget in Widgets)
+                    {
+                        if (widget is IDisposable disposable)
+                            disposable?.Dispose();
+                    }
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
+
+        ~UIWidgetList()
+        {
+            Dispose(false);
         }
 
         public UIWidget this[string name]
         {
             get
             {
-                return _widgets.Where(w => w.Name == name).FirstOrDefault();
+                return Widgets.Where(w => w.Name == name).FirstOrDefault();
             }
         }
 
         public void Add(UIWidget widget)
         {
-            foreach (var w in _widgets)
+            foreach (var w in Widgets)
                 if (w.Name == widget.Name)
                     throw new FrameListException("Widget with name " + widget.Name + " already in list.");
 
-            _widgets.Add(widget);
+            Widgets.Add(widget);
         }
 
         public void Remove(int index)
         {
-            _widgets.Remove(_widgets[index]);
+            Widgets.Remove(Widgets[index]);
         }
 
         public void Remove(UIWidget widget)
         {
-            _widgets.Remove(widget);
+            Widgets.Remove(widget);
         }
 
         public void Clear()
         {
-            _widgets.Clear();
+            Widgets.Clear();
         }
 
         internal void UnFocusAll()
         {
-            foreach (var widget in _widgets)
+            foreach (var widget in Widgets)
                 widget.UnFocus();
         }
 
         internal void UnFocusAllExcept(string name)
         {
-            foreach (var widget in _widgets)
+            foreach (var widget in Widgets)
                 if (widget.Name != name)
                     widget.UnFocus();
         }
 
         public int Size()
         {
-            return _widgets.Count;
+            return Widgets.Count;
         }
 
         public void OrderByDrawOrder()
         {
-            _widgets = _widgets.OrderBy(w => w.DrawOrder).ToList();
+            Widgets = Widgets.OrderBy(w => w.DrawOrder).ToList();
         }
 
         public void LoadStandardXML()
         {
-            for (var i = 0; i < _widgets.Count; i++)
+            for (var i = 0; i < Widgets.Count; i++)
             {
-                var widget = _widgets[i];
+                var widget = Widgets[i];
                 widget.LoadStandardXML();
             }
         }
 
         public virtual void Update(GameTimer gameTimer)
         {
-            for (var i = 0; i < _widgets.Count; i++)
+            for (var i = 0; i < Widgets.Count; i++)
             {
-                var widget = _widgets[i];
+                var widget = Widgets[i];
 
                 if (widget.Active)
                     widget.Update(gameTimer);
@@ -111,9 +143,9 @@ namespace ElementEngine
 
         public void Draw(SpriteBatch2D spriteBatch)
         {
-            for (var i = 0; i < _widgets.Count; i++)
+            for (var i = 0; i < Widgets.Count; i++)
             {
-                var widget = _widgets[i];
+                var widget = Widgets[i];
 
                 if (widget.Visible)
                     widget.Draw(spriteBatch);
@@ -122,33 +154,33 @@ namespace ElementEngine
 
         public void OnMouseMoved(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer, Vector2 framePosition)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                _widgets[i].OnMouseMoved(mousePosition - framePosition, prevMousePosition - framePosition, gameTimer);
+                Widgets[i].OnMouseMoved(mousePosition - framePosition, prevMousePosition - framePosition, gameTimer);
             }
         }
 
         public void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer, Vector2 framePosition)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                _widgets[i].OnMouseDown(button, mousePosition - framePosition, gameTimer);
+                Widgets[i].OnMouseDown(button, mousePosition - framePosition, gameTimer);
             }
         }
 
         public void OnMouseClicked(MouseButton button, Vector2 mousePosition, GameTimer gameTimer, Vector2 framePosition)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                _widgets[i].OnMouseClicked(button, mousePosition - framePosition, gameTimer);
+                Widgets[i].OnMouseClicked(button, mousePosition - framePosition, gameTimer);
             }
         }
 
         public bool OnMouseScroll(MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                if (_widgets[i].OnMouseScroll(type, mouseWheelDelta, gameTimer))
+                if (Widgets[i].OnMouseScroll(type, mouseWheelDelta, gameTimer))
                     return true;
             }
 
@@ -157,33 +189,33 @@ namespace ElementEngine
 
         public void OnKeyPressed(Key key, GameTimer gameTimer)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                _widgets[i].OnKeyPressed(key, gameTimer);
+                Widgets[i].OnKeyPressed(key, gameTimer);
             }
         }
 
         public void OnKeyReleased(Key key, GameTimer gameTimer)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                _widgets[i].OnKeyReleased(key, gameTimer);
+                Widgets[i].OnKeyReleased(key, gameTimer);
             }
         }
 
         public void OnKeyDown(Key key, GameTimer gameTimer)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                _widgets[i].OnKeyDown(key, gameTimer);
+                Widgets[i].OnKeyDown(key, gameTimer);
             }
         }
 
         public void OnTextInput(char key, GameTimer gameTimer)
         {
-            for (int i = 0; i < _widgets.Count; i++)
+            for (int i = 0; i < Widgets.Count; i++)
             {
-                _widgets[i].OnTextInput(key, gameTimer);
+                Widgets[i].OnTextInput(key, gameTimer);
             }
         }
     }

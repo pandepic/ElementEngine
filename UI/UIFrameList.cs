@@ -15,24 +15,53 @@ namespace ElementEngine
 
     public class UIFrameList
     {
-        protected List<UIFrame> _frames = new List<UIFrame>();
-        protected List<UIFrame> _reverseFrames = new List<UIFrame>();
+        public List<UIFrame> Frames = new List<UIFrame>();
+        public List<UIFrame> ReverseFrames = new List<UIFrame>();
         protected int _position = -1;
 
-        public int Count { get => _frames.Count; }
+        public int Count { get => Frames.Count; }
+
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    foreach (var frame in Frames)
+                        frame?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
 
         public UIFrameList() { }
+
+        ~UIFrameList()
+        {
+            Dispose(false);
+        }
 
         public UIFrame this[int index]
         {
             get
             {
-                return _frames[index];
+                return Frames[index];
             }
 
             set
             {
-                _frames[index] = value;
+                Frames[index] = value;
             }
         }
 
@@ -40,49 +69,49 @@ namespace ElementEngine
         {
             get
             {
-                return _frames.Where(f => f.Name == name).FirstOrDefault();
+                return Frames.Where(f => f.Name == name).FirstOrDefault();
             }
         }
 
         public void OrderByDrawOrder()
         {
-            _frames = _frames.OrderBy(f => f.DrawOrder).ToList();
-            _reverseFrames = _frames.OrderByDescending(f => f.DrawOrder).ToList();
+            Frames = Frames.OrderBy(f => f.DrawOrder).ToList();
+            ReverseFrames = Frames.OrderByDescending(f => f.DrawOrder).ToList();
         }
 
         public void Add(UIFrame frame)
         {
-            foreach (var f in _frames)
+            foreach (var f in Frames)
                 if (f.Name == frame.Name)
                     throw new FrameListException("Frame with name " + frame.Name + " already in list.");
 
-            _frames.Add(frame);
+            Frames.Add(frame);
         }
 
         public void Remove(int index)
         {
-            _frames.Remove(_frames[index]);
+            Frames.Remove(Frames[index]);
         }
 
         public void Remove(UIFrame frame)
         {
-            _frames.Remove(frame);
+            Frames.Remove(frame);
         }
 
         public void Clear()
         {
-            _frames.Clear();
+            Frames.Clear();
         }
 
         internal void UnFocusAll()
         {
-            foreach (var frame in _frames)
+            foreach (var frame in Frames)
                 frame.UnFocus();
         }
 
         internal void UnFocusAllExcept(string name)
         {
-            foreach (var frame in _frames)
+            foreach (var frame in Frames)
                 if (frame.Name != name)
                     frame.UnFocus();
         }
@@ -91,7 +120,7 @@ namespace ElementEngine
         {
             var result = new Dictionary<string, object>();
 
-            foreach (var f in _frames)
+            foreach (var f in Frames)
             {
                 result.Add(f.Name, f);
             }
@@ -101,7 +130,7 @@ namespace ElementEngine
 
         public void Draw(SpriteBatch2D spriteBatch)
         {
-            foreach (var frame in _frames)
+            foreach (var frame in Frames)
             {
                 if (frame.Visible)
                     frame.Draw(spriteBatch);
@@ -110,7 +139,7 @@ namespace ElementEngine
 
         public void Update(GameTimer gameTimer)
         {
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 if (frame.Active)
                     frame.Update(gameTimer);
@@ -121,7 +150,7 @@ namespace ElementEngine
         {
             var eventCaught = false;
 
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 if (!eventCaught && frame.Active)
                     eventCaught = frame.OnMouseMoved(mousePosition, prevMousePosition, gameTimer);
@@ -132,7 +161,7 @@ namespace ElementEngine
         {
             var eventCaught = false;
 
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 if (!eventCaught && frame.Active)
                     eventCaught = frame.OnMouseDown(button, mousePosition, gameTimer);
@@ -143,7 +172,7 @@ namespace ElementEngine
         {
             var eventCaught = false;
 
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 if (!eventCaught && frame.Active)
                     eventCaught = frame.OnMouseClicked(button, mousePosition, gameTimer);
@@ -154,7 +183,7 @@ namespace ElementEngine
         {
             var eventCaught = false;
 
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 if (!eventCaught && frame.Active)
                     eventCaught = frame.OnMouseScroll(type, mouseWheelDelta, gameTimer);
@@ -163,7 +192,7 @@ namespace ElementEngine
 
         public void OnKeyPressed(Key key, GameTimer gameTimer)
         {
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 frame.OnKeyPressed(key, gameTimer);
             }
@@ -171,7 +200,7 @@ namespace ElementEngine
 
         public void OnKeyReleased(Key key, GameTimer gameTimer)
         {
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 frame.OnKeyReleased(key, gameTimer);
             }
@@ -179,7 +208,7 @@ namespace ElementEngine
 
         public void OnKeyDown(Key key, GameTimer gameTimer)
         {
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 frame.OnKeyDown(key, gameTimer);
             }
@@ -187,7 +216,7 @@ namespace ElementEngine
 
         public void OnTextInput(char key, GameTimer gameTimer)
         {
-            foreach (var frame in _reverseFrames)
+            foreach (var frame in ReverseFrames)
             {
                 frame.OnTextInput(key, gameTimer);
             }

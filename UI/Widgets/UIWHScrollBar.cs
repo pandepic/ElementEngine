@@ -1,10 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Xml.Linq;
 using Veldrid;
 
 namespace ElementEngine
 {
-    public class UIWHScrollBar : UIWidget
+    public class UIWHScrollBar : UIWidget, IDisposable
     {
         protected UISprite _background = null;
         protected UISprite _slider = null;
@@ -59,6 +60,31 @@ namespace ElementEngine
 
         protected Vector2 _bgPosition = Vector2.Zero;
         protected Vector2 _sliderPosition = Vector2.Zero;
+
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _background?.Dispose();
+                    _slider?.Dispose();
+                    _sliderHover?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
 
         public UIWHScrollBar() { }
 

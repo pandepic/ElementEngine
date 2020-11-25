@@ -138,7 +138,7 @@ namespace ElementEngine
         public Dictionary<string, UILayoutGroup> LayoutGroups { get; set; } = new Dictionary<string, UILayoutGroup>();
     }
 
-    public class UIFrame
+    public class UIFrame : IDisposable
     {
         protected UIMenu _parent = null;
         protected Rectangle _frameRect = Rectangle.Empty;
@@ -231,6 +231,29 @@ namespace ElementEngine
                 _frameRect.Height = value;
             }
         }
+
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    Widgets?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
 
         public UIFrame(UIMenu parent, XElement el, Dictionary<string, XElement> templates)
         {
@@ -413,6 +436,11 @@ namespace ElementEngine
             Widgets.OrderByDrawOrder();
 
         } // UIFrame
+
+        ~UIFrame()
+        {
+            Dispose(false);
+        }
 
         internal void TriggerUIEvent(UIEventType type, UIWidget widget)
         {

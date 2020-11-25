@@ -43,6 +43,7 @@ namespace ElementEngine
                 {
                     InputManager.RemoveKeyboardHandler(this);
                     InputManager.RemoveMouseHandler(this);
+                    Frames?.Dispose();
                 }
 
                 _disposed = true;
@@ -52,6 +53,11 @@ namespace ElementEngine
 
         public UIMenu()
         {
+        }
+
+        ~UIMenu()
+        {
+            Dispose(false);
         }
 
         public void EnableInput()

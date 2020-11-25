@@ -6,12 +6,46 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class GameState : IKeyboardHandler, IMouseHandler, IGameControlHandler
+    public class GameState : IDisposable, IKeyboardHandler, IMouseHandler, IGameControlHandler
     {
+        private List<IDisposable> _disposeList { get; set; } = new List<IDisposable>();
         internal bool _registered = false;
+
+        #region IDisposable
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    foreach (var d in _disposeList)
+                        d?.Dispose();
+
+                    _disposeList.Clear();
+                    DisposingManaged();
+                }
+
+                DisposingUnmanaged();
+                _disposed = true;
+            }
+        }
+        #endregion
 
         public GameState()
         {
+        }
+
+        ~GameState()
+        {
+            Dispose(false);
         }
 
         internal void Register()
@@ -36,8 +70,16 @@ namespace ElementEngine
             _registered = false;
         }
 
+        public void AddDisposable(IDisposable d)
+        {
+            _disposeList.Add(d);
+        }
+
         public virtual void Load() { }
         public virtual void Unload() { }
+
+        protected virtual void DisposingManaged() { }
+        protected virtual void DisposingUnmanaged() { }
 
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(GameTimer gameTimer) { }

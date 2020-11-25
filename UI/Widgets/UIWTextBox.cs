@@ -7,7 +7,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class UIWTextBox : UIWidget
+    public class UIWTextBox : UIWidget, IDisposable
     {
         protected string _text = "";
 
@@ -29,7 +29,7 @@ namespace ElementEngine
 
         public int FontSize { get; set; } = 0;
 
-        protected AnimatedSprite _background = null;
+        protected UISprite _background = null;
         protected Sprite _cursor = null;
         protected Texture2D _textTexture = null;
 
@@ -40,38 +40,42 @@ namespace ElementEngine
 
         public RgbaByte Colour { get; set; } = RgbaByte.White;
 
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _background?.Dispose();
+                    _cursor?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
+
         public UIWTextBox() { }
 
         ~UIWTextBox()
         {
-            if (_textTexture != null)
-                _textTexture.Dispose();
-
-            if (_background != null)
-                _background.Texture?.Dispose();
+            Dispose(false);
         }
 
         public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
-            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None;
-
-            var elAlpha = GetXMLAttribute("PremultiplyAlpha");
-            if (elAlpha != null)
-                preMultiplyAlpha = elAlpha.Value.ToEnum<TexturePremultiplyType>();
-
-            var backgroundElLeft = GetXMLElement("Background", "Left");
-            var backgroundElRight = GetXMLElement("Background", "Right");
-            var backgroundElCenter = GetXMLElement("Background", "Center");
-
-            var textureLeft = backgroundElLeft == null ? null : (string.IsNullOrWhiteSpace(backgroundElLeft.Value) ? null : AssetManager.LoadTexture2D(backgroundElLeft.Value, preMultiplyAlpha));
-            var textureRight = backgroundElRight == null ? null : (string.IsNullOrWhiteSpace(backgroundElRight.Value) ? null : AssetManager.LoadTexture2D(backgroundElRight.Value, preMultiplyAlpha));
-            var textureCenter = backgroundElCenter == null ? null : (string.IsNullOrWhiteSpace(backgroundElCenter.Value) ? null : AssetManager.LoadTexture2D(backgroundElCenter.Value, preMultiplyAlpha));
-
-            var bgWidth = int.Parse(GetXMLAttribute("Background", "Width").Value);
-            var backgroundTexture = GraphicsHelper.Create3SliceTexture(bgWidth, textureLeft, textureCenter, textureRight);
-            _background = new AnimatedSprite(backgroundTexture, backgroundTexture.Size);
+            _background = UISprite.CreateUISprite(GetXMLElement("Background"));
 
             Height = _background.Height;
             Width = _background.Width;
@@ -84,9 +88,9 @@ namespace ElementEngine
             _cursorPadding = (GetXMLAttribute("CursorPadding") == null ? 0 : int.Parse(GetXMLAttribute("CursorPadding").Value));
             _cursorIndex = _text.Length;
 
-            var cursorTexture = new Texture2D(2, (uint)(textureCenter.Height - (_cursorPadding * 2)), Colour);
+            var cursorTexture = new Texture2D(2, (uint)(_background.Height - (_cursorPadding * 2)), Colour);
             _cursor = new Sprite(cursorTexture);
-
+            
             _textRect.X = 0;
             _textRect.Y = 0;
             _textRect.Width = Width - ((int)_textPosition.X * 2);
@@ -279,6 +283,7 @@ namespace ElementEngine
 
         public override void Update(GameTimer gameTimer)
         {
+            _background.Update(gameTimer);
         }
 
     } // UIWTextBox
