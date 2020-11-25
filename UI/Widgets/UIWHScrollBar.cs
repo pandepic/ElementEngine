@@ -6,9 +6,9 @@ namespace ElementEngine
 {
     public class UIWHScrollBar : UIWidget
     {
-        protected AnimatedSprite _background = null;
-        protected AnimatedSprite _slider = null;
-        protected AnimatedSprite _sliderHover = null;
+        protected UISprite _background = null;
+        protected UISprite _slider = null;
+        protected UISprite _sliderHover = null;
 
         protected int _maxValue = 100;
         protected int _minValue = 1;
@@ -78,28 +78,14 @@ namespace ElementEngine
         {
             Init(parent, el);
 
-            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None;
+            var elSlider = GetXMLElement("Slider");
+            var elSliderHover = GetXMLElement("SliderHover");
 
-            var elAlpha = GetXMLAttribute("PremultiplyAlpha");
-            if (elAlpha != null)
-                preMultiplyAlpha = elAlpha.Value.ToEnum<TexturePremultiplyType>();
+            _slider = UISprite.CreateUISprite(elSlider);
+            if (elSliderHover != null)
+                _sliderHover = UISprite.CreateUISprite(elSliderHover);
 
-            var sliderTexture = AssetManager.LoadTexture2D(GetXMLElement("AssetNameSlider").Value, preMultiplyAlpha);
-            var sliderTextureHover = AssetManager.LoadTexture2D(GetXMLElement("AssetNameSliderHover").Value, preMultiplyAlpha);
-            _slider = new AnimatedSprite(sliderTexture, sliderTexture.Size);
-            _sliderHover = new AnimatedSprite(sliderTextureHover, sliderTextureHover.Size);
-
-            var backgroundElLeft = GetXMLElement("Background", "Left");
-            var backgroundElRight = GetXMLElement("Background", "Right");
-            var backgroundElCenter = GetXMLElement("Background", "Center");
-
-            var textureLeft = backgroundElLeft == null ? null : (string.IsNullOrWhiteSpace(backgroundElLeft.Value) ? null : AssetManager.LoadTexture2D(backgroundElLeft.Value, preMultiplyAlpha));
-            var textureRight = backgroundElRight == null ? null : (string.IsNullOrWhiteSpace(backgroundElRight.Value) ? null : AssetManager.LoadTexture2D(backgroundElRight.Value, preMultiplyAlpha));
-            var textureCenter = backgroundElCenter == null ? null : (string.IsNullOrWhiteSpace(backgroundElCenter.Value) ? null : AssetManager.LoadTexture2D(backgroundElCenter.Value, preMultiplyAlpha));
-
-            var bgWidth = int.Parse(GetXMLElement("Background", "Width").Value);
-            var backgroundTexture = GraphicsHelper.Create3SliceTexture(bgWidth, textureLeft, textureCenter, textureRight);
-            _background = new AnimatedSprite(backgroundTexture, backgroundTexture.Size);
+            _background = UISprite.CreateUISprite(GetXMLElement("Background"));
 
             var atStartValue = GetXMLAttribute("StartValue");
             var atMinValue = GetXMLAttribute("MinValue");
@@ -207,7 +193,7 @@ namespace ElementEngine
         {
             _background.Draw(spriteBatch, Position + _bgPosition + Parent.Position);
 
-            if (Focused)
+            if (Focused && _sliderHover != null)
                 _sliderHover.Draw(spriteBatch, Position + _sliderPosition + Parent.Position);
             else
                 _slider.Draw(spriteBatch, Position + _sliderPosition + Parent.Position);
@@ -218,6 +204,9 @@ namespace ElementEngine
 
         public override void Update(GameTimer gameTimer)
         {
+            _slider?.Update(gameTimer);
+            _sliderHover?.Update(gameTimer);
+            _background?.Update(gameTimer);
         }
 
         public override void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)

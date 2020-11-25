@@ -4,7 +4,7 @@ namespace ElementEngine
 {
     public class UIWImageBox : UIWidget
     {
-        protected AnimatedSprite _image = null;
+        protected UISprite _image = null;
 
         public UIWImageBox() { }
 
@@ -12,24 +12,15 @@ namespace ElementEngine
         {
             Init(parent, el);
 
-            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None;
-
-            var elAlpha = GetXMLAttribute("PremultiplyAlpha");
-            if (elAlpha != null)
-                preMultiplyAlpha = elAlpha.Value.ToEnum<TexturePremultiplyType>();
-
-            Texture2D texture = AssetManager.LoadTexture2D(GetXMLElement("AssetName").Value, preMultiplyAlpha);
-
-            Width = texture.Width;
-            Height = texture.Height;
-
-            _image = new AnimatedSprite(texture, texture.Size);
+            _image = UISprite.CreateUISprite(GetXMLElement("Image"));
+            
+            Width = _image.Width;
+            Height = _image.Height;
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            if (_image != null)
-                _image.Draw(spriteBatch, Position + Parent.Position);
+            _image?.Draw(spriteBatch, Position + Parent.Position);
         }
     } // UIWImageBox
 }

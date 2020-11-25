@@ -1,15 +1,16 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Xml.Linq;
 using Veldrid;
 
 namespace ElementEngine
 {
-    public class UIWBasicButton : UIWidget
+    public class UIWBasicButton : UIWidget, IDisposable
     {
-        protected Sprite _buttonSprite = null;
-        protected Sprite _buttonPressedSprite = null;
-        protected Sprite _buttonHoverSprite = null;
-        protected Sprite _buttonDisabledSprite = null;
+        protected UISprite _buttonSprite = null;
+        protected UISprite _buttonPressedSprite = null;
+        protected UISprite _buttonHoverSprite = null;
+        protected UISprite _buttonDisabledSprite = null;
 
         public SpriteFont Font { get; set; } = null;
         public int FontSize { get; set; } = 0;
@@ -24,36 +25,56 @@ namespace ElementEngine
 
         public bool Disabled = false;
 
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _buttonSprite?.Dispose();
+                    _buttonPressedSprite?.Dispose();
+                    _buttonHoverSprite?.Dispose();
+                    _buttonDisabledSprite?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
+
         public UIWBasicButton() { }
+
+        ~UIWBasicButton()
+        {
+            Dispose(false);
+        }
 
         public override void Load(UIFrame parent, XElement el)
         {
             Init(parent, el);
 
-            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None;
+            var elButton = GetXMLElement("Button");
+            var elButtonPressed = GetXMLElement("ButtonPressed");
+            var elButtonHover = GetXMLElement("ButtonHover");
+            var elButtonDisabled = GetXMLElement("ButtonDisabled");
 
-            var elAlpha = GetXMLAttribute("PremultiplyAlpha");
-            if (elAlpha != null)
-                preMultiplyAlpha = elAlpha.Value.ToEnum<TexturePremultiplyType>();
-
-            Texture2D buttonImage = null;
-            Texture2D buttonImagePressed = null;
-            Texture2D buttonImageHover = null;
-            Texture2D buttonImageDisabled = null;
-
-            var elImage = GetXMLElement("AssetName");
-            var elImagePressed = GetXMLElement("AssetNamePressed");
-            var elImageHover = GetXMLElement("AssetNameHover");
-            var elImageDisabled = GetXMLElement("AssetNameDisabled");
-
-            if (elImage != null && string.IsNullOrWhiteSpace(elImage.Value) == false)
-                buttonImage = AssetManager.LoadTexture2D(elImage.Value, preMultiplyAlpha);
-            if (elImagePressed != null && string.IsNullOrWhiteSpace(elImagePressed.Value) == false)
-                buttonImagePressed = AssetManager.LoadTexture2D(elImagePressed.Value, preMultiplyAlpha);
-            if (elImageHover != null && string.IsNullOrWhiteSpace(elImageHover.Value) == false)
-                buttonImageHover = AssetManager.LoadTexture2D(elImageHover.Value, preMultiplyAlpha);
-            if (elImageDisabled != null && string.IsNullOrWhiteSpace(elImageDisabled.Value) == false)
-                buttonImageDisabled = AssetManager.LoadTexture2D(elImageDisabled.Value, preMultiplyAlpha);
+            if (elButton != null)
+                _buttonSprite = UISprite.CreateUISprite(elButton);
+            if (elButtonPressed != null)
+                _buttonPressedSprite = UISprite.CreateUISprite(elButtonPressed);
+            if (elButtonHover != null)
+                _buttonHoverSprite = UISprite.CreateUISprite(elButtonHover);
+            if (elButtonDisabled != null)
+                _buttonDisabledSprite = UISprite.CreateUISprite(elButtonDisabled);
 
             XElement buttonLabelPosition = GetXMLElement("Label", "Position");
             XElement buttonLabelColor = GetXMLElement("Label", "Color");
@@ -66,11 +87,11 @@ namespace ElementEngine
 
             int textX = (buttonLabelPosition.Attribute("X").Value.ToUpper() != "CENTER"
                 ? int.Parse(buttonLabelPosition.Attribute("X").Value)
-                : (int)((buttonImage.Width / 2) - (labelSize.X / 2)));
+                : (int)((_buttonSprite.Width / 2) - (labelSize.X / 2)));
 
             int textY = (buttonLabelPosition.Attribute("Y").Value.ToUpper() != "CENTER"
                 ? int.Parse(buttonLabelPosition.Attribute("Y").Value)
-                : (int)((buttonImage.Height / 2) - (labelSize.Y / 2)));
+                : (int)((_buttonSprite.Height / 2) - (labelSize.Y / 2)));
 
             var textPosition = new Vector2() { X = textX, Y = textY };
             var buttonTextColor = new RgbaByte().FromHex(buttonLabelColor.Value);
@@ -81,26 +102,25 @@ namespace ElementEngine
                 clickSound = clickSoundElement.Value;
 
             Load(parent,
-                buttonImage == null ? null : new AnimatedSprite(buttonImage, buttonImage.Size),
-                buttonImagePressed == null ? null : new AnimatedSprite(buttonImagePressed, buttonImagePressed.Size),
-                buttonImageHover == null ? null : new AnimatedSprite(buttonImageHover, buttonImageHover.Size),
-                buttonImageDisabled == null ? null : new AnimatedSprite(buttonImageDisabled, buttonImageDisabled.Size),
-                buttonText, font, fontSize, 0, textPosition, buttonTextColor, clickSound, preMultiplyAlpha);
+                _buttonSprite,
+                _buttonPressedSprite,
+                _buttonHoverSprite,
+                _buttonDisabledSprite,
+                buttonText, font, fontSize, 0, textPosition, buttonTextColor, clickSound);
         }
 
         public void Load(UIFrame parent,
-            Sprite buttonSprite,
-            Sprite buttonSpritePressed,
-            Sprite buttonSpriteHover,
-            Sprite buttonSpriteDisabled,
+            UISprite buttonSprite,
+            UISprite buttonSpritePressed,
+            UISprite buttonSpriteHover,
+            UISprite buttonSpriteDisabled,
             string buttonText,
             SpriteFont font,
             int fontSize,
             int fontOutline,
             Vector2 textPosition,
             RgbaByte buttonTextColor,
-            string clickSound = null,
-            TexturePremultiplyType preMultiplyAlpha = TexturePremultiplyType.None)
+            string clickSound = null)
         {
             Init(parent);
 

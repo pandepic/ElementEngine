@@ -6,7 +6,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class Sprite
+    public class Sprite : IDisposable
     {
         public Texture2D Texture { get; set; }
         public RgbaFloat Color { get; set; } = RgbaFloat.White;
@@ -19,11 +19,39 @@ namespace ElementEngine
         public virtual int Width { get => Texture.Width; }
         public virtual int Height { get => Texture.Height; }
 
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    Texture?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
+
         public Sprite() { }
 
         public Sprite(Texture2D texture, bool centerOrigin = false)
         {
             InitSprite(texture, centerOrigin);
+        }
+
+        ~Sprite()
+        {
+            Dispose(false);
         }
 
         protected void InitSprite(Texture2D texture, bool centerOrigin = false)

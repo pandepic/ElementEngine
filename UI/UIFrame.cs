@@ -144,7 +144,7 @@ namespace ElementEngine
         protected Rectangle _frameRect = Rectangle.Empty;
 
         public string Name { get; set; } = "";
-        public AnimatedSprite FrameSprite { get; set; } = null;
+        public UISprite FrameSprite { get; set; } = null;
         public UIWidgetList Widgets { get; set; } = new UIWidgetList();
         public Dictionary<string, XElement> Templates { get; set; } = null;
 
@@ -244,13 +244,10 @@ namespace ElementEngine
             if (drawOrderAttribute != null)
                 DrawOrder = int.Parse(drawOrderAttribute.Value);
 
-            var backgroundImage = el.Element("BackgroundImage");
+            var elBackground = el.Element("Background");
 
-            if (backgroundImage != null)
-            {
-                var backgroundImageTexture = AssetManager.LoadTexture2D(backgroundImage.Value);
-                FrameSprite = new AnimatedSprite(backgroundImageTexture);
-            }
+            if (elBackground != null)
+                FrameSprite = UISprite.CreateUISprite(elBackground);
 
             var framePosition = el.Element("Position");
             var frameSize = el.Element("Size");
@@ -485,6 +482,7 @@ namespace ElementEngine
 
         public virtual void Update(GameTimer gameTimer)
         {
+            FrameSprite?.Update(gameTimer);
             Widgets.Update(gameTimer);
         }
 

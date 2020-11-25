@@ -1,13 +1,14 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Xml.Linq;
 using Veldrid;
 
 namespace ElementEngine
 {
-    public class UIWHProgressBar : UIWidget
+    public class UIWHProgressBar : UIWidget, IDisposable
     {
-        protected AnimatedSprite _background = null;
-        protected AnimatedSprite _fill = null;
+        protected UISprite _background = null;
+        protected UISprite _fill = null;
 
         public SpriteFont Font { get; set; } = null;
         public int FontSize { get; set; } = 0;
@@ -33,11 +34,6 @@ namespace ElementEngine
 
         protected string _onValueChanged = null;
 
-        protected Texture2D _fillLeft;
-        protected Texture2D _fillRight;
-        protected Texture2D _fillCenter;
-
-        protected int _backgroundWidth;
         protected int _maxFillWidth;
         protected int _fillWidth;
 
@@ -63,15 +59,35 @@ namespace ElementEngine
             }
         }
 
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _background?.Dispose();
+                    _fill?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
+
         public UIWHProgressBar() { }
 
         ~UIWHProgressBar()
         {
-            if (_background != null)
-                _background.Texture?.Dispose();
-
-            if (_fill != null)
-                _fill.Texture?.Dispose();
+            Dispose(false);
         }
 
         public override void Load(UIFrame parent, XElement el)
@@ -107,32 +123,11 @@ namespace ElementEngine
             else
                 _fillOffsetRight = _fillOffsetX;
 
+            _background = UISprite.CreateUISprite(GetXMLElement("Background"));
+            _fill = UISprite.CreateUISprite(GetXMLElement("Fill"));
+
             _fillPosition = new Vector2(_fillOffsetX, _fillOffsetY);
-
-            var backgroundElLeft = GetXMLElement("Background", "Left");
-            var backgroundElRight = GetXMLElement("Background", "Right");
-            var backgroundElCenter = GetXMLElement("Background", "Center");
-
-            var bgLeft = backgroundElLeft == null ? null : (string.IsNullOrWhiteSpace(backgroundElLeft.Value) ? null : AssetManager.LoadTexture2D(backgroundElLeft.Value, preMultiplyAlpha));
-            var bgRight = backgroundElRight == null ? null : (string.IsNullOrWhiteSpace(backgroundElRight.Value) ? null : AssetManager.LoadTexture2D(backgroundElRight.Value, preMultiplyAlpha));
-            var bgCenter = backgroundElCenter == null ? null : (string.IsNullOrWhiteSpace(backgroundElCenter.Value) ? null : AssetManager.LoadTexture2D(backgroundElCenter.Value, preMultiplyAlpha));
-
-            var fillElLeft = GetXMLElement("Fill", "Left");
-            var fillElRight = GetXMLElement("Fill", "Right");
-            var fillElCenter = GetXMLElement("Fill", "Center");
-
-            _fillLeft = fillElLeft == null ? null : (string.IsNullOrWhiteSpace(fillElLeft.Value) ? null : AssetManager.LoadTexture2D(fillElLeft.Value, preMultiplyAlpha));
-            _fillRight = fillElRight == null ? null : (string.IsNullOrWhiteSpace(fillElRight.Value) ? null : AssetManager.LoadTexture2D(fillElRight.Value, preMultiplyAlpha));
-            _fillCenter = fillElCenter == null ? null : (string.IsNullOrWhiteSpace(fillElCenter.Value) ? null : AssetManager.LoadTexture2D(fillElCenter.Value, preMultiplyAlpha));
-
-            _backgroundWidth = int.Parse(GetXMLElement("Background", "Width").Value);
-            _maxFillWidth = _backgroundWidth - (_fillOffsetX + _fillOffsetRight);
-
-            if (_background == null)
-            {
-                var backgroundTexture = GraphicsHelper.Create3SliceTexture(_backgroundWidth, bgLeft, bgCenter, bgRight);
-                _background = new AnimatedSprite(backgroundTexture, backgroundTexture.Size);
-            }
+            _maxFillWidth = _background.Width - (_fillOffsetX + _fillOffsetRight);
 
             Width = _background.Width;
             Height = _background.Height;
@@ -177,12 +172,6 @@ namespace ElementEngine
 
             UpdateText();
 
-            if (_fill != null)
-            {
-                _fill.Texture?.Dispose();
-                _fill.Texture = null;
-            }
-
             if (FValue <= 0)
                 return;
 
@@ -190,9 +179,7 @@ namespace ElementEngine
                 _fill.Texture.Dispose();
 
             _fillWidth = (int)(_maxFillWidth * FValue);
-
-            var fillTexture = GraphicsHelper.Create3SliceTexture(_fillWidth, _fillLeft, _fillCenter, _fillRight);
-            _fill = new AnimatedSprite(fillTexture, fillTexture.Size);
+            _fill.SetWidth(_fillWidth);
 
         } // UpdateFillTexture
 

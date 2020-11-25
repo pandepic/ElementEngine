@@ -9,14 +9,14 @@ namespace ElementEngine
 {
     public class UIPanel : UIWidget
     {
-        public UIPanel()
-        {
+        public List<UIWidget> Widgets { get; set; } = new List<UIWidget>();
 
+        public UIPanel() { }
+
+        public UIPanel(UIFrame parent, XElement el)
+        {
+            Init(parent, el);
         }
 
-        public UIPanel(XElement el)
-        {
-
-        }
-    }
+    } // UIPanel
 }
