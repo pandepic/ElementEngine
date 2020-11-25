@@ -63,6 +63,7 @@ namespace ElementEngine
         public static Vector2I operator /(Vector2I p1, Vector2I p2) => new Vector2I(p1.X / p2.X, p1.Y / p2.Y);
 
         public static implicit operator Vector2I(Vector2 v) => new Vector2I(v);
+        public static implicit operator Vector2(Vector2I v) => new Vector2(v.X, v.Y);
 
     } // Point
 }
