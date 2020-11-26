@@ -101,5 +101,56 @@ namespace ElementEngine
 
         } // Create9SliceTexture
 
+        public static int GetPixelFormatBytesPerPixel(PixelFormat format)
+        {
+            return format switch
+            {
+                PixelFormat.R8_G8_B8_A8_UNorm => 4,
+                PixelFormat.B8_G8_R8_A8_UNorm => 4,
+                PixelFormat.R8_UNorm => 1,
+                PixelFormat.R16_UNorm => 2,
+                PixelFormat.R32_G32_B32_A32_Float => 16,
+                PixelFormat.R32_Float => 4,
+                PixelFormat.D24_UNorm_S8_UInt => 4,
+                PixelFormat.D32_Float_S8_UInt => 5,
+                PixelFormat.R32_G32_B32_A32_UInt => 16,
+                PixelFormat.R8_G8_SNorm => 2,
+                PixelFormat.R8_SNorm => 1,
+                PixelFormat.R8_UInt => 1,
+                PixelFormat.R8_SInt => 1,
+                PixelFormat.R16_SNorm => 2,
+                PixelFormat.R16_UInt => 2,
+                PixelFormat.R16_SInt => 2,
+                PixelFormat.R16_Float => 2,
+                PixelFormat.R32_UInt => 4,
+                PixelFormat.R32_SInt => 4,
+                PixelFormat.R8_G8_UNorm => 2,
+                PixelFormat.R8_G8_UInt => 2,
+                PixelFormat.R8_G8_SInt => 2,
+                PixelFormat.R16_G16_UNorm => 4,
+                PixelFormat.R16_G16_SNorm => 4,
+                PixelFormat.R16_G16_UInt => 4,
+                PixelFormat.R16_G16_SInt => 4,
+                PixelFormat.R16_G16_Float => 4,
+                PixelFormat.R32_G32_UInt => 8,
+                PixelFormat.R32_G32_SInt => 8,
+                PixelFormat.R32_G32_Float => 8,
+                PixelFormat.R8_G8_B8_A8_SNorm => 4,
+                PixelFormat.R8_G8_B8_A8_UInt => 4,
+                PixelFormat.R8_G8_B8_A8_SInt => 4,
+                PixelFormat.R16_G16_B16_A16_UNorm => 8,
+                PixelFormat.R16_G16_B16_A16_SNorm => 8,
+                PixelFormat.R16_G16_B16_A16_UInt => 8,
+                PixelFormat.R16_G16_B16_A16_SInt => 8,
+                PixelFormat.R16_G16_B16_A16_Float => 8,
+                PixelFormat.R32_G32_B32_A32_SInt => 16,
+                PixelFormat.ETC2_R8_G8_B8_UNorm => 8,
+                PixelFormat.ETC2_R8_G8_B8_A8_UNorm => 24,
+                PixelFormat.R8_G8_B8_A8_UNorm_SRgb => 4,
+                PixelFormat.B8_G8_R8_A8_UNorm_SRgb => 4,
+                _ => throw new Exception("Bytes per pixel not covered for format " + format.ToString()),
+            };
+        } // GetPixelFormatBytesPerPixel
+
     } // GraphicsHelper
 }

@@ -22,6 +22,7 @@ namespace ElementEngine
         public float TexelWidth => 1.0f / _texture.Width;
         public float TexelHeight => 1.0f / _texture.Height;
         public Vector2 TexelSize => new Vector2(TexelWidth, TexelHeight);
+        public int BytesPerPixel { get; protected set; } = 4;
 
         public int Width { get => (int)_texture.Width; }
         public int Height { get => (int)_texture.Height; }
@@ -71,6 +72,7 @@ namespace ElementEngine
             _texture = GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
             Description = _texture.GetDescription();
             SetName(name);
+            BytesPerPixel = GraphicsHelper.GetPixelFormatBytesPerPixel(format);
         }
 
         public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
@@ -145,10 +147,28 @@ namespace ElementEngine
             var disposeMapTexture = TryCreateStagingCopy(out var mapTexture);
 
             var view = GraphicsDevice.Map<byte>(mapTexture.Texture, MapMode.Read);
-            var data = new byte[view.SizeInBytes];
-            Marshal.Copy(view.MappedResource.Data, data, 0, (int)view.SizeInBytes);
-
+            var tempData = new byte[view.SizeInBytes];
+            Marshal.Copy(view.MappedResource.Data, tempData, 0, (int)view.SizeInBytes);
             GraphicsDevice.Unmap(mapTexture.Texture);
+
+            var data = new byte[Texture.Width * Texture.Height * BytesPerPixel];
+            var textureByteWidth = Texture.Width * BytesPerPixel;
+            var dataIndex = 0;
+            var totalRows = 0;
+
+            while (dataIndex < data.Length)
+            {
+                var rowCounter = 0;
+
+                for (var i = 0; i < view.MappedResource.RowPitch && rowCounter < textureByteWidth; i++)
+                {
+                    data[dataIndex] = tempData[totalRows * view.MappedResource.RowPitch + i];
+                    dataIndex += 1;
+                    rowCounter += 1;
+                }
+
+                totalRows += 1;
+            }
 
             if (disposeMapTexture)
                 mapTexture.Dispose();
