@@ -16,23 +16,23 @@ namespace ElementEngine
 
     public class UISprite : IDisposable
     {
-        public static UISprite CreateUISprite(XElement el)
+        public static UISprite CreateUISprite(UIWidget widget, string elName)
         {
-            var type = el.Attribute("UISpriteType").Value.ToEnum<UISpriteType>();
+            var type = widget.GetXMLAttribute(elName, "UISpriteType").Value.ToEnum<UISpriteType>();
 
             switch (type)
             {
                 case UISpriteType.Static:
-                    return new UISpriteStatic(el);
+                    return new UISpriteStatic(widget, elName);
 
                 case UISpriteType.Animated:
-                    return new UISpriteAnimated(el);
+                    return new UISpriteAnimated(widget, elName);
 
                 case UISpriteType.Auto3Slice:
-                    return new UISpriteAuto3Slice(el);
+                    return new UISpriteAuto3Slice(widget, elName);
 
                 case UISpriteType.Auto9Slice:
-                    return new UISpriteAuto9Slice(el);
+                    return new UISpriteAuto9Slice(widget, elName);
 
                 default:
                     throw new Exception("Unsupported UISpriteType type: " + type.ToString());
@@ -47,16 +47,16 @@ namespace ElementEngine
         public Texture2D Texture => Sprite.Texture;
         public Rectangle SourceRect => Sprite.SourceRect;
 
-        protected void Preload(XElement el)
+        protected void Preload(UIWidget widget, string elName)
         {
-            var attPremultiplyAlpha = el.Attribute("PremultiplyAlpha");
+            var attPremultiplyAlpha = widget.GetXMLAttribute(elName, "PremultiplyAlpha");
             if (attPremultiplyAlpha != null)
                 PremultiplyType = attPremultiplyAlpha.Value.ToEnum<TexturePremultiplyType>();
         }
 
-        public UISprite(XElement el)
+        public UISprite(UIWidget widget, string elName)
         {
-            Preload(el);
+            Preload(widget, elName);
         }
 
         #region IDisposable
@@ -104,9 +104,9 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public UISpriteStatic(XElement el) : base(el)
+        public UISpriteStatic(UIWidget widget, string elName) : base(widget, elName)
         {
-            Sprite = new Sprite(AssetManager.LoadTexture2D(el.Value, PremultiplyType));
+            Sprite = new Sprite(AssetManager.LoadTexture2D(widget.GetXMLElement(elName).Value, PremultiplyType));
         }
     } // UISpriteStatic
 
@@ -120,21 +120,21 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public UISpriteAnimated(XElement el) : base(el)
+        public UISpriteAnimated(UIWidget widget, string elName) : base(widget, elName)
         {
             Vector2I? frameSize = null;
 
-            var attFrameSize = el.Attribute("FrameSize");
+            var attFrameSize = widget.GetXMLAttribute(elName, "FrameSize");
             if (attFrameSize != null)
             {
                 var frameSizeSplit = attFrameSize.Value.Split(",", StringSplitOptions.RemoveEmptyEntries);
                 frameSize = new Vector2I(int.Parse(frameSizeSplit[0]), int.Parse(frameSizeSplit[1]));
             }
 
-            Sprite = new AnimatedSprite(AssetManager.LoadTexture2D(el.Value, PremultiplyType), frameSize);
-            
-            var attAnimationFrames = el.Attribute("Frames");
-            var attAnimationDuration = el.Attribute("DurationPerFrame");
+            Sprite = new AnimatedSprite(AssetManager.LoadTexture2D(widget.GetXMLElement(elName).Value, PremultiplyType), frameSize);
+
+            var attAnimationFrames = widget.GetXMLAttribute(elName, "Frames");
+            var attAnimationDuration = widget.GetXMLAttribute(elName, "DurationPerFrame");
 
             if (attAnimationFrames != null && attAnimationDuration != null)
             {
@@ -157,16 +157,16 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public UISpriteAuto3Slice(XElement el) : base(el)
+        public UISpriteAuto3Slice(UIWidget widget, string elName) : base(widget, elName)
         {
             var width = 0;
-            var attWidth = el.Attribute("Width");
+            var attWidth = widget.GetXMLAttribute(elName, "Width");
             if (attWidth != null)
-                width = int.Parse(el.Attribute("Width").Value);
+                width = int.Parse(attWidth.Value);
 
-            var assetLeft = el.Element("Left").Value;
-            var assetCenter = el.Element("Center").Value;
-            var assetRight = el.Element("Right").Value;
+            var assetLeft = widget.GetXMLElement(elName, "Left").Value;
+            var assetCenter = widget.GetXMLElement(elName, "Center").Value;
+            var assetRight = widget.GetXMLElement(elName, "Right").Value;
 
             TextureLeft = AssetManager.LoadTexture2D(assetLeft, PremultiplyType);
             TextureCenter = AssetManager.LoadTexture2D(assetCenter, PremultiplyType);
@@ -208,29 +208,29 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public UISpriteAuto9Slice(XElement el) : base(el)
+        public UISpriteAuto9Slice(UIWidget widget, string elName) : base(widget, elName)
         {
             var width = 0;
-            var attWidth = el.Attribute("Width");
+            var attWidth = widget.GetXMLAttribute(elName, "Width");
             if (attWidth != null)
-                width = int.Parse(el.Attribute("Width").Value);
+                width = int.Parse(attWidth.Value);
 
             var height = 0;
-            var attHeight = el.Attribute("Height");
+            var attHeight = widget.GetXMLAttribute(elName, "Height");
             if (attHeight != null)
-                height = int.Parse(el.Attribute("Height").Value);
+                height = int.Parse(attHeight.Value);
 
-            TopTextureLeft = AssetManager.LoadTexture2D(el.Element("TopLeft").Value, PremultiplyType);
-            TopTextureCenter = AssetManager.LoadTexture2D(el.Element("TopCenter").Value, PremultiplyType);
-            TopTextureRight = AssetManager.LoadTexture2D(el.Element("TopRight").Value, PremultiplyType);
+            TopTextureLeft = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "TopLeft").Value, PremultiplyType);
+            TopTextureCenter = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "TopCenter").Value, PremultiplyType);
+            TopTextureRight = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "TopRight").Value, PremultiplyType);
 
-            MiddleTextureLeft = AssetManager.LoadTexture2D(el.Element("MiddleLeft").Value, PremultiplyType);
-            MiddleTextureCenter = AssetManager.LoadTexture2D(el.Element("MiddleCenter").Value, PremultiplyType);
-            MiddleTextureRight = AssetManager.LoadTexture2D(el.Element("MiddleRight").Value, PremultiplyType);
+            MiddleTextureLeft = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "MiddleLeft").Value, PremultiplyType);
+            MiddleTextureCenter = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "MiddleCenter").Value, PremultiplyType);
+            MiddleTextureRight = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "MiddleRight").Value, PremultiplyType);
 
-            BottomTextureLeft = AssetManager.LoadTexture2D(el.Element("BottomLeft").Value, PremultiplyType);
-            BottomTextureCenter = AssetManager.LoadTexture2D(el.Element("BottomCenter").Value, PremultiplyType);
-            BottomTextureRight = AssetManager.LoadTexture2D(el.Element("BottomRight").Value, PremultiplyType);
+            BottomTextureLeft = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "BottomLeft").Value, PremultiplyType);
+            BottomTextureCenter = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "BottomCenter").Value, PremultiplyType);
+            BottomTextureRight = AssetManager.LoadTexture2D(widget.GetXMLElement(elName, "BottomRight").Value, PremultiplyType);
 
             SetSize(width, height);
         }

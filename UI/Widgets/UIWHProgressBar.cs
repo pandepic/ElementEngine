@@ -117,8 +117,8 @@ namespace ElementEngine
             else
                 _fillOffsetRight = _fillOffsetX;
 
-            _background = UISprite.CreateUISprite(GetXMLElement("Background"));
-            _fill = UISprite.CreateUISprite(GetXMLElement("Fill"));
+            _background = UISprite.CreateUISprite(this, "Background");
+            _fill = UISprite.CreateUISprite(this, "Fill");
 
             _fillPosition = new Vector2(_fillOffsetX, _fillOffsetY);
             _maxFillWidth = _background.Width - (_fillOffsetX + _fillOffsetRight);

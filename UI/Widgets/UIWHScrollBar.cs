@@ -104,14 +104,12 @@ namespace ElementEngine
         {
             Init(parent, el);
 
-            var elSlider = GetXMLElement("Slider");
+            _slider = UISprite.CreateUISprite(this, "Slider");
+            _background = UISprite.CreateUISprite(this, "Background");
+
             var elSliderHover = GetXMLElement("SliderHover");
-
-            _slider = UISprite.CreateUISprite(elSlider);
             if (elSliderHover != null)
-                _sliderHover = UISprite.CreateUISprite(elSliderHover);
-
-            _background = UISprite.CreateUISprite(GetXMLElement("Background"));
+                _sliderHover = UISprite.CreateUISprite(this, "SliderHover");
 
             var atStartValue = GetXMLAttribute("StartValue");
             var atMinValue = GetXMLAttribute("MinValue");

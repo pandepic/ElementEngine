@@ -41,7 +41,7 @@ namespace ElementEngine
         {
             Init(parent, el);
 
-            _image = UISprite.CreateUISprite(GetXMLElement("Image"));
+            _image = UISprite.CreateUISprite(this, "Image");
             
             Width = _image.Width;
             Height = _image.Height;

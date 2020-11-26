@@ -270,7 +270,11 @@ namespace ElementEngine
             var elBackground = el.Element("Background");
 
             if (elBackground != null)
-                FrameSprite = UISprite.CreateUISprite(elBackground);
+            {
+                var bgWidget = new UIWidget();
+                bgWidget.Init(this, el);
+                FrameSprite = UISprite.CreateUISprite(bgWidget, "Background");
+            }
 
             var framePosition = el.Element("Position");
             var frameSize = el.Element("Size");

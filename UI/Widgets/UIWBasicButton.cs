@@ -68,13 +68,13 @@ namespace ElementEngine
             var elButtonDisabled = GetXMLElement("ButtonDisabled");
 
             if (elButton != null)
-                _buttonSprite = UISprite.CreateUISprite(elButton);
+                _buttonSprite = UISprite.CreateUISprite(this, "Button");
             if (elButtonPressed != null)
-                _buttonPressedSprite = UISprite.CreateUISprite(elButtonPressed);
+                _buttonPressedSprite = UISprite.CreateUISprite(this, "ButtonPressed");
             if (elButtonHover != null)
-                _buttonHoverSprite = UISprite.CreateUISprite(elButtonHover);
+                _buttonHoverSprite = UISprite.CreateUISprite(this, "ButtonHover");
             if (elButtonDisabled != null)
-                _buttonDisabledSprite = UISprite.CreateUISprite(elButtonDisabled);
+                _buttonDisabledSprite = UISprite.CreateUISprite(this, "ButtonDisabled");
 
             XElement buttonLabelPosition = GetXMLElement("Label", "Position");
             XElement buttonLabelColor = GetXMLElement("Label", "Color");

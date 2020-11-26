@@ -75,7 +75,7 @@ namespace ElementEngine
         {
             Init(parent, el);
 
-            _background = UISprite.CreateUISprite(GetXMLElement("Background"));
+            _background = UISprite.CreateUISprite(this, "Background");
 
             Height = _background.Height;
             Width = _background.Width;
@@ -87,7 +87,7 @@ namespace ElementEngine
             Colour = new RgbaByte().FromHex(GetXMLElement("Color").Value);
             _cursorPadding = (GetXMLAttribute("CursorPadding") == null ? 0 : int.Parse(GetXMLAttribute("CursorPadding").Value));
             _cursorIndex = _text.Length;
-
+            
             var cursorTexture = new Texture2D(2, (uint)(_background.Height - (_cursorPadding * 2)), Colour);
             _cursor = new Sprite(cursorTexture);
             
