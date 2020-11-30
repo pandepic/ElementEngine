@@ -105,7 +105,11 @@ namespace ElementEngine
 
             void main()
             {
-                if(fTexCoord.x < 0 || fTexCoord.y < 0 || fTexCoord.x > 1 || fTexCoord.y > 1) { discard; }
+                bool wrapX = {WRAP_X};
+                bool wrapY = {WRAP_Y};
+
+                if (!wrapX && (fTexCoord.x < 0 || fTexCoord.x > 1)) { discard; }
+                if (!wrapY && (fTexCoord.y < 0 || fTexCoord.y > 1)) { discard; }
 
                 vec4 tile = texture(sampler2D(fDataImage, fDataImageSampler), fTexCoord);
                 if(tile.x == 1.0 && tile.y == 1.0) { discard; }

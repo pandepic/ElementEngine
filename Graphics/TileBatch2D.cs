@@ -11,6 +11,14 @@ using Vulkan;
 
 namespace ElementEngine
 {
+    public enum TileBatch2DWrapMode
+    {
+        None,
+        Horizontal,
+        Vertical,
+        Both,
+    }
+
     public class TileBatch2DAnimation
     {
         public int Index { get; set; }
@@ -122,10 +130,10 @@ namespace ElementEngine
         }
         #endregion
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, Dictionary<int, TileAnimation> tileAnimations = null)
-            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, tileAnimations) { }
+        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
+            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, wrapMode, tileAnimations) { }
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, OutputDescription output, Dictionary<int, TileAnimation> tileAnimations = null)
+        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, OutputDescription output, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
         {
             MapWidth = mapWidth;
             MapHeight = mapHeight;
@@ -184,9 +192,22 @@ namespace ElementEngine
             for (var i = 0; i < _animationOffsets.Length; i++)
                 _animationOffsets[i] = Vector4.Zero;
 
+            var wrapX = false;
+            var wrapY = false;
+
+            if (wrapMode == TileBatch2DWrapMode.Horizontal || wrapMode == TileBatch2DWrapMode.Both)
+                wrapX = true;
+            if (wrapMode == TileBatch2DWrapMode.Vertical || wrapMode == TileBatch2DWrapMode.Both)
+                wrapY = true;
+
             // shaders
             var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileVS), "main");
-            var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS.Replace("{ANIM_COUNT}", _animationOffsets.Length.ToString())), "main");
+            var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment,
+                Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS
+                .Replace("{ANIM_COUNT}", _animationOffsets.Length.ToString())
+                .Replace("{WRAP_X}", wrapX ? "true" : "false")
+                .Replace("{WRAP_Y}", wrapY ? "true" : "false")
+                ), "main");
 
             _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
 
