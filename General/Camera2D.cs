@@ -166,6 +166,16 @@ namespace ElementEngine
             return new Rectangle(Vector2.Transform(rect.LocationF, inverted), rect.SizeF);
         }
 
+        public Vector2 WorldToScreen(Vector2 position)
+        {
+            return Vector2.Transform(position, GetViewMatrix());
+        }
+
+        public Rectangle WorldToScreen(Rectangle rect)
+        {
+            return new Rectangle(Vector2.Transform(rect.LocationF, GetViewMatrix()), rect.SizeF);
+        }
+
         public override string ToString()
         {
             return _view.ToString();
