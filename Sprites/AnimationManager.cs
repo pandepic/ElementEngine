@@ -23,7 +23,11 @@ namespace ElementEngine
                 {
                     var name = animation.Attribute("Name").Value;
                     var frames = animation.Attribute("Frames").Value;
-                    var flip = animation.Attribute("Flip").Value.ToEnum<SpriteFlipType>();
+                    var flip = SpriteFlipType.None;
+
+                    var attFlip = animation.Attribute("Flip");
+                    if (attFlip != null)
+                        flip = attFlip.Value.ToEnum<SpriteFlipType>();
 
                     var durationAtt = animation.Attribute("Duration");
                     var durationPerFrameAtt = animation.Attribute("DurationPerFrame");
