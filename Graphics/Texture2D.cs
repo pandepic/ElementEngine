@@ -114,6 +114,9 @@ namespace ElementEngine
         {
             Rectangle rect = area ?? new Rectangle(0, 0, Width, Height);
             GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
+
+            if (premultiplyType != TexturePremultiplyType.None)
+                ApplyPremultiply(premultiplyType);
         }
 
         /// <summary>

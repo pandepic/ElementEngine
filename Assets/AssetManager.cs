@@ -178,10 +178,7 @@ namespace ElementEngine
 
             var textureData = Image.Load<Rgba32>(fs);
             var newTexture = new Texture2D(textureData.Width, textureData.Height, assetName);
-            newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height));
-
-            if (premultiply != TexturePremultiplyType.None)
-                newTexture.ApplyPremultiply(premultiply);
+            newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
 
             _assetCache.Add(assetName, newTexture);
 

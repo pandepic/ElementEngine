@@ -16,10 +16,7 @@
             if (tilesTexture == null)
                 tilesTexture = AssetManager.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value);
 
-            _tileBatch = new TileBatch2D(Map.MapSize.X, Map.MapSize.Y, Map.TileSize.X, Map.TileSize.Y, tilesTexture, TileSet?.TileAnimations);
-
-            var belowLayers = Map.GetLayersByCustomProperty("Below", "true");
-            var aboveLayers = Map.GetLayersByCustomProperty("Below", "false");
+            _tileBatch = new TileBatch2D(Map.MapSize.X, Map.MapSize.Y, Map.TileSize.X, Map.TileSize.Y, tilesTexture, TileBatch2DWrapMode.None, TileSet?.TileAnimations);
 
             if (TileSet != null && TileSet.TileAnimations.Count > 0)
                 HasAnimatedTiles = true;
