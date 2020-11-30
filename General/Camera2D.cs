@@ -80,6 +80,8 @@ namespace ElementEngine
                 _boundingBox = boundingBox.Value;
             else
                 _boundingBox = Rectangle.Empty;
+
+            CheckBoundingBox();
         }
 
         public void Update(GameTimer gameTimer)
@@ -101,6 +103,15 @@ namespace ElementEngine
                     Matrix4x4.CreateScale(Zoom, Zoom, 1) *
                     Matrix4x4.CreateRotationZ(Rotation) *
                     Matrix4x4.CreateTranslation(new Vector3(Origin, z));
+        }
+
+        public Matrix4x4 GetViewMatrixI(float z = 0f)
+        {
+            return Matrix4x4.CreateTranslation(new Vector3((-_position).ToVector2I(), z)) *
+                    Matrix4x4.CreateTranslation(new Vector3((-Origin).ToVector2I(), z)) *
+                    Matrix4x4.CreateScale(Zoom, Zoom, 1) *
+                    Matrix4x4.CreateRotationZ(Rotation) *
+                    Matrix4x4.CreateTranslation(new Vector3(Origin.ToVector2I(), z));
         }
 
         public void Center(Vector2I position)
