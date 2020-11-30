@@ -86,7 +86,6 @@ namespace ElementEngine
                 SetFrame(CurrentAnimation.EndFrame);
 
             CurrentAnimation = null;
-            Flip = _prevFlip;
         }
 
         public override void Update(GameTimer gameTimer)
