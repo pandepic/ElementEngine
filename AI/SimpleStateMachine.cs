@@ -7,8 +7,6 @@ namespace ElementEngine
         public string Name;
         public SimpleStateMachine Parent;
 
-        public SimpleStateBase() { }
-
         public SimpleStateBase(string name)
         {
             Name = name;
@@ -23,7 +21,6 @@ namespace ElementEngine
     {
         public float Duration;
 
-        public SimpleStateTimedBase() { }
         public SimpleStateTimedBase(string name) : base(name) { }
 
         public override void Begin()
