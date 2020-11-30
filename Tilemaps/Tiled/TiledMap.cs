@@ -37,6 +37,7 @@ namespace ElementEngine.Tiled
 
         public Vector2I TileSize { get; set; } = Vector2I.Zero; // in pixels
         public Vector2I MapSize { get; set; } = Vector2I.Zero; // in tiles
+        public Vector2I MapPixelSize => MapSize * TileSize;
 
         public TiledMap(FileStream fs)
         {
@@ -74,6 +75,9 @@ namespace ElementEngine.Tiled
 
                 foreach (var row in tileRows)
                 {
+                    if (string.IsNullOrWhiteSpace(row))
+                        continue;
+
                     var tiles = row.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     foreach (var tile in tiles)
