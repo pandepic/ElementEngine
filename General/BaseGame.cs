@@ -72,7 +72,7 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public void SetupWindow(Rectangle windowRect, string gameTitle, GraphicsBackend graphicsBackend, bool vsync = false)
+        public void SetupWindow(Rectangle windowRect, string gameTitle, GraphicsBackend? graphicsBackend = null, bool vsync = false)
         {
             GameTitle = gameTitle + " [" + graphicsBackend.ToString() + "]";
 
@@ -91,7 +91,7 @@ namespace ElementEngine
             {
                 SyncToVerticalBlank = vsync,
                 PreferStandardClipSpaceYDirection = true,
-            }, graphicsBackend);
+            }, graphicsBackend.HasValue ? graphicsBackend.Value : VeldridStartup.GetPlatformDefaultBackend());
 
             CreateGraphicsResources();
 
