@@ -12,7 +12,7 @@ namespace ElementEngine
         public string Name { get; set; }
         public List<int> Frames { get; set; } = new List<int>();
         public int EndFrame { get; set; } = NO_ENDFRAME;
-        public SpriteFlipType Flip { get; set; } = SpriteFlipType.None;
+        public SpriteFlipType? Flip { get; set; } = null;
 
         public float DurationPerFrame
         {

@@ -74,7 +74,9 @@ namespace ElementEngine
 
             SetFrame(CurrentAnimation.Frames[CurrentFrameIndex]);
             _prevFlip = Flip;
-            Flip = animation.Flip;
+
+            if (animation.Flip.HasValue)
+                Flip = animation.Flip.Value;
         }
 
         public void StopAnimation()

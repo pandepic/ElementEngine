@@ -63,5 +63,13 @@ namespace ElementEngine
         {
             return list1.All(list2.Contains);
         }
+
+        public static K GetRandomItem<T, K>(this Dictionary<T, K> dictionary, FastRandom rng = null)
+        {
+            if (rng == null)
+                rng = _rng;
+
+            return dictionary.ElementAt(rng.Next(0, dictionary.Count)).Value;
+        } // GetRandomItem
     }
 }

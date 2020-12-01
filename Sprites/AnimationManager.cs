@@ -23,7 +23,7 @@ namespace ElementEngine
                 {
                     var name = animation.Attribute("Name").Value;
                     var frames = animation.Attribute("Frames").Value;
-                    var flip = SpriteFlipType.None;
+                    SpriteFlipType? flip = null;
 
                     var attFlip = animation.Attribute("Flip");
                     if (attFlip != null)
