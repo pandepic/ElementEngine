@@ -305,11 +305,13 @@ namespace ElementEngine
         {
             if (!scale.HasValue)
                 scale = Vector2.One;
+            if (!sourceRect.HasValue)
+                sourceRect = new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
 
-            if (destination.Width > 0 && destination.Width != texture.Width)
-                scale = new Vector2(((float)destination.Width / (float)texture.Width) * scale.Value.X, scale.Value.Y);
-            if (destination.Height > 0 && destination.Height != texture.Height)
-                scale = new Vector2(scale.Value.X, ((float)destination.Height / (float)texture.Height) * scale.Value.Y);
+            if (destination.Width > 0 && destination.Width != sourceRect.Value.Width)
+                scale = new Vector2(((float)destination.Width / (float)sourceRect.Value.Width) * scale.Value.X, scale.Value.Y);
+            if (destination.Height > 0 && destination.Height != sourceRect.Value.Height)
+                scale = new Vector2(scale.Value.X, ((float)destination.Height / (float)sourceRect.Value.Height) * scale.Value.Y);
 
             DrawTexture2D(texture, new Vector2(destination.X, destination.Y), sourceRect, scale, origin, rotation, color, flip);
         }
