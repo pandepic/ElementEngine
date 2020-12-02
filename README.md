@@ -20,6 +20,7 @@ There's currently no documentation but feel free to ask any questions on discord
 * A game controls system that transforms keyboard and mouse input combinations into meaningful control names like "Move Up", "Attack" etc.
 * Import maps created in Tiled with a built in optimised renderer for them that makes use of custom properties to load assets and control layer ordering
 * An XML based UI system that includes most common widget types, and can be easily extended to support custom widgets
+* Easy built in Dear IMGUI support
 
 ### Graphics Backends
 Vulkan, OpenGL, OpenGLES and Direct3D11 have been tested with all library features, other backends aren't guaranteed to work with all features at the moment (I don't have a mac so I can't test Metal).
