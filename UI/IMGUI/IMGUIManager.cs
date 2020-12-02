@@ -14,8 +14,6 @@ namespace ElementEngine.UI
             Renderer = new ImGuiRenderer(ElementGlobals.GraphicsDevice,
                 ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
                 ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight);
-
-            Renderer.RecreateFontDeviceTexture();
         }
 
         public static void Update(GameTimer gameTimer)
