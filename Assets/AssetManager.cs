@@ -27,6 +27,13 @@ namespace ElementEngine
         UnPremultiply
     }
 
+    public enum LoadAssetsMode
+    {
+        None = 0,
+        AutoPrependDir = 1,
+        AutoFind = 2,
+    }
+
     public class Asset
     {
         public string Name;
@@ -39,78 +46,113 @@ namespace ElementEngine
         private static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
         private static readonly List<string> _removeList = new List<string>();
 
-        public static void Load(string modsPath)
+        public static void Load(string modsPath, LoadAssetsMode? mode = null)
         {
             var stopWatch = Stopwatch.StartNew();
 
-            using (var fs = File.OpenRead(Path.Combine(modsPath, "Mods.xml")))
+            var modsFilePath = Path.Combine(modsPath, "Mods.xml");
+
+            if (!File.Exists(modsFilePath))
             {
+                LoadAssetsFile(modsPath, mode);
+            }
+            else
+            {
+                using var fs = File.OpenRead(Path.Combine(modsPath, "Mods.xml"));
                 var modsDoc = XDocument.Load(fs);
 
                 foreach (var mod in modsDoc.Root.Elements("Mod"))
                 {
-                    var modName = mod.Attribute("Name").Value;
                     var modPath = mod.Attribute("Path").Value;
-
-                    using var modFS = File.OpenRead(Path.Combine(modsPath, modPath, "Assets.xml"));
-                    var assetsDoc = XDocument.Load(modFS);
-
-                    var autoFind = false;
-                    var autoFindAtt = assetsDoc.Root.Attribute("AutoFind");
-                    if (autoFindAtt != null)
-                        autoFind = bool.Parse(autoFindAtt.Value);
-
-                    var autoAppendFolderFind = false;
-                    var autoAppendFolderFindAtt = assetsDoc.Root.Attribute("AutoAppendFolder");
-                    if (autoAppendFolderFindAtt != null)
-                        autoAppendFolderFind = bool.Parse(autoAppendFolderFindAtt.Value);
-
-                    foreach (var asset in assetsDoc.Root.Elements("Asset"))
-                    {
-                        var assetName = asset.Attribute("Name").Value;
-                        var assetPath = asset.Attribute("FilePath").Value;
-
-                        if (!_assetData.ContainsKey(assetName))
-                            _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(modsPath, modPath, assetPath) });
-                        else
-                            _assetData[assetName].FilePath = modsPath + modPath + assetPath;
-                    } // foreach asset
-
-                    if (autoFind)
-                    {
-                        var dirPath = Path.Combine(modsPath, modPath);
-                        var directoryPaths = Directory.GetDirectories(dirPath, "*", SearchOption.AllDirectories);
-
-                        var directoryList = new List<DirectoryInfo>
-                        {
-                            new DirectoryInfo(Path.Combine(modsPath, modPath))
-                        };
-
-                        directoryList.AddRange(directoryPaths.Select(d => new DirectoryInfo(d)).ToList());
-                        var baseDirProcessed = false;
-
-                        foreach (var dir in directoryList)
-                        {
-                            foreach (var file in dir.GetFiles())
-                            {
-                                var assetName = (autoAppendFolderFind && baseDirProcessed ? dir.Name + "/" : "") + file.Name;
-
-                                if (!_assetData.ContainsKey(assetName))
-                                {
-                                    _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(modsPath, modPath, Path.GetRelativePath(dirPath, file.FullName)) });
-                                    //Logging.Information("[{component}] loaded asset {name} from {mod}.", "AssetManager", assetName, modName);
-                                }
-                            }
-
-                            baseDirProcessed = true;
-                        }
-                    } // if autoFind
-                } // foreach mod
+                    LoadAssetsFile(Path.Combine(modsPath, modPath), mode);
+                }
             }
 
             stopWatch.Stop();
             Logging.Information("[{component}] {count} mod assets loaded from {path} in {time:0.00} ms.", "AssetManager", _assetData.Count, modsPath, stopWatch.Elapsed.TotalMilliseconds);
         } // Load
+        
+        private static void LoadAssetsFile(string path = null, LoadAssetsMode? mode = null)
+        {
+            var assetsFilePath = Path.Combine(path, "Assets.xml");
+            var autoFind = false;
+            var autoPrependDir = false;
+
+            if (File.Exists(assetsFilePath))
+            {
+                using var assetsFS = File.OpenRead(assetsFilePath);
+                var assetsDoc = XDocument.Load(assetsFS);
+
+                mode ??= LoadAssetsMode.None;
+
+                if (mode.Value.HasFlag(LoadAssetsMode.AutoFind))
+                {
+                    autoFind = true;
+                }
+                else
+                {
+                    var autoFindAtt = assetsDoc.Root.Attribute("AutoFind");
+                    if (autoFindAtt != null)
+                        autoFind = bool.Parse(autoFindAtt.Value);
+                }
+
+                if (mode.Value.HasFlag(LoadAssetsMode.AutoPrependDir))
+                {
+                    autoPrependDir = true;
+                }
+                else
+                {
+                    var autoPrependDirAtt = assetsDoc.Root.Attribute("AutoPrependDir");
+                    if (autoPrependDirAtt != null)
+                        autoPrependDir = bool.Parse(autoPrependDirAtt.Value);
+                }
+
+                foreach (var asset in assetsDoc.Root.Elements("Asset"))
+                {
+                    var assetName = asset.Attribute("Name").Value;
+                    var assetPath = asset.Attribute("FilePath").Value;
+
+                    if (!_assetData.ContainsKey(assetName))
+                        _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, assetPath) });
+                    else
+                        _assetData[assetName].FilePath = Path.Combine(path, assetPath);
+                } // foreach asset
+            }
+            else
+            {
+                mode ??= LoadAssetsMode.AutoFind;
+
+                if (mode.Value.HasFlag(LoadAssetsMode.AutoFind))
+                    autoFind = true;
+                if (mode.Value.HasFlag(LoadAssetsMode.AutoPrependDir))
+                    autoPrependDir = true;
+            }
+
+            if (autoFind)
+            {
+                var directoryPaths = Directory.GetDirectories(path, "*", SearchOption.AllDirectories);
+                var directoryList = new List<DirectoryInfo>
+                {
+                    new DirectoryInfo(path)
+                };
+
+                directoryList.AddRange(directoryPaths.Select(d => new DirectoryInfo(d)).ToList());
+                var baseDirProcessed = false;
+
+                foreach (var dir in directoryList)
+                {
+                    foreach (var file in dir.GetFiles())
+                    {
+                        var assetName = (autoPrependDir && baseDirProcessed ? dir.Name + "/" : "") + file.Name;
+
+                        if (!_assetData.ContainsKey(assetName))
+                            _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, Path.GetRelativePath(path, file.FullName)) });
+                    }
+
+                    baseDirProcessed = true;
+                }
+            } // if autoFind
+        } // LoadAssetsFile
 
         public static void Clear()
         {
