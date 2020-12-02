@@ -74,8 +74,6 @@ namespace ElementEngine
 
         public void SetupWindow(Rectangle windowRect, string gameTitle, GraphicsBackend? graphicsBackend = null, bool vsync = false)
         {
-            GameTitle = gameTitle + " [" + graphicsBackend.ToString() + "]";
-
             var windowCI = new WindowCreateInfo()
             {
                 X = windowRect.X,
@@ -94,6 +92,7 @@ namespace ElementEngine
             }, graphicsBackend.HasValue ? graphicsBackend.Value : VeldridStartup.GetPlatformDefaultBackend());
 
             CreateGraphicsResources();
+            GameTitle = gameTitle + " [" + ElementGlobals.GraphicsDevice.BackendType.ToString() + "]";
 
             ElementGlobals.Load(this);
             ElementGlobals.Viewport = new Viewport(0f, 0f, ElementGlobals.Window.Width, ElementGlobals.Window.Height, 0f, 1f);
