@@ -105,5 +105,48 @@ namespace ElementEngine.UI
             }
         }
 
+        public static bool IsMouseHoveringRect(Rectangle rect)
+        {
+            return ImGui.IsMouseHoveringRect(rect.LocationF, rect.BottomRightF);
+        }
+
+        public static Rectangle GetWindowRect()
+        {
+            return new Rectangle(ImGui.GetWindowPos(), ImGui.GetWindowSize());
+        }
+
+        public static Rectangle GetItemRect()
+        {
+            return new Rectangle(ImGui.GetItemRectMin(), ImGui.GetItemRectSize());
+        }
+
+        public static bool WindowClicked(ImGuiMouseButton button)
+        {
+            var windowRect = GetWindowRect();
+            if (ImGui.IsMouseClicked(button) && IsMouseHoveringRect(windowRect))
+                return true;
+            else
+                return false;
+        }
+
+        public static bool ItemClicked(ImGuiMouseButton button)
+        {
+            var itemRect = GetItemRect();
+            if (ImGui.IsMouseClicked(button) && IsMouseHoveringRect(itemRect))
+                return true;
+            else
+                return false;
+        }
+
+        public static Vector2 ItemRelativePosition()
+        {
+            return ImGui.GetItemRectMin() - ImGui.GetWindowPos();
+        }
+
+        public static Vector2 ItemClickedRelativePosition()
+        {
+            return ImGui.GetMousePos() - ImGui.GetWindowPos() - ItemRelativePosition();
+        }
+
     } // IMGUIManager
 }

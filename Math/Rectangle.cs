@@ -37,6 +37,16 @@ namespace ElementEngine
             }
         }
 
+        public Vector2I BottomRight
+        {
+            get => new Vector2I(Right, Bottom);
+        }
+
+        public Vector2 BottomRightF
+        {
+            get => new Vector2(Right, Bottom);
+        }
+
         public Vector2I Size
         {
             get => new Vector2I(Width, Height);
