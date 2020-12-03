@@ -44,15 +44,12 @@ namespace ElementEngine.UI
 
         public static IntPtr AddTexture(Texture2D texture)
         {
-            using var view = texture.GetTextureView();
-            var ptr = Renderer.GetOrCreateImGuiBinding(ElementGlobals.GraphicsDevice.ResourceFactory, view);
-            return ptr;
+            return Renderer.GetOrCreateImGuiBinding(ElementGlobals.GraphicsDevice.ResourceFactory, texture.Texture);
         }
 
         public static void RemoveTexture(Texture2D texture)
         {
-            using var view = texture.GetTextureView();
-            Renderer.RemoveImGuiBinding(view);
+            Renderer.RemoveImGuiBinding(texture.Texture);
         }
 
         public static void PushStyleColor(ImGuiCol type, Vector4 val)
@@ -121,24 +118,6 @@ namespace ElementEngine.UI
         public static Rectangle GetItemRect()
         {
             return new Rectangle(ImGui.GetItemRectMin(), ImGui.GetItemRectSize());
-        }
-
-        public static bool WindowClicked(ImGuiMouseButton button)
-        {
-            var windowRect = GetWindowRect();
-            if (ImGui.IsMouseClicked(button) && IsMouseHoveringRect(windowRect))
-                return true;
-            else
-                return false;
-        }
-
-        public static bool ItemClicked(ImGuiMouseButton button)
-        {
-            var itemRect = GetItemRect();
-            if (ImGui.IsMouseClicked(button) && IsMouseHoveringRect(itemRect))
-                return true;
-            else
-                return false;
         }
 
         public static Vector2 ItemRelativePosition()
