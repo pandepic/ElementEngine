@@ -30,7 +30,7 @@ namespace ElementEngine.UI
 
         public static void Draw()
         {
-            foreach (var (name, modal) in Modals)
+            foreach (var (_, modal) in Modals)
             {
                 if (modal.Begin())
                 {
@@ -38,8 +38,18 @@ namespace ElementEngine.UI
                     modal.End();
                 }
             }
-
+            
             Renderer.Render(ElementGlobals.GraphicsDevice, ElementGlobals.CommandList);
+        }
+
+        public static IntPtr AddTexture(Texture2D texture)
+        {
+            return Renderer.GetOrCreateImGuiBinding(ElementGlobals.GraphicsDevice.ResourceFactory, texture.TextureView);
+        }
+
+        public static void RemoveTexture(Texture2D texture)
+        {
+            Renderer.RemoveImGuiBinding(texture.TextureView);
         }
 
         public static void PushStyleColor(ImGuiCol type, Vector4 val)

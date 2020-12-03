@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -70,8 +71,8 @@ namespace ElementEngine.UI
                     modal.FileName = fileName;
 
                 var baseDirInfo = new DirectoryInfo(currentPath);
-                var directories = Directory.GetDirectories(currentPath);
-                var files = Directory.GetFiles(currentPath);
+                var directories = Directory.GetDirectories(currentPath).OrderBy(d => d);
+                var files = Directory.GetFiles(currentPath).OrderBy(f => f);
 
                 ImGui.InputText("Path", ref modal.EditingPath, 200);
                 ImGui.InputText("Search", ref modal.Search, 200);

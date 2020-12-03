@@ -13,6 +13,7 @@ namespace ElementEngine
 
         protected Texture _texture;
         public Texture Texture { get => _texture; }
+        public TextureView TextureView { get; set; }
 
         public TextureDescription Description { get; protected set; }
 
@@ -61,7 +62,7 @@ namespace ElementEngine
         {
             _texture = texture;
             Description = _texture.GetDescription();
-            SetName(name);
+            Setup(name);
         }
 
         public Texture2D(int width, int height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
@@ -71,7 +72,7 @@ namespace ElementEngine
         {
             _texture = GraphicsDevice.ResourceFactory.CreateTexture(new TextureDescription(width, height, 1, 1, 1, format, usage, TextureType.Texture2D));
             Description = _texture.GetDescription();
-            SetName(name);
+            Setup(name);
             BytesPerPixel = GraphicsHelper.GetPixelFormatBytesPerPixel(format);
         }
 
@@ -87,7 +88,7 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        private void SetName(string name = null)
+        private void Setup(string name = null)
         {
             if (name == null)
                 name = Guid.NewGuid().ToString();
@@ -95,6 +96,9 @@ namespace ElementEngine
             _texture.Name = name;
             TextureName = name;
             AssetName = name;
+
+            TextureView = GraphicsDevice.ResourceFactory.CreateTextureView(Texture);
+
         } // SetName
 
         public void SetData<T>(ReadOnlySpan<T> data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None) where T : unmanaged
