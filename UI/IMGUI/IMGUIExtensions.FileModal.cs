@@ -9,8 +9,9 @@ namespace ElementEngine.UI
 {
     public enum FileModalMode
     {
-        File,
-        Directory,
+        OpenFile,
+        SaveFile,
+        OpenDirectory,
     }
 
     internal class FileModal
@@ -18,7 +19,8 @@ namespace ElementEngine.UI
         public string Name { get; set; }
         public string CurrentPath { get; set; }
         public string EditingPath;
-        public string Search;
+        public string Search = "";
+        public string FileName = "";
 
         public void SetPath(string path)
         {
@@ -34,12 +36,12 @@ namespace ElementEngine.UI
     {
         private static readonly Dictionary<string, FileModal> _fileModalPaths = new Dictionary<string, FileModal>();
 
-        public static string FileModal(string name, FileModalMode mode = FileModalMode.File, string startPath = null)
+        public static string FileModal(string name, FileModalMode mode, string startPath = null)
         {
             bool opened = true;
             string selectedPath = null;
 
-            if (ImGui.BeginPopupModal(name, ref opened))
+            if (ImGui.BeginPopupModal(name, ref opened, ImGuiWindowFlags.AlwaysAutoResize))
             {
                 if (!_fileModalPaths.TryGetValue(name, out var modal))
                 {
@@ -48,7 +50,6 @@ namespace ElementEngine.UI
                         Name = name,
                         CurrentPath = startPath,
                         EditingPath = startPath,
-                        Search = "",
                     };
 
                     _fileModalPaths.Add(name, modal);
@@ -68,6 +69,8 @@ namespace ElementEngine.UI
 
                 ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
                 ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 0, 1));
+
+                ImGui.BeginChild("List", new Vector2(400, 300));
 
                 if (baseDirInfo.Parent != null)
                 {
@@ -100,18 +103,40 @@ namespace ElementEngine.UI
 
                     if (ImGui.Button(fileInfo.Name))
                     {
-                        if (mode == FileModalMode.File)
+                        if (mode == FileModalMode.OpenFile)
                         {
                             selectedPath = fileInfo.FullName;
                             ImGui.CloseCurrentPopup();
                         }
+                        else if (mode == FileModalMode.SaveFile)
+                        {
+                            modal.FileName = fileInfo.Name;
+                        }
                     }
+                }
+
+                ImGui.EndChild();
+
+                if (mode == FileModalMode.SaveFile)
+                {
+                    ImGui.InputText("File", ref modal.FileName, 200);
+
+                    ImGui.PopStyleColor(1);
+                    if (ImGui.Button("Save"))
+                    {
+                        var file = Path.Combine(modal.CurrentPath, modal.FileName);
+                        selectedPath = file;
+                        ImGui.CloseCurrentPopup();
+                    }
+                }
+                else
+                {
+                    ImGui.PopStyleColor(1);
                 }
 
                 if (modal.CurrentPath != modal.EditingPath && Directory.Exists(modal.EditingPath))
                     modal.CurrentPath = modal.EditingPath;
 
-                ImGui.PopStyleColor(1);
                 ImGui.EndPopup();
             }
 
