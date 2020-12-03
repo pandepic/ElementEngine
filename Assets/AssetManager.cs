@@ -217,10 +217,7 @@ namespace ElementEngine
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
-
-            var textureData = Image.Load<Rgba32>(fs);
-            var newTexture = new Texture2D(textureData.Width, textureData.Height, assetName);
-            newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
+            var newTexture = LoadTexture2DFromStream(fs, premultiply, assetName, false);
 
             _assetCache.Add(assetName, newTexture);
 
@@ -228,6 +225,26 @@ namespace ElementEngine
             return newTexture;
 
         } // LoadTexture2D
+
+        public static Texture2D LoadTexture2DFromPath(string path, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
+        {
+            using var fs = File.OpenRead(path);
+            return LoadTexture2DFromStream(fs, premultiply, name, log);
+        }
+
+        public static Texture2D LoadTexture2DFromStream(FileStream fs, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
+        {
+            var stopWatch = Stopwatch.StartNew();
+
+            var textureData = Image.Load<Rgba32>(fs);
+            var newTexture = new Texture2D(textureData.Width, textureData.Height, name);
+            newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
+
+            if (log)
+                LogLoaded("Texture2D", fs.Name, stopWatch);
+
+            return newTexture;
+        }
 
         public static SpriteFont LoadSpriteFont(string assetName)
         {
