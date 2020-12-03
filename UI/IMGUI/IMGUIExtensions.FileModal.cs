@@ -21,6 +21,7 @@ namespace ElementEngine.UI
         public string EditingPath;
         public string Search = "";
         public string FileName = "";
+        public int FiltersIndex = 0;
 
         public void SetPath(string path)
         {
@@ -36,7 +37,7 @@ namespace ElementEngine.UI
     {
         private static readonly Dictionary<string, FileModal> _fileModalPaths = new Dictionary<string, FileModal>();
 
-        public static string FileModal(string name, FileModalMode mode, string startPath = null)
+        public static string FileModal(string name, FileModalMode mode, string startPath = null, string[] filters = null)
         {
             bool opened = true;
             string selectedPath = null;
@@ -67,8 +68,8 @@ namespace ElementEngine.UI
                 ImGui.InputText("Path", ref modal.EditingPath, 200);
                 ImGui.InputText("Search", ref modal.Search, 200);
 
-                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
-                ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 0, 1));
+                IMGUIManager.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
+                IMGUIManager.PushStyleColor(ImGuiCol.Text, new Vector4(1, 1, 0, 1));
 
                 ImGui.BeginChild("List", new Vector2(400, 300));
 
@@ -91,14 +92,17 @@ namespace ElementEngine.UI
                     }
                 }
 
-                ImGui.PopStyleColor(2);
-                ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
+                IMGUIManager.PopAllStyleColors();
+                IMGUIManager.PushStyleColor(ImGuiCol.Button, new Vector4(0, 0, 0, 0));
 
                 foreach (var file in files)
                 {
                     var fileInfo = new FileInfo(file);
 
                     if (!string.IsNullOrEmpty(modal.Search) && !fileInfo.Name.ToUpper().Contains(modal.Search.ToUpper()))
+                        continue;
+
+                    if ((mode == FileModalMode.SaveFile || mode == FileModalMode.OpenFile) && filters != null && fileInfo.Extension.ToUpper() != filters[modal.FiltersIndex].ToUpper())
                         continue;
 
                     if (ImGui.Button(fileInfo.Name))
@@ -114,29 +118,33 @@ namespace ElementEngine.UI
                         }
                     }
                 }
-
+                
                 ImGui.EndChild();
 
                 if (mode == FileModalMode.SaveFile)
                 {
                     ImGui.InputText("File", ref modal.FileName, 200);
 
-                    ImGui.PopStyleColor(1);
+                    if (filters != null)
+                        ImGui.Combo("Filter", ref modal.FiltersIndex, filters, filters.Length);
+
+                    IMGUIManager.PopAllStyleColors();
                     if (ImGui.Button("Save"))
                     {
-                        var file = Path.Combine(modal.CurrentPath, modal.FileName);
-                        selectedPath = file;
+                        selectedPath = Path.Combine(modal.CurrentPath, modal.FileName);
                         ImGui.CloseCurrentPopup();
                     }
                 }
-                else
+                else if (mode == FileModalMode.OpenFile)
                 {
-                    ImGui.PopStyleColor(1);
+                    if (filters != null)
+                        ImGui.Combo("Filter", ref modal.FiltersIndex, filters, filters.Length);
                 }
 
                 if (modal.CurrentPath != modal.EditingPath && Directory.Exists(modal.EditingPath))
                     modal.CurrentPath = modal.EditingPath;
 
+                IMGUIManager.PopAllStyleColors();
                 ImGui.EndPopup();
             }
 
