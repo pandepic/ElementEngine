@@ -13,7 +13,6 @@ namespace ElementEngine
 
         protected Texture _texture;
         public Texture Texture { get => _texture; }
-        public TextureView TextureView { get; set; }
 
         public TextureDescription Description { get; protected set; }
 
@@ -96,8 +95,6 @@ namespace ElementEngine
             _texture.Name = name;
             TextureName = name;
             AssetName = name;
-
-            TextureView = GraphicsDevice.ResourceFactory.CreateTextureView(Texture);
 
         } // SetName
 
@@ -183,6 +180,11 @@ namespace ElementEngine
             return data;
 
         } // GetData
+
+        public TextureView GetTextureView()
+        {
+            return GraphicsDevice.ResourceFactory.CreateTextureView(Texture);
+        }
 
         public void ApplyPremultiply(TexturePremultiplyType type)
         {
