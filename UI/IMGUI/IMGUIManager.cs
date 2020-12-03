@@ -11,6 +11,7 @@ namespace ElementEngine.UI
     {
         public static ImGuiRenderer Renderer { get; set; }
         private static List<ImGuiCol> _pushedStyleColors = new List<ImGuiCol>();
+        private static Dictionary<string, IMGUIModal> Modals { get; set; } = new Dictionary<string, IMGUIModal>();
 
         public static void Setup()
         {
@@ -29,6 +30,15 @@ namespace ElementEngine.UI
 
         public static void Draw()
         {
+            foreach (var (name, modal) in Modals)
+            {
+                if (modal.Begin())
+                {
+                    modal.Draw();
+                    modal.End();
+                }
+            }
+
             Renderer.Render(ElementGlobals.GraphicsDevice, ElementGlobals.CommandList);
         }
 
@@ -48,5 +58,42 @@ namespace ElementEngine.UI
             ImGui.PopStyleColor(_pushedStyleColors.Count);
             _pushedStyleColors.Clear();
         }
-    }
+
+        public static void AddModal<T>(T type, IMGUIModal modal) where T : Enum
+        {
+            AddModal(type.ToString(), modal);
+        }
+
+        public static void AddModal(string type, IMGUIModal modal)
+        {
+            Modals.Add(type, modal);
+        } // AddModal
+
+        public static void OpenModal<T>(T type) where T : Enum
+        {
+            OpenModal(type.ToString());
+        }
+
+        public static void OpenModal(string type)
+        {
+            if (Modals.TryGetValue(type, out var modal))
+            {
+                modal.Open();
+            }
+        }
+
+        public static void CloseModal<T>(T type) where T : Enum
+        {
+            CloseModal(type.ToString());
+        }
+
+        public static void CloseModal(string type)
+        {
+            if (Modals.TryGetValue(type, out var modal))
+            {
+                modal.Close();
+            }
+        }
+
+    } // IMGUIManager
 }

@@ -37,12 +37,17 @@ namespace ElementEngine.UI
     {
         private static readonly Dictionary<string, FileModal> _fileModalPaths = new Dictionary<string, FileModal>();
 
-        public static string FileModal(string name, FileModalMode mode, string startPath = null, string[] filters = null)
+        public static string FileModal(string name, FileModalMode mode, string startPath = null, string[] filters = null, string fileName = null)
         {
-            bool opened = true;
+            bool open = true;
+            return FileModal(name, ref open, mode, startPath, filters, fileName);
+        }
+
+        public static string FileModal(string name, ref bool open, FileModalMode mode, string startPath = null, string[] filters = null, string fileName = null)
+        {
             string selectedPath = null;
 
-            if (ImGui.BeginPopupModal(name, ref opened, ImGuiWindowFlags.AlwaysAutoResize))
+            if (ImGui.BeginPopupModal(name, ref open, ImGuiWindowFlags.AlwaysAutoResize))
             {
                 if (!_fileModalPaths.TryGetValue(name, out var modal))
                 {
@@ -60,6 +65,9 @@ namespace ElementEngine.UI
 
                 if (modal.EditingPath == null)
                     modal.EditingPath = currentPath;
+
+                if (fileName != null)
+                    modal.FileName = fileName;
 
                 var baseDirInfo = new DirectoryInfo(currentPath);
                 var directories = Directory.GetDirectories(currentPath);
