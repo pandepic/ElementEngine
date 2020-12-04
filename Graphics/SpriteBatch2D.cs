@@ -131,7 +131,7 @@ namespace ElementEngine
         }
         #endregion
 
-        public SpriteBatch2D() : this(ElementGlobals.Window.Width, ElementGlobals.Window.Height) { }
+        public SpriteBatch2D() : this(ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight) { }
         public SpriteBatch2D(int width, int height, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, invertY) { }
         public SpriteBatch2D(Texture2D target, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, invertY) { }
 
