@@ -428,7 +428,7 @@ namespace ElementEngine
             var scaledOrigin = camera.Origin / totalScale;
             var offsetOrigin = camera.Origin - scaledOrigin;
 
-            DrawLayers(start, end, camera.Position + offsetOrigin + position, totalScale);
+            DrawLayers(start, end, camera.Position + offsetOrigin - position, totalScale);
         }
 
         public void DrawAll(Vector2 position, float scale = 1f)
