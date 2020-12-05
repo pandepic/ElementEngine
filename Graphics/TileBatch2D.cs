@@ -403,28 +403,32 @@ namespace ElementEngine
             }
         } // Update
 
-        public void DrawAll(Camera2D camera, float scale = 1f)
+        public void DrawAll(Camera2D camera, float scale = 1f) => DrawAll(camera, Vector2.Zero, scale);
+        public void DrawAll(Camera2D camera, Vector2 position, float scale = 1f)
         {
-            DrawLayers(0, Layers.Count - 1, camera, scale);
+            DrawLayers(0, Layers.Count - 1, camera, position, scale);
         }
 
-        public void DrawLayersFrom(int from, Camera2D camera, float scale = 1f)
+        public void DrawLayersFrom(int from, Camera2D camera, float scale = 1f) => DrawLayersFrom(from, camera, Vector2.Zero, scale);
+        public void DrawLayersFrom(int from, Camera2D camera, Vector2 position, float scale = 1f)
         {
-            DrawLayers(from, Layers.Count - 1, camera, scale);
+            DrawLayers(from, Layers.Count - 1, camera, position, scale);
         }
 
-        public void DrawLayersTo(int to, Camera2D camera, float scale = 1f)
+        public void DrawLayersTo(int to, Camera2D camera, float scale = 1f) => DrawLayersTo(to, camera, Vector2.Zero, scale);
+        public void DrawLayersTo(int to, Camera2D camera, Vector2 position, float scale = 1f)
         {
-            DrawLayers(0, to, camera, scale);
+            DrawLayers(0, to, camera, position, scale);
         }
 
-        public void DrawLayers(int start, int end, Camera2D camera, float scale = 1f)
+        public void DrawLayers(int start, int end, Camera2D camera, float scale = 1f) => DrawLayers(start, end, camera, Vector2.Zero, scale);
+        public void DrawLayers(int start, int end, Camera2D camera, Vector2 position, float scale = 1f)
         {
             var totalScale = scale * camera.Zoom;
             var scaledOrigin = camera.Origin / totalScale;
             var offsetOrigin = camera.Origin - scaledOrigin;
 
-            DrawLayers(start, end, camera.Position + offsetOrigin, totalScale);
+            DrawLayers(start, end, camera.Position + offsetOrigin + position, totalScale);
         }
 
         public void DrawAll(Vector2 position, float scale = 1f)
