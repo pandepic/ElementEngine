@@ -41,6 +41,12 @@ namespace ElementEngine
             return string.Format("{0}, {1}", X, Y);
         }
 
+        public static Vector2I FromString(string str)
+        {
+            var split = str.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
+            return new Vector2I(int.Parse(split[0]), int.Parse(split[1]));
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is Vector2I point)
