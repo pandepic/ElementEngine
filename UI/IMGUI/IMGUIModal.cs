@@ -24,12 +24,15 @@ namespace ElementEngine.UI
         public void Open()
         {
             IsOpen = true;
+            OnOpen();
         }
 
         public void Close()
         {
             IsOpen = false;
         }
+
+        public virtual void OnOpen() { }
 
         public bool Begin()
         {
