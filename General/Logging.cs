@@ -21,9 +21,24 @@ namespace ElementEngine
                 .CreateLogger();
         }
 
+        public static void Information(string messageTemplate)
+        {
+            _logger.Information(messageTemplate);
+        }
+
         public static void Information(string messageTemplate, params object[] propertyValues)
         {
             _logger.Information(messageTemplate, propertyValues);
+        }
+
+        public static void Error(string messageTemplate)
+        {
+            _logger.Error(messageTemplate);
+        }
+
+        public static void Error(string messageTemplate, params object[] propertyValues)
+        {
+            _logger.Error(messageTemplate, propertyValues);
         }
     }
 }
