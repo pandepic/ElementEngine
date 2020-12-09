@@ -61,6 +61,7 @@ namespace ElementEngine.UI
         public static void PopStyleColor(int count = 1)
         {
             ImGui.PopStyleColor(count);
+            _pushedStyleColors.RemoveRange(_pushedStyleColors.Count - count, count);
         }
 
         public static void PopAllStyleColors()
