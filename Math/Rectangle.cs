@@ -69,10 +69,41 @@ namespace ElementEngine
 
         public System.Drawing.Rectangle DrawingRectangle => new System.Drawing.Rectangle(X, Y, Width, Height);
 
-        public int Left => X;
-        public int Right => X + Width;
-        public int Top => Y;
-        public int Bottom => Y + Height;
+        public int Left
+        {
+            get => X;
+            set
+            {
+                X = value;
+            }
+        }
+
+        public int Right
+        {
+            get => X + Width;
+            set
+            {
+                Width = value - X;
+            }
+        }
+
+        public int Top
+        {
+            get => Y;
+            set
+            {
+                Y = value;
+            }
+        }
+
+        public int Bottom
+        {
+            get => Y + Height;
+            set
+            {
+                Height = value - Y;
+            }
+        }
 
         public Vector2I Center => new Vector2I(X + Width / 2, Y + Height / 2);
         public Vector2 CenterF => new Vector2(X + Width / 2f, Y + Height / 2f);
