@@ -46,12 +46,11 @@ namespace ElementEngine
         public static void CopyTo(Stream src, Stream dest)
         {
             byte[] bytes = new byte[4096];
+            int count;
 
-            int cnt;
-
-            while ((cnt = src.Read(bytes, 0, bytes.Length)) != 0)
+            while ((count = src.Read(bytes, 0, bytes.Length)) != 0)
             {
-                dest.Write(bytes, 0, cnt);
+                dest.Write(bytes, 0, count);
             }
         }
     } // Compression
