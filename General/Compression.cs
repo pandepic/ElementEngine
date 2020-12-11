@@ -11,32 +11,35 @@ namespace ElementEngine
         public static byte[] Zip(string str)
         {
             var bytes = Encoding.UTF8.GetBytes(str);
+            return Zip(bytes);
+        }
 
-            using (var msi = new MemoryStream(bytes))
-            using (var mso = new MemoryStream())
+        public static byte[] Zip(byte[] bytes)
+        {
+            using (var streamBytes = new MemoryStream(bytes))
+            using (var streamOutput = new MemoryStream())
             {
-                using (var gs = new GZipStream(mso, CompressionMode.Compress))
-                {
-                    //msi.CopyTo(gs);
-                    CopyTo(msi, gs);
-                }
+                using (var gs = new GZipStream(streamOutput, CompressionMode.Compress))
+                    CopyTo(streamBytes, gs);
 
-                return mso.ToArray();
+                return streamOutput.ToArray();
             }
         }
 
-        public static string Unzip(byte[] bytes)
+        public static string UnzipToString(byte[] bytes)
         {
-            using (var msi = new MemoryStream(bytes))
-            using (var mso = new MemoryStream())
-            {
-                using (var gs = new GZipStream(msi, CompressionMode.Decompress))
-                {
-                    //gs.CopyTo(mso);
-                    CopyTo(gs, mso);
-                }
+            return Encoding.UTF8.GetString(Unzip(bytes));
+        }
 
-                return Encoding.UTF8.GetString(mso.ToArray());
+        public static byte[] Unzip(byte[] bytes)
+        {
+            using (var streamBytes = new MemoryStream(bytes))
+            using (var streamOutput = new MemoryStream())
+            {
+                using (var gs = new GZipStream(streamBytes, CompressionMode.Decompress))
+                    CopyTo(gs, streamOutput);
+
+                return streamOutput.ToArray();
             }
         }
 
