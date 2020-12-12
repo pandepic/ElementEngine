@@ -151,7 +151,7 @@ namespace ElementEngine
             GraphicsDevice.UpdateBuffer(_transformBuffer, 0, Matrix4x4.Identity);
             GraphicsDevice.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), Matrix4x4.Identity);
 
-            _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("mProjectionViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
+            _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("ProjectionViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
             _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
 
             _textureLayout = factory.CreateResourceLayout(

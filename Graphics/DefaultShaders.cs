@@ -9,9 +9,9 @@ namespace ElementEngine
         public static string DefaultSpriteVS = @"
             #version 450
 
-            layout(set = 0, binding = 0) uniform mProjectionViewBuffer {
-                mat4x4 mProjection;
-                mat4x4 mView;
+            layout(set = 0, binding = 0) uniform ProjectionViewBuffer {
+                mat4x4 uProjection;
+                mat4x4 uView;
             };
 
             layout (location = 0) in vec2 vPosition;
@@ -25,7 +25,7 @@ namespace ElementEngine
             {
                 fTexCoords = vTexCoords;
                 fColor = vColor;
-                gl_Position = mProjection * mView * vec4(vPosition.x, vPosition.y, 0.0, 1.0);
+                gl_Position = uProjection * uView * vec4(vPosition.x, vPosition.y, 0.0, 1.0);
             }
         ";
 
@@ -55,12 +55,12 @@ namespace ElementEngine
             layout (location = 1) in vec2 vTexture;
 
             layout(set = 0, binding = 0) uniform TransformBuffer {
-                vec2 inverseTileTextureSize;
-                vec2 inverseSpriteTextureSize;
-                vec2 tileSize;
-                vec2 viewOffset;
-                vec2 viewportSize;
-                vec2 inverseTileSize;
+                vec2 uInverseTileTextureSize;
+                vec2 uInverseSpriteTextureSize;
+                vec2 uTileSize;
+                vec2 uViewOffset;
+                vec2 uViewportSize;
+                vec2 uInverseTileSize;
             };
 
             layout (location = 0) out vec2 fPixelCoord;
@@ -68,8 +68,8 @@ namespace ElementEngine
 
             void main()
             {
-                fPixelCoord = (vTexture * viewportSize) + viewOffset;
-                fTexCoord = fPixelCoord * inverseTileTextureSize * inverseTileSize;
+                fPixelCoord = (vTexture * uViewportSize) + uViewOffset;
+                fTexCoord = fPixelCoord * uInverseTileTextureSize * uInverseTileSize;
                 gl_Position = vec4(vPosition, 0.0, 1.0);
             }
         ";
@@ -83,16 +83,16 @@ namespace ElementEngine
             layout (location = 1) in vec2 fTexCoord;
 
             layout(set = 0, binding = 0) uniform TransformBuffer {
-                vec2 inverseTileTextureSize;
-                vec2 inverseSpriteTextureSize;
-                vec2 tileSize;
-                vec2 viewOffset;
-                vec2 viewportSize;
-                vec2 inverseTileSize;
+                vec2 uInverseTileTextureSize;
+                vec2 uInverseSpriteTextureSize;
+                vec2 uTileSize;
+                vec2 uViewOffset;
+                vec2 uViewportSize;
+                vec2 uInverseTileSize;
             };
 
             layout(set = 1, binding = 0) uniform AnimationBuffer {
-                vec4[{ANIM_COUNT}] animationOffsets;
+                vec4[{ANIM_COUNT}] uAnimationOffsets;
             };
 
             layout (set = 2, binding = 0) uniform texture2D fAtlasImage;
@@ -116,19 +116,19 @@ namespace ElementEngine
 
                 int animIndex = int(tile.z * 256.0);
 
-                vec2 spriteOffset = (floor(tile.xy * 256.0) * tileSize) + animationOffsets[animIndex].xy;
-                vec2 spriteCoord = mod(fPixelCoord, tileSize);
+                vec2 spriteOffset = (floor(tile.xy * 256.0) * uTileSize) + uAnimationOffsets[animIndex].xy;
+                vec2 spriteCoord = mod(fPixelCoord, uTileSize);
 
-                fFragColor = texture(sampler2D(fAtlasImage, fAtlasImageSampler), (spriteOffset + spriteCoord) * inverseSpriteTextureSize);
+                fFragColor = texture(sampler2D(fAtlasImage, fAtlasImageSampler), (spriteOffset + spriteCoord) * uInverseSpriteTextureSize);
             }
         ";
 
         public static string DefaultPrimitiveVS = @"
             #version 450
 
-            layout(set = 0, binding = 0) uniform mProjectionViewBuffer {
-                mat4x4 mProjection;
-                mat4x4 mView;
+            layout(set = 0, binding = 0) uniform ProjectionViewBuffer {
+                mat4x4 uProjection;
+                mat4x4 uView;
             };
 
             layout (location = 0) in vec2 vPosition;
@@ -139,7 +139,7 @@ namespace ElementEngine
             void main()
             {
                 fColor = vColor;
-                gl_Position = mProjection * mView * vec4(vPosition.x, vPosition.y, 0.0, 1.0);
+                gl_Position = uProjection * uView * vec4(vPosition.x, vPosition.y, 0.0, 1.0);
             }
         ";
 
