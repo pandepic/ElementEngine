@@ -16,14 +16,12 @@ namespace ElementEngine
 
         public static byte[] Zip(byte[] bytes)
         {
-            using (var streamBytes = new MemoryStream(bytes))
-            using (var streamOutput = new MemoryStream())
-            {
-                using (var gs = new GZipStream(streamOutput, CompressionMode.Compress))
-                    CopyTo(streamBytes, gs);
+            using var streamBytes = new MemoryStream(bytes);
+            using var streamOutput = new MemoryStream();
+            using (var gs = new GZipStream(streamOutput, CompressionMode.Compress))
+                CopyTo(streamBytes, gs);
 
-                return streamOutput.ToArray();
-            }
+            return streamOutput.ToArray();
         }
 
         public static string UnzipToString(byte[] bytes)
@@ -33,14 +31,12 @@ namespace ElementEngine
 
         public static byte[] Unzip(byte[] bytes)
         {
-            using (var streamBytes = new MemoryStream(bytes))
-            using (var streamOutput = new MemoryStream())
-            {
-                using (var gs = new GZipStream(streamBytes, CompressionMode.Decompress))
-                    CopyTo(gs, streamOutput);
+            using var streamBytes = new MemoryStream(bytes);
+            using var streamOutput = new MemoryStream();
+            using (var gs = new GZipStream(streamBytes, CompressionMode.Decompress))
+                CopyTo(gs, streamOutput);
 
-                return streamOutput.ToArray();
-            }
+            return streamOutput.ToArray();
         }
 
         public static void CopyTo(Stream src, Stream dest)
