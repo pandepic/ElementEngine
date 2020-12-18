@@ -132,10 +132,10 @@ namespace ElementEngine
         #endregion
 
         public SpriteBatch2D() : this(ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight) { }
-        public SpriteBatch2D(int width, int height, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, invertY) { }
-        public SpriteBatch2D(Texture2D target, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, invertY) { }
+        public SpriteBatch2D(int width, int height, Shader[] shaders = null, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, shaders, invertY) { }
+        public SpriteBatch2D(Texture2D target, Shader[] shaders = null, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, shaders, invertY) { }
 
-        public unsafe SpriteBatch2D(int width, int height, OutputDescription output, bool invertY = false)
+        public unsafe SpriteBatch2D(int width, int height, OutputDescription output, Shader[] shaders = null, bool invertY = false)
         {
             _textureSets = new Dictionary<string, ResourceSet>();
 
@@ -174,7 +174,7 @@ namespace ElementEngine
                     CullMode = FaceCullMode.None,
                 },
                 PrimitiveTopology = PrimitiveTopology.TriangleList,
-                ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { Vertex2DPositionTexCoordsColor.VertexLayout }, shaders: _shaders),
+                ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { Vertex2DPositionTexCoordsColor.VertexLayout }, shaders: shaders ?? _shaders),
                 ResourceLayouts = new ResourceLayout[]
                 {
                     _transformLayout,

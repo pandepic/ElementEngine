@@ -11,6 +11,7 @@ namespace ElementEngine.UI
     {
         public static ImGuiRenderer Renderer { get; set; }
         private static List<ImGuiCol> _pushedStyleColors = new List<ImGuiCol>();
+
         private static Dictionary<string, IMGUIModal> Modals { get; set; } = new Dictionary<string, IMGUIModal>();
 
         public static void Setup()
