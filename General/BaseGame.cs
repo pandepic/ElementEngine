@@ -129,6 +129,7 @@ namespace ElementEngine
 
             CurrentGameState = newState;
             CurrentGameState?.Register();
+            CurrentGameState?.DoInitialize();
             CurrentGameState?.Load();
 
             CommandList.End();

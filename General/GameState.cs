@@ -10,6 +10,7 @@ namespace ElementEngine
     {
         private List<IDisposable> _disposeList { get; set; } = new List<IDisposable>();
         internal bool _registered = false;
+        internal bool _initialized = false;
 
         #region IDisposable
         private bool _disposed = false;
@@ -75,6 +76,16 @@ namespace ElementEngine
             _disposeList.Add(d);
         }
 
+        internal void DoInitialize()
+        {
+            if (!_initialized)
+            {
+                Initialize();
+                _initialized = true;
+            }
+        }
+
+        public virtual void Initialize() { }
         public virtual void Load() { }
         public virtual void Unload() { }
 
