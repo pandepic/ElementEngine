@@ -451,6 +451,11 @@ namespace ElementEngine
             if (Layers.Count <= 0)
                 return;
 
+            if (start >= Layers.Count)
+                start = Layers.Count - 1;
+            if (end >= Layers.Count)
+                end = Layers.Count - 1;
+
             ScaledViewportSize = ViewportSize / scale;
 
             SetTransformBuffer(
