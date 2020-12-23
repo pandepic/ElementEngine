@@ -1,4 +1,5 @@
-﻿using ElementEngine.Ogmo;
+﻿using ElementEngine.EndlessTiles;
+using ElementEngine.Ogmo;
 using ElementEngine.Tiled;
 using FontStashSharp;
 using NAudio.Vorbis;
@@ -373,6 +374,22 @@ namespace ElementEngine
             return newSource;
 
         } // LoadAudioSourceOggVorbis
+
+        public static EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (EndlessTilesWorld)_assetCache[assetName];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(assetName);
+            var newWorld = new EndlessTilesWorld(fs);
+
+            _assetCache.Add(assetName, newWorld);
+            LogLoaded("EndlessTilesWorld", assetName, stopWatch);
+
+            return newWorld;
+        }
 
     } // AssetManager
 }
