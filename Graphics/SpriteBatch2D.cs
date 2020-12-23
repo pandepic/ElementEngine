@@ -440,7 +440,7 @@ namespace ElementEngine
             var source = sourceRect.Value;
             var flipX = (flip == SpriteFlipType.Horizontal || flip == SpriteFlipType.Both);
             var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
-
+            
             AddQuad(
                 texture,
                 new Vertex2DPositionTexCoordsColor() // top left

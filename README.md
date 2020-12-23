@@ -24,3 +24,8 @@ There's currently no documentation but feel free to ask any questions on discord
 
 ### Graphics Backends
 Vulkan, OpenGL, OpenGLES and Direct3D11 have been tested with all library features, other backends aren't guaranteed to work with all features at the moment (I don't have a mac so I can't test Metal).
+
+### Sample Projects
+In the future some better sample projects for specific features will be created, but for now here are some of my open source projects that use this engine:
+
+* Github Game Off 2020 entry: https://github.com/pandepic/GAME_OFF_2020
