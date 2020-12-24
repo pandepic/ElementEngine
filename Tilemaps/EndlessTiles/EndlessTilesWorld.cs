@@ -28,6 +28,7 @@ namespace ElementEngine.EndlessTiles
         public Vector2I ChunkSize { get; set; }
 
         public Dictionary<string, EndlessTilesWorldChunkData> SavedChunks { get; set; }
+        public Dictionary<int, TileAnimation> TileAnimations { get; set; }
     }
 
     public class EndlessTilesWorldLayer
@@ -131,6 +132,7 @@ namespace ElementEngine.EndlessTiles
         public Vector2I TileSize { get; set; }
         public Vector2I ChunkSize { get; set; }
         public Dictionary<Vector2I, EndlessTilesWorldChunk> Chunks { get; set; } = new Dictionary<Vector2I, EndlessTilesWorldChunk>();
+        public Dictionary<int, TileAnimation> TileAnimations { get; set; } = new Dictionary<int, TileAnimation>();
 
         public EndlessTilesWorld(string path)
         {
@@ -159,6 +161,7 @@ namespace ElementEngine.EndlessTiles
             Chunks = new Dictionary<Vector2I, EndlessTilesWorldChunk>();
             ChunkSize = Data.ChunkSize;
             TileSize = Data.TileSize;
+            TileAnimations = Data.TileAnimations;
 
             foreach (var (_, chunkData) in Data.SavedChunks)
             {

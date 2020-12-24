@@ -17,7 +17,7 @@ namespace ElementEngine.EndlessTiles
                 ChunkData.Position * (ChunkData.World.TileSize * ChunkData.World.ChunkSize),
                 ChunkData.World.TileSize * ChunkData.World.ChunkSize);
 
-            TileBatch = new TileBatch2D(ChunkData.World.ChunkSize.X, ChunkData.World.ChunkSize.Y, ChunkData.World.TileSize.X, ChunkData.World.TileSize.Y, tilesheet);
+            TileBatch = new TileBatch2D(ChunkData.World.ChunkSize.X, ChunkData.World.ChunkSize.Y, ChunkData.World.TileSize.X, ChunkData.World.TileSize.Y, tilesheet, TileBatch2DWrapMode.None, ChunkData.World.TileAnimations);
 
             TileBatch.BeginBuild();
 
@@ -62,6 +62,12 @@ namespace ElementEngine.EndlessTiles
 
             foreach (var (_, chunk) in world.Chunks)
                 Chunks.Add(chunk.Position, new EndlessTilesRendererChunk(chunk, tilesheet));
+        }
+
+        public void Update(GameTimer gameTimer)
+        {
+            foreach (var (_, chunk) in Chunks)
+                chunk.TileBatch.Update(gameTimer);
         }
 
         public void DrawLayers(int start, int end, Camera2D camera)
