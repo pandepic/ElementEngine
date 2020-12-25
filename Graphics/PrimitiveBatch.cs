@@ -152,6 +152,27 @@ namespace ElementEngine
             }
         }
 
+        public void DrawOutlinedRect(Rectangle rect, RgbaFloat color, RgbaFloat lineColor, int lineSize, Vector2? origin = null, float rotation = 0f)
+        {
+            DrawFilledRect(rect, color, origin, rotation);
+            DrawEmptyRect(rect, lineColor, lineSize, origin, rotation);
+        }
+
+        public void DrawEmptyRect(Rectangle rect, RgbaFloat color, int lineSize, Vector2? origin = null, float rotation = 0f)
+        {
+            if (!origin.HasValue)
+                origin = new Vector2(0f, 0f);
+
+            // top
+            DrawFilledRect(new Rectangle(rect.X, rect.Y, rect.Width, lineSize), color, origin, rotation);
+            // bottom
+            DrawFilledRect(new Rectangle(rect.X, rect.Y + (rect.Height - lineSize), rect.Width, lineSize), color, origin, rotation);
+            // left
+            DrawFilledRect(new Rectangle(rect.X, rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2)), color, origin, rotation);
+            // right
+            DrawFilledRect(new Rectangle(rect.X + (rect.Width - lineSize), rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2)), color, origin, rotation);
+        }
+
         public void DrawFilledRect(Rectangle rect, RgbaFloat color, Vector2? origin = null, float rotation = 0f)
         {
             if (!origin.HasValue)
