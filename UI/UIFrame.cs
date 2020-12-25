@@ -349,15 +349,12 @@ namespace ElementEngine
 
             var tempWidgets = new List<UIWidget>();
 
-            foreach (var kvp in ElementGlobals.UIWidgetTypes)
+            foreach (var elWidget in widgetsRoot.Elements())
             {
-                var type = kvp.Key;
-                var xmlElements = widgetsRoot.Elements(kvp.Value).ToList();
-
-                foreach (var xmlElement in xmlElements)
+                if (ElementGlobals.UIWidgetTypes.TryGetValue(elWidget.Name.ToString(), out var widgetType))
                 {
-                    UIWidget widget = (UIWidget)Activator.CreateInstance(type);
-                    widget.Load(this, xmlElement);
+                    UIWidget widget = (UIWidget)Activator.CreateInstance(widgetType);
+                    widget.Load(this, elWidget);
                     tempWidgets.Add(widget);
                 }
             }

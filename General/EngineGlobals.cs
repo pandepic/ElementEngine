@@ -26,25 +26,25 @@ namespace ElementEngine
         public static BaseGame Game;
 
         // UI
-        public static Dictionary<Type, string> UIWidgetTypes { get; set; } = new Dictionary<Type, string>()
+        public static Dictionary<string, Type> UIWidgetTypes { get; set; } = new Dictionary<string, Type>()
         {
-            { typeof(UIWBasicButton), "Button" },
-            { typeof(UIWLabel), "Label" },
-            { typeof(UIWTextBox), "Textbox" },
-            { typeof(UIWImageBox), "ImageBox" },
-            { typeof(UIWHScrollBar), "HScrollBar" },
-            { typeof(UIWHProgressBar), "HProgressBar" },
+            { "Button", typeof(UIWBasicButton) },
+            { "Label", typeof(UIWLabel) },
+            { "Textbox", typeof(UIWTextBox) },
+            { "ImageBox", typeof(UIWImageBox) },
+            { "HScrollBar", typeof(UIWHScrollBar) },
+            { "HProgressBar", typeof(UIWHProgressBar) },
         };
 
         public static void RegisterWidgetType(Type type, string elementName)
         {
-            if (UIWidgetTypes.ContainsKey(type))
+            if (UIWidgetTypes.ContainsValue(type))
                 throw new Exception("Type already exists.");
 
-            if (UIWidgetTypes.ContainsValue(elementName))
+            if (UIWidgetTypes.ContainsKey(elementName))
                 throw new Exception("Element name already exists.");
 
-            UIWidgetTypes.Add(type, elementName);
+            UIWidgetTypes.Add(elementName, type);
         }
 
         protected ElementGlobals() { }

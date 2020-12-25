@@ -387,16 +387,5 @@ namespace ElementEngine
             return true;
         } // PointInsideWidget
 
-        public static void RegisterWidgetType(Type type, string elementName)
-        {
-            if (ElementGlobals.UIWidgetTypes.ContainsKey(type))
-                throw new Exception("Type already exists.");
-
-            if (ElementGlobals.UIWidgetTypes.ContainsValue(elementName))
-                throw new Exception("Element name already exists.");
-
-            ElementGlobals.UIWidgetTypes.Add(type, elementName);
-        } // RegisterWidgetType
-
     } // UIWidget
 }
