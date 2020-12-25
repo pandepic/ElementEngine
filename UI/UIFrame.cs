@@ -63,16 +63,28 @@ namespace ElementEngine
 
             foreach (var widget in Widgets)
             {
-                if (widget.Width > width)
-                    width = widget.Width;
-                if (widget.Height > height)
-                    height = widget.Height;
+                var offset = widget.Offset.ToVector2I();
+
+                if (Direction == UILayoutGroupDirection.Vertical)
+                {
+                    if (widget.Width > width)
+                        width = widget.Width;
+
+                    height += widget.Height + Spacing + offset.Y;
+                }
+                else if (Direction == UILayoutGroupDirection.Horizontal)
+                {
+                    if (widget.Height > height)
+                        height = widget.Height;
+
+                    width += widget.Width + Spacing + offset.X;
+                }
             }
 
             var startPosition = Vector2I.Zero;
 
             if (PositionFlags.CenterX)
-                startPosition.X = ParentFrame.Width / 2;
+                startPosition.X = ParentFrame.Width / 2 - (Direction == UILayoutGroupDirection.Horizontal ? width / 2 : 0);
             else if (PositionFlags.AnchorLeft)
                 startPosition.X = 0;
             else if (PositionFlags.AnchorRight)
@@ -81,7 +93,7 @@ namespace ElementEngine
                 startPosition.X = PositionFlags.SetX.Value;
 
             if (PositionFlags.CenterY)
-                startPosition.Y = ParentFrame.Height / 2;
+                startPosition.Y = ParentFrame.Height / 2 - (Direction == UILayoutGroupDirection.Vertical ? height / 2 : 0);
             else if (PositionFlags.AnchorTop)
                 startPosition.Y = 0;
             else if (PositionFlags.AnchorBottom)
@@ -98,7 +110,7 @@ namespace ElementEngine
                 if (Direction == UILayoutGroupDirection.Vertical)
                 {
                     if (widget.PositionFlags.CenterX)
-                        currentPosition.X = startPosition.X - (width / 2);
+                        currentPosition.X = startPosition.X - widget.Width / 2;
                     else if (widget.PositionFlags.AnchorLeft)
                         currentPosition.X = startPosition.X;
                     else if (widget.PositionFlags.AnchorRight)
@@ -114,7 +126,7 @@ namespace ElementEngine
                 else if (Direction == UILayoutGroupDirection.Horizontal)
                 {
                     if (widget.PositionFlags.CenterY)
-                        currentPosition.Y = startPosition.Y - (height / 2);
+                        currentPosition.Y = startPosition.Y - widget.Height / 2;
                     else if (widget.PositionFlags.AnchorTop)
                         currentPosition.Y = startPosition.Y;
                     else if (widget.PositionFlags.AnchorBottom)
