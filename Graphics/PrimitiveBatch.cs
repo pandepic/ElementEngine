@@ -32,13 +32,16 @@ namespace ElementEngine
         protected Matrix4x4 _view;
 
         // Graphics resources
-        protected Pipeline _pipeline;
+        protected Pipeline _currentPipeline;
+        protected Pipeline _pipelineTriangleList;
+        protected Pipeline _pipelineTriangleStrip;
+        protected Pipeline _pipelineLineLoop;
         protected DeviceBuffer _vertexBuffer;
         protected DeviceBuffer _transformBuffer;
         protected ResourceLayout _transformLayout;
         protected ResourceSet _transformSet;
 
-        protected const int _maxBatchSize = 10000;
+        protected const int _maxBatchSize = 50000;
         protected bool _begin = false;
         protected Vertex2DPositionColor[] _vertexData;
         protected Vertex2DPositionColor[] _tempVertices;
@@ -59,7 +62,9 @@ namespace ElementEngine
             {
                 if (disposing)
                 {
-                    _pipeline?.Dispose();
+                    _pipelineTriangleList?.Dispose();
+                    _pipelineTriangleStrip?.Dispose();
+                    _pipelineLineLoop?.Dispose();
                     _vertexBuffer?.Dispose();
                     _transformBuffer?.Dispose();
                     _transformLayout?.Dispose();
@@ -93,7 +98,7 @@ namespace ElementEngine
             _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
 
             _vertexData = new Vertex2DPositionColor[_maxBatchSize];
-            _tempVertices = new Vertex2DPositionColor[1000];
+            _tempVertices = new Vertex2DPositionColor[_maxBatchSize];
 
             _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(Vertex2DPositionColor)), BufferUsage.VertexBuffer));
             GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_vertexData.Length * sizeof(Vertex2DPositionColor)));
@@ -116,7 +121,13 @@ namespace ElementEngine
                 Outputs = output
             };
             
-            _pipeline = factory.CreateGraphicsPipeline(pipelineDescription);
+            _pipelineTriangleList = factory.CreateGraphicsPipeline(pipelineDescription);
+
+            pipelineDescription.PrimitiveTopology = PrimitiveTopology.LineStrip;
+            _pipelineLineLoop = factory.CreateGraphicsPipeline(pipelineDescription);
+
+            pipelineDescription.PrimitiveTopology = PrimitiveTopology.TriangleStrip;
+            _pipelineTriangleStrip = factory.CreateGraphicsPipeline(pipelineDescription);
         }
 
         public static void LoadStaticResources(ResourceFactory factory)
@@ -256,7 +267,75 @@ namespace ElementEngine
             _tempVertices[4] = bottomRight;
             _tempVertices[5] = topRight;
 
-            AddVertices(6);
+            AddVertices(_pipelineTriangleList, 6);
+        }
+
+        public void DrawOutlinedCircle(Vector2 position, float radius, RgbaFloat color, RgbaFloat lineColor, int quality = 10)
+        {
+            DrawFilledCircle(position, radius, color, quality);
+            DrawEmptyCircle(position, radius, lineColor, quality);
+        }
+
+        public void DrawEmptyCircle(Vector2 position, float radius, RgbaFloat color, int quality = 10)
+        {
+            var vertexCount = (int)(radius / quality) * 8;
+            var loopIndex = 0;
+
+            for (var i = 0f; i < 2 * MathF.PI; i += 2 * MathF.PI / vertexCount)
+            {
+                _tempVertices[loopIndex] = new Vertex2DPositionColor()
+                {
+                    Position = new Vector2(MathF.Cos(i) * radius + position.X, MathF.Sin(i) * radius + position.Y),
+                    Color = color,
+                };
+
+                loopIndex += 1;
+            }
+
+            _tempVertices[loopIndex] = new Vertex2DPositionColor()
+            {
+                Position = _tempVertices[0].Position,
+                Color = color,
+            };
+
+            loopIndex += 1;
+
+            AddVertices(_pipelineLineLoop, loopIndex);
+        }
+
+        public void DrawFilledCircle(Vector2 position, float radius, RgbaFloat color, int quality = 10)
+        {
+            var vertexCount = (int)(radius / quality) * 8;
+            var loopIndex = 0;
+
+            for (var i = 0f; i < 2 * MathF.PI; i += 2 * MathF.PI / vertexCount)
+            {
+                _tempVertices[loopIndex] = new Vertex2DPositionColor()
+                {
+                    Position = new Vector2(MathF.Cos(i) * radius + position.X, MathF.Sin(i) * radius + position.Y),
+                    Color = color,
+                };
+
+                loopIndex += 1;
+
+                _tempVertices[loopIndex] = new Vertex2DPositionColor()
+                {
+                    Position = position,
+                    Color = color,
+                };
+
+                loopIndex += 1;
+            }
+
+            _tempVertices[loopIndex] = new Vertex2DPositionColor()
+            {
+                Position = _tempVertices[0].Position,
+                Color = color,
+            };
+
+            loopIndex += 1;
+
+            AddVertices(_pipelineTriangleStrip, loopIndex);
         }
 
         public unsafe void Begin(Sampler sampler, Matrix4x4? view = null)
@@ -276,10 +355,18 @@ namespace ElementEngine
             CommandList.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
         }
 
-        protected void AddVertices(int count)
+        protected void AddVertices(Pipeline pipeline, int count)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
+
+            if (_currentPipeline == null || _currentPipeline != pipeline)
+            {
+                if (_currentPipeline != null)
+                    Flush();
+
+                _currentPipeline = pipeline;
+            }
 
             if (_currentBatchCount + count >= _vertexData.Length)
                 Flush();
@@ -302,16 +389,17 @@ namespace ElementEngine
 
         public unsafe void Flush()
         {
-            if (_currentBatchCount == 0)
+            if (_currentBatchCount == 0 || _currentPipeline == null)
                 return;
 
             CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_currentBatchCount * sizeof(Vertex2DPositionColor)));
             CommandList.SetVertexBuffer(0, _vertexBuffer);
-            CommandList.SetPipeline(_pipeline);
+            CommandList.SetPipeline(_currentPipeline);
             CommandList.SetGraphicsResourceSet(0, _transformSet);
             CommandList.Draw((uint)_currentBatchCount);
 
             _currentBatchCount = 0;
+            _currentPipeline = null;
         }
 
     } // PrimitiveBatch
