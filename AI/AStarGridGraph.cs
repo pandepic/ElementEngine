@@ -8,7 +8,6 @@ namespace ElementEngine
     //{
     //    public AStarGridGraph(int width, int height, int cellWidth, int cellHeight)
     //    {
-
     //    }
     //}
 }
