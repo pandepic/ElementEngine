@@ -237,7 +237,7 @@ namespace ElementEngine
         {
             var stopWatch = Stopwatch.StartNew();
 
-            var textureData = Image.Load<Rgba32>(fs);
+            using var textureData = Image.Load<Rgba32>(fs);
             var newTexture = new Texture2D(textureData.Width, textureData.Height, name);
             newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
 
