@@ -24,14 +24,14 @@ namespace ElementEngine
             CellObjects = new List<T>();
         }
 
-        public void Remove(T obj)
-        {
-            CellObjects.Remove(obj);
-        }
-
         public void Add(T obj)
         {
             CellObjects.Add(obj);
+        }
+
+        public void Remove(T obj)
+        {
+            CellObjects.Remove(obj);
         }
     } // SpatialGridCell
 
