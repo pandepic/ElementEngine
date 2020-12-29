@@ -247,6 +247,8 @@ namespace ElementEngine
                 throw new ArgumentException("This service type has already been added.", "service");
 
             EngineServices.Add(typeof(T), service);
+            service.Parent = this;
+
         } // AddEngineService
 
         public bool SubscribeEngineServiceMessages<T>(int messageType) where T : IEngineService
@@ -281,13 +283,13 @@ namespace ElementEngine
             return EngineServiceMessageSubscriptions[messageType].Remove(service);
         } // UnsubscribeEngineServiceMessages
 
-        public void SendEngineServiceMessage<T>(T message) where T : struct, IServiceMessage
+        public void SendServiceMessage(IServiceMessage message)
         {
             if (!EngineServiceMessageSubscriptions.ContainsKey(message.MessageType))
                 return;
 
             foreach (var service in EngineServiceMessageSubscriptions[message.MessageType])
-                service.HandleMessage<T>(message);
+                service.HandleMessage(message);
 
         } // SendEngineServiceMessage
 

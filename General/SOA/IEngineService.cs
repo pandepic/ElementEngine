@@ -6,6 +6,7 @@ namespace ElementEngine
 {
     public interface IEngineService
     {
-        public void HandleMessage<T>(T message) where T : struct, IServiceMessage;
+        public BaseGame Parent { get; set; }
+        public void HandleMessage(IServiceMessage message);
     }
 }
