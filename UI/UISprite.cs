@@ -186,6 +186,7 @@ namespace ElementEngine
                 width = 1;
 
             var texture = GraphicsHelper.Create3SliceTexture(width, TextureLeft, TextureCenter, TextureRight);
+
             Sprite?.Dispose();
             Sprite = new Sprite(texture);
         }
@@ -263,6 +264,7 @@ namespace ElementEngine
                 MiddleTextureLeft, MiddleTextureCenter, MiddleTextureRight,
                 BottomTextureLeft, BottomTextureCenter, BottomTextureRight);
 
+            Sprite?.Dispose();
             Sprite = new Sprite(texture);
         }
     } // UISpriteAuto9Slice
