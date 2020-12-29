@@ -24,6 +24,24 @@ namespace ElementEngine
             return streamOutput.ToArray();
         }
 
+        public static byte[] Zip(MemoryStream ms)
+        {
+            using var streamOutput = new MemoryStream();
+            using (var gs = new GZipStream(streamOutput, CompressionMode.Compress))
+                CopyTo(ms, gs);
+
+            return streamOutput.ToArray();
+        }
+
+        public static MemoryStream ZipToMS(MemoryStream ms)
+        {
+            using var streamOutput = new MemoryStream();
+            using (var gs = new GZipStream(streamOutput, CompressionMode.Compress))
+                CopyTo(ms, gs);
+
+            return streamOutput;
+        }
+
         public static string UnzipToString(byte[] bytes)
         {
             return Encoding.UTF8.GetString(Unzip(bytes));
