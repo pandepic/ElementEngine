@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
@@ -35,6 +36,10 @@ namespace ElementEngine
         // Game state
         public GameState CurrentGameState { get; set; } = null;
         protected bool _quit = false;
+
+        // Engine resources
+        public Dictionary<Type, IEngineService> EngineServices { get; set; } = new Dictionary<Type, IEngineService>();
+        public Dictionary<int, List<IEngineService>> EngineServiceMessageSubscriptions { get; set; } = new Dictionary<int, List<IEngineService>>();
 
         #region IDisposable
         protected bool _disposed = false;
@@ -229,6 +234,62 @@ namespace ElementEngine
         public virtual void Draw(GameTimer gameTimer)
         {
         }
+
+        public T GetEngineService<T>() where T : IEngineService
+        {
+            EngineServices.TryGetValue(typeof(T), out var service);
+            return (T)service;
+        } // GetEngineService
+
+        public void AddEngineService<T>(T service) where T : IEngineService
+        {
+            if (EngineServices.ContainsKey(typeof(T)))
+                throw new ArgumentException("This service type has already been added.", "service");
+
+            EngineServices.Add(typeof(T), service);
+        } // AddEngineService
+
+        public bool SubscribeEngineServiceMessages<T>(int messageType) where T : IEngineService
+        {
+            var service = GetEngineService<T>();
+            if (service == null)
+                throw new ArgumentException("Service type has not been added.", "T");
+
+            if (!EngineServiceMessageSubscriptions.ContainsKey(messageType))
+                EngineServiceMessageSubscriptions.Add(messageType, new List<IEngineService>());
+
+            if (!EngineServiceMessageSubscriptions[messageType].Contains(service))
+            {
+                EngineServiceMessageSubscriptions[messageType].Add(service);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        } // SubscribeEngineServiceMessages
+
+        public bool UnsubscribeEngineServiceMessages<T>(int messageType) where T : IEngineService
+        {
+            var service = GetEngineService<T>();
+            if (service == null)
+                throw new ArgumentException("Service type has not been added.", "T");
+
+            if (!EngineServiceMessageSubscriptions.ContainsKey(messageType))
+                return false;
+            
+            return EngineServiceMessageSubscriptions[messageType].Remove(service);
+        } // UnsubscribeEngineServiceMessages
+
+        public void SendEngineServiceMessage<T>(T message) where T : struct, IServiceMessage
+        {
+            if (!EngineServiceMessageSubscriptions.ContainsKey(message.MessageType))
+                return;
+
+            foreach (var service in EngineServiceMessageSubscriptions[message.MessageType])
+                service.HandleMessage<T>(message);
+
+        } // SendEngineServiceMessage
 
     } // BaseGame
 }
