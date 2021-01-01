@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Xml.Linq;
 
 namespace ElementEngine
 {
     public class Animation
     {
-        public static readonly int NO_ENDFRAME = -1;
+        public const int NO_ENDFRAME = -1;
 
         public float Duration { get; set; }
         public string Name { get; set; }
@@ -25,6 +25,74 @@ namespace ElementEngine
         {
             Duration = duration;
             FrameAddRange(min, max);
+        }
+
+        public Animation(XElement el)
+        {
+            Name = el.Attribute("Name").Value;
+
+            var attFlip = el.Attribute("Flip");
+            if (attFlip != null)
+                Flip = attFlip.Value.ToEnum<SpriteFlipType>();
+
+            var frames = el.Attribute("Frames").Value;
+            var durationAtt = el.Attribute("Duration");
+            var durationPerFrameAtt = el.Attribute("DurationPerFrame");
+            var endFrameAtt = el.Attribute("EndFrame");
+
+            if (durationAtt == null && durationPerFrameAtt == null)
+                throw new Exception("Animation " + Name + " must have either Duration or DurationPerFrame.");
+
+            if (endFrameAtt != null)
+                EndFrame = int.Parse(endFrameAtt.Value);
+
+            if (durationAtt != null)
+                Duration = float.Parse(durationAtt.Value);
+
+            foreach (var frameString in frames.Split(",", StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (frameString.Contains(">"))
+                {
+                    var frameRange = frameString.Split(">", StringSplitOptions.RemoveEmptyEntries);
+
+                    if (frameRange.Length < 2)
+                        throw new FormatException("Animation " + Name + " has an invalid frame range " + frameString);
+
+                    var min = int.Parse(frameRange[0]);
+                    var max = int.Parse(frameRange[1]);
+
+                    FrameAddRange(min, max);
+                }
+                else
+                {
+                    Frames.Add(int.Parse(frameString));
+                }
+            }
+
+            if (durationPerFrameAtt != null)
+                DurationPerFrame = float.Parse(durationPerFrameAtt.Value);
+        }
+
+        public XElement ToXElement()
+        {
+            var element = new XElement("Animation");
+
+            element.SetAttributeValue("Name", Name);
+            element.SetAttributeValue("DurationPerFrame", DurationPerFrame);
+            element.SetAttributeValue("Frames", FramesToString());
+
+            if (EndFrame != NO_ENDFRAME)
+                element.SetAttributeValue("EndFrame", EndFrame);
+
+            if (Flip.HasValue)
+                element.SetAttributeValue("Flip", Flip.Value.ToString());
+
+            return element;
+        }
+
+        public string FramesToString()
+        {
+            return string.Join(',', Frames);
         }
 
         public void SetFramesFromString(string str)

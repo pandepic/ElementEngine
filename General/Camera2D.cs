@@ -32,6 +32,8 @@ namespace ElementEngine
             }
         }
 
+        public Rectangle ScaledView => View / Zoom;
+
         protected Vector2 _position = Vector2.Zero;
         public Vector2 Position
         {

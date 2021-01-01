@@ -21,57 +21,8 @@ namespace ElementEngine
 
                 foreach (var animation in animationsDoc.Root.Elements("Animation"))
                 {
-                    var name = animation.Attribute("Name").Value;
-                    var frames = animation.Attribute("Frames").Value;
-                    SpriteFlipType? flip = null;
-
-                    var attFlip = animation.Attribute("Flip");
-                    if (attFlip != null)
-                        flip = attFlip.Value.ToEnum<SpriteFlipType>();
-
-                    var durationAtt = animation.Attribute("Duration");
-                    var durationPerFrameAtt = animation.Attribute("DurationPerFrame");
-                    var endFrameAtt = animation.Attribute("EndFrame");
-
-                    if (durationAtt == null && durationPerFrameAtt == null)
-                        throw new Exception("Animation " + name + " must have either Duration or DurationPerFrame.");
-
-                    var newAnimation = new Animation()
-                    {
-                        Name = name,
-                        Flip = flip
-                    };
-
-                    if (endFrameAtt != null)
-                        newAnimation.EndFrame = int.Parse(endFrameAtt.Value);
-
-                    if (durationAtt != null)
-                        newAnimation.Duration = float.Parse(durationAtt.Value);
-
-                    foreach (var frameString in frames.Split(",", StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (frameString.Contains(">"))
-                        {
-                            var frameRange = frameString.Split(">", StringSplitOptions.RemoveEmptyEntries);
-
-                            if (frameRange.Length < 2)
-                                throw new FormatException("Animation " + name + " has an invalid frame range " + frameString);
-
-                            var min = int.Parse(frameRange[0]);
-                            var max = int.Parse(frameRange[1]);
-
-                            newAnimation.FrameAddRange(min, max);
-                        }
-                        else
-                        {
-                            newAnimation.Frames.Add(int.Parse(frameString));
-                        }
-                    }
-
-                    if (durationPerFrameAtt != null)
-                        newAnimation.DurationPerFrame = float.Parse(durationPerFrameAtt.Value);
-
-                    _animations.Add(name, newAnimation);
+                    var newAnimation = new Animation(animation);
+                    _animations.Add(newAnimation.Name, newAnimation);
                     loadedCount += 1;
                 }
             }
