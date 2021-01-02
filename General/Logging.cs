@@ -41,5 +41,25 @@ namespace ElementEngine
         {
             _logger.Error(messageTemplate, propertyValues);
         }
+
+        public static void Warning(string messageTemplate)
+        {
+            _logger.Warning(messageTemplate);
+        }
+
+        public static void Warning(string messageTemplate, params object[] propertyValues)
+        {
+            _logger.Warning(messageTemplate, propertyValues);
+        }
+
+        public static void Fatal(string messageTemplate)
+        {
+            _logger.Fatal(messageTemplate);
+        }
+
+        public static void Fatal(string messageTemplate, params object[] propertyValues)
+        {
+            _logger.Fatal(messageTemplate, propertyValues);
+        }
     }
 }
