@@ -38,7 +38,7 @@ namespace ElementEngine
         protected bool _quit = false;
 
         // Engine resources
-        public Dictionary<Type, IEngineService> EngineServices { get; set; } = new Dictionary<Type, IEngineService>();
+        public List<IEngineService> EngineServices { get; set; } = new List<IEngineService>();
         public Dictionary<int, List<IEngineService>> EngineServiceMessageSubscriptions { get; set; } = new Dictionary<int, List<IEngineService>>();
 
         #region IDisposable
@@ -235,27 +235,20 @@ namespace ElementEngine
         {
         }
 
-        public T GetEngineService<T>() where T : IEngineService
-        {
-            EngineServices.TryGetValue(typeof(T), out var service);
-            return (T)service;
-        } // GetEngineService
-
         public void AddEngineService<T>(T service) where T : IEngineService
         {
-            if (EngineServices.ContainsKey(typeof(T)))
+            if (EngineServices.Contains(service))
                 throw new ArgumentException("This service type has already been added.", "service");
 
-            EngineServices.Add(typeof(T), service);
+            EngineServices.Add(service);
             service.Parent = this;
 
         } // AddEngineService
 
-        public bool SubscribeEngineServiceMessages<T>(int messageType) where T : IEngineService
+        public bool SubscribeEngineServiceMessages(int messageType, IEngineService service)
         {
-            var service = GetEngineService<T>();
-            if (service == null)
-                throw new ArgumentException("Service type has not been added.", "T");
+            if (!EngineServices.Contains(service))
+                throw new ArgumentException("Service has not been added.", "T");
 
             if (!EngineServiceMessageSubscriptions.ContainsKey(messageType))
                 EngineServiceMessageSubscriptions.Add(messageType, new List<IEngineService>());
@@ -271,11 +264,10 @@ namespace ElementEngine
             }
         } // SubscribeEngineServiceMessages
 
-        public bool UnsubscribeEngineServiceMessages<T>(int messageType) where T : IEngineService
+        public bool UnsubscribeEngineServiceMessages(int messageType, IEngineService service)
         {
-            var service = GetEngineService<T>();
-            if (service == null)
-                throw new ArgumentException("Service type has not been added.", "T");
+            if (!EngineServices.Contains(service))
+                throw new ArgumentException("Service has not been added.", "T");
 
             if (!EngineServiceMessageSubscriptions.ContainsKey(messageType))
                 return false;
