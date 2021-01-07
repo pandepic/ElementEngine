@@ -20,23 +20,14 @@ namespace ElementEngine
         {
             var type = widget.GetXMLAttribute(elName, "UISpriteType").Value.ToEnum<UISpriteType>();
 
-            switch (type)
+            return type switch
             {
-                case UISpriteType.Static:
-                    return new UISpriteStatic(widget, elName);
-
-                case UISpriteType.Animated:
-                    return new UISpriteAnimated(widget, elName);
-
-                case UISpriteType.Auto3Slice:
-                    return new UISpriteAuto3Slice(widget, elName);
-
-                case UISpriteType.Auto9Slice:
-                    return new UISpriteAuto9Slice(widget, elName);
-
-                default:
-                    throw new Exception("Unsupported UISpriteType type: " + type.ToString());
-            }
+                UISpriteType.Static => new UISpriteStatic(widget, elName),
+                UISpriteType.Animated => new UISpriteAnimated(widget, elName),
+                UISpriteType.Auto3Slice => new UISpriteAuto3Slice(widget, elName),
+                UISpriteType.Auto9Slice => new UISpriteAuto9Slice(widget, elName),
+                _ => throw new Exception("Unsupported UISpriteType type: " + type.ToString()),
+            };
         } // CreateUISprite
 
         public TexturePremultiplyType PremultiplyType { get; protected set; } = TexturePremultiplyType.None;

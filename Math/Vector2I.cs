@@ -69,7 +69,7 @@ namespace ElementEngine
 
         public override int GetHashCode()
         {
-            return X.GetHashCode() ^ Y.GetHashCode();
+            return HashCode.Combine(X, Y);
         }
 
         public static bool operator ==(Vector2I p1, Vector2I p2) => p1.X == p2.X && p1.Y == p2.Y;

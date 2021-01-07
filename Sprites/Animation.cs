@@ -21,6 +21,15 @@ namespace ElementEngine
         }
 
         public Animation() { }
+
+        public Animation(string name, string frames, float durationPerFrame, SpriteFlipType flip)
+        {
+            Name = name;
+            Flip = flip;
+            SetFramesFromString(frames);
+            DurationPerFrame = durationPerFrame;
+        }
+
         public Animation(int min, int max, float duration)
         {
             Duration = duration;

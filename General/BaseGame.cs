@@ -94,7 +94,7 @@ namespace ElementEngine
             {
                 SyncToVerticalBlank = vsync,
                 PreferStandardClipSpaceYDirection = true,
-            }, graphicsBackend.HasValue ? graphicsBackend.Value : VeldridStartup.GetPlatformDefaultBackend());
+            }, graphicsBackend ?? VeldridStartup.GetPlatformDefaultBackend());
 
             CreateGraphicsResources();
             GameTitle = gameTitle + " [" + ElementGlobals.GraphicsDevice.BackendType.ToString() + "]";
