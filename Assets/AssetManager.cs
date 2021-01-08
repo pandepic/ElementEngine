@@ -212,6 +212,8 @@ namespace ElementEngine
 
         public static Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
             if (_assetCache.ContainsKey(assetName))
                 return (Texture2D)_assetCache[assetName];
 
@@ -249,6 +251,8 @@ namespace ElementEngine
 
         public static SpriteFont LoadSpriteFont(string assetName)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
             if (_assetCache.ContainsKey(assetName))
                 return (SpriteFont)_assetCache[assetName];
 
@@ -266,6 +270,8 @@ namespace ElementEngine
 
         public static TiledMap LoadTiledMap(string assetName)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
             if (_assetCache.ContainsKey(assetName))
                 return (TiledMap)_assetCache[assetName];
 
@@ -283,6 +289,8 @@ namespace ElementEngine
 
         public static TiledTileset LoadTiledTileset(string assetName)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
             if (_assetCache.ContainsKey(assetName))
                 return (TiledTileset)_assetCache[assetName];
 
@@ -300,6 +308,8 @@ namespace ElementEngine
 
         public static OgmoLevel LoadOgmoLevel(string assetName)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
             if (_assetCache.ContainsKey(assetName))
                 return (OgmoLevel)_assetCache[assetName];
 
@@ -320,6 +330,9 @@ namespace ElementEngine
         /// </summary>
         public static AudioSource LoadAudioSourceByExtension(string assetName)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
+
             var path = GetAssetPath(assetName);
             var extension = Path.GetExtension(path);
 
@@ -355,6 +368,8 @@ namespace ElementEngine
 
         public static AudioSource LoadAudioSourceOggVorbis(string assetName)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
             if (_assetCache.ContainsKey(assetName))
                 return (AudioSource)_assetCache[assetName];
 
@@ -377,6 +392,8 @@ namespace ElementEngine
 
         public static EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
         {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
             if (_assetCache.ContainsKey(assetName))
                 return (EndlessTilesWorld)_assetCache[assetName];
 

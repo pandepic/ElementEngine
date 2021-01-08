@@ -15,6 +15,8 @@ namespace ElementEngine.UI
         public bool IsOpen = false;
         public ImGuiWindowFlags Flags;
 
+        public Vector2I MaxSize = new Vector2I(600, 600);
+
         public IMGUIModal(string name, ImGuiWindowFlags flags)
         {
             Name = name;
@@ -41,6 +43,7 @@ namespace ElementEngine.UI
             else
                return false;
 
+            ImGui.SetNextWindowSizeConstraints(Vector2I.Zero, MaxSize);
             _result = ImGui.BeginPopupModal(Name, ref IsOpen, Flags);
             return _result;
         }
