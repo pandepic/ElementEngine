@@ -27,6 +27,12 @@ namespace ElementEngine.UI
                 return;
 
             Renderer.Update(gameTimer.DeltaS, InputManager.PrevSnapshot);
+
+            foreach (var (_, modal) in Modals)
+            {
+                if (modal.IsOpen)
+                    modal.Update(gameTimer);
+            }
         }
 
         public static void Draw()

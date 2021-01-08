@@ -45,6 +45,7 @@ namespace ElementEngine.UI
             return _result;
         }
 
+        public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw() { }
 
         public void End()
