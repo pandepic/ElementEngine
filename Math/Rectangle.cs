@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -12,11 +13,15 @@ namespace ElementEngine
         public int Width { get; set; }
         public int Height { get; set; }
 
+        [JsonIgnore]
         public bool IsZero => X == 0 && Y == 0 && Width == 0 && Height == 0;
 
         public static Rectangle Empty = new Rectangle(0, 0, 0, 0);
+        
+        [JsonIgnore]
         public bool IsEmpty => this == Empty;
 
+        [JsonIgnore]
         public Vector2I Location
         {
             get => new Vector2I(X, Y);
@@ -27,6 +32,7 @@ namespace ElementEngine
             }
         }
 
+        [JsonIgnore]
         public Vector2 LocationF
         {
             get => new Vector2(X, Y);
@@ -37,16 +43,19 @@ namespace ElementEngine
             }
         }
 
+        [JsonIgnore]
         public Vector2I BottomRight
         {
             get => new Vector2I(Right, Bottom);
         }
 
+        [JsonIgnore]
         public Vector2 BottomRightF
         {
             get => new Vector2(Right, Bottom);
         }
 
+        [JsonIgnore]
         public Vector2I Size
         {
             get => new Vector2I(Width, Height);
@@ -57,6 +66,7 @@ namespace ElementEngine
             }
         }
 
+        [JsonIgnore]
         public Vector2 SizeF
         {
             get => new Vector2(Width, Height);
@@ -67,8 +77,10 @@ namespace ElementEngine
             }
         }
 
+        [JsonIgnore]
         public System.Drawing.Rectangle DrawingRectangle => new System.Drawing.Rectangle(X, Y, Width, Height);
 
+        [JsonIgnore]
         public int Left
         {
             get => X;
@@ -78,6 +90,7 @@ namespace ElementEngine
             }
         }
 
+        [JsonIgnore]
         public int Right
         {
             get => X + Width;
@@ -87,6 +100,7 @@ namespace ElementEngine
             }
         }
 
+        [JsonIgnore]
         public int Top
         {
             get => Y;
@@ -96,6 +110,7 @@ namespace ElementEngine
             }
         }
 
+        [JsonIgnore]
         public int Bottom
         {
             get => Y + Height;
@@ -104,8 +119,10 @@ namespace ElementEngine
                 Height = value - Y;
             }
         }
-
+        
+        [JsonIgnore]
         public Vector2I Center => new Vector2I(X + Width / 2, Y + Height / 2);
+        [JsonIgnore]
         public Vector2 CenterF => new Vector2(X + Width / 2f, Y + Height / 2f);
 
         public Rectangle(Vector2 location, Vector2 size)
