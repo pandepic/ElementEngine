@@ -75,6 +75,9 @@ namespace ElementEngine
             BytesPerPixel = GraphicsHelper.GetPixelFormatBytesPerPixel(format);
         }
 
+        public Texture2D(int width, int height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
+            : this((uint)width, (uint)height, color, name, format, usage) { }
+
         public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
             : this(width, height, name, format, usage)
         {
