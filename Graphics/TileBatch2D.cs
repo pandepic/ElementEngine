@@ -130,15 +130,18 @@ namespace ElementEngine
         }
         #endregion
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
-            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, wrapMode, tileAnimations) { }
+        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, Texture2D targetTexture, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
+            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, targetTexture.SizeF, targetTexture.GetFramebuffer().OutputDescription, wrapMode, tileAnimations) { }
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, OutputDescription output, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
+        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
+            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, null, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, wrapMode, tileAnimations) { }
+
+        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, Vector2? viewportSize, OutputDescription output, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
         {
             MapWidth = mapWidth;
             MapHeight = mapHeight;
-
-            ViewportSize = new Vector2(Window.Width, Window.Height);
+            
+            ViewportSize = viewportSize ?? new Vector2(Window.Width, Window.Height);
             ScaledViewportSize = ViewportSize;
 
             TileSize = new Vector2(tileWidth, tileHeight);
