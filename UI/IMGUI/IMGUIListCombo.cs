@@ -32,7 +32,7 @@ namespace ElementEngine.UI
                 _data[i] = List[i].ToString();
 
             if (_selectedIndex >= _data.Length)
-                _selectedIndex = _data.Length;
+                _selectedIndex = _data.Length - 1;
         }
 
         public void Draw()
