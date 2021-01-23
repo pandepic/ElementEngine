@@ -33,6 +33,9 @@ namespace ElementEngine.UI
 
             if (_selectedIndex >= _data.Length)
                 _selectedIndex = _data.Length - 1;
+
+            if (_selectedIndex < 0)
+                _selectedIndex = 0;
         }
 
         public void Draw()
@@ -93,7 +96,10 @@ namespace ElementEngine.UI
                 _data[i] = Data[i].ToString();
 
             if (_selectedIndex >= _data.Length)
-                _selectedIndex = _data.Length;
+                _selectedIndex = _data.Length - 1;
+
+            if (_selectedIndex < 0)
+                _selectedIndex = 0;
         }
 
         public void Draw()
