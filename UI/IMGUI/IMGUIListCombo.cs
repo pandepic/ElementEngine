@@ -26,6 +26,9 @@ namespace ElementEngine.UI
 
         public void RefreshData()
         {
+            if (List == null)
+                return;
+
             _data = new string[List.Count];
 
             for (var i = 0; i < List.Count; i++)
@@ -90,6 +93,9 @@ namespace ElementEngine.UI
 
         public void RefreshData()
         {
+            if (Data == null)
+                return;
+
             _data = new string[Data.Length];
 
             for (var i = 0; i < Data.Length; i++)
