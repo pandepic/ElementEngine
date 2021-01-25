@@ -4,6 +4,7 @@ using ElementEngine.Tiled;
 using FontStashSharp;
 using NAudio.Vorbis;
 using NAudio.Wave;
+using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Gif;
@@ -208,6 +209,19 @@ namespace ElementEngine
         {
             stopWatch.Stop();
             Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
+        }
+
+        public static T LoadJSON<T>(string assetName)
+        {
+            var stopWatch = Stopwatch.StartNew();
+
+            using var streamReader = new StreamReader(AssetManager.GetAssetStream(assetName));
+            using var jsonTextReader = new JsonTextReader(streamReader);
+            var serializer = new JsonSerializer();
+            var obj = serializer.Deserialize<T>(jsonTextReader);
+
+            LogLoaded("JSON (" + typeof(T).ToString() + ")", assetName, stopWatch);
+            return obj;
         }
 
         public static Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None)
