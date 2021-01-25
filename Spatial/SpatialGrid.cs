@@ -108,6 +108,12 @@ namespace ElementEngine
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<T> GetGridCellObjects(Vector2I position)
+        {
+            return GetGridCellObjects(position.X, position.Y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public List<T> GetGridCellObjects(int x, int y)
         {
             return Grid[x + GridWidth * y].CellObjects;
