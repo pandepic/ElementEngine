@@ -47,6 +47,8 @@ namespace ElementEngine
         public int GridWidthUnits { get; set; }
         public int GridHeightUnits { get; set; }
 
+        public HashSet<T> SharedHashSet { get; set; } = new HashSet<T>();
+
         /// <summary>
         /// 
         /// </summary>
@@ -96,6 +98,12 @@ namespace ElementEngine
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Vector2I GetCellPosition(Vector2I position)
+        {
+            return new Vector2I(position.X / CellWidth, position.Y / CellHeight);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector2I GetCellPosition(Vector2 position)
         {
             return new Vector2I((int)position.X / CellWidth, (int)position.Y / CellHeight);
@@ -117,6 +125,28 @@ namespace ElementEngine
         public List<T> GetGridCellObjects(int x, int y)
         {
             return Grid[x + GridWidth * y].CellObjects;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HashSet<T> GetGridCellObjects(Rectangle rect)
+        {
+            SharedHashSet.Clear();
+
+            var topLeftCell = GetGridCellObjects(GetCellPosition(new Vector2I(rect.Left, rect.Top)));
+            var topRightCell = GetGridCellObjects(GetCellPosition(new Vector2I(rect.Right, rect.Top)));
+            var bottomLeftCell = GetGridCellObjects(GetCellPosition(new Vector2I(rect.Left, rect.Bottom)));
+            var bottomRightCell = GetGridCellObjects(GetCellPosition(new Vector2I(rect.Right, rect.Bottom)));
+
+            for (var i = 0; i < topLeftCell.Count; i++)
+                SharedHashSet.Add(topLeftCell[i]);
+            for (var i = 0; i < topRightCell.Count; i++)
+                SharedHashSet.Add(topRightCell[i]);
+            for (var i = 0; i < bottomLeftCell.Count; i++)
+                SharedHashSet.Add(bottomLeftCell[i]);
+            for (var i = 0; i < bottomRightCell.Count; i++)
+                SharedHashSet.Add(bottomRightCell[i]);
+
+            return SharedHashSet;
         }
     } // SpatialGrid
 }
