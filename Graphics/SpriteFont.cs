@@ -42,7 +42,7 @@ namespace ElementEngine
 
     public class SpriteFont : IDisposable
     {
-        internal static readonly int FontStashSize = 8000;
+        internal static readonly int FontStashSize = 1024;
         internal static FontTextureCreator FontTextureCreator = new FontTextureCreator();
 
         public Dictionary<int, FontSystem> FontSystemsByOutlineSize { get; set; } = new Dictionary<int, FontSystem>();
