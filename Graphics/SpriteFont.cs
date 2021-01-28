@@ -25,7 +25,10 @@ namespace ElementEngine
 
         public void SetData(System.Drawing.Rectangle bounds, byte[] data)
         {
-            Texture.SetData(bounds, data);
+            if (data.Length % 4 != 0)
+                throw new Exception("Byte buffer has invalid format, must be 4 bytes per pixel in RGBA order.");
+
+            Texture.SetData(data, new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height));
         }
     } // FontTexture
 

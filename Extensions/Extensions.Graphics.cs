@@ -81,6 +81,8 @@ namespace ElementEngine
         #endregion
 
         #region Veldrid buffer extensions
+
+        [Obsolete("Inefficient")]
         public static RgbaByte[] ToRgbaByte(this byte[] buffer)
         {
             if (buffer.Length % 4 != 0)
@@ -95,6 +97,7 @@ namespace ElementEngine
             return data;
         }
 
+        [Obsolete("Inefficient")]
         public static RgbaFloat[] ToRgbaFloat(this byte[] buffer)
         {
             if (buffer.Length % 4 != 0)
@@ -109,6 +112,7 @@ namespace ElementEngine
             return data;
         }
 
+        [Obsolete("Inefficient")]
         public static Rgba32[] ToRgba32(this byte[] buffer)
         {
             if (buffer.Length % 4 != 0)
@@ -125,20 +129,16 @@ namespace ElementEngine
 
         public static RgbaByte[] ToBuffer(this RgbaByte color, int size)
         {
-            var data = new RgbaByte[size];
-            for (var i = 0; i < data.Length; i++)
-                data[i] = color;
-
-            return data;
+            var buffer = new RgbaByte[size];
+            buffer.AsSpan().Fill(color);
+            return buffer;
         }
 
         public static RgbaFloat[] ToBuffer(this RgbaFloat color, int size)
         {
-            var data = new RgbaFloat[size];
-            for (var i = 0; i < data.Length; i++)
-                data[i] = color;
-
-            return data;
+            var buffer = new RgbaFloat[size];
+            buffer.AsSpan().Fill(color);
+            return buffer;
         }
 
         #endregion

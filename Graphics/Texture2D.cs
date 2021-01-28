@@ -1,7 +1,9 @@
 ﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Veldrid;
 
@@ -101,26 +103,37 @@ namespace ElementEngine
 
         } // SetName
 
-        public void SetData<T>(ReadOnlySpan<T> data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None) where T : unmanaged
-        {
-            SetData(data.ToArray(), area, premultiplyType);
-        }
-
-        /// <summary>
-        /// Specifically used by FontStashSharp for font atlas rendering.
-        /// </summary>
-        public void SetData(System.Drawing.Rectangle bounds, byte[] byteData)
-        {
-            SetData(byteData.ToRgbaByte(), new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height));
-        }
-
-        public void SetData<T>(T[] data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None) where T : unmanaged
+        public unsafe void SetData<T>(
+            ReadOnlySpan<T> data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None)
+            where T : unmanaged
         {
             Rectangle rect = area ?? new Rectangle(0, 0, Width, Height);
-            GraphicsDevice.UpdateTexture(Texture, data, (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
 
+            fixed (T* ptr = data)
+            {
+                int byteCount = data.Length * Unsafe.SizeOf<T>();
+                GraphicsDevice.UpdateTexture(
+                    Texture, (IntPtr)ptr, (uint)byteCount,
+                    (uint)rect.X, (uint)rect.Y, 0, (uint)rect.Width, (uint)rect.Height, 1, 0, 0);
+            }
+
+            // TODO: Optimize
             if (premultiplyType != TexturePremultiplyType.None)
                 ApplyPremultiply(premultiplyType);
+        }
+
+        public void SetData<T>(
+            Span<T> data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None)
+            where T : unmanaged
+        {
+            SetData((ReadOnlySpan<T>)data, area, premultiplyType);
+        }
+
+        public void SetData<T>(
+            T[] data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None)
+            where T : unmanaged
+        {
+            SetData(data.AsSpan(), area, premultiplyType);
         }
 
         /// <summary>
@@ -191,10 +204,12 @@ namespace ElementEngine
 
         public void ApplyPremultiply(TexturePremultiplyType type)
         {
+            // TODO: Optimize
+
             if (type == TexturePremultiplyType.None)
                 return;
 
-            var data = GetData().ToRgbaByte();
+            Span<RgbaByte> data = MemoryMarshal.Cast<byte, RgbaByte>(GetData());
 
             for (var i = 0; i < data.Length; i++)
             {
@@ -218,8 +233,10 @@ namespace ElementEngine
 
         public void SaveAsPng(FileStream fs)
         {
-            var tempData = GetData();
-            var data = tempData.ToRgba32();
+            byte[] rawData = GetData();
+            ReadOnlySpan<Rgba32> data = MemoryMarshal.Cast<byte, Rgba32>(rawData);
+
+            // TODO: optimize by loading staging texture directly
 
             var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
