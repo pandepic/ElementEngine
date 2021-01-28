@@ -1,24 +1,18 @@
 ﻿using ElementEngine.EndlessTiles;
 using ElementEngine.Ogmo;
 using ElementEngine.Tiled;
-using FontStashSharp;
 using NAudio.Vorbis;
 using NAudio.Wave;
 using Newtonsoft.Json;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Formats.Gif;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
 using System.Xml.Linq;
-using Veldrid.ImageSharp;
 
 namespace ElementEngine
 {
@@ -44,8 +38,8 @@ namespace ElementEngine
 
     public static class AssetManager
     {
-        private static readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
-        private static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
+        public static readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
+        public static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
         private static readonly List<string> _removeList = new List<string>();
 
         public static void Load(string modsPath, LoadAssetsMode? mode = null)
@@ -215,11 +209,11 @@ namespace ElementEngine
         {
             var stopWatch = Stopwatch.StartNew();
 
-            using var streamReader = new StreamReader(AssetManager.GetAssetStream(assetName));
+            using var streamReader = new StreamReader(GetAssetStream(assetName));
             using var jsonTextReader = new JsonTextReader(streamReader);
             var serializer = new JsonSerializer();
             var obj = serializer.Deserialize<T>(jsonTextReader);
-
+            
             LogLoaded("JSON (" + typeof(T).ToString() + ")", assetName, stopWatch);
             return obj;
         }

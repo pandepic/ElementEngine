@@ -32,7 +32,12 @@ namespace ElementEngine
         {
             return new RgbaVector(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
         }
-        
+
+        public static RgbaByte ToRgbaByte(this System.Drawing.Color color)
+        {
+            return new RgbaByte(color.R, color.G, color.B, color.A);
+        }
+
         public static System.Drawing.Color ToDrawingColor(this RgbaByte color)
         {
             return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);

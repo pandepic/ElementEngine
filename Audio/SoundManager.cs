@@ -106,7 +106,8 @@ namespace ElementEngine
         public AudioInstance(AudioSource source)
         {
             AssetName = source.AssetName;
-
+            
+            Data?.Dispose();
             Data = new MemoryStream(source.Data.ToArray());
             StreamStartPosition = source.Data.Position;
 
