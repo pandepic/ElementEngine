@@ -90,6 +90,8 @@ namespace ElementEngine
         protected RgbaByte[] _dataArray;
         protected bool _currentLayerEnded = false;
 
+        protected RgbaByte[] _updateTileBuffer = new RgbaByte[1];
+
         #region IDisposable
         protected bool _disposed = false;
 
@@ -321,18 +323,73 @@ namespace ElementEngine
             SetTileAtPosition(posx, posy, x, y, animIndex);
         }
 
-        public void SetTileAtIndex(int index, byte x, byte y, byte animIndex = 0)
-        {
-            _dataArray[index] = new RgbaByte(x, y, animIndex, 255);
-            _currentLayerEnded = false;
-        }
-
         public void SetTileAtIndex(int index, int tileIndex)
         {
             byte x = (byte)(tileIndex % TileSheetTilesWidth);
             byte y = (byte)(tileIndex / TileSheetTilesWidth);
 
             SetTileAtIndex(index, x, y);
+        }
+
+        public void SetTileAtIndex(int index, byte x, byte y, byte animIndex = 0)
+        {
+            _dataArray[index] = new RgbaByte(x, y, animIndex, 255);
+            _currentLayerEnded = false;
+        }
+
+        public void UpdateTileAtPosition(int posx, int posy, int tileIndex, int layer)
+        {
+            byte x = (byte)(tileIndex % TileSheetTilesWidth);
+            byte y = (byte)(tileIndex / TileSheetTilesWidth);
+
+            byte animIndex = 0;
+            if (_animationLookup.TryGetValue(tileIndex, out var animation))
+                animIndex = (byte)animation.Index;
+
+            UpdateTileAtPosition(posx, posy, x, y, layer, animIndex);
+        }
+
+        public void UpdateTileAtIndex(int index, int tileIndex, int layer)
+        {
+            byte x = (byte)(tileIndex % TileSheetTilesWidth);
+            byte y = (byte)(tileIndex / TileSheetTilesWidth);
+            int posx = index % MapWidth;
+            int posy = index / MapWidth;
+
+            UpdateTileAtPosition(posx, posy, x, y, layer);
+        }
+
+        public void UpdateTileAtPosition(int posx, int posy, byte x, byte y, int layer, byte animIndex = 0)
+        {
+            _updateTileBuffer[0] = new RgbaByte(x, y, animIndex, 255);
+            Layers[layer].DataTexture.SetData(_updateTileBuffer, new Rectangle(posx, posy, 1, 1));
+        }
+
+        public void ClearTileAtPosition(int posx, int posy, int layer)
+        {
+            _updateTileBuffer[0] = new RgbaByte(255, 255, 0, 255);
+            Layers[layer].DataTexture.SetData(_updateTileBuffer, new Rectangle(posx, posy, 1, 1));
+        }
+
+        public void UpdateTileArea(int[] tileIndexes, Rectangle area, int layer)
+        {
+            var buffer = new RgbaByte[area.Width * area.Height];
+
+            for (var bY = 0; bY < area.Height; bY++)
+            {
+                for (var bX = 0; bX < area.Width; bX++)
+                {
+                    var index = bX + area.Width * bY;
+                    var tileIndex = tileIndexes[index];
+
+                    byte x = (byte)(tileIndex % TileSheetTilesWidth);
+                    byte y = (byte)(tileIndex / TileSheetTilesWidth);
+
+                    buffer[index] = new RgbaByte(x, y, 0, 255);
+                }
+            }
+
+            Layers[layer].DataTexture.SetData(buffer, area);
         }
 
         public void BeginBuild()
@@ -453,6 +510,8 @@ namespace ElementEngine
         {
             if (Layers.Count <= 0)
                 return;
+
+            position = position.ToVector2I();
 
             if (start >= Layers.Count)
                 start = Layers.Count - 1;
