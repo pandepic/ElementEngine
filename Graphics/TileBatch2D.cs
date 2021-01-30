@@ -371,6 +371,16 @@ namespace ElementEngine
             Layers[layer].DataTexture.SetData(_updateTileBuffer, new Rectangle(posx, posy, 1, 1));
         }
 
+        public void ClearTileArea(Rectangle area, int layer)
+        {
+            var buffer = new RgbaByte[area.Width * area.Height];
+
+            for (var i = 0; i < buffer.Length; i++)
+                buffer[i] = new RgbaByte(255, 255, 0, 255);
+
+            Layers[layer].DataTexture.SetData(buffer, area);
+        }
+
         public void UpdateTileArea(int[] tileIndexes, Rectangle area, int layer)
         {
             var buffer = new RgbaByte[area.Width * area.Height];
@@ -382,10 +392,17 @@ namespace ElementEngine
                     var index = bX + area.Width * bY;
                     var tileIndex = tileIndexes[index];
 
-                    byte x = (byte)(tileIndex % TileSheetTilesWidth);
-                    byte y = (byte)(tileIndex / TileSheetTilesWidth);
+                    if (tileIndex < 0)
+                    {
+                        buffer[index] = new RgbaByte(255, 255, 0, 255);
+                    }
+                    else
+                    {
+                        byte x = (byte)(tileIndex % TileSheetTilesWidth);
+                        byte y = (byte)(tileIndex / TileSheetTilesWidth);
 
-                    buffer[index] = new RgbaByte(x, y, 0, 255);
+                        buffer[index] = new RgbaByte(x, y, 0, 255);
+                    }
                 }
             }
 
