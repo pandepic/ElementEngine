@@ -157,6 +157,7 @@ namespace ElementEngine
             commandList.End();
             GraphicsDevice.SubmitCommands(commandList);
             GraphicsDevice.WaitForIdle();
+            commandList.Dispose();
 
             texture = temp;
             return true;
