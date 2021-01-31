@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace ElementEngine
@@ -9,6 +10,68 @@ namespace ElementEngine
     public static partial class Extensions
     {
         private static readonly FastRandom _rng = new FastRandom();
+
+        #region Get/Set array and list by x/y positions (useful in tile maps etc.)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetByXY<T>(this T[] array, int x, int y, int width)
+        {
+            return array[x + width * y];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetByXY<T>(this T[] array, Vector2I xy, int width)
+        {
+            return array[xy.X + width * xy.Y];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetByXY<T>(this T[] array, int x, int y, int width, T value)
+        {
+            array[x + width * y] = value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetByXY<T>(this T[] array, Vector2I xy, int width, T value)
+        {
+            array[xy.X + width * xy.Y] = value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIndexFromXY<T>(this T[] array, int x, int y, int width)
+        {
+            return x + width * y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIndexFromXY<T>(this T[] array, Vector2I xy, int width)
+        {
+            return xy.X + width * xy.Y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetByXY<T>(this List<T> list, int x, int y, int width, T value)
+        {
+            list[x + width * y] = value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetByXY<T>(this List<T> list, Vector2I xy, int width, T value)
+        {
+            list[xy.X + width * xy.Y] = value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIndexFromXY<T>(this List<T> list, int x, int y, int width)
+        {
+            return x + width * y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetIndexFromXY<T>(this List<T> list, Vector2I xy, int width)
+        {
+            return xy.X + width * xy.Y;
+        }
+        #endregion
 
         public static void AddOrSet<TKey, TValue>(this Dictionary<TKey, TValue> d, TKey key, TValue value)
         {
