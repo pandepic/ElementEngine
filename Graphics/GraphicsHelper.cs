@@ -76,17 +76,11 @@ namespace ElementEngine
             var currentX = 0;
             var endX = width;
 
-            if (left != null)
-            {
-                currentX += left.Width;
-                spriteBatch.DrawTexture2D(atlas, new Vector2(0, 0), left);
-            }
+            currentX += left.Width;
+            spriteBatch.DrawTexture2D(atlas, new Vector2(0, 0), left);
 
-            if (right != null)
-            {
-                endX = width - right.Width;
-                spriteBatch.DrawTexture2D(atlas, new Vector2(endX, 0), right);
-            }
+            endX = width - right.Width;
+            spriteBatch.DrawTexture2D(atlas, new Vector2(endX, 0), right);
 
             while (currentX < endX)
             {
