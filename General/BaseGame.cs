@@ -108,11 +108,11 @@ namespace ElementEngine
             AssetManager.Load(modsPath);
         }
 
-        public virtual void CreateGraphicsResources()
+        public void CreateGraphicsResources()
         {
             var factory = GraphicsDevice.ResourceFactory;
             ElementGlobals.CommandList = factory.CreateCommandList();
-        } // CreateGraphicsResources
+        }
 
         public void EnableFixedTimeStep(int targetFPS)
         {
