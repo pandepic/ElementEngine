@@ -122,6 +122,11 @@ namespace ElementEngine
             return list[list.Count - 1];
         }
 
+        public static void RemoveLastItem<T>(this List<T> list)
+        {
+            list.RemoveAt(list.Count - 1);
+        }
+
         public static bool ListCompare<T>(this List<T> list1, List<T> list2)
         {
             return list1.All(list2.Contains);
