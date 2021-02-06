@@ -30,6 +30,7 @@ namespace ElementEngine
         /// Shared object list used for things like getting object collisions
         /// </summary>
         public HashSet<T> SharedObjectSet { get; set; } = new HashSet<T>();
+        public HashSet<Vector2I> SharedCellSet { get; set; } = new HashSet<Vector2I>();
 
         public Vector2I CellSize;
 
@@ -170,7 +171,20 @@ namespace ElementEngine
             }
 
             return SharedObjectSet;
-        }
+        } // IntersectsRect
 
+        public HashSet<Vector2I> GetObjectCellPositions(T obj)
+        {
+            SharedCellSet.Clear();
+
+            for (var i = 0; i < ObjectCellsMap[obj].Count; i++)
+            {
+                var cell = ObjectCellsMap[obj][i];
+                SharedCellSet.Add(cell.Position);
+            }
+
+            return SharedCellSet;
+        }
+        
     } // SpatialHash
 }
