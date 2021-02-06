@@ -125,6 +125,14 @@ namespace ElementEngine
         [JsonIgnore]
         public Vector2 CenterF => new Vector2(X + Width / 2f, Y + Height / 2f);
 
+        public Rectangle(Vector2I location, Vector2I size)
+        {
+            X = location.X;
+            Y = location.Y;
+            Width = size.X;
+            Height = size.Y;
+        }
+
         public Rectangle(Vector2 location, Vector2 size)
         {
             X = (int)location.X;
