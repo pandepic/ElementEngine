@@ -37,24 +37,6 @@ namespace ElementEngine
         BottomRight
     }
 
-    public class SpriteBatchItem : IPoolable
-    {
-        public Vertex2DPositionTexCoordsColor[] VertexData;
-        public Texture2D Texture;
-
-        public SpriteBatchItem()
-        {
-            VertexData = new Vertex2DPositionTexCoordsColor[SpriteBatch2D.VerticesPerQuad];
-        }
-
-        public bool IsAlive { get; set; }
-
-        public void Reset()
-        {
-            Texture = null;
-        }
-    }
-
     public class SpriteBatch2D : IDisposable, IFontStashRenderer
     {
         public Sdl2Window Window => ElementGlobals.Window;
