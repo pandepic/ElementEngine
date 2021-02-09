@@ -90,5 +90,5 @@ namespace ElementEngine
         public static implicit operator Vector2I(Vector2 v) => new Vector2I(v);
         public static implicit operator Vector2(Vector2I v) => new Vector2(v.X, v.Y);
 
-    } // Point
+    } // Vector2I
 }

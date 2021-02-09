@@ -33,6 +33,11 @@ namespace ElementEngine
             return new Vector2I((int)v.X, (int)v.Y);
         }
 
+        public static Vector3I ToVector3I(this Vector3 v)
+        {
+            return new Vector3I((int)v.X, (int)v.Y, (int)v.Z);
+        }
+
         public static float GetDistance(this Vector2 vec1, Vector2 vec2)
         {
             return MathF.Sqrt(MathF.Pow(vec2.X - vec1.X, 2) + MathF.Pow(vec2.Y - vec1.Y, 2));
