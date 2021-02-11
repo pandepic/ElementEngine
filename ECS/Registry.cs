@@ -105,8 +105,11 @@ namespace ElementEngine.ECS
             return ref componentStore.GetRef(entityID);
         }
 
-        public Group RegisterGroup(Type[] componentTypes)
+        public Group RegisterGroup(params Type[] componentTypes)
         {
+            if (componentTypes.Length == 0)
+                throw new Exception("Can't register a group with no component types");
+
             if (_nextEntityID > 0)
                 throw new Exception("Must register groups before creating entities");
 
@@ -118,26 +121,17 @@ namespace ElementEngine.ECS
 
         public Group RegisterGroup<T>() where T : struct
         {
-            return RegisterGroup(new Type[] {
-                typeof(T)
-            });
+            return RegisterGroup(typeof(T));
         }
 
         public Group RegisterGroup<T, U>() where T : struct where U : struct
         {
-            return RegisterGroup(new Type[] {
-                typeof(T),
-                typeof(U)
-            });
+            return RegisterGroup(typeof(T), typeof(U));
         }
 
         public Group RegisterGroup<T, U, V>() where T : struct where U : struct where V : struct
         {
-            return RegisterGroup(new Type[] {
-                typeof(T),
-                typeof(U),
-                typeof(V)
-            });
+            return RegisterGroup(typeof(T), typeof(U), typeof(V));
         }
 
         public View<T> View<T>() where T : struct
