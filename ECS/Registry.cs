@@ -107,8 +107,8 @@ namespace ElementEngine.ECS
 
         public Group RegisterGroup(params Type[] componentTypes)
         {
-            if (componentTypes.Length == 0)
-                throw new Exception("Can't register a group with no component types");
+            if (componentTypes == null || componentTypes.Length == 0)
+                throw new Exception("Can't register a group without valid component types");
 
             if (_nextEntityID > 0)
                 throw new Exception("Must register groups before creating entities");
