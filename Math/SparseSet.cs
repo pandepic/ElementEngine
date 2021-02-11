@@ -97,6 +97,18 @@ namespace ElementEngine
             Size = 0;
         }
 
+        public virtual void Remove(int value)
+        {
+            if (!Contains(value))
+                throw new ArgumentException("Value is not contained in this SparseSet", "value");
+
+            var index = GetIndex(value);
+
+            Dense[index] = Dense[Size - 1];
+            Sparse[Dense[Size - 1]] = index;
+            Size -= 1;
+        }
+
         public virtual bool TryRemove(int value)
         {
             if (!Contains(value))
@@ -181,12 +193,20 @@ namespace ElementEngine
             return true;
         }
 
-        public new bool TryRemove(int id)
+        public override void Remove(int id)
+        {
+            base.Remove(id);
+            var index = GetIndex(id);
+            Data[index] = Data[Size];
+        }
+
+        public override bool TryRemove(int id)
         {
             if (base.TryRemove(id))
             {
                 var index = GetIndex(id);
                 Data[index] = Data[Size];
+                Data[Size] = default;
                 return true;
             }
 
