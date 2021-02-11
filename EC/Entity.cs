@@ -16,7 +16,12 @@ namespace ElementEngine.EC
                 Components[i].Update(gameTimer);
         }
 
-        public T GetComponent<T>() where T : IComponent
+        public void AddComponent<T>(T component) where T : class, IComponent
+        {
+            Components.Add(component);
+        }
+
+        public T GetComponent<T>() where T : class, IComponent
         {
             for (var i = 0; i < Components.Count; i++)
             {
@@ -26,10 +31,10 @@ namespace ElementEngine.EC
                     return converted;
             }
 
-            return default;
+            return null;
         } // GetComponent
 
-        public bool TryGetComponent<T>(out T component) where T : IComponent
+        public bool TryGetComponent<T>(out T component) where T : class, IComponent
         {
             component = GetComponent<T>();
             return component != null;
