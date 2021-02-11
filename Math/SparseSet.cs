@@ -126,7 +126,7 @@ namespace ElementEngine
         public int SparseSetID { get; set; }
     }
 
-    public class SparseSet<T> : SparseSet, IEnumerable<T> where T : ISparseSetObject
+    public class SparseSet<T> : SparseSet, IEnumerable<T>
     {
         public T[] Data;
         protected int _nextID = 0;
@@ -147,8 +147,9 @@ namespace ElementEngine
             return false;
         }
 
-        public bool TryAdd(T obj)
+        public bool TryAdd(T obj, out int id)
         {
+            id = _nextID;
             return TryAdd(obj, _nextID);
         }
 
@@ -160,7 +161,6 @@ namespace ElementEngine
             if (TryAdd(id, out var newIndex))
             {
                 Data[newIndex] = obj;
-                obj.SparseSetID = id;
 
                 if (id == _nextID)
                     _nextID += 1;
@@ -171,6 +171,7 @@ namespace ElementEngine
             return false;
         }
 
+        public ref T GetRef(int id) => ref Data[GetIndex(id)];
         public T Get(int id) => Data[GetIndex(id)];
 
         public bool TryGet(int id, out T obj)
@@ -185,8 +186,6 @@ namespace ElementEngine
             return true;
         }
 
-        public bool TryRemove(T obj) => TryRemove(obj.SparseSetID);
-
         public new bool TryRemove(int id)
         {
             if (base.TryRemove(id))
@@ -198,8 +197,6 @@ namespace ElementEngine
 
             return false;
         }
-
-        public bool Contains(T obj) => Contains(obj.SparseSetID);
 
         public new IEnumerator<T> GetEnumerator()
         {
