@@ -32,7 +32,7 @@ namespace ElementEngine.EC
         public bool TryGetComponent<T>(out T component) where T : IComponent
         {
             component = GetComponent<T>();
-            return component != default;
+            return component != null;
         }
 
     } // Entity
