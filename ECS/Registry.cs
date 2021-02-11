@@ -13,7 +13,7 @@ namespace ElementEngine.ECS
         protected int _nextEntityID = 0;
 
         public Dictionary<Type, IComponentStore> ComponentData = new Dictionary<Type, IComponentStore>();
-        public List<View> RegisteredViews = new List<View>();
+        public List<Group> RegisteredGroups = new List<Group>();
 
         public Registry()
         {
@@ -41,7 +41,7 @@ namespace ElementEngine.ECS
             foreach (var (_, componentStore) in ComponentData)
                 componentStore.TryRemove(entityID);
 
-            foreach (var view in RegisteredViews)
+            foreach (var view in RegisteredGroups)
                 view.Entities.TryRemove(entityID);
         }
 
@@ -49,9 +49,9 @@ namespace ElementEngine.ECS
         {
             if (GetComponentStore<T>().TryAdd(component, entityID))
             {
-                for (var i = 0; i < RegisteredViews.Count; i++)
+                for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
-                    var view = RegisteredViews[i];
+                    var view = RegisteredGroups[i];
                     var matchesView = true;
 
                     foreach (var viewType in view.Types)
@@ -81,10 +81,10 @@ namespace ElementEngine.ECS
         {
             if (GetComponentStore<T>().TryRemove(entityID))
             {
-                for (var i = 0; i < RegisteredViews.Count; i++)
+                for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
                     var type = typeof(T);
-                    var view = RegisteredViews[i];
+                    var view = RegisteredGroups[i];
 
                     if (view.Types.Contains(type))
                         view.Entities.TryRemove(entityID);
@@ -105,40 +105,49 @@ namespace ElementEngine.ECS
             return ref componentStore.GetRef(entityID);
         }
 
-        public View RegisterView(Type[] componentTypes)
+        public Group RegisterGroup(Type[] componentTypes)
         {
             if (_nextEntityID > 0)
-                throw new Exception("Must register views before creating entities");
+                throw new Exception("Must register groups before creating entities");
 
-            var view = new View(componentTypes);
-            RegisteredViews.Add(view);
+            var group = new Group(componentTypes);
+            RegisteredGroups.Add(group);
 
-            return view;
+            return group;
         }
 
-        public View RegisterView<T>() where T : struct
+        public Group RegisterGroup<T>() where T : struct
         {
-            return RegisterView(new Type[] {
+            return RegisterGroup(new Type[] {
                 typeof(T)
             });
         }
 
-        public View RegisterView<T, U>() where T : struct where U : struct
+        public Group RegisterGroup<T, U>() where T : struct where U : struct
         {
-            return RegisterView(new Type[] {
+            return RegisterGroup(new Type[] {
                 typeof(T),
                 typeof(U)
             });
         }
 
-        public View RegisterView<T, U, V>() where T : struct where U : struct where V : struct
+        public Group RegisterGroup<T, U, V>() where T : struct where U : struct where V : struct
         {
-            return RegisterView(new Type[] {
+            return RegisterGroup(new Type[] {
                 typeof(T),
                 typeof(U),
                 typeof(V)
             });
         }
+
+        public View<T> View<T>() where T : struct
+            => new View<T>(this);
+
+        public View<T, U> View<T, U>() where T : struct where U : struct
+            => new View<T, U>(this);
+
+        public View<T, U, V> View<T, U, V>() where T : struct where U : struct where V : struct
+            => new View<T, U, V>(this);
 
     } // Registry
 }
