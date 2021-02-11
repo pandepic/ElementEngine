@@ -9,16 +9,14 @@ namespace ElementEngine.ECS
 {
     public class Registry
     {
+        protected const int _defaultMaxComponents = 50;
         protected int _nextEntityID = 0;
 
         public Dictionary<Type, IComponentStore> ComponentData = new Dictionary<Type, IComponentStore>();
         public List<View> RegisteredViews = new List<View>();
 
-        public int MaxEntities { get; protected set; }
-
-        public Registry(int maxEntities)
+        public Registry()
         {
-            MaxEntities = maxEntities;
         }
 
         public ComponentStore<T> GetComponentStore<T>() where T : struct
@@ -28,7 +26,7 @@ namespace ElementEngine.ECS
             if (ComponentData.TryGetValue(type, out var componentStore))
                 return (ComponentStore<T>)componentStore;
 
-            var newStore = new ComponentStore<T>(MaxEntities);
+            var newStore = new ComponentStore<T>(_defaultMaxComponents);
             ComponentData.Add(type, newStore);
             return newStore;
         }

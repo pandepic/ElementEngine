@@ -8,15 +8,13 @@ namespace ElementEngine.ECS
 {
     public class LazyRegistry
     {
+        protected const int _defaultMaxComponents = 100;
         protected int _nextEntityID = 0;
 
         public Dictionary<Type, IComponentStore> ComponentData = new Dictionary<Type, IComponentStore>();
 
-        public int MaxEntities { get; protected set; }
-
-        public LazyRegistry(int maxEntities)
+        public LazyRegistry()
         {
-            MaxEntities = maxEntities;
         }
 
         public ComponentStore<T> GetComponentStore<T>() where T : struct
@@ -26,7 +24,7 @@ namespace ElementEngine.ECS
             if (ComponentData.TryGetValue(type, out var componentStore))
                 return (ComponentStore<T>)componentStore;
 
-            var newStore = new ComponentStore<T>(MaxEntities);
+            var newStore = new ComponentStore<T>(_defaultMaxComponents);
             ComponentData.Add(type, newStore);
             return newStore;
         }
