@@ -126,7 +126,7 @@ namespace ElementEngine
         public int SparseSetID { get; set; }
     }
 
-    public class SparseSet<T> : SparseSet where T : ISparseSetObject
+    public class SparseSet<T> : SparseSet, IEnumerable<T> where T : ISparseSetObject
     {
         public T[] Data;
         protected int _nextID = 0;
