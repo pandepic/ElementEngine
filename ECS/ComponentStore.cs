@@ -8,6 +8,7 @@ namespace ElementEngine.ECS
 {
     public interface IComponentStore
     {
+        public bool Contains(int value);
         public bool TryRemove(int entityID);
     }
 

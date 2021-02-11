@@ -53,13 +53,24 @@ namespace ElementEngine.ECS
             {
                 for (var i = 0; i < RegisteredViews.Count; i++)
                 {
-                    var type = typeof(T);
                     var view = RegisteredViews[i];
+                    var matchesView = true;
 
-                    if (view.Types.Contains(type))
+                    foreach (var viewType in view.Types)
                     {
-                        view.Entities.TryAdd(entityID, out var _);
+                        if (ComponentData.TryGetValue(viewType, out var componentStore))
+                        {
+                            if (!componentStore.Contains(entityID))
+                                matchesView = false;
+                        }
+                        else
+                        {
+                            matchesView = false;
+                        }
                     }
+
+                    if (matchesView)
+                        view.Entities.TryAdd(entityID, out var _);
                 }
 
                 return true;
