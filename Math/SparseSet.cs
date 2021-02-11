@@ -121,11 +121,6 @@ namespace ElementEngine
 
     } // SparseSet
 
-    public interface ISparseSetObject
-    {
-        public int SparseSetID { get; set; }
-    }
-
     public class SparseSet<T> : SparseSet, IEnumerable<T>
     {
         public T[] Data;
