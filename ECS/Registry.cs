@@ -9,7 +9,7 @@ namespace ElementEngine.ECS
 {
     public class Registry
     {
-        protected const int _defaultMaxComponents = 50;
+        protected const int _defaultMaxComponents = 100;
         protected int _nextEntityID = 0;
 
         public Dictionary<Type, IComponentStore> ComponentData = new Dictionary<Type, IComponentStore>();
