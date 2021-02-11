@@ -149,11 +149,21 @@ namespace ElementEngine
 
         public bool TryAdd(T obj)
         {
-            if (TryAdd(_nextID, out var newIndex))
+            return TryAdd(obj, _nextID);
+        }
+
+        public bool TryAdd(T obj, int id)
+        {
+            if (obj == null)
+                return false;
+
+            if (TryAdd(id, out var newIndex))
             {
                 Data[newIndex] = obj;
-                obj.SparseSetID = _nextID;
-                _nextID += 1;
+                obj.SparseSetID = id;
+
+                if (id == _nextID)
+                    _nextID += 1;
 
                 return true;
             }
@@ -167,7 +177,7 @@ namespace ElementEngine
         {
             if (!Contains(id))
             {
-                obj = default(T);
+                obj = default;
                 return false;
             }
 
