@@ -41,8 +41,8 @@ namespace ElementEngine.ECS
             foreach (var (_, componentStore) in ComponentData)
                 componentStore.TryRemove(entityID);
 
-            foreach (var view in RegisteredGroups)
-                view.Entities.TryRemove(entityID);
+            foreach (var group in RegisteredGroups)
+                group.Entities.TryRemove(entityID);
         }
 
         public bool TryAddComponent<T>(int entityID, T component) where T : struct
@@ -51,24 +51,24 @@ namespace ElementEngine.ECS
             {
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
-                    var view = RegisteredGroups[i];
-                    var matchesView = true;
-
-                    foreach (var viewType in view.Types)
+                    var group = RegisteredGroups[i];
+                    var matchesGroup = true;
+                    
+                    foreach (var groupType in group.Types)
                     {
-                        if (ComponentData.TryGetValue(viewType, out var componentStore))
+                        if (ComponentData.TryGetValue(groupType, out var componentStore))
                         {
                             if (!componentStore.Contains(entityID))
-                                matchesView = false;
+                                matchesGroup = false;
                         }
                         else
                         {
-                            matchesView = false;
+                            matchesGroup = false;
                         }
                     }
 
-                    if (matchesView)
-                        view.Entities.TryAdd(entityID, out var _);
+                    if (matchesGroup)
+                        group.Entities.TryAdd(entityID, out var _);
                 }
 
                 return true;
@@ -84,10 +84,10 @@ namespace ElementEngine.ECS
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
                     var type = typeof(T);
-                    var view = RegisteredGroups[i];
+                    var group = RegisteredGroups[i];
 
-                    if (view.Types.Contains(type))
-                        view.Entities.TryRemove(entityID);
+                    if (group.Types.Contains(type))
+                        group.Entities.TryRemove(entityID);
                 }
 
                 return true;
