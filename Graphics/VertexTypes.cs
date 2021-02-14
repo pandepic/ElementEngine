@@ -56,13 +56,11 @@ namespace ElementEngine
         public Vector4 Position;
         public Vector4 TexCoords;
         public RgbaFloat Color;
-        public Vector4 Padding;
 
         public static VertexLayoutDescription VertexLayout = new VertexLayoutDescription(
             new VertexElementDescription("vPosition", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
             new VertexElementDescription("vTexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
-            new VertexElementDescription("vColor", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
-            new VertexElementDescription("vPadding", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4)
+            new VertexElementDescription("vColor", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4)
         );
     }
 }
