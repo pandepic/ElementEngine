@@ -7,6 +7,16 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ECS
 {
+    public struct Entity
+    {
+        public readonly int ID;
+
+        public Entity(int id)
+        {
+            ID = id;
+        }
+    }
+
     public class Registry
     {
         protected const int _defaultMaxComponents = 100;
@@ -19,6 +29,11 @@ namespace ElementEngine.ECS
         {
         }
 
+        /// <summary>
+        /// Gets the component store for type T and creates a new one if there isn't one already.
+        /// </summary>
+        /// <typeparam name="T">The component type.</typeparam>
+        /// <returns>The component store for the type T.</returns>
         public ComponentStore<T> GetComponentStore<T>() where T : struct
         {
             var type = typeof(T);
@@ -31,9 +46,14 @@ namespace ElementEngine.ECS
             return newStore;
         }
 
-        public int CreateEntity()
+        public Entity CreateEntity()
         {
-            return _nextEntityID++;
+            return new Entity(_nextEntityID++);
+        }
+
+        public void DestroyEntity(Entity entity)
+        {
+            DestroyEntity(entity.ID);
         }
 
         public void DestroyEntity(int entityID)
@@ -43,6 +63,11 @@ namespace ElementEngine.ECS
 
             foreach (var group in RegisteredGroups)
                 group.Entities.TryRemove(entityID);
+        }
+
+        public bool TryAddComponent<T>(Entity entity, T component) where T : struct
+        {
+            return TryAddComponent(entity.ID, component);
         }
 
         public bool TryAddComponent<T>(int entityID, T component) where T : struct
@@ -77,6 +102,11 @@ namespace ElementEngine.ECS
             return false;
         } // TryAddComponent
 
+        public bool TryRemoveComponent<T>(Entity entity) where T : struct
+        {
+            return TryRemoveComponent<T>(entity.ID);
+        }
+
         public bool TryRemoveComponent<T>(int entityID) where T : struct
         {
             if (GetComponentStore<T>().TryRemove(entityID))
@@ -95,6 +125,11 @@ namespace ElementEngine.ECS
 
             return false;
         } // TryRemoveComponent
+
+        public ref T GetComponent<T>(Entity entity) where T : struct
+        {
+            return ref GetComponent<T>(entity.ID);
+        }
 
         public ref T GetComponent<T>(int entityID) where T : struct
         {
