@@ -48,6 +48,16 @@ namespace ElementEngine
             return new Vector2(X, Y);
         }
 
+        public float GetDistance(Vector2I vec)
+        {
+            return ToVector2().GetDistance(vec.ToVector2());
+        }
+
+        public static float GetDistance(Vector2I vec1, Vector2I vec2)
+        {
+            return vec1.GetDistance(vec2);
+        }
+
         public override string ToString()
         {
             return string.Format("{0}, {1}", X, Y);
