@@ -143,6 +143,8 @@ namespace ElementEngine
             Data = new T[_arraySize];
         }
 
+        public ref T this[int index] => ref Data[index];
+
         public override bool TryResize(int newMaxValue)
         {
             if (base.TryResize(newMaxValue))

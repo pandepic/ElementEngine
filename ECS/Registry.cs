@@ -7,16 +7,6 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ECS
 {
-    public struct Entity
-    {
-        public readonly int ID;
-
-        public Entity(int id)
-        {
-            ID = id;
-        }
-    }
-
     public class Registry
     {
         protected const int _defaultMaxComponents = 100;
@@ -48,7 +38,7 @@ namespace ElementEngine.ECS
 
         public Entity CreateEntity()
         {
-            return new Entity(_nextEntityID++);
+            return new Entity(_nextEntityID++, this);
         }
 
         public void DestroyEntity(Entity entity)
