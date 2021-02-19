@@ -130,7 +130,7 @@ namespace ElementEngine
 
         public void CheckBoundingBox()
         {
-            if (_boundingBox.IsEmpty || _boundingBox == null)
+            if (_boundingBox.IsEmpty)
                 return;
 
             var worldCameraXY = ScreenToWorld(Vector2.Zero);
