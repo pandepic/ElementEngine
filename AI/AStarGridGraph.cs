@@ -66,6 +66,12 @@ namespace ElementEngine
             }
         }
 
+        public void ClearCache()
+        {
+            for (var i = 0; i < _nodeCache.Length; i++)
+                _nodeCache[i] = null;
+        }
+
         public override void AddNodeEdges(AStarNode node, Vector2I start, Vector2I end)
         {
             if (node.Edges.Count > 0)
