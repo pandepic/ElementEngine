@@ -21,6 +21,11 @@ namespace ElementEngine.UI
                 ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight);
         }
 
+        public static void WindowResized(int width, int height)
+        {
+            Renderer.WindowResized(width, height);
+        }
+
         public static void Update(GameTimer gameTimer)
         {
             if (InputManager.PrevSnapshot == null)

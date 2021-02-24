@@ -101,6 +101,11 @@ namespace ElementEngine
 
             ElementGlobals.Load(this);
             ElementGlobals.Viewport = new Viewport(0f, 0f, ElementGlobals.Window.Width, ElementGlobals.Window.Height, 0f, 1f);
+
+            ElementGlobals.Window.Resized += () =>
+            {
+                OnWindowResized(new Rectangle(Window.X, Window.Y, Window.Width, Window.Height));
+            };
         } // SetupWindow
 
         public void SetupAssets(string modsPath = "Mods")
@@ -233,6 +238,12 @@ namespace ElementEngine
 
         public virtual void Draw(GameTimer gameTimer)
         {
+        }
+
+        public virtual void OnWindowResized(Rectangle windowRect)
+        {
+            ElementGlobals.GraphicsDevice.ResizeMainWindow((uint)windowRect.Width, (uint)windowRect.Height);
+            ElementGlobals.Viewport = new Viewport(0f, 0f, windowRect.Width, windowRect.Height, 0f, 1f);
         }
 
         public void AddEngineService<T>(T service) where T : IEngineService
