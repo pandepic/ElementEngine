@@ -63,11 +63,6 @@ namespace ElementEngine.ECS
                 ComponentData.Add(typeHash, ComponentManager<T>.Pool[RegistryID]);
             }
 
-            if (entity.ID == 10002)
-            {
-                var b = 0;
-            }
-
             if (GetComponentStore<T>().TryAdd(component, entity.ID))
             {
                 for (var i = 0; i < RegisteredGroups.Count; i++)
