@@ -16,12 +16,12 @@ namespace ElementEngine.ECS
         public Entity[] EntityBuffer;
         public SparseSet EntityLookup;
 
-        public Group(Registry registry, Type[] types)
+        public Group(Registry registry, ReadOnlySpan<Type> types)
         {
             Registry = registry;
             Types = new Type[types.Length];
             EntityLookup = new SparseSet(1000);
-            types.CopyTo(Types, 0);
+            Types = types.ToArray();
             EntityBuffer = new Entity[100];
         }
 
