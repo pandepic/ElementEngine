@@ -13,54 +13,50 @@ namespace ElementEngine.ECS
         public Registry Registry;
         public Type[] Types;
         public int EntityCount = 0;
-        public Entity[] Entities;
-        public SparseSet EntitySet;
+        public Entity[] EntityBuffer;
+        public SparseSet EntityLookup;
 
         public Group(Registry registry, Type[] types)
         {
             Registry = registry;
             Types = new Type[types.Length];
-            EntitySet = new SparseSet(1000);
+            EntityLookup = new SparseSet(1000);
             types.CopyTo(Types, 0);
-            Entities = new Entity[100];
+            EntityBuffer = new Entity[100];
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ReadOnlySpan<Entity> GetEntities(int start, int length) => new ReadOnlySpan<Entity>(Entities, start, length);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlySpan<Entity> GetEntities() => GetEntities(0, EntityCount);
+        public ReadOnlySpan<Entity> Entities => new ReadOnlySpan<Entity>(EntityBuffer, 0, EntityCount);
 
         public void AddEntity(Entity entity)
         {
-            if (EntitySet.Contains(entity.ID))
+            if (EntityLookup.Contains(entity.ID))
                 return;
 
-            EntitySet.TryAdd(entity.ID, out var _);
+            EntityLookup.TryAdd(entity.ID, out var _);
 
-            if (EntityCount >= Entities.Length)
-                Array.Resize(ref Entities, Entities.Length * 2);
+            if (EntityCount >= EntityBuffer.Length)
+                Array.Resize(ref EntityBuffer, EntityBuffer.Length * 2);
 
-            Entities[EntityCount++] = entity;
+            EntityBuffer[EntityCount++] = entity;
         }
 
         public void RemoveEntity(Entity entity)
         {
-            if (!EntitySet.Contains(entity.ID))
+            if (!EntityLookup.Contains(entity.ID))
                 return;
 
-            EntitySet.Remove(entity.ID);
+            EntityLookup.Remove(entity.ID);
 
             var entityIndex = 0;
 
             for (var i = 0; i < EntityCount; i++)
             {
-                if (Entities[i] == entity)
+                if (EntityBuffer[i] == entity)
                     entityIndex = i;
             }
 
-            Entities[entityIndex] = Entities[EntityCount - 1];
-            Entities[EntityCount - 1] = default;
+            EntityBuffer[entityIndex] = EntityBuffer[EntityCount - 1];
+            EntityBuffer[EntityCount - 1] = default;
         }
     }
 }
