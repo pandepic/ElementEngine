@@ -53,6 +53,11 @@ namespace ElementEngine
         public Vector2 BottomRightF
         {
             get => new Vector2(Right, Bottom);
+            set
+            {
+                Right = (int)value.X;
+                Bottom = (int)value.Y;
+            }
         }
 
         [JsonIgnore]

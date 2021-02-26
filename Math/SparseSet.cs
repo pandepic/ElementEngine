@@ -20,6 +20,8 @@ namespace ElementEngine
         public int ArraySize { get => _arraySize; }
         public bool AllowResize { get; protected set; }
 
+        public int this[int index] => Dense[index];
+
         public SparseSet(int maxValue, bool allowResize = true)
         {
             Size = 0;
@@ -143,7 +145,7 @@ namespace ElementEngine
             Data = new T[_arraySize];
         }
 
-        public ref T this[int index] => ref Data[index];
+        public new ref T this[int index] => ref Data[index];
 
         public override bool TryResize(int newMaxValue)
         {

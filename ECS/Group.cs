@@ -12,7 +12,7 @@ namespace ElementEngine.ECS
         public Type[] Types;
         public SparseSet Entities = new SparseSet(1000);
 
-        public Group(Type[] types)
+        public Group(Registry registry, Type[] types)
         {
             Types = new Type[types.Length];
             types.CopyTo(Types, 0);

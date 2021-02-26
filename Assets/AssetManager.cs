@@ -1,5 +1,6 @@
 ﻿using ElementEngine.EndlessTiles;
 using ElementEngine.Ogmo;
+using ElementEngine.TexturePacker;
 using ElementEngine.Tiled;
 using NAudio.Vorbis;
 using NAudio.Wave;
@@ -414,6 +415,24 @@ namespace ElementEngine
             LogLoaded("EndlessTilesWorld", assetName, stopWatch);
 
             return newWorld;
+        }
+
+        public static TexturePackerAtlas LoadTexturePackerAtlas(string textureAsset, string dataAsset)
+        {
+            if (!_assetData.ContainsKey(dataAsset))
+                return null;
+            if (_assetCache.ContainsKey(dataAsset))
+                return (TexturePackerAtlas)_assetCache[dataAsset];
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var fs = GetAssetStream(dataAsset);
+            var newAtlas = new TexturePackerAtlas(fs, LoadTexture2D(textureAsset));
+
+            _assetCache.Add(dataAsset, newAtlas);
+            LogLoaded("TexturePackerAtlas", dataAsset, stopWatch);
+
+            return newAtlas;
         }
 
     } // AssetManager

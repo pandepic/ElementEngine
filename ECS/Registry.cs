@@ -12,7 +12,8 @@ namespace ElementEngine.ECS
         protected const int _defaultMaxComponents = 100;
         protected int _nextEntityID = 0;
 
-        public Dictionary<Type, IComponentStore> ComponentData = new Dictionary<Type, IComponentStore>();
+        //public Dictionary<int, IComponentStore> ComponentData = new Dictionary<int, IComponentStore>();
+        public SparseSet<IComponentStore> ComponentData = new SparseSet<IComponentStore>(100);
         public List<Group> RegisteredGroups = new List<Group>();
 
         public Registry()
@@ -26,14 +27,20 @@ namespace ElementEngine.ECS
         /// <returns>The component store for the type T.</returns>
         public ComponentStore<T> GetComponentStore<T>() where T : struct
         {
-            var type = typeof(T);
+            var type = typeof(T).GetHashCode();
 
-            if (ComponentData.TryGetValue(type, out var componentStore))
-                return (ComponentStore<T>)componentStore;
+            if (ComponentData.Contains(type))
+                return (ComponentStore<T>)ComponentData.Get(type);
 
             var newStore = new ComponentStore<T>(_defaultMaxComponents);
-            ComponentData.Add(type, newStore);
+            ComponentData.TryAdd(newStore, type);
             return newStore;
+        }
+
+        public ComponentStore<T> FastGetComponentStore<T>() where T : struct
+        {
+            var type = typeof(T);
+            return (ComponentStore<T>)ComponentData.Get(type.GetHashCode());
         }
 
         public Entity CreateEntity()
@@ -48,8 +55,8 @@ namespace ElementEngine.ECS
 
         public void DestroyEntity(int entityID)
         {
-            foreach (var (_, componentStore) in ComponentData)
-                componentStore.TryRemove(entityID);
+            foreach (var store in ComponentData)
+                store.TryRemove(entityID);
 
             foreach (var group in RegisteredGroups)
                 group.Entities.TryRemove(entityID);
@@ -66,14 +73,21 @@ namespace ElementEngine.ECS
             {
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
+                    var type = typeof(T);
                     var group = RegisteredGroups[i];
                     var matchesGroup = true;
+
+                    if (!group.Types.Contains(type))
+                        continue;
                     
                     foreach (var groupType in group.Types)
                     {
-                        if (ComponentData.TryGetValue(groupType, out var componentStore))
+                        var groupTypeHash = groupType.GetHashCode();
+
+                        if (ComponentData.Contains(groupTypeHash))
                         {
-                            if (!componentStore.Contains(entityID))
+                            var store = ComponentData.Get(groupTypeHash);
+                            if (!store.Contains(entityID))
                                 matchesGroup = false;
                         }
                         else
@@ -123,11 +137,19 @@ namespace ElementEngine.ECS
 
         public ref T GetComponent<T>(int entityID) where T : struct
         {
-            var componentStore = GetComponentStore<T>();
-            if (!componentStore.Contains(entityID))
-                throw new ArgumentException("This entity doesn't have the component requested.", "T");
-
+            var componentStore = FastGetComponentStore<T>();
             return ref componentStore.GetRef(entityID);
+        }
+
+        public bool HasComponent<T>(Entity entity) where T : struct
+        {
+            return HasComponent<T>(entity.ID);
+        }
+
+        public bool HasComponent<T>(int entityID) where T : struct
+        {
+            var componentStore = FastGetComponentStore<T>();
+            return componentStore.Contains(entityID);
         }
 
         public Group RegisterGroup(params Type[] componentTypes)
@@ -138,7 +160,7 @@ namespace ElementEngine.ECS
             if (_nextEntityID > 0)
                 throw new Exception("Must register groups before creating entities");
 
-            var group = new Group(componentTypes);
+            var group = new Group(this, componentTypes);
             RegisteredGroups.Add(group);
 
             return group;

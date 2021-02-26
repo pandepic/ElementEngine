@@ -11,6 +11,19 @@ namespace ElementEngine
         public const float ToRadians = (MathF.PI * 2f) / 360f;
         public const float ToDegrees = 360f / (MathF.PI * 2f);
 
+        public static float GetAngleDegreesBetweenPositions(Vector2 origin, Vector2 target)
+        {
+            var angleRadians = MathF.Atan2((target.X - origin.X), (origin.Y - target.Y));
+            var angleDegrees = angleRadians.ToDegrees();
+
+            if (angleDegrees < 0.0f)
+                angleDegrees += 360.0f;
+            else if (angleDegrees > 360.0f)
+                angleDegrees -= 360.0f;
+
+            return angleDegrees;
+        }
+
         public static int GetSeedFromString(string str)
         {
             using (var mySHA256 = SHA256Managed.Create())

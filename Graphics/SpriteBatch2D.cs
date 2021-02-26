@@ -406,7 +406,7 @@ namespace ElementEngine
             AddQuad(texture, topLeft, topRight, bottomLeft, bottomRight);
 
         } // DrawTexture2D
-
+        
         public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, Rectangle? sourceRect = null, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
