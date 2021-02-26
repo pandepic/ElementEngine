@@ -18,7 +18,7 @@ namespace ElementEngine.ECS
 
         public IEnumerator<int> GetEnumerator()
         {
-            var store1 = Registry.GetComponentStore<T>();
+            var store1 = ComponentManager<T>.Pool[Registry.RegistryID];
 
             for (var i = 0; i < store1.Size; i++)
             {
@@ -42,8 +42,8 @@ namespace ElementEngine.ECS
 
         public IEnumerator<int> GetEnumerator()
         {
-            var store1 = Registry.GetComponentStore<T>();
-            var store2 = Registry.GetComponentStore<U>();
+            var store1 = ComponentManager<T>.Pool[Registry.RegistryID];
+            var store2 = ComponentManager<U>.Pool[Registry.RegistryID];
 
             for (var i = 0; i < store1.Size; i++)
             {
@@ -69,9 +69,9 @@ namespace ElementEngine.ECS
 
         public IEnumerator<int> GetEnumerator()
         {
-            var store1 = Registry.GetComponentStore<T>();
-            var store2 = Registry.GetComponentStore<U>();
-            var store3 = Registry.GetComponentStore<V>();
+            var store1 = ComponentManager<T>.Pool[Registry.RegistryID];
+            var store2 = ComponentManager<U>.Pool[Registry.RegistryID];
+            var store3 = ComponentManager<V>.Pool[Registry.RegistryID];
 
             for (var i = 0; i < store1.Size; i++)
             {

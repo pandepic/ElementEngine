@@ -2,45 +2,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ElementEngine.ECS
 {
+    internal static class ComponentManager<T> where T : struct
+    {
+        internal static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
+    }
+
     public class Registry
     {
-        protected const int _defaultMaxComponents = 100;
+        internal const int DefaultMaxComponents = 100;
+        internal static int _nextRegistryID = 0;
+        
         protected int _nextEntityID = 0;
 
-        //public Dictionary<int, IComponentStore> ComponentData = new Dictionary<int, IComponentStore>();
-        public SparseSet<IComponentStore> ComponentData = new SparseSet<IComponentStore>(100);
+        public int RegistryID;
+
+        public Dictionary<int, IComponentStore> ComponentData = new Dictionary<int, IComponentStore>();
         public List<Group> RegisteredGroups = new List<Group>();
 
         public Registry()
         {
+            RegistryID = _nextRegistryID++;
         }
 
-        /// <summary>
-        /// Gets the component store for type T and creates a new one if there isn't one already.
-        /// </summary>
-        /// <typeparam name="T">The component type.</typeparam>
-        /// <returns>The component store for the type T.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ComponentStore<T> GetComponentStore<T>() where T : struct
         {
-            var type = typeof(T).GetHashCode();
-
-            if (ComponentData.Contains(type))
-                return (ComponentStore<T>)ComponentData.Get(type);
-
-            var newStore = new ComponentStore<T>(_defaultMaxComponents);
-            ComponentData.TryAdd(newStore, type);
-            return newStore;
-        }
-
-        public ComponentStore<T> FastGetComponentStore<T>() where T : struct
-        {
-            var type = typeof(T);
-            return (ComponentStore<T>)ComponentData.Get(type.GetHashCode());
+            return ComponentManager<T>.Pool[RegistryID];
         }
 
         public Entity CreateEntity()
@@ -50,26 +43,32 @@ namespace ElementEngine.ECS
 
         public void DestroyEntity(Entity entity)
         {
-            DestroyEntity(entity.ID);
-        }
-
-        public void DestroyEntity(int entityID)
-        {
-            foreach (var store in ComponentData)
-                store.TryRemove(entityID);
+            foreach (var (_, componentStore) in ComponentData)
+                componentStore.TryRemove(entity.ID);
 
             foreach (var group in RegisteredGroups)
-                group.Entities.TryRemove(entityID);
+                group.RemoveEntity(entity);
         }
 
         public bool TryAddComponent<T>(Entity entity, T component) where T : struct
         {
-            return TryAddComponent(entity.ID, component);
-        }
+            var typeHash = typeof(T).GetHashCode();
 
-        public bool TryAddComponent<T>(int entityID, T component) where T : struct
-        {
-            if (GetComponentStore<T>().TryAdd(component, entityID))
+            if (!ComponentData.ContainsKey(typeHash))
+            {
+                if (RegistryID >= ComponentManager<T>.Pool.Length)
+                    Array.Resize(ref ComponentManager<T>.Pool, ComponentManager<T>.Pool.Length * 2);
+
+                ComponentManager<T>.Pool[RegistryID] = new ComponentStore<T>(DefaultMaxComponents);
+                ComponentData.Add(typeHash, ComponentManager<T>.Pool[RegistryID]);
+            }
+
+            if (entity.ID == 10002)
+            {
+                var b = 0;
+            }
+
+            if (GetComponentStore<T>().TryAdd(component, entity.ID))
             {
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
@@ -84,10 +83,10 @@ namespace ElementEngine.ECS
                     {
                         var groupTypeHash = groupType.GetHashCode();
 
-                        if (ComponentData.Contains(groupTypeHash))
+                        if (ComponentData.ContainsKey(groupTypeHash))
                         {
-                            var store = ComponentData.Get(groupTypeHash);
-                            if (!store.Contains(entityID))
+                            var store = ComponentData[groupTypeHash];
+                            if (!store.Contains(entity.ID))
                                 matchesGroup = false;
                         }
                         else
@@ -97,7 +96,7 @@ namespace ElementEngine.ECS
                     }
 
                     if (matchesGroup)
-                        group.Entities.TryAdd(entityID, out var _);
+                        group.AddEntity(entity);
                 }
 
                 return true;
@@ -108,12 +107,7 @@ namespace ElementEngine.ECS
 
         public bool TryRemoveComponent<T>(Entity entity) where T : struct
         {
-            return TryRemoveComponent<T>(entity.ID);
-        }
-
-        public bool TryRemoveComponent<T>(int entityID) where T : struct
-        {
-            if (GetComponentStore<T>().TryRemove(entityID))
+            if (GetComponentStore<T>().TryRemove(entity.ID))
             {
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
@@ -121,7 +115,7 @@ namespace ElementEngine.ECS
                     var group = RegisteredGroups[i];
 
                     if (group.Types.Contains(type))
-                        group.Entities.TryRemove(entityID);
+                        group.RemoveEntity(entity);
                 }
 
                 return true;
@@ -130,26 +124,28 @@ namespace ElementEngine.ECS
             return false;
         } // TryRemoveComponent
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>(Entity entity) where T : struct
         {
             return ref GetComponent<T>(entity.ID);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>(int entityID) where T : struct
         {
-            var componentStore = FastGetComponentStore<T>();
-            return ref componentStore.GetRef(entityID);
+            return ref GetComponentStore<T>().GetRef(entityID);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasComponent<T>(Entity entity) where T : struct
         {
             return HasComponent<T>(entity.ID);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasComponent<T>(int entityID) where T : struct
         {
-            var componentStore = FastGetComponentStore<T>();
-            return componentStore.Contains(entityID);
+            return GetComponentStore<T>().Contains(entityID);
         }
 
         public Group RegisterGroup(params Type[] componentTypes)

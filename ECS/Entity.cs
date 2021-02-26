@@ -9,11 +9,15 @@ namespace ElementEngine.ECS
     public struct Entity
     {
         public readonly int ID;
+        public bool IsAlive;
+        public int GenerationID;
         public readonly Registry Registry;
 
         public Entity(int id, Registry registry)
         {
             ID = id;
+            IsAlive = true;
+            GenerationID = 0;
             Registry = registry;
         }
 
@@ -31,6 +35,22 @@ namespace ElementEngine.ECS
         {
             return ref Registry.GetComponent<T>(this);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Entity entity)
+                return entity == this;
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ID);
+        }
+
+        public static bool operator ==(Entity e1, Entity e2) => e1.ID == e2.ID && e1.ID == e2.ID;
+        public static bool operator !=(Entity e1, Entity e2) => !(e1 == e2);
 
     } // Entity
 }
