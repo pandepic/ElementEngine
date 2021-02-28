@@ -10,6 +10,64 @@ namespace ElementEngine
 {
     public class SparseSet : IEnumerable<int>
     {
+        public struct Enumerator : IEnumerator, IEnumerator<int>
+        {
+            private int _current;
+            private SparseSet _set;
+            private int _index;
+
+            public int Current
+            {
+                get
+                {
+                    if (_index > -1)
+                        return _current;
+                    else if (_index == -1)
+                        throw new InvalidOperationException("Enumerator not yet started");
+                    else
+                        throw new InvalidOperationException("Enumerator reached end");
+                }
+            }
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return Current;
+                }
+            }
+
+            internal Enumerator(SparseSet set)
+            {
+                _set = set;
+                _index = -1;
+                _current = default;
+            }
+
+            void IDisposable.Dispose()
+            {
+            }
+
+            public bool MoveNext()
+            {
+                if (_index > -2 && _index < _set.Size - 1)
+                {
+                    _current = _set[++_index];
+                    return true;
+                }
+                else
+                {
+                    _index = -2; // -2 indicates "past the end"
+                    return false;
+                }
+            }
+
+            public void Reset()
+            {
+                _index = -1;
+            }
+        } // Enumerator
+
         protected int _arraySize;
 
         public int[] Sparse;
@@ -127,8 +185,7 @@ namespace ElementEngine
 
         public IEnumerator<int> GetEnumerator()
         {
-            for (var i = 0; i < Size; i++)
-                yield return Dense[i];
+            return new Enumerator(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -137,6 +194,64 @@ namespace ElementEngine
 
     public class SparseSet<T> : SparseSet, IEnumerable<T>
     {
+        public new struct Enumerator : IEnumerator, IEnumerator<T>
+        {
+            private T _current;
+            private SparseSet<T> _set;
+            private int _index;
+
+            public T Current
+            {
+                get
+                {
+                    if (_index > -1)
+                        return _current;
+                    else if (_index == -1)
+                        throw new InvalidOperationException("Enumerator not yet started");
+                    else
+                        throw new InvalidOperationException("Enumerator reached end");
+                }
+            }
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return Current;
+                }
+            }
+
+            internal Enumerator(SparseSet<T> set)
+            {
+                _set = set;
+                _index = -1;
+                _current = default;
+            }
+
+            void IDisposable.Dispose()
+            {
+            }
+
+            public bool MoveNext()
+            {
+                if (_index > -2 && _index < _set.Size - 1)
+                {
+                    _current = _set[++_index];
+                    return true;
+                }
+                else
+                {
+                    _index = -2; // -2 indicates "past the end"
+                    return false;
+                }
+            }
+
+            public void Reset()
+            {
+                _index = -1;
+            }
+        } // Enumerator
+
         public T[] Data;
         protected int _nextID = 0;
 
@@ -219,8 +334,7 @@ namespace ElementEngine
 
         public new IEnumerator<T> GetEnumerator()
         {
-            for (var i = 0; i < Size; i++)
-                yield return Data[i];
+            return new Enumerator(this);
         }
 
     } // SparseSet<T>
