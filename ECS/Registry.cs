@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ECS
 {
-    public class EntityStatus
+    public struct EntityStatus
     {
         public int ID;
         public bool IsAlive;
@@ -38,7 +38,7 @@ namespace ElementEngine.ECS
 
         public Dictionary<int, IComponentStore> ComponentData = new Dictionary<int, IComponentStore>();
         public List<Group> RegisteredGroups = new List<Group>();
-        public Dictionary<int, EntityStatus> Entities = new Dictionary<int, EntityStatus>();
+        public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
 
         public Registry()
@@ -71,8 +71,10 @@ namespace ElementEngine.ECS
             if (id == 0)
                 return CreateEntity();
 
-            if (Entities.TryGetValue(id, out var status))
+            if (Entities.Contains(id))
             {
+                ref var status = ref Entities.GetRef(id);
+
                 if (status.IsAlive)
                     return new Entity(id, this);
 
@@ -81,7 +83,7 @@ namespace ElementEngine.ECS
             }
             else
             {
-                Entities.Add(id, new EntityStatus(id));
+                Entities.TryAdd(new EntityStatus(id), id);
             }
 
             return new Entity(id, this);
@@ -96,15 +98,18 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasEntity(int id)
         {
-            return Entities.ContainsKey(id);
+            return Entities.Contains(id);
         }
 
         public void DestroyEntity(Entity entity)
         {
             DeadEntities.TryAdd(entity.ID, out var _);
 
-            if (Entities.TryGetValue(entity.ID, out var status))
+            if (Entities.Contains(entity.ID))
+            {
+                ref var status = ref Entities.GetRef(entity.ID);
                 status.IsAlive = false;
+            }
 
             foreach (var (_, componentStore) in ComponentData)
                 componentStore.TryRemove(entity.ID);

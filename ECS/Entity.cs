@@ -22,8 +22,9 @@ namespace ElementEngine.ECS
             GenerationID = 0;
             Registry = registry;
 
-            if (registry.Entities.TryGetValue(id, out var status))
+            if (registry.Entities.Contains(id))
             {
+                ref var status = ref registry.Entities.GetRef(id);
                 IsAlive = status.IsAlive;
                 GenerationID = status.GenerationID;
             }
