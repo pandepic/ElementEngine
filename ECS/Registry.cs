@@ -13,12 +13,14 @@ namespace ElementEngine.ECS
         public int ID;
         public bool IsAlive;
         public int GenerationID;
+        public HashSet<int> Components;
 
         public EntityStatus(int id)
         {
             ID = id;
             IsAlive = true;
             GenerationID = 0;
+            Components = new HashSet<int>();
         }
     } // EntityStatus
 
@@ -80,6 +82,7 @@ namespace ElementEngine.ECS
 
                 status.GenerationID += 1;
                 status.IsAlive = true;
+                status.Components.Clear();
             }
             else
             {
@@ -133,6 +136,9 @@ namespace ElementEngine.ECS
 
             if (GetComponentStore<T>().TryAdd(component, entity.ID))
             {
+                ref var status = ref Entities.GetRef(entity.ID);
+                status.Components.Add(typeHash);
+
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
                     var type = typeof(T);
@@ -177,6 +183,9 @@ namespace ElementEngine.ECS
         {
             if (GetComponentStore<T>().TryRemove(entity.ID))
             {
+                ref var status = ref Entities.GetRef(entity.ID);
+                status.Components.Remove(typeof(T).GetHashCode());
+
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
                     var type = typeof(T);
