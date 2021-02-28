@@ -8,6 +8,20 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ECS
 {
+    public class EntityStatus
+    {
+        public int ID;
+        public bool IsAlive;
+        public int GenerationID;
+
+        public EntityStatus(int id)
+        {
+            ID = id;
+            IsAlive = true;
+            GenerationID = 0;
+        }
+    } // EntityStatus
+
     internal static class ComponentManager<T> where T : struct
     {
         internal static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
@@ -17,13 +31,15 @@ namespace ElementEngine.ECS
     {
         internal const int DefaultMaxComponents = 100;
         internal static int _nextRegistryID = 0;
-        
+
         protected int _nextEntityID = 0;
 
         public int RegistryID;
 
         public Dictionary<int, IComponentStore> ComponentData = new Dictionary<int, IComponentStore>();
         public List<Group> RegisteredGroups = new List<Group>();
+        public Dictionary<int, EntityStatus> Entities = new Dictionary<int, EntityStatus>();
+        public SparseSet DeadEntities = new SparseSet(1000);
 
         public Registry()
         {
@@ -38,16 +54,58 @@ namespace ElementEngine.ECS
 
         public Entity CreateEntity()
         {
-            return new Entity(_nextEntityID++, this);
-        }
+            if (DeadEntities.Size > 0)
+            {
+                var id = DeadEntities[0];
+                DeadEntities.Remove(id);
+                return CreateEntity(id);
+            }
+            else
+            {
+                return CreateEntity(_nextEntityID++);
+            }
+        } // CreateEntity
 
+        public Entity CreateEntity(int id)
+        {
+            if (id == 0)
+                return CreateEntity();
+
+            if (Entities.TryGetValue(id, out var status))
+            {
+                if (status.IsAlive)
+                    return new Entity(id, this);
+
+                status.GenerationID += 1;
+                status.IsAlive = true;
+            }
+            else
+            {
+                Entities.Add(id, new EntityStatus(id));
+            }
+
+            return new Entity(id, this);
+        } // CreateEntity
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Entity GetEntity(int id)
         {
             return new Entity(id, this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool HasEntity(int id)
+        {
+            return Entities.ContainsKey(id);
+        }
+
         public void DestroyEntity(Entity entity)
         {
+            DeadEntities.TryAdd(entity.ID, out var _);
+
+            if (Entities.TryGetValue(entity.ID, out var status))
+                status.IsAlive = false;
+
             foreach (var (_, componentStore) in ComponentData)
                 componentStore.TryRemove(entity.ID);
 
@@ -78,7 +136,7 @@ namespace ElementEngine.ECS
 
                     if (!group.Types.Contains(type))
                         continue;
-                    
+
                     foreach (var groupType in group.Types)
                     {
                         var groupTypeHash = groupType.GetHashCode();
@@ -101,8 +159,13 @@ namespace ElementEngine.ECS
 
                 return true;
             }
+            else
+            {
+                var store = GetComponentStore<T>();
+                store[store.GetIndex(entity.ID)] = component;
+                return false;
+            }
 
-            return false;
         } // TryAddComponent
 
         public bool TryRemoveComponent<T>(Entity entity) where T : struct

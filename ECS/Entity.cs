@@ -21,6 +21,12 @@ namespace ElementEngine.ECS
             IsAlive = true;
             GenerationID = 0;
             Registry = registry;
+
+            if (registry.Entities.TryGetValue(id, out var status))
+            {
+                IsAlive = status.IsAlive;
+                GenerationID = status.GenerationID;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,7 +65,7 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
-            return HashCode.Combine(ID);
+            return HashCode.Combine(ID, GenerationID, Registry);
         }
 
         public static bool operator ==(Entity e1, Entity e2) => e1.ID == e2.ID && e1.GenerationID == e2.GenerationID && e1.Registry.RegistryID == e2.Registry.RegistryID;
