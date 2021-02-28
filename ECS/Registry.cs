@@ -41,6 +41,11 @@ namespace ElementEngine.ECS
             return new Entity(_nextEntityID++, this);
         }
 
+        public Entity GetEntity(int id)
+        {
+            return new Entity(id, this);
+        }
+
         public void DestroyEntity(Entity entity)
         {
             foreach (var (_, componentStore) in ComponentData)
