@@ -122,25 +122,13 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>(Entity entity) where T : struct
         {
-            return ref GetComponent<T>(entity.ID);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetComponent<T>(int entityID) where T : struct
-        {
-            return ref GetComponentStore<T>().GetRef(entityID);
+            return ref GetComponentStore<T>().GetRef(entity.ID);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasComponent<T>(Entity entity) where T : struct
         {
-            return HasComponent<T>(entity.ID);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasComponent<T>(int entityID) where T : struct
-        {
-            return GetComponentStore<T>().Contains(entityID);
+            return GetComponentStore<T>().Contains(entity.ID);
         }
 
         public Group RegisterGroup(params Type[] componentTypes)
