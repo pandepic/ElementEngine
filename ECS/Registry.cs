@@ -111,8 +111,34 @@ namespace ElementEngine.ECS
             return Entities.Contains(id);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsEntityAlive(Entity entity)
+        {
+            if (!Entities.Contains(entity.ID))
+                return false;
+
+            ref var status = ref Entities.GetRef(entity.ID);
+            return status.IsAlive;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetEntityGeneration(Entity entity)
+        {
+            if (!Entities.Contains(entity.ID))
+                return 0;
+
+            ref var status = ref Entities.GetRef(entity.ID);
+            return status.GenerationID;
+        }
+
         public void DestroyEntity(Entity entity)
         {
+            if (!Entities.Contains(entity.ID))
+                return;
+
+            ref var status = ref Entities.GetRef(entity.ID);
+            status.IsAlive = false;
+
             RemoveEntities.Enqueue(entity);
         }
 

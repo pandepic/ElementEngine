@@ -13,23 +13,13 @@ namespace ElementEngine.ECS
         public readonly short RegistryID;
 
         public Registry Registry => Registry._registries[RegistryID];
-
-        public bool IsAlive;
-        public int GenerationID;
+        public bool IsAlive => Registry.IsEntityAlive(this);
+        public int GenerationID => Registry.GetEntityGeneration(this);
 
         public Entity(int id, Registry registry)
         {
             ID = id;
-            IsAlive = true;
-            GenerationID = 0;
             RegistryID = registry.RegistryID;
-
-            if (registry.Entities.Contains(id))
-            {
-                ref var status = ref registry.Entities.GetRef(id);
-                IsAlive = status.IsAlive;
-                GenerationID = status.GenerationID;
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
