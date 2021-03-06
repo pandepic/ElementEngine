@@ -31,21 +31,28 @@ namespace ElementEngine.ECS
 
     public class Registry
     {
-        internal const int DefaultMaxComponents = 100;
-        internal static int _nextRegistryID = 0;
+        internal static Registry[] _registries = new Registry[10];
+        internal const int _defaultMaxComponents = 100;
+        internal static short _nextRegistryID = 0;
 
         protected int _nextEntityID = 0;
 
-        public int RegistryID;
+        public readonly short RegistryID;
 
         public Dictionary<int, IComponentStore> ComponentData = new Dictionary<int, IComponentStore>();
         public List<Group> RegisteredGroups = new List<Group>();
         public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
+        public Queue<Entity> RemoveEntities = new Queue<Entity>();
 
         public Registry()
         {
             RegistryID = _nextRegistryID++;
+
+            if (RegistryID >= _registries.Length)
+                Array.Resize(ref _registries, _registries.Length * 2);
+
+            _registries[RegistryID] = this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -106,6 +113,11 @@ namespace ElementEngine.ECS
 
         public void DestroyEntity(Entity entity)
         {
+            RemoveEntities.Enqueue(entity);
+        }
+
+        public void DestroyEntityImmediate(Entity entity)
+        {
             DeadEntities.TryAdd(entity.ID, out var _);
 
             if (Entities.Contains(entity.ID))
@@ -121,6 +133,12 @@ namespace ElementEngine.ECS
                 group.RemoveEntity(entity);
         }
 
+        public void SystemsFinished()
+        {
+            while (RemoveEntities.TryDequeue(out var removeEntity))
+                DestroyEntityImmediate(removeEntity);
+        }
+
         public bool TryAddComponent<T>(Entity entity, T component) where T : struct
         {
             var typeHash = typeof(T).GetHashCode();
@@ -130,7 +148,7 @@ namespace ElementEngine.ECS
                 if (RegistryID >= ComponentManager<T>.Pool.Length)
                     Array.Resize(ref ComponentManager<T>.Pool, ComponentManager<T>.Pool.Length * 2);
 
-                ComponentManager<T>.Pool[RegistryID] = new ComponentStore<T>(DefaultMaxComponents);
+                ComponentManager<T>.Pool[RegistryID] = new ComponentStore<T>(_defaultMaxComponents);
                 ComponentData.Add(typeHash, ComponentManager<T>.Pool[RegistryID]);
             }
 

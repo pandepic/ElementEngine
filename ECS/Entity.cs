@@ -10,7 +10,9 @@ namespace ElementEngine.ECS
     public struct Entity
     {
         public readonly int ID;
-        public readonly Registry Registry;
+        public readonly short RegistryID;
+
+        public Registry Registry => Registry._registries[RegistryID];
 
         public bool IsAlive;
         public int GenerationID;
@@ -20,7 +22,7 @@ namespace ElementEngine.ECS
             ID = id;
             IsAlive = true;
             GenerationID = 0;
-            Registry = registry;
+            RegistryID = registry.RegistryID;
 
             if (registry.Entities.Contains(id))
             {
