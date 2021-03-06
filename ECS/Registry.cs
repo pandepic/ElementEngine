@@ -144,13 +144,13 @@ namespace ElementEngine.ECS
 
         public void DestroyEntityImmediate(Entity entity)
         {
+            if (!Entities.Contains(entity.ID))
+                return;
+
             DeadEntities.TryAdd(entity.ID, out var _);
 
-            if (Entities.Contains(entity.ID))
-            {
-                ref var status = ref Entities.GetRef(entity.ID);
-                status.IsAlive = false;
-            }
+            ref var status = ref Entities.GetRef(entity.ID);
+            status.IsAlive = false;
 
             foreach (var (_, componentStore) in ComponentData)
                 componentStore.TryRemove(entity.ID);
