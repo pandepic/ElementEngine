@@ -11,15 +11,16 @@ namespace ElementEngine.ECS
     {
         public readonly int ID;
         public readonly short RegistryID;
+        public int GenerationID;
 
         public Registry Registry => Registry._registries[RegistryID];
         public bool IsAlive => Registry.IsEntityAlive(this);
-        public int GenerationID => Registry.GetEntityGeneration(this);
 
         public Entity(int id, Registry registry)
         {
             ID = id;
             RegistryID = registry.RegistryID;
+            GenerationID = registry.GetEntityGeneration(id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,9 +30,15 @@ namespace ElementEngine.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryRemoveComponent<T>() where T : struct
+        public void RemoveComponent<T>() where T : struct
         {
-            return Registry.TryRemoveComponent<T>(this);
+            Registry.RemoveComponent<T>(this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryRemoveComponentImmediate<T>() where T : struct
+        {
+            return Registry.TryRemoveComponentImmediate<T>(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -47,6 +47,8 @@ namespace ElementEngine
 
             Width = width;
             Height = height;
+            IsLazyLoaded = lazyLoad;
+
             _nodeCache = new AStarNode[Width * Height];
 
             if (!IsLazyLoaded)

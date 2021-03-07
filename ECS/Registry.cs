@@ -29,11 +29,21 @@ namespace ElementEngine.ECS
         internal static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
     }
 
+    internal struct RemoveComponent
+    {
+        public Entity Entity;
+        public IComponentStore ComponentStore;
+        public Type Type;
+    }
+
     public class Registry
     {
         internal static Registry[] _registries = new Registry[10];
         internal const int _defaultMaxComponents = 100;
         internal static short _nextRegistryID = 0;
+
+        internal Queue<Entity> _removeEntities = new Queue<Entity>();
+        internal Queue<RemoveComponent> _removeComponents = new Queue<RemoveComponent>();
 
         protected int _nextEntityID = 0;
 
@@ -43,7 +53,6 @@ namespace ElementEngine.ECS
         public List<Group> RegisteredGroups = new List<Group>();
         public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
-        public Queue<Entity> RemoveEntities = new Queue<Entity>();
 
         public Registry()
         {
@@ -111,6 +120,7 @@ namespace ElementEngine.ECS
             return Entities.Contains(id);
         }
 
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsEntityAlive(Entity entity)
         {
@@ -124,10 +134,16 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetEntityGeneration(Entity entity)
         {
-            if (!Entities.Contains(entity.ID))
+            return GetEntityGeneration(entity.ID);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetEntityGeneration(int id)
+        {
+            if (!Entities.Contains(id))
                 return 0;
 
-            ref var status = ref Entities.GetRef(entity.ID);
+            ref var status = ref Entities.GetRef(id);
             return status.GenerationID;
         }
 
@@ -139,7 +155,7 @@ namespace ElementEngine.ECS
             ref var status = ref Entities.GetRef(entity.ID);
             status.IsAlive = false;
 
-            RemoveEntities.Enqueue(entity);
+            _removeEntities.Enqueue(entity);
         }
 
         public void DestroyEntityImmediate(Entity entity)
@@ -161,8 +177,11 @@ namespace ElementEngine.ECS
 
         public void SystemsFinished()
         {
-            while (RemoveEntities.TryDequeue(out var removeEntity))
+            while (_removeEntities.TryDequeue(out var removeEntity))
                 DestroyEntityImmediate(removeEntity);
+
+            while (_removeComponents.TryDequeue(out var removeComponent))
+                TryRemoveComponentImmediate(removeComponent.ComponentStore, removeComponent.Entity, removeComponent.Type);
         }
 
         public bool TryAddComponent<T>(Entity entity, T component) where T : struct
@@ -223,16 +242,35 @@ namespace ElementEngine.ECS
 
         } // TryAddComponent
 
-        public bool TryRemoveComponent<T>(Entity entity) where T : struct
+        public void RemoveComponent<T>(Entity entity) where T : struct
         {
-            if (GetComponentStore<T>().TryRemove(entity.ID))
+            RemoveComponent(GetComponentStore<T>(), entity, typeof(T));
+        }
+
+        internal void RemoveComponent(IComponentStore store, Entity entity, Type type)
+        {
+            _removeComponents.Enqueue(new RemoveComponent()
+            {
+                Entity = entity,
+                ComponentStore = store,
+                Type = type,
+            });
+        }
+
+        public bool TryRemoveComponentImmediate<T>(Entity entity) where T : struct
+        {
+            return TryRemoveComponentImmediate(GetComponentStore<T>(), entity, typeof(T));
+        }
+
+        public bool TryRemoveComponentImmediate(IComponentStore store, Entity entity, Type type)
+        {
+            if (store.TryRemove(entity.ID))
             {
                 ref var status = ref Entities.GetRef(entity.ID);
-                status.Components.Remove(typeof(T).GetHashCode());
+                status.Components.Remove(type.GetHashCode());
 
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
-                    var type = typeof(T);
                     var group = RegisteredGroups[i];
 
                     if (group.Types.Contains(type))
@@ -243,7 +281,7 @@ namespace ElementEngine.ECS
             }
 
             return false;
-        } // TryRemoveComponent
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>(Entity entity) where T : struct
