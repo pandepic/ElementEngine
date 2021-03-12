@@ -8,8 +8,8 @@ namespace ElementEngine
 {
     public struct Vector2I
     {
-        public int X { get; set; }
-        public int Y { get; set; }
+        public int X;
+        public int Y;
 
         public static Vector2I Zero = new Vector2I(0, 0);
 
