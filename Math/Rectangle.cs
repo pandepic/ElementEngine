@@ -44,6 +44,18 @@ namespace ElementEngine
         }
 
         [JsonIgnore]
+        public Vector2I TopRight
+        {
+            get => new Vector2I(Right, Top);
+        }
+
+        [JsonIgnore]
+        public Vector2I BottomLeft
+        {
+            get => new Vector2I(Left, Bottom);
+        }
+
+        [JsonIgnore]
         public Vector2I BottomRight
         {
             get => new Vector2I(Right, Bottom);
