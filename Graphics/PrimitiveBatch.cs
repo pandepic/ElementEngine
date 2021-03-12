@@ -174,14 +174,19 @@ namespace ElementEngine
             if (!origin.HasValue)
                 origin = new Vector2(0f, 0f);
 
+            var topRect = new Rectangle(rect.X, rect.Y, rect.Width, lineSize);
+            var bottomRect = new Rectangle(rect.X, rect.Y + (rect.Height - lineSize), rect.Width, lineSize);
+            var leftRect = new Rectangle(rect.X, rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2));
+            var rightRect = new Rectangle(rect.X + (rect.Width - lineSize), rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2));
+
             // top
-            DrawFilledRect(new Rectangle(rect.X, rect.Y, rect.Width, lineSize), color, origin, rotation);
+            DrawFilledRect(topRect, color, origin, rotation);
             // bottom
-            DrawFilledRect(new Rectangle(rect.X, rect.Y + (rect.Height - lineSize), rect.Width, lineSize), color, origin, rotation);
+            DrawFilledRect(bottomRect, color, origin, rotation);
             // left
-            DrawFilledRect(new Rectangle(rect.X, rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2)), color, origin, rotation);
+            DrawFilledRect(leftRect, color, origin, rotation);
             // right
-            DrawFilledRect(new Rectangle(rect.X + (rect.Width - lineSize), rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2)), color, origin, rotation);
+            DrawFilledRect(rightRect, color, origin, rotation);
         }
 
         public void DrawFilledRect(Rectangle rect, RgbaFloat color, Vector2? origin = null, float rotation = 0f)

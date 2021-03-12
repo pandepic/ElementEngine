@@ -8,7 +8,7 @@ namespace ElementEngine
     public class AStarNode : IPoolable
     {
         public Vector2I Position;
-        public List<AStarNode> Edges = new List<AStarNode>();
+        public List<Vector2I> Edges = new List<Vector2I>();
         public float MovementCost;
 
         // temp internal pathfinder values
@@ -87,7 +87,7 @@ namespace ElementEngine
                 if (!SetPathResult(AStarPathResultType.StartEqualsEnd, ref result))
                     return result;
             }
-
+            
             _openList.Clear();
             Graph.Reset();
 
@@ -123,7 +123,11 @@ namespace ElementEngine
 
                 for (var i = 0; i < currentNode.Edges.Count; i++)
                 {
-                    var edgeNode = currentNode.Edges[i];
+                    var edgeNode = Graph.GetNode(currentNode.Edges[i], start, end);
+
+                    if (edgeNode == null)
+                        continue;
+
                     Graph.AddNodeEdges(edgeNode, start, end);
 
                     if (AddNodeToOpenList(edgeNode, currentNode, endNode))

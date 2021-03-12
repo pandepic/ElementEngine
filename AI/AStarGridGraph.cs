@@ -68,6 +68,12 @@ namespace ElementEngine
             }
         }
 
+        public override void Reset()
+        {
+            base.Reset();
+            ClearCache();
+        }
+
         public void ClearCache()
         {
             for (var i = 0; i < _nodeCache.Length; i++)
@@ -82,10 +88,7 @@ namespace ElementEngine
             for (var i = 0; i < _useSurroundingCoords.Length; i++)
             {
                 var edgePos = node.Position + _useSurroundingCoords[i];
-                var edgeNode = GetNode(edgePos, start, end);
-
-                if (edgeNode != null)
-                    node.Edges.Add(edgeNode);
+                node.Edges.Add(edgePos);
             }
         }
 
@@ -99,14 +102,21 @@ namespace ElementEngine
 
             var cacheIndex = position.X + Width * position.Y;
 
-            if (_nodeCache[cacheIndex] != null)
-                return _nodeCache[cacheIndex];
+            AStarNode node;
 
-            var node = NodePool.New();
+            if (_nodeCache[cacheIndex] != null)
+                node = _nodeCache[cacheIndex];
+            else
+                node = NodePool.New();
+
             node.Position = position;
             node.MovementCost = GetMovementCost(position);
 
             _nodeCache[cacheIndex] = node;
+
+            if (node.Edges.Count == 0)
+                AddNodeEdges(node, start, end);
+
             return node;
         }
     } // AStarGridGraph
