@@ -334,70 +334,70 @@ namespace ElementEngine
 
         } // LoadOgmoLevel
 
-        ///// <summary>
-        ///// Try to auto detect the audio format and load from the correct source type
-        ///// </summary>
-        //public static AudioSource LoadAudioSourceByExtension(string assetName)
-        //{
-        //    if (!_assetData.ContainsKey(assetName))
-        //        return null;
+        /// <summary>
+        /// Try to auto detect the audio format and load from the correct source type
+        /// </summary>
+        public static AudioSource LoadAudioSourceByExtension(string assetName)
+        {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
-        //    var path = GetAssetPath(assetName);
-        //    var extension = Path.GetExtension(path);
+            var path = GetAssetPath(assetName);
+            var extension = Path.GetExtension(path);
 
-        //    return extension.ToUpper() switch
-        //    {
-        //        ".WAV" => LoadAudioSourceWAV(assetName),
-        //        ".OGG" => LoadAudioSourceOggVorbis(assetName),
-        //        _ => throw new Exception("Couldn't load audio source from unknown or unsupported audio format " + assetName),
-        //    };
-        //} // LoadAudioSourceByExtension
+            return extension.ToUpper() switch
+            {
+                ".WAV" => LoadAudioSourceWAV(assetName),
+                ".OGG" => LoadAudioSourceOggVorbis(assetName),
+                _ => throw new Exception("Couldn't load audio source from unknown or unsupported audio format " + assetName),
+            };
+        } // LoadAudioSourceByExtension
 
-        //public static AudioSource LoadAudioSourceWAV(string assetName)
-        //{
-        //    if (_assetCache.ContainsKey(assetName))
-        //        return (AudioSource)_assetCache[assetName];
+        public static AudioSource LoadAudioSourceWAV(string assetName)
+        {
+            if (_assetCache.ContainsKey(assetName))
+                return (AudioSource)_assetCache[assetName];
 
-        //    var stopWatch = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
 
-        //    using var fs = GetAssetStream(assetName);
-        //    using var wav = new WaveFileReader(fs);
+            using var fs = GetAssetStream(assetName);
+            using var wav = new WaveFileReader(fs);
 
-        //    var newSource = new AudioSource(wav)
-        //    {
-        //        AssetName = assetName
-        //    };
+            var newSource = new AudioSource(wav)
+            {
+                AssetName = assetName
+            };
 
-        //    _assetCache.Add(assetName, newSource);
-        //    LogLoaded("AudioSource", assetName, stopWatch);
+            _assetCache.Add(assetName, newSource);
+            LogLoaded("AudioSource", assetName, stopWatch);
 
-        //    return newSource;
+            return newSource;
 
-        //} // LoadAudioSourceWAV
+        } // LoadAudioSourceWAV
 
-        //public static AudioSource LoadAudioSourceOggVorbis(string assetName)
-        //{
-        //    if (!_assetData.ContainsKey(assetName))
-        //        return null;
-        //    if (_assetCache.ContainsKey(assetName))
-        //        return (AudioSource)_assetCache[assetName];
+        public static AudioSource LoadAudioSourceOggVorbis(string assetName)
+        {
+            if (!_assetData.ContainsKey(assetName))
+                return null;
+            if (_assetCache.ContainsKey(assetName))
+                return (AudioSource)_assetCache[assetName];
 
-        //    var stopWatch = Stopwatch.StartNew();
+            var stopWatch = Stopwatch.StartNew();
 
-        //    using var fs = GetAssetStream(assetName);
-        //    using var vorbis = new VorbisWaveReader(fs);
+            using var fs = GetAssetStream(assetName);
+            using var vorbis = new VorbisWaveReader(fs);
 
-        //    var newSource = new AudioSource(vorbis)
-        //    {
-        //        AssetName = assetName
-        //    };
+            var newSource = new AudioSource(vorbis)
+            {
+                AssetName = assetName
+            };
 
-        //    _assetCache.Add(assetName, newSource);
-        //    LogLoaded("AudioSource", assetName, stopWatch);
+            _assetCache.Add(assetName, newSource);
+            LogLoaded("AudioSource", assetName, stopWatch);
 
-        //    return newSource;
+            return newSource;
 
-        //} // LoadAudioSourceOggVorbis
+        } // LoadAudioSourceOggVorbis
 
         public static EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
         {

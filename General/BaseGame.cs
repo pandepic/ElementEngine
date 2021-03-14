@@ -201,7 +201,7 @@ namespace ElementEngine
 
                 var inputSnapshot = Window.PumpEvents();
                 InputManager.Update(inputSnapshot, GameTimer);
-                //SoundManager.Update();
+                SoundManager.Update();
             }
         } // Run
 
