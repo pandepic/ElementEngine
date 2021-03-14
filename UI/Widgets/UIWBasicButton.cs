@@ -173,8 +173,8 @@ namespace ElementEngine
 
             if (_buttonPressed == true)
             {
-                if (!string.IsNullOrWhiteSpace(_clickSound))
-                    SoundManager.Play(_clickSound, SoundManager.UISoundType);
+                //if (!string.IsNullOrWhiteSpace(_clickSound))
+                //    SoundManager.Play(_clickSound, SoundManager.UISoundType);
 
                 TriggerUIEvent(UIEventType.ButtonClick);
                 _buttonPressed = false;
