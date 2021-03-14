@@ -195,7 +195,7 @@ namespace ElementEngine
             if (node._isOpen || node._isClosed)
                 return false;
 
-            if (Graph.IsNodeBlocked(node, end.Position))
+            if (Graph.IsNodeBlocked(node, end.Position, parent))
                 return false;
 
             node._parent = parent;

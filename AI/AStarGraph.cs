@@ -19,7 +19,7 @@ namespace ElementEngine
             NodePool.Clear();
         }
 
-        public virtual bool IsNodeBlocked(AStarNode node, Vector2I end)
+        public virtual bool IsNodeBlocked(AStarNode node, Vector2I end, AStarNode parent = null)
         {
             if (node.MovementCost < 0f)
                 return false;
