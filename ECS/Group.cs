@@ -57,6 +57,7 @@ namespace ElementEngine.ECS
 
             EntityBuffer[entityIndex] = EntityBuffer[EntityCount - 1];
             EntityBuffer[EntityCount - 1] = default;
+            EntityCount -= 1;
         }
     }
 }

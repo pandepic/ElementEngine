@@ -49,7 +49,7 @@ namespace ElementEngine.ECS
 
         public readonly short RegistryID;
 
-        public Dictionary<int, IComponentStore> ComponentData = new Dictionary<int, IComponentStore>();
+        public Dictionary<int, IComponentStore> ComponentStores = new Dictionary<int, IComponentStore>();
         public List<Group> RegisteredGroups = new List<Group>();
         public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
@@ -168,7 +168,7 @@ namespace ElementEngine.ECS
             ref var status = ref Entities.GetRef(entity.ID);
             status.IsAlive = false;
 
-            foreach (var (_, componentStore) in ComponentData)
+            foreach (var (_, componentStore) in ComponentStores)
                 componentStore.TryRemove(entity.ID);
 
             foreach (var group in RegisteredGroups)
@@ -184,17 +184,30 @@ namespace ElementEngine.ECS
                 TryRemoveComponentImmediate(removeComponent.ComponentStore, removeComponent.Entity, removeComponent.Type);
         }
 
+        public void Clear()
+        {
+            SystemsFinished();
+
+            DeadEntities.Clear();
+            Entities.Clear();
+            _removeEntities.Clear();
+            _removeComponents.Clear();
+
+            foreach (var store in ComponentStores)
+                store.Value.Clear();
+        }
+
         public bool TryAddComponent<T>(Entity entity, T component) where T : struct
         {
             var typeHash = typeof(T).GetHashCode();
 
-            if (!ComponentData.ContainsKey(typeHash))
+            if (!ComponentStores.ContainsKey(typeHash))
             {
                 if (RegistryID >= ComponentManager<T>.Pool.Length)
                     Array.Resize(ref ComponentManager<T>.Pool, ComponentManager<T>.Pool.Length * 2);
 
                 ComponentManager<T>.Pool[RegistryID] = new ComponentStore<T>(_defaultMaxComponents);
-                ComponentData.Add(typeHash, ComponentManager<T>.Pool[RegistryID]);
+                ComponentStores.Add(typeHash, ComponentManager<T>.Pool[RegistryID]);
             }
 
             if (GetComponentStore<T>().TryAdd(component, entity.ID))
@@ -215,9 +228,9 @@ namespace ElementEngine.ECS
                     {
                         var groupTypeHash = groupType.GetHashCode();
 
-                        if (ComponentData.ContainsKey(groupTypeHash))
+                        if (ComponentStores.ContainsKey(groupTypeHash))
                         {
-                            var store = ComponentData[groupTypeHash];
+                            var store = ComponentStores[groupTypeHash];
                             if (!store.Contains(entity.ID))
                                 matchesGroup = false;
                         }

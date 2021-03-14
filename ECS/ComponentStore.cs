@@ -11,6 +11,7 @@ namespace ElementEngine.ECS
         public bool Contains(int entityID);
         public void Remove(int entityID);
         public bool TryRemove(int entityID);
+        public void Clear();
     }
 
     public class ComponentStore<T> : SparseSet<T>, IComponentStore where T : struct
