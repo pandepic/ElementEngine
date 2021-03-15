@@ -208,13 +208,18 @@ namespace ElementEngine
 
         public static T LoadJSON<T>(string assetName)
         {
+            if (_assetCache.ContainsKey(assetName))
+                return (T)_assetCache[assetName];
+
             var stopWatch = Stopwatch.StartNew();
 
             using var streamReader = new StreamReader(GetAssetStream(assetName));
             using var jsonTextReader = new JsonTextReader(streamReader);
             var serializer = new JsonSerializer();
             var obj = serializer.Deserialize<T>(jsonTextReader);
-            
+
+            _assetCache.Add(assetName, obj);
+
             LogLoaded("JSON (" + typeof(T).ToString() + ")", assetName, stopWatch);
             return obj;
         }
