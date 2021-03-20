@@ -6,6 +6,7 @@ using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Dcrew.Spatial
 {
@@ -164,7 +165,9 @@ namespace Dcrew.Spatial
                 j.Next = i;
             }
         }
+
         /// <summary>Remove id <paramref name="i"/>, no re-ordering, <paramref name="i"/> will be available for you to re-use.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Remove(int i, int nodeStart = 0)
         {
             ref var item = ref _item[i];
@@ -565,6 +568,7 @@ namespace Dcrew.Spatial
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         int FindNode(float x, float y, int i = 0)
         {
             ref readonly var n = ref _node[i];
@@ -582,6 +586,7 @@ namespace Dcrew.Spatial
             return i;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void Subdivide(int node)
         {
             ref var n = ref _node[node];
