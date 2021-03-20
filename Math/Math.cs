@@ -73,5 +73,20 @@ namespace ElementEngine
 
             return result;
         } // GetPointOnBezierCurve
-    }
+
+        public static float Clamp(float value, float min, float max)
+        {
+            value = (value > max) ? max : value;
+            value = (value < min) ? min : value;
+            return value;
+        }
+
+        public static int Clamp(int value, int min, int max)
+        {
+            value = (value > max) ? max : value;
+            value = (value < min) ? min : value;
+            return value;
+        }
+
+    } // MathHelper
 }
