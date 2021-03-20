@@ -50,6 +50,7 @@ namespace ElementEngine.ECS
         public readonly short RegistryID;
 
         public Dictionary<int, IComponentStore> ComponentStores = new Dictionary<int, IComponentStore>();
+        public Dictionary<int, Type> ComponentHashCodeLookup = new Dictionary<int, Type>();
         public List<Group> RegisteredGroups = new List<Group>();
         public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
@@ -208,6 +209,7 @@ namespace ElementEngine.ECS
 
                 ComponentManager<T>.Pool[RegistryID] = new ComponentStore<T>(_defaultMaxComponents);
                 ComponentStores.Add(typeHash, ComponentManager<T>.Pool[RegistryID]);
+                ComponentHashCodeLookup.Add(typeHash, typeof(T));
             }
 
             if (GetComponentStore<T>().TryAdd(component, entity.ID))
