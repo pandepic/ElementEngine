@@ -88,5 +88,13 @@ namespace ElementEngine
             return value;
         }
 
+        public static Vector2 GetPointOnCircle(Vector2 position, float radius, int index, int numPoints)
+        {
+            float i = (2 * MathF.PI / numPoints) * index;
+            return new Vector2(
+                    MathF.Cos(i) * radius + position.X,
+                    MathF.Sin(i) * radius + position.Y);
+        }
+
     } // MathHelper
 }
