@@ -23,6 +23,13 @@ namespace ElementEngine.ECS
             GenerationID = registry.GetEntityGeneration(id);
         }
 
+        public Entity(int id, int generationID, Registry registry)
+        {
+            ID = id;
+            RegistryID = registry.RegistryID;
+            GenerationID = generationID;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryAddComponent<T>(T component) where T : struct
         {

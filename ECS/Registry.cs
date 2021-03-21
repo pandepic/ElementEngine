@@ -129,7 +129,7 @@ namespace ElementEngine.ECS
                 return false;
 
             ref var status = ref Entities.GetRef(entity.ID);
-            return status.IsAlive;
+            return status.IsAlive && status.GenerationID == entity.GenerationID;
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
