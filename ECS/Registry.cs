@@ -299,11 +299,17 @@ namespace ElementEngine.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetComponent<T>(Entity entity) where T : struct
+        public ref T TryGetComponent<T>(Entity entity) where T : struct
         {
             if (!HasComponent<T>(entity))
                 throw new Exception("Entity doesn't have the requested component: " + typeof(T).Name);
 
+            return ref GetComponentStore<T>().GetRef(entity.ID);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T GetComponent<T>(Entity entity) where T : struct
+        {
             return ref GetComponentStore<T>().GetRef(entity.ID);
         }
 
