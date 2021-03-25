@@ -66,7 +66,7 @@ namespace Dcrew.Spatial
             }
         }
         /// <summary>A <see cref="Rectangle"/> covering the min/max coordinates (bounds) of this <see cref="RotRect"/>.</summary>
-        public RectangleL AABB
+        public Rectangle AABB
         {
             get
             {
@@ -120,8 +120,8 @@ namespace Dcrew.Spatial
                     maxy = bry;
                 if (bly > maxy)
                     maxy = bly;
-                var r = new RectangleL((long)minx, (long)miny, (long)MathF.Ceiling(maxx - minx), (long)MathF.Ceiling(maxy - miny));
-                r.Location += new Vector2L(XY);
+                var r = new Rectangle((int)minx, (int)miny, (int)MathF.Ceiling(maxx - minx), (int)MathF.Ceiling(maxy - miny));
+                r.Location += XY.ToVector2I();
                 return r;
             }
         }
@@ -157,12 +157,12 @@ namespace Dcrew.Spatial
         /// <param name="rectangle">Area of the created <see cref="RotRect"/>.</param>
         /// <param name="rotation">Rotation (in radians) of the created <see cref="RotRect"/>.</param>
         /// <param name="origin">Center of rotation of the created <see cref="RotRect"/>.</param>
-        public RotRect(RectangleL rectangle, float rotation = default, Vector2 origin = default) : this(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, rotation, origin) { }
+        public RotRect(Rectangle rectangle, float rotation = default, Vector2 origin = default) : this(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, rotation, origin) { }
 
         /// <summary>Gets whether or not the other <see cref="Rectangle"/> intersects with this rectangle.</summary>
         /// <param name="value">The other rectangle for testing.</param>
         /// <returns><c>true</c> if other <see cref="Rectangle"/> intersects with this rectangle; <c>false</c> otherwise.</returns>
-        public bool Intersects(RectangleL value) => Intersects(new RotRect(value.Location.ToVector2(), value.Size.ToVector2(), 0, Vector2.Zero));
+        public bool Intersects(Rectangle value) => Intersects(new RotRect(value.Location.ToVector2(), value.Size.ToVector2(), 0, Vector2.Zero));
         /// <summary>Gets whether or not the other <see cref="RotRect"/> intersects with this rectangle.</summary>
         /// <param name="value">The other rectangle for testing.</param>
         /// <returns><c>true</c> if other <see cref="RotRect"/> intersects with this rectangle; <c>false</c> otherwise.</returns>
@@ -211,7 +211,7 @@ namespace Dcrew.Spatial
         /// <summary>Gets whether or not the provided <see cref="Rectangle"/> lies within the bounds of this <see cref="RotRect"/>.</summary>
         /// <param name="value">The <see cref="Rectangle"/> to check for inclusion in this <see cref="RotRect"/>.</param>
         /// <returns><c>true</c> if the provided <see cref="Rectangle"/>'s bounds lie entirely inside this <see cref="RotRect"/>; <c>false</c> otherwise.</returns>
-        public bool Contains(RectangleL value) => Contains(new RotRect(value.Location.ToVector2(), value.Size.ToVector2(), 0, Vector2.Zero));
+        public bool Contains(Rectangle value) => Contains(new RotRect(value.Location.ToVector2(), value.Size.ToVector2(), 0, Vector2.Zero));
         /// <summary>Gets whether or not the provided <see cref="RotRect"/> lies within the bounds of this <see cref="RotRect"/>.</summary>
         /// <param name="value">The <see cref="RotRect"/> to check for inclusion in this <see cref="RotRect"/>.</param>
         /// <returns><c>true</c> if the provided <see cref="RotRect"/>'s bounds lie entirely inside this <see cref="RotRect"/>; <c>false</c> otherwise.</returns>

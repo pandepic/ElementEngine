@@ -8,7 +8,7 @@ namespace Dcrew.Spatial
 {
     public static class Util
     {
-        public static RectangleL Rotate(Vector2 xy, Vector2 size, float angle, Vector2 origin)
+        public static Rectangle Rotate(Vector2 xy, Vector2 size, float angle, Vector2 origin)
         {
             float cos = MathF.Cos(angle),
                 sin = MathF.Sin(angle),
@@ -60,8 +60,8 @@ namespace Dcrew.Spatial
                 maxy = bry;
             if (bly > maxy)
                 maxy = bly;
-            var r = new RectangleL((long)minx, (long)miny, (long)MathF.Ceiling(maxx - minx), (long)MathF.Ceiling(maxy - miny));
-            r.Location += new Vector2L(xy);
+            var r = new Rectangle((int)minx, (int)miny, (int)MathF.Ceiling(maxx - minx), (int)MathF.Ceiling(maxy - miny));
+            r.Location += xy.ToVector2I();
             return r;
         }
     }
