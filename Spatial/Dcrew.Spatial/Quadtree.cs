@@ -121,7 +121,7 @@ namespace Dcrew.Spatial
         }
 
         /// <summary>Set id <paramref name="i"/> to the given bounds.</summary>
-        public void Update(int i, Rectangle rect) { Update(i, rect.X, rect.Y, rect.Width, rect.Height); }
+        public void Update(int i, RectangleL rect) { Update(i, rect.X, rect.Y, rect.Width, rect.Height); }
         /// <summary>Set id <paramref name="i"/> to the given bounds.</summary>
         public void Update(int i, float x, float y, float width, float height)
         {
@@ -293,7 +293,7 @@ namespace Dcrew.Spatial
         }
 
         /// <summary>Query and return a disposable collection of ids that intersect the given rectangle.</summary>
-        public Yield Query(Rectangle rect) { return Query(rect.X, rect.Y, rect.Width, rect.Height); }
+        public Yield Query(RectangleL rect) { return Query(rect.X, rect.Y, rect.Width, rect.Height); }
         /// <summary>Query and return a disposable collection of ids that intersect the given rectangle.</summary>
         public Yield Query(float x, float y, float width, float height)
         {
@@ -339,9 +339,9 @@ namespace Dcrew.Spatial
             return yield;
         }
         /// <summary>Query and return a disposable collection of ids that intersect the given rectangle.</summary>
-        public Yield Query(Rectangle rect, float rotation, float originX, float originY) { return Query(rect.X, rect.Y, rect.Width, rect.Height, rotation, originX, originY); }
+        public Yield Query(RectangleL rect, float rotation, float originX, float originY) { return Query(rect.X, rect.Y, rect.Width, rect.Height, rotation, originX, originY); }
         /// <summary>Query and return a disposable collection of ids that intersect the given rectangle.</summary>
-        public Yield Query(Rectangle rect, float rotation, Vector2 origin) { return Query(rect.X, rect.Y, rect.Width, rect.Height, rotation, origin.X, origin.Y); }
+        public Yield Query(RectangleL rect, float rotation, Vector2 origin) { return Query(rect.X, rect.Y, rect.Width, rect.Height, rotation, origin.X, origin.Y); }
         /// <summary>Query and return a disposable collection of ids that intersect the given rectangle.</summary>
         public Yield Query(float x, float y, float width, float height, float rotation, Vector2 origin) { return Query(x, y, width, height, rotation, origin.X, origin.Y); }
         /// <summary>Query and return a disposable collection of ids that intersect the given rectangle.</summary>
