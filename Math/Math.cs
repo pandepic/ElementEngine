@@ -24,6 +24,19 @@ namespace ElementEngine
             return angleDegrees;
         }
 
+        public static double GetAngleDegreesBetweenPositions(Vector2D origin, Vector2D target)
+        {
+            var angleRadians = Math.Atan2((target.X - origin.X), (origin.Y - target.Y));
+            var angleDegrees = angleRadians.ToDegrees();
+
+            if (angleDegrees < 0.0f)
+                angleDegrees += 360.0f;
+            else if (angleDegrees > 360.0f)
+                angleDegrees -= 360.0f;
+
+            return angleDegrees;
+        }
+
         public static int GetSeedFromString(string str)
         {
             using (var mySHA256 = SHA256Managed.Create())
