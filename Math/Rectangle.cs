@@ -243,5 +243,6 @@ namespace ElementEngine
         public static Rectangle operator +(Rectangle rect, float val) => new Rectangle(rect.X + val, rect.Y + val, rect.Width + val, rect.Height + val);
         public static Rectangle operator *(Rectangle rect, float val) => new Rectangle(rect.X * val, rect.Y * val, rect.Width * val, rect.Height * val);
         public static Rectangle operator /(Rectangle rect, float val) => new Rectangle(rect.X / val, rect.Y / val, rect.Width / val, rect.Height / val);
-    }
+
+    } // Rectangle
 }
