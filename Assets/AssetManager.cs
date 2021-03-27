@@ -432,7 +432,7 @@ namespace ElementEngine
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(dataAsset);
-            var newAtlas = new TexturePackerAtlas(fs, LoadTexture2D(textureAsset));
+            var newAtlas = new TexturePackerAtlas(fs, textureAsset);
 
             _assetCache.Add(dataAsset, newAtlas);
             LogLoaded("TexturePackerAtlas", dataAsset, stopWatch);

@@ -60,18 +60,20 @@ namespace ElementEngine.TexturePacker
     public class TexturePackerAtlas
     {
         public Texture2D Texture;
+        public string TextureAsset;
         public TexturePackerAtlasData Data;
 
         public Dictionary<string, TexturePackerAtlasSprite> Sprites = new Dictionary<string, TexturePackerAtlasSprite>();
 
-        public TexturePackerAtlas(FileStream fs, Texture2D texture)
+        public TexturePackerAtlas(FileStream fs, string textureAsset)
         {
             var serializer = new JsonSerializer();
             using var sr = new StreamReader(fs);
             using var jsonTextReader = new JsonTextReader(sr);
 
             Data = serializer.Deserialize<TexturePackerAtlasData>(jsonTextReader);
-            Texture = texture;
+            TextureAsset = textureAsset;
+            Texture = AssetManager.LoadTexture2D(TextureAsset);
 
             foreach (var frame in Data.frames)
                 Sprites.TryAdd(frame.filename, frame);
