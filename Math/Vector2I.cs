@@ -19,6 +19,12 @@ namespace ElementEngine
             Y = val;
         }
 
+        public Vector2I(float val)
+        {
+            X = (int)val;
+            Y = (int)val;
+        }
+
         public Vector2I(int x, int y)
         {
             X = x;

@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using System.Diagnostics;
 using System.IO;
 
 namespace ElementEngine
@@ -20,6 +21,18 @@ namespace ElementEngine
                     LogEventLevel.Verbose,
                     "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
+        }
+
+        [Conditional("DEBUG")]
+        public static void Debug(string messageTemplate)
+        {
+            _logger.Information(messageTemplate);
+        }
+
+        [Conditional("DEBUG")]
+        public static void Debug(string messageTemplate, params object[] propertyValues)
+        {
+            _logger.Information(messageTemplate, propertyValues);
         }
 
         public static void Information(string messageTemplate)
