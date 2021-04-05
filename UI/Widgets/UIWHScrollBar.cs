@@ -115,7 +115,8 @@ namespace ElementEngine
             var atMinValue = GetXMLAttribute("MinValue");
             var atMaxValue = GetXMLAttribute("MaxValue");
             var atIncrement = GetXMLAttribute("Increment");
-            var elSliderOffsetX = GetXMLElement("SliderOffsetX");
+            var atSliderOffsetX = GetXMLAttribute("SliderOffset", "X");
+            var atSliderOffsetY = GetXMLAttribute("SliderOffset", "Y");
 
             if (atStartValue != null)
                 _currentValue = int.Parse(atStartValue.Value);
@@ -125,8 +126,10 @@ namespace ElementEngine
                 _maxValue = int.Parse(atMaxValue.Value);
             if (atIncrement != null)
                 _increment = int.Parse(atIncrement.Value);
-            if (elSliderOffsetX != null)
-                _sliderOffsetX = int.Parse(elSliderOffsetX.Value);
+            if (atSliderOffsetX != null)
+                _sliderOffsetX = int.Parse(atSliderOffsetX.Value);
+            if (atSliderOffsetY != null)
+                _sliderOffsetY = int.Parse(atSliderOffsetY.Value);
 
             var sliderWidthOffset = _slider.Width - (_sliderOffsetX * 2);
             Width = _background.Width + (sliderWidthOffset <= 0 ? 0 : sliderWidthOffset);

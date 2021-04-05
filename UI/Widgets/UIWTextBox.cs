@@ -23,6 +23,8 @@ namespace ElementEngine
         }
 
         protected Vector2 _textPosition = Vector2.Zero;
+        protected bool _centerTextX = false;
+        protected bool _centerTextY = false;
         protected Rectangle _textRect = Rectangle.Empty;
         protected SpriteFont _font = null;
         protected Clipboard _clipboard = new Clipboard();
@@ -80,7 +82,37 @@ namespace ElementEngine
             Height = _background.Height;
             Width = _background.Width;
 
-            _textPosition = new Vector2(int.Parse(GetXMLElement("TextX").Value), int.Parse(GetXMLElement("TextY").Value));
+            var atTextPosX = GetXMLAttribute("TextPosition", "X");
+            var atTextPosY = GetXMLAttribute("TextPosition", "Y");
+
+            if (atTextPosX != null)
+            {
+                switch (atTextPosX.Value.ToUpper())
+                {
+                    case "CENTER":
+                        _centerTextX = true;
+                        break;
+
+                    default:
+                        _textPosition.X = int.Parse(atTextPosX.Value);
+                        break;
+                }
+            }
+
+            if (atTextPosY != null)
+            {
+                switch (atTextPosY.Value.ToUpper())
+                {
+                    case "CENTER":
+                        _centerTextY = true;
+                        break;
+
+                    default:
+                        _textPosition.Y = int.Parse(atTextPosY.Value);
+                        break;
+                }
+            }
+
             _font = AssetManager.LoadSpriteFont(GetXMLElement("FontName").Value);
             FontSize = int.Parse(GetXMLElement("FontSize").Value);
             _text = GetXMLElement("Text").Value;
@@ -245,7 +277,15 @@ namespace ElementEngine
             {
                 try
                 {
-                    spriteBatch.DrawTexture2D(_textTexture, _textPosition + Position + Parent.Position, _textRect, null, null, 0f, Colour.ToRgbaFloat());
+                    var offsetPosition = Vector2.Zero;
+                    var tSize = _font.MeasureText(_text.Length > 0 ? _text : " ", FontSize);
+
+                    if (_centerTextX)
+                        offsetPosition.X = (Width / 2) - tSize.X / 2;
+                    if (_centerTextY)
+                        offsetPosition.Y = (Height / 2) - tSize.Y / 2;
+
+                    spriteBatch.DrawTexture2D(_textTexture, offsetPosition + _textPosition + Position + Parent.Position, _textRect, null, null, 0f, Colour.ToRgbaFloat());
                 }
                 catch (ArgumentException)
                 {
