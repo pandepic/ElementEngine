@@ -11,38 +11,28 @@ namespace ElementEngine.ECS.CommonComponents
     {
         public Entity Parent;
         public float Rotation;
-        public Vector2 Position;
-        public Vector2 SectorPosition;
 
-        public Vector2 TransformedPosition
+        private Vector2 _position;
+        public Vector2 Position
         {
             get
             {
                 if (!Parent.IsAlive)
-                    return Position;
+                    return _position;
                 else
                 {
                     ref var parentTransform = ref Parent.GetComponent<TransformComponent>();
                     var transformMatrix =
                         Matrix3x2.CreateRotation(parentTransform.Rotation) *
-                        Matrix3x2.CreateTranslation(parentTransform.TransformedPosition);
+                        Matrix3x2.CreateTranslation(parentTransform.Position);
 
-                    return Vector2.Transform(Position, transformMatrix);
+                    return Vector2.Transform(_position, transformMatrix);
                 }
             }
-        }
 
-        public Vector2 TransformedSectorPosition
-        {
-            get
+            set
             {
-                if (!Parent.IsAlive)
-                    return SectorPosition;
-                else
-                {
-                    ref var parentTransform = ref Parent.GetComponent<TransformComponent>();
-                    return parentTransform.TransformedSectorPosition;
-                }
+                _position = value;
             }
         }
     } // TransformComponent
