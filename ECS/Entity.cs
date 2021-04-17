@@ -63,7 +63,12 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasComponent<T>() where T : struct
         {
-            return Registry.GetComponentStore<T>().Contains(ID);
+            var componentStore = Registry.GetComponentStore<T>();
+
+            if (componentStore == null)
+                return false;
+
+            return componentStore.Contains(ID);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
