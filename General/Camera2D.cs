@@ -173,7 +173,11 @@ namespace ElementEngine
         public Rectangle ScreenToWorld(Rectangle rect)
         {
             Matrix4x4.Invert(GetViewMatrix(), out var inverted);
-            return new Rectangle(Vector2.Transform(rect.LocationF, inverted), rect.SizeF);
+
+            var topLeft = Vector2.Transform(rect.LocationF, inverted);
+            var bottomRight = Vector2.Transform(rect.BottomRightF, inverted);
+
+            return new Rectangle(topLeft, bottomRight - topLeft);
         }
 
         public Vector2 WorldToScreen(Vector2 position)
@@ -183,7 +187,10 @@ namespace ElementEngine
 
         public Rectangle WorldToScreen(Rectangle rect)
         {
-            return new Rectangle(Vector2.Transform(rect.LocationF, GetViewMatrix()), rect.SizeF);
+            var topLeft = Vector2.Transform(rect.LocationF, GetViewMatrix());
+            var bottomRight = Vector2.Transform(rect.BottomRightF, GetViewMatrix());
+
+            return new Rectangle(topLeft, bottomRight - topLeft);
         }
 
         public override string ToString()
