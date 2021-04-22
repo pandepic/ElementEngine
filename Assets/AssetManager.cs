@@ -206,7 +206,7 @@ namespace ElementEngine
             Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
 
-        public static T LoadJSON<T>(string assetName)
+        public static T LoadJSON<T>(string assetName, JsonSerializer serializer = null)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (T)_assetCache[assetName];
@@ -215,7 +215,10 @@ namespace ElementEngine
 
             using var streamReader = new StreamReader(GetAssetStream(assetName));
             using var jsonTextReader = new JsonTextReader(streamReader);
-            var serializer = new JsonSerializer();
+
+            if (serializer == null)
+                serializer = new JsonSerializer();
+
             var obj = serializer.Deserialize<T>(jsonTextReader);
 
             _assetCache.Add(assetName, obj);
