@@ -114,10 +114,10 @@ namespace ElementEngine
         #endregion
 
         public SpriteBatch2D() : this(ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight) { }
-        public SpriteBatch2D(int width, int height, Shader[] shaders = null, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, shaders, invertY) { }
-        public SpriteBatch2D(Texture2D target, Shader[] shaders = null, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, shaders, invertY) { }
+        public SpriteBatch2D(int width, int height, Shader[] shaders = null, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, shaders: shaders, invertY: invertY) { }
+        public SpriteBatch2D(Texture2D target, Shader[] shaders = null, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, shaders: shaders, invertY: invertY) { }
 
-        public unsafe SpriteBatch2D(int width, int height, OutputDescription output, Shader[] shaders = null, bool invertY = false)
+        public unsafe SpriteBatch2D(int width, int height, OutputDescription output, SimplePipeline simplePipeline = null, Shader[] shaders = null, bool invertY = false)
         {
             _textureSets = new Dictionary<string, ResourceSet>();
 
@@ -129,43 +129,20 @@ namespace ElementEngine
             if (invertY && !GraphicsDevice.IsUvOriginTopLeft)
                 _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
 
-            _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Matrix4x4) * 2), BufferUsage.UniformBuffer));
-            GraphicsDevice.UpdateBuffer(_transformBuffer, 0, Matrix4x4.Identity);
-            GraphicsDevice.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), Matrix4x4.Identity);
+            if (simplePipeline == null)
+                simplePipeline = GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, null, null);
 
-            _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("ProjectionViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
-            _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
+            simplePipeline.GeneratePipeline();
 
-            _textureLayout = factory.CreateResourceLayout(
-                new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("fTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("fTextureSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
+            _pipeline = simplePipeline.Pipeline;
+            _transformBuffer = simplePipeline.UniformBuffers[0].Buffer;
+            _transformLayout = simplePipeline.UniformBuffers[0].ResourceLayout;
+            _transformSet = simplePipeline.UniformBuffers[0].ResourceSet;
+            _textureLayout = simplePipeline.PipelineTextures[0].ResourceLayout;
 
             _vertexData = new Vertex2DPositionTexCoordsColor[_maxBatchSize * VerticesPerQuad];
-
             _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)), BufferUsage.VertexBuffer));
             GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)));
-
-            GraphicsPipelineDescription pipelineDescription = new GraphicsPipelineDescription
-            {
-                BlendState = BlendStateDescription.SingleAlphaBlend,
-                DepthStencilState = new DepthStencilStateDescription(depthTestEnabled: true, depthWriteEnabled: true, ComparisonKind.LessEqual),
-                RasterizerState = new RasterizerStateDescription
-                {
-                    DepthClipEnabled = true,
-                    CullMode = FaceCullMode.None,
-                },
-                PrimitiveTopology = PrimitiveTopology.TriangleList,
-                ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { Vertex2DPositionTexCoordsColor.VertexLayout }, shaders: shaders ?? _shaders),
-                ResourceLayouts = new ResourceLayout[]
-                {
-                    _transformLayout,
-                    _textureLayout
-                },
-                Outputs = output
-            };
-
-            _pipeline = factory.CreateGraphicsPipeline(pipelineDescription);
 
             // if culling this is the right order for bottom left
             var indicesTemplate = new ushort[]
@@ -206,6 +183,30 @@ namespace ElementEngine
         ~SpriteBatch2D()
         {
             Dispose(false);
+        }
+
+        public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, Texture2D target = null, SimpleShader shader = null)
+        {
+            if (shader == null)
+                shader = new SimpleShader(graphicsDevice, DefaultShaders.DefaultSpriteVS, DefaultShaders.DefaultSpriteFS, Vertex2DPositionTexCoordsColor.VertexLayout);
+
+            var output = ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
+
+            if (target != null)
+                output = target.GetFramebuffer().OutputDescription;
+
+            var pipeline = new SimplePipeline(graphicsDevice, shader, output, BlendStateDescription.SingleAlphaBlend, FaceCullMode.None);
+
+            var viewProjectionBuffer = new SimpleUniformBuffer<Matrix4x4>(graphicsDevice, "ProjectionViewBuffer", 2, ShaderStages.Vertex | ShaderStages.Fragment);
+            viewProjectionBuffer.SetValue(0, Matrix4x4.Identity);
+            viewProjectionBuffer.SetValue(1, Matrix4x4.Identity);
+            viewProjectionBuffer.UpdateBuffer();
+            pipeline.AddUniformBuffer(viewProjectionBuffer);
+
+            var texture = new SimplePipelineTexture2D(graphicsDevice, "fTexture", SamplerType.Point);
+            pipeline.AddPipelineTexture(texture);
+
+            return pipeline;
         }
 
         public static void LoadStaticResources(ResourceFactory factory)
