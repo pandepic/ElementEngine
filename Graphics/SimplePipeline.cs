@@ -43,7 +43,10 @@ namespace ElementEngine
             Stages = stages;
             GraphicsDevice = graphicsDevice;
 
-            var bufferSize = size * sizeof(T);
+            var dataSize = size * sizeof(T);
+            // make sure the size is in multiples of 16
+            var bufferSize = (dataSize / 16 + (dataSize % 16 > 0 ? 1 : 0)) * 16;
+
             Buffer = GraphicsDevice.ResourceFactory.CreateBuffer(new BufferDescription((uint)bufferSize, BufferUsage.UniformBuffer));
             ResourceLayout = GraphicsDevice.ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription(Name, ResourceKind.UniformBuffer, Stages)));
             ResourceSet = GraphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(ResourceLayout, Buffer));
