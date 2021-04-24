@@ -128,7 +128,7 @@ namespace ElementEngine
                 _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
 
             if (simplePipeline == null)
-                simplePipeline = GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, null, null);
+                simplePipeline = GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, output, null);
 
             _simplePipeline = simplePipeline;
             _simplePipeline.GeneratePipeline();
@@ -184,17 +184,20 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, Texture2D target = null, SimpleShader shader = null)
+        public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, Texture2D target, SimpleShader shader = null)
+        {
+            return GetDefaultSimplePipeline(graphicsDevice, target.GetFramebuffer().OutputDescription, shader);
+        }
+
+        public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, OutputDescription? output = null, SimpleShader shader = null)
         {
             if (shader == null)
                 shader = new SimpleShader(graphicsDevice, DefaultShaders.DefaultSpriteVS, DefaultShaders.DefaultSpriteFS, Vertex2DPositionTexCoordsColor.VertexLayout);
 
-            var output = ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
+            if (!output.HasValue)
+                output = ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
 
-            if (target != null)
-                output = target.GetFramebuffer().OutputDescription;
-
-            var pipeline = new SimplePipeline(graphicsDevice, shader, output, BlendStateDescription.SingleAlphaBlend, FaceCullMode.None);
+            var pipeline = new SimplePipeline(graphicsDevice, shader, output.Value, BlendStateDescription.SingleAlphaBlend, FaceCullMode.None);
 
             var viewProjectionBuffer = new SimpleUniformBuffer<Matrix4x4>(graphicsDevice, "ProjectionViewBuffer", 2, ShaderStages.Vertex | ShaderStages.Fragment);
             viewProjectionBuffer.SetValue(0, Matrix4x4.Identity);
