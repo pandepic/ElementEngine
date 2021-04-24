@@ -1,12 +1,7 @@
-﻿using FontStashSharp;
-using FontStashSharp.Interfaces;
-using SharpDX.Mathematics.Interop;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+﻿using FontStashSharp.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -48,6 +43,7 @@ namespace ElementEngine
         public const int VerticesPerQuad = 4;
 
         // Graphics resources
+        protected SimplePipeline _simplePipeline;
         protected Pipeline _pipeline;
         protected DeviceBuffer _vertexBuffer;
         protected DeviceBuffer _indexBuffer;
@@ -96,13 +92,15 @@ namespace ElementEngine
             {
                 if (disposing)
                 {
-                    _pipeline?.Dispose();
+                    //_pipeline?.Dispose();
                     _vertexBuffer?.Dispose();
                     _indexBuffer?.Dispose();
-                    _transformBuffer?.Dispose();
-                    _transformLayout?.Dispose();
-                    _transformSet?.Dispose();
-                    _textureLayout?.Dispose();
+                    //_transformBuffer?.Dispose();
+                    //_transformLayout?.Dispose();
+                    //_transformSet?.Dispose();
+                    //_textureLayout?.Dispose();
+
+                    _simplePipeline?.Dispose();
 
                     foreach (var set in _textureSets)
                         set.Value?.Dispose();
@@ -132,13 +130,14 @@ namespace ElementEngine
             if (simplePipeline == null)
                 simplePipeline = GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, null, null);
 
-            simplePipeline.GeneratePipeline();
+            _simplePipeline = simplePipeline;
+            _simplePipeline.GeneratePipeline();
 
-            _pipeline = simplePipeline.Pipeline;
-            _transformBuffer = simplePipeline.UniformBuffers[0].Buffer;
-            _transformLayout = simplePipeline.UniformBuffers[0].ResourceLayout;
-            _transformSet = simplePipeline.UniformBuffers[0].ResourceSet;
-            _textureLayout = simplePipeline.PipelineTextures[0].ResourceLayout;
+            _pipeline = _simplePipeline.Pipeline;
+            _transformBuffer = _simplePipeline.UniformBuffers[0].Buffer;
+            _transformLayout = _simplePipeline.UniformBuffers[0].ResourceLayout;
+            _transformSet = _simplePipeline.UniformBuffers[0].ResourceSet;
+            _textureLayout = _simplePipeline.PipelineTextures[0].ResourceLayout;
 
             _vertexData = new Vertex2DPositionTexCoordsColor[_maxBatchSize * VerticesPerQuad];
             _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)), BufferUsage.VertexBuffer));
