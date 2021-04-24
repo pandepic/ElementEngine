@@ -19,7 +19,6 @@ namespace ElementEngine.ECS
         public Group(Registry registry, ReadOnlySpan<Type> types)
         {
             Registry = registry;
-            Types = new Type[types.Length];
             EntityLookup = new SparseSet(1000);
             Types = types.ToArray();
             EntityBuffer = new Entity[100];
