@@ -518,6 +518,15 @@ namespace ElementEngine
                 CommandList.SetGraphicsResourceSet(1, newTextureSet);
             }
 
+            if (_simplePipeline.PipelineTextures.Count > 1)
+            {
+                for (var i = 1; i < _simplePipeline.PipelineTextures.Count; i++)
+                {
+                    var pipelineTexture = _simplePipeline.PipelineTextures[i];
+                    CommandList.SetGraphicsResourceSet((uint)i + 1, pipelineTexture.ResourceSet);
+                }
+            }
+
             CommandList.DrawIndexed((uint)(_currentBatchCount * IndicesPerQuad));
             _currentBatchCount = 0;
         }
