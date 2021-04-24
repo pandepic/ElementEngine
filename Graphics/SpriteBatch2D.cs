@@ -500,22 +500,38 @@ namespace ElementEngine
             if (_currentBatchCount == 0)
                 return;
 
+            uint resourceSetIndex = 0;
+
             CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_currentBatchCount * VerticesPerQuad * sizeof(Vertex2DPositionTexCoordsColor)));
             CommandList.SetVertexBuffer(0, _vertexBuffer);
             CommandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
             CommandList.SetPipeline(_pipeline);
-            CommandList.SetGraphicsResourceSet(0, _transformSet);
+            
+            CommandList.SetGraphicsResourceSet(resourceSetIndex, _transformSet);
+            resourceSetIndex += 1;
+
+            if (_simplePipeline.UniformBuffers.Count > 1)
+            {
+                for (var i = 1; i < _simplePipeline.UniformBuffers.Count; i++)
+                {
+                    var uniformBuffer = _simplePipeline.UniformBuffers[i];
+                    CommandList.SetGraphicsResourceSet(resourceSetIndex, uniformBuffer.ResourceSet);
+                    resourceSetIndex += 1;
+                }
+            }
 
             if (_textureSets.TryGetValue(texture.AssetName, out ResourceSet textureSet))
             {
-                CommandList.SetGraphicsResourceSet(1, textureSet);
+                CommandList.SetGraphicsResourceSet(resourceSetIndex, textureSet);
+                resourceSetIndex += 1;
             }
             else
             {
                 var textureSetDescription = new ResourceSetDescription(_textureLayout, texture.Texture, _sampler);
                 var newTextureSet = GraphicsDevice.ResourceFactory.CreateResourceSet(textureSetDescription);
                 _textureSets.Add(texture.AssetName, newTextureSet);
-                CommandList.SetGraphicsResourceSet(1, newTextureSet);
+                CommandList.SetGraphicsResourceSet(resourceSetIndex, newTextureSet);
+                resourceSetIndex += 1;
             }
 
             if (_simplePipeline.PipelineTextures.Count > 1)
@@ -523,7 +539,8 @@ namespace ElementEngine
                 for (var i = 1; i < _simplePipeline.PipelineTextures.Count; i++)
                 {
                     var pipelineTexture = _simplePipeline.PipelineTextures[i];
-                    CommandList.SetGraphicsResourceSet((uint)i + 1, pipelineTexture.ResourceSet);
+                    CommandList.SetGraphicsResourceSet(resourceSetIndex, pipelineTexture.ResourceSet);
+                    resourceSetIndex += 1;
                 }
             }
 
