@@ -57,7 +57,7 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>() where T : struct
         {
-            return ref Registry.GetComponent<T>(this);
+            return ref ComponentManager<T>.Pool[RegistryID][ID];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

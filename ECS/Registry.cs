@@ -24,9 +24,9 @@ namespace ElementEngine.ECS
         }
     } // EntityStatus
 
-    internal static class ComponentManager<T> where T : struct
+    public static class ComponentManager<T> where T : struct
     {
-        internal static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
+        public static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
     }
 
     internal struct RemoveComponent
@@ -92,7 +92,7 @@ namespace ElementEngine.ECS
 
             if (Entities.Contains(id))
             {
-                ref var status = ref Entities.GetRef(id);
+                ref var status = ref Entities[id];
 
                 if (status.IsAlive)
                     return new Entity(id, this);
@@ -128,7 +128,7 @@ namespace ElementEngine.ECS
             if (!Entities.Contains(entity.ID))
                 return false;
 
-            ref var status = ref Entities.GetRef(entity.ID);
+            ref var status = ref Entities[entity.ID];
             return status.IsAlive && status.GenerationID == entity.GenerationID;
         }
         
@@ -144,7 +144,7 @@ namespace ElementEngine.ECS
             if (!Entities.Contains(id))
                 return 0;
 
-            ref var status = ref Entities.GetRef(id);
+            ref var status = ref Entities[id];
             return status.GenerationID;
         }
 
@@ -153,7 +153,7 @@ namespace ElementEngine.ECS
             if (!Entities.Contains(entity.ID))
                 return;
 
-            ref var status = ref Entities.GetRef(entity.ID);
+            ref var status = ref Entities[entity.ID];
             status.IsAlive = false;
 
             _removeEntities.Enqueue(entity);
@@ -166,7 +166,7 @@ namespace ElementEngine.ECS
 
             DeadEntities.TryAdd(entity.ID, out var _);
 
-            ref var status = ref Entities.GetRef(entity.ID);
+            ref var status = ref Entities[entity.ID];
             status.IsAlive = false;
 
             foreach (var (_, componentStore) in ComponentStores)
@@ -214,7 +214,7 @@ namespace ElementEngine.ECS
 
             if (GetComponentStore<T>().TryAdd(component, entity.ID))
             {
-                ref var status = ref Entities.GetRef(entity.ID);
+                ref var status = ref Entities[entity.ID];
                 status.Components.Add(typeHash);
 
                 for (var i = 0; i < RegisteredGroups.Count; i++)
@@ -281,7 +281,7 @@ namespace ElementEngine.ECS
         {
             if (store.TryRemove(entity.ID))
             {
-                ref var status = ref Entities.GetRef(entity.ID);
+                ref var status = ref Entities[entity.ID];
                 status.Components.Remove(type.GetHashCode());
 
                 for (var i = 0; i < RegisteredGroups.Count; i++)
@@ -304,13 +304,13 @@ namespace ElementEngine.ECS
             if (!HasComponent<T>(entity))
                 throw new Exception("Entity doesn't have the requested component: " + typeof(T).Name);
 
-            return ref GetComponentStore<T>().GetRef(entity.ID);
+            return ref GetComponentStore<T>()[entity.ID];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>(Entity entity) where T : struct
         {
-            return ref GetComponentStore<T>().GetRef(entity.ID);
+            return ref GetComponentStore<T>()[entity.ID];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

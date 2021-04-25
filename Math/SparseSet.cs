@@ -260,7 +260,7 @@ namespace ElementEngine
             Data = new T[_arraySize];
         }
 
-        public new ref T this[int index] => ref Data[index];
+        public new ref T this[int index] => ref Data[GetIndex(index)];
 
         public override bool TryResize(int newMaxValue)
         {
@@ -296,9 +296,6 @@ namespace ElementEngine
 
             return false;
         }
-
-        public ref T GetRef(int id) => ref Data[GetIndex(id)];
-        public T Get(int id) => Data[GetIndex(id)];
 
         public bool TryGet(int id, out T obj)
         {
