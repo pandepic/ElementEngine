@@ -257,6 +257,9 @@ namespace ElementEngine
         {
             foreach (var instance in AudioInstances)
             {
+                if (instance.Value.Type != type)
+                    continue;
+
                 instance.Value.Stop();
                 _removeList.Add(instance.Key);
             }
