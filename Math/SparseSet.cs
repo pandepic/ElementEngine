@@ -236,7 +236,7 @@ namespace ElementEngine
             {
                 if (_index > -2 && _index < _set.Size - 1)
                 {
-                    _current = _set[++_index];
+                    _current = _set.Data[++_index];
                     return true;
                 }
                 else
