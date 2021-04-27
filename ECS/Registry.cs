@@ -24,9 +24,9 @@ namespace ElementEngine.ECS
         }
     } // EntityStatus
 
-    public static class ComponentManager<T> where T : struct
+    internal static class ComponentManager<T> where T : struct
     {
-        public static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
+        internal static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
     }
 
     internal struct RemoveComponent
@@ -251,7 +251,7 @@ namespace ElementEngine.ECS
             else
             {
                 var store = GetComponentStore<T>();
-                store[store.GetIndex(entity.ID)] = component;
+                store[entity.ID] = component;
                 return false;
             }
 
