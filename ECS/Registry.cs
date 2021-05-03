@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -299,17 +300,9 @@ namespace ElementEngine.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T TryGetComponent<T>(Entity entity) where T : struct
-        {
-            if (!HasComponent<T>(entity))
-                throw new Exception("Entity doesn't have the requested component: " + typeof(T).Name);
-
-            return ref GetComponentStore<T>()[entity.ID];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>(Entity entity) where T : struct
         {
+            Debug.Assert(HasComponent<T>(entity));
             return ref GetComponentStore<T>()[entity.ID];
         }
 

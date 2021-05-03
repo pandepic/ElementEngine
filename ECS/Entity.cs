@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -49,14 +50,9 @@ namespace ElementEngine.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T TryGetComponent<T>() where T : struct
-        {
-            return ref Registry.TryGetComponent<T>(this);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent<T>() where T : struct
         {
+            Debug.Assert(HasComponent<T>());
             return ref ComponentManager<T>.Pool[RegistryID][ID];
         }
 
