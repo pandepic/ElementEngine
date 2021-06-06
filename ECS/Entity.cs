@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,8 +15,8 @@ namespace ElementEngine.ECS
         public readonly short RegistryID;
         public int GenerationID;
 
-        public Registry Registry => Registry._registries[RegistryID];
-        public bool IsAlive => Registry.IsEntityAlive(this);
+        [JsonIgnore] public Registry Registry => Registry._registries[RegistryID];
+        [JsonIgnore] public bool IsAlive => Registry.IsEntityAlive(this);
 
         public Entity(int id, Registry registry)
         {
@@ -79,7 +80,7 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode()
         {
-            return HashCode.Combine(ID, GenerationID, Registry);
+            return HashCode.Combine(ID, GenerationID, RegistryID);
         }
 
         public static bool operator ==(Entity e1, Entity e2) => e1.ID == e2.ID && e1.GenerationID == e2.GenerationID && e1.Registry.RegistryID == e2.Registry.RegistryID;

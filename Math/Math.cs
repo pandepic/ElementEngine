@@ -94,6 +94,13 @@ namespace ElementEngine
             return value;
         }
 
+        public static double Clamp(double value, double min, double max)
+        {
+            value = (value > max) ? max : value;
+            value = (value < min) ? min : value;
+            return value;
+        }
+
         public static int Clamp(int value, int min, int max)
         {
             value = (value > max) ? max : value;

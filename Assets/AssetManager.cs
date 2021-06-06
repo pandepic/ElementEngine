@@ -39,8 +39,8 @@ namespace ElementEngine
 
     public static class AssetManager
     {
-        public static readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
-        public static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
+        private static readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
+        private static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
         private static readonly List<string> _removeList = new List<string>();
 
         public static void Load(string modsPath, LoadAssetsMode? mode = null)
@@ -150,6 +150,16 @@ namespace ElementEngine
                 }
             } // if autoFind
         } // LoadAssetsFile
+
+        public static bool Contains(string assetName)
+        {
+            return _assetData.ContainsKey(assetName);
+        }
+
+        public static bool IsLoaded(string assetName)
+        {
+            return _assetCache.ContainsKey(assetName);
+        }
 
         public static void Clear()
         {

@@ -74,7 +74,7 @@ namespace ElementEngine.EndlessTiles
         {
             foreach (var (pos, chunk) in Chunks)
             {
-                if (camera.View.Intersects(chunk.ChunkRect))
+                if (camera.ScaledView.Intersects(chunk.ChunkRect))
                     chunk.TileBatch.DrawLayers(start, end, camera, chunk.ChunkRect.LocationF);
             }
         } // DrawLayers
