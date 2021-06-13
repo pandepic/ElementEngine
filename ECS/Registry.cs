@@ -93,7 +93,7 @@ namespace ElementEngine.ECS
 
             if (Entities.Contains(id))
             {
-                ref var status = ref Entities[id];
+                var status = Entities[id];
 
                 if (status.IsAlive)
                     return new Entity(id, this);
