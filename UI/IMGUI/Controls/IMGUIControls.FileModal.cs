@@ -34,7 +34,7 @@ namespace ElementEngine.UI
         }
     }
 
-    public static partial class IMGUIExtensions
+    public static partial class IMGUIControls
     {
         private static readonly Dictionary<string, FileModal> _fileModalPaths = new Dictionary<string, FileModal>();
 

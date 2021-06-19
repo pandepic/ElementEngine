@@ -151,6 +151,19 @@ namespace ElementEngine
             } // if autoFind
         } // LoadAssetsFile
 
+        public static List<string> GetAssetsByExtension(string extension)
+        {
+            var assets = new List<string>();
+
+            foreach (var (name, asset) in _assetData)
+            {
+                if (asset.FilePath.ToUpper().EndsWith(extension.ToUpper()))
+                    assets.Add(name);
+            }
+
+            return assets;
+        }
+
         public static bool Contains(string assetName)
         {
             return _assetData.ContainsKey(assetName);

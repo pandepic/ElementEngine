@@ -139,5 +139,25 @@ namespace ElementEngine
 
             return dictionary.ElementAt(rng.Next(0, dictionary.Count)).Value;
         } // GetRandomItem
+
+        public static bool AddIfNotContains<T>(this List<T> list, T value)
+        {
+            if (list.Contains(value))
+                return false;
+
+            list.Add(value);
+            return true;
+        }
+
+        public static bool AddIfNotContains<T>(this List<T> list, List<T> values)
+        {
+            foreach (var value in values)
+            {
+                if (!list.AddIfNotContains(value))
+                    return false;
+            }
+
+            return true;
+        }
     }
 }
