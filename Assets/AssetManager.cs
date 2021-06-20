@@ -208,6 +208,11 @@ namespace ElementEngine
             _removeList.Clear();
         }
 
+        public static T GetAsset<T>(string assetName)
+        {
+            return (T)_assetCache[assetName];
+        }
+
         public static string GetAssetPath(string assetName)
         {
             return _assetData[assetName].FilePath;
