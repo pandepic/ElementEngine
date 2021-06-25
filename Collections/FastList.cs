@@ -11,7 +11,7 @@ namespace ElementEngine
     public class FastList<T>
     {
         public T[] Data;
-        public int Count { get; protected set; } = 0;
+        public int Count = 0;
 
         public ref T this[int index] => ref Data[index];
 

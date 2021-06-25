@@ -41,7 +41,7 @@ namespace ElementEngine.ECS
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveComponent<T>() where T : struct
         {
-            Registry.RemoveComponent<T>(this);
+            Registry.RemoveComponent(Registry.GetComponentStore<T>(), this, typeof(T));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

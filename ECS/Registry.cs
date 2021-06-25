@@ -56,6 +56,8 @@ namespace ElementEngine.ECS
         public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
 
+        public Dictionary<int, List<Group>> GroupComponentMap = new Dictionary<int, List<Group>>();
+
         public Registry()
         {
             RegistryID = _nextRegistryID++;
@@ -282,15 +284,18 @@ namespace ElementEngine.ECS
         {
             if (store.TryRemove(entity.ID))
             {
+                var typeHash = type.GetHashCode();
+
                 ref var status = ref Entities[entity.ID];
-                status.Components.Remove(type.GetHashCode());
+                status.Components.Remove(typeHash);
 
-                for (var i = 0; i < RegisteredGroups.Count; i++)
+                if (GroupComponentMap.TryGetValue(typeHash, out var typeGroups))
                 {
-                    var group = RegisteredGroups[i];
-
-                    if (group.Types.Contains(type))
+                    for (var i = 0; i < typeGroups.Count; i++)
+                    {
+                        var group = typeGroups[i];
                         group.RemoveEntity(entity);
+                    }
                 }
 
                 return true;
@@ -312,6 +317,8 @@ namespace ElementEngine.ECS
             return GetComponentStore<T>().Contains(entity.ID);
         }
 
+        #region Register group
+
         public Group RegisterGroup(params Type[] componentTypes)
         {
             if (componentTypes == null || componentTypes.Length == 0)
@@ -322,6 +329,19 @@ namespace ElementEngine.ECS
 
             var group = new Group(this, componentTypes);
             RegisteredGroups.Add(group);
+
+            foreach (var type in componentTypes)
+            {
+                var typeHash = type.GetHashCode();
+
+                if (!GroupComponentMap.TryGetValue(typeHash, out var typeGroups))
+                {
+                    typeGroups = new List<Group>();
+                    GroupComponentMap.Add(typeHash, typeGroups);
+                }
+
+                typeGroups.Add(group);
+            }
 
             return group;
         }
@@ -341,6 +361,10 @@ namespace ElementEngine.ECS
             return RegisterGroup(typeof(T), typeof(U), typeof(V));
         }
 
+        #endregion
+
+        #region Create view
+
         public View<T> View<T>() where T : struct
             => new View<T>(this);
 
@@ -349,6 +373,8 @@ namespace ElementEngine.ECS
 
         public View<T, U, V> View<T, U, V>() where T : struct where U : struct where V : struct
             => new View<T, U, V>(this);
+
+        #endregion
 
     } // Registry
 }
