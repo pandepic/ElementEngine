@@ -24,11 +24,13 @@ namespace ElementEngine.ECS
             Components = new HashSet<int>();
         }
     } // EntityStatus
+    
+    public delegate void ECSEvent<T>(Entity entity, ref T component);
 
     internal static class ComponentManager<T> where T : struct
     {
         internal static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
-        internal static Action<Entity, T>[] OnFirstAddedPool = new Action<Entity, T>[10];
+        internal static ECSEvent<T>[] OnFirstAddedPool = new ECSEvent<T>[10];
     }
 
     internal struct RemoveComponent
@@ -257,7 +259,7 @@ namespace ElementEngine.ECS
                 var onFirstAdded = ComponentManager<T>.OnFirstAddedPool[RegistryID];
 
                 if (onFirstAdded != null)
-                    onFirstAdded(entity, component);
+                    onFirstAdded(entity, ref component);
 
                 return true;
             }
@@ -328,7 +330,7 @@ namespace ElementEngine.ECS
             return GetComponentStore<T>().Contains(entity.ID);
         }
 
-        public void RegisterOnFirstAdded<T>(Action<Entity, T> action) where T : struct
+        public void RegisterOnFirstAdded<T>(ECSEvent<T> action) where T : struct
         {
             ComponentManager<T>.OnFirstAddedPool[RegistryID] = action;
         }
