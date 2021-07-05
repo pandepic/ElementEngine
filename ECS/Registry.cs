@@ -28,6 +28,7 @@ namespace ElementEngine.ECS
     internal static class ComponentManager<T> where T : struct
     {
         internal static ComponentStore<T>[] Pool = new ComponentStore<T>[10];
+        internal static Action<Entity, T>[] OnFirstAddedPool = new Action<Entity, T>[10];
     }
 
     internal struct RemoveComponent
@@ -208,7 +209,10 @@ namespace ElementEngine.ECS
             if (!ComponentStores.ContainsKey(typeHash))
             {
                 if (RegistryID >= ComponentManager<T>.Pool.Length)
+                {
                     Array.Resize(ref ComponentManager<T>.Pool, ComponentManager<T>.Pool.Length * 2);
+                    Array.Resize(ref ComponentManager<T>.OnFirstAddedPool, ComponentManager<T>.OnFirstAddedPool.Length * 2);
+                }
 
                 ComponentManager<T>.Pool[RegistryID] = new ComponentStore<T>(_defaultMaxComponents);
                 ComponentStores.Add(typeHash, ComponentManager<T>.Pool[RegistryID]);
@@ -217,6 +221,7 @@ namespace ElementEngine.ECS
 
             if (GetComponentStore<T>().TryAdd(component, entity.ID))
             {
+                // didn't have this component type yet, add new data
                 ref var status = ref Entities[entity.ID];
                 status.Components.Add(typeHash);
 
@@ -249,10 +254,16 @@ namespace ElementEngine.ECS
                         group.AddEntity(entity);
                 }
 
+                var onFirstAdded = ComponentManager<T>.OnFirstAddedPool[RegistryID];
+
+                if (onFirstAdded != null)
+                    onFirstAdded(entity, component);
+
                 return true;
             }
             else
             {
+                // already had this component type, override existing component data
                 var store = GetComponentStore<T>();
                 store[entity.ID] = component;
                 return false;
@@ -315,6 +326,11 @@ namespace ElementEngine.ECS
         public bool HasComponent<T>(Entity entity) where T : struct
         {
             return GetComponentStore<T>().Contains(entity.ID);
+        }
+
+        public void RegisterOnFirstAdded<T>(Action<Entity, T> action) where T : struct
+        {
+            ComponentManager<T>.OnFirstAddedPool[RegistryID] = action;
         }
 
         #region Register group
