@@ -24,9 +24,6 @@ namespace ElementEngine
         public Dictionary<string, XElement> Templates { get; set; } = new Dictionary<string, XElement>();
         protected List<IUIEventHandler> _eventHandlers { get; set; } = new List<IUIEventHandler>();
 
-        public bool IsUsingLocalisation => LanguageAsset != null;
-        public string LanguageAsset = null;
-
         public bool Focused { get; private set; } = false;
 
         #region IDisposable
@@ -75,11 +72,9 @@ namespace ElementEngine
             InputManager.RemoveMouseHandler(this);
         }
 
-        public void Load(string assetName, string templatesName = "", string languageAsset = null)
+        public void Load(string assetName, string templatesName = "")
         {
             using var fs = AssetManager.GetAssetStream(assetName);
-
-            LanguageAsset = languageAsset;
 
             XDocument doc = XDocument.Load(fs);
             XElement menuRoot = doc.Element("Menu");
