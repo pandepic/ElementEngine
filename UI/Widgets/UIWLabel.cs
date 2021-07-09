@@ -34,7 +34,15 @@ namespace ElementEngine
             if (attOutline != null)
                 Outline = int.Parse(attOutline.Value);
 
-            UpdateText(GetXMLElement("Text").Value);
+            var languageKeyAtt = GetXMLAttribute("Text", "LanguageKey");
+            string labelText;
+
+            if (languageKeyAtt != null)
+                labelText = LocalisationManager.GetString(languageKeyAtt.Value);
+            else
+                labelText = GetXMLElement("Text").Value;
+
+            UpdateText(labelText);
         }
 
         protected void UpdateText(string text)

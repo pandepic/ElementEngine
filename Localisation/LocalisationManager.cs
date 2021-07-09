@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElementEngine.Localisation
+namespace ElementEngine
 {
-    public class Language
-    {
-        public string AssetName;
-        public Dictionary<string, string> Strings = new Dictionary<string, string>();
-    }
-
     public static class LocalisationManager
     {
+        public class Language
+        {
+            public string AssetName;
+            public Dictionary<string, string> Strings = new Dictionary<string, string>();
+        }
+
         public static Dictionary<string, Language> Languages = new Dictionary<string, Language>();
         public static Language DefaultLanguage;
         public static Language CurrentLanguage;
@@ -30,6 +30,9 @@ namespace ElementEngine.Localisation
 
         public static Language GetLanguage(string assetName)
         {
+            if (string.IsNullOrEmpty(assetName))
+                throw new ArgumentException($"Invalid language asset {assetName}", "assetName");
+
             if (Languages.TryGetValue(assetName, out var language))
                 return language;
             
@@ -42,7 +45,7 @@ namespace ElementEngine.Localisation
             };
 
             Languages.Add(assetName, language);
-
+            
             return language;
         }
 
@@ -52,8 +55,11 @@ namespace ElementEngine.Localisation
 
             if (!CurrentLanguage.Strings.TryGetValue(key, out var strCurrent))
             {
+                if (DefaultLanguage == null)
+                    return $"MISSING LOCALISATION KEY: {CurrentLanguage.AssetName} - {key}";
+
                 if (!DefaultLanguage.Strings.TryGetValue(key, out var strBase))
-                    return null;
+                    return $"MISSING LOCALISATION KEY: {CurrentLanguage.AssetName} - {key}";
                 else
                     str = strBase;
             }
@@ -62,8 +68,11 @@ namespace ElementEngine.Localisation
                 str = strCurrent;
             }
 
-            foreach (var (name, value) in variables)
-                str = str.Replace("{" + name + "}", value);
+            if (variables != null)
+            {
+                foreach (var (name, value) in variables)
+                    str = str.Replace("{" + name + "}", value);
+            }
 
             return str;
         }

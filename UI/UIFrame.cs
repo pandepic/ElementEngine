@@ -152,8 +152,8 @@ namespace ElementEngine
 
     public class UIFrame : IDisposable
     {
-        protected UIMenu _parent = null;
-        protected Rectangle _frameRect = Rectangle.Empty;
+        internal UIMenu Parent = null;
+        internal Rectangle FrameRect = Rectangle.Empty;
 
         public string Name { get; set; } = "";
         public UISprite FrameSprite { get; set; } = null;
@@ -186,13 +186,13 @@ namespace ElementEngine
         {
             get
             {
-                return new Vector2(_frameRect.X, _frameRect.Y);
+                return new Vector2(FrameRect.X, FrameRect.Y);
             }
 
             set
             {
-                _frameRect.X = (int)value.X;
-                _frameRect.Y = (int)value.Y;
+                FrameRect.X = (int)value.X;
+                FrameRect.Y = (int)value.Y;
             }
         }
 
@@ -200,11 +200,11 @@ namespace ElementEngine
         {
             get
             {
-                return _frameRect.X;
+                return FrameRect.X;
             }
             set
             {
-                _frameRect.X = value;
+                FrameRect.X = value;
             }
         }
 
@@ -212,11 +212,11 @@ namespace ElementEngine
         {
             get
             {
-                return _frameRect.Y;
+                return FrameRect.Y;
             }
             set
             {
-                _frameRect.Y = value;
+                FrameRect.Y = value;
             }
         }
 
@@ -224,11 +224,11 @@ namespace ElementEngine
         {
             get
             {
-                return _frameRect.Width;
+                return FrameRect.Width;
             }
             set
             {
-                _frameRect.Width = value;
+                FrameRect.Width = value;
             }
         }
 
@@ -236,11 +236,11 @@ namespace ElementEngine
         {
             get
             {
-                return _frameRect.Height;
+                return FrameRect.Height;
             }
             set
             {
-                _frameRect.Height = value;
+                FrameRect.Height = value;
             }
         }
 
@@ -272,7 +272,7 @@ namespace ElementEngine
             var screenWidth = ElementGlobals.TargetResolutionWidth;
             var screenHeight = ElementGlobals.TargetResolutionHeight;
 
-            _parent = parent;
+            Parent = parent;
             Templates = templates;
 
             var drawOrderAttribute = el.Attribute("DrawOrder");
@@ -457,12 +457,12 @@ namespace ElementEngine
 
         internal void TriggerUIEvent(UIEventType type, UIWidget widget)
         {
-            _parent.TriggerUIEvent(type, widget);
+            Parent.TriggerUIEvent(type, widget);
         }
 
         internal void GrabFocus(UIWidget widget)
         {
-            _parent.GrabFocus(this);
+            Parent.GrabFocus(this);
             Widgets.UnFocusAllExcept(widget.Name);
             widget.Focus();
             Focused = true;
@@ -470,7 +470,7 @@ namespace ElementEngine
 
         internal void DropFocus(UIWidget widget)
         {
-            _parent.DropFocus(this);
+            Parent.DropFocus(this);
             widget.UnFocus();
             Focused = false;
         }
@@ -479,7 +479,7 @@ namespace ElementEngine
         {
             Widgets.UnFocusAll();
             Focused = false;
-            _parent.DropFocus(this);
+            Parent.DropFocus(this);
         }
 
         public void Open()
@@ -614,13 +614,13 @@ namespace ElementEngine
             if (_draggableRect.Width == 0 && _draggableRect.Height == 0)
                 return false;
 
-            if (point.X < (_frameRect.X + _draggableRect.X))
+            if (point.X < (FrameRect.X + _draggableRect.X))
                 return false;
-            if (point.Y < (_frameRect.Y + _draggableRect.Y))
+            if (point.Y < (FrameRect.Y + _draggableRect.Y))
                 return false;
-            if (point.X > ((_frameRect.X + _draggableRect.X) + _draggableRect.Width))
+            if (point.X > ((FrameRect.X + _draggableRect.X) + _draggableRect.Width))
                 return false;
-            if (point.Y > ((_frameRect.Y + _draggableRect.Y) + _draggableRect.Height))
+            if (point.Y > ((FrameRect.Y + _draggableRect.Y) + _draggableRect.Height))
                 return false;
 
             return true;
@@ -628,16 +628,16 @@ namespace ElementEngine
 
         public bool PointInsideFrame(Vector2 point)
         {
-            if (_frameRect.Width == 0 && _frameRect.Height == 0)
+            if (FrameRect.Width == 0 && FrameRect.Height == 0)
                 return false;
 
-            if (point.X < _frameRect.X)
+            if (point.X < FrameRect.X)
                 return false;
-            if (point.Y < _frameRect.Y)
+            if (point.Y < FrameRect.Y)
                 return false;
-            if (point.X > (_frameRect.X + _frameRect.Width))
+            if (point.X > (FrameRect.X + FrameRect.Width))
                 return false;
-            if (point.Y > (_frameRect.Y + _frameRect.Height))
+            if (point.Y > (FrameRect.Y + FrameRect.Height))
                 return false;
 
             return true;

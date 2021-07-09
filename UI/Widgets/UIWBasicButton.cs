@@ -82,7 +82,14 @@ namespace ElementEngine
             var font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
             var fontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
 
-            var buttonText = GetXMLAttribute("Label", "Text").Value;
+            var languageKeyAtt = GetXMLAttribute("Label", "LanguageKey");
+            string buttonText;
+
+            if (languageKeyAtt != null)
+                buttonText = LocalisationManager.GetString(languageKeyAtt.Value);
+            else
+                buttonText = GetXMLAttribute("Label", "Text").Value;
+
             var labelSize = font.MeasureText(buttonText, fontSize);
 
             int textX = (buttonLabelPosition.Attribute("X").Value.ToUpper() != "CENTER"
