@@ -5,7 +5,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class UIWHScrollBar : UIWidget, IDisposable
+    public class UIWVScrollBar : UIWidget, IDisposable
     {
         protected UISprite _background = null;
         protected UISprite _slider = null;
@@ -35,7 +35,7 @@ namespace ElementEngine
             get => ((float)_currentValue - _minValue) / (_maxValue - (float)_minValue);
             set
             {
-                int newValue = (int)(((_maxValue - (float)_minValue) * value) + _minValue);
+                var newValue = (int)((((float)_maxValue - _minValue) * value) + _minValue);
                 UpdateCurrentValue(newValue);
                 UpdateSliderPosition();
             }
@@ -56,7 +56,7 @@ namespace ElementEngine
         protected int _sliderOffsetX = 0;
         protected int _sliderOffsetY = 0;
 
-        protected float _sliderIncrementX = 0f;
+        protected float _sliderIncrementY = 0f;
 
         protected Vector2 _bgPosition = Vector2.Zero;
         protected Vector2 _sliderPosition = Vector2.Zero;
@@ -86,9 +86,9 @@ namespace ElementEngine
         }
         #endregion
 
-        public UIWHScrollBar() { }
+        public UIWVScrollBar() { }
 
-        ~UIWHScrollBar()
+        ~UIWVScrollBar()
         {
             Dispose();
         }
@@ -124,18 +124,18 @@ namespace ElementEngine
             if (atSliderOffsetY != null)
                 _sliderOffsetY = int.Parse(atSliderOffsetY.Value);
 
-            var sliderWidthOffset = _slider.Width - (_sliderOffsetX * 2);
-            Width = _background.Width + (sliderWidthOffset <= 0 ? 0 : sliderWidthOffset);
-            Height = _background.Height;
-            if (_slider.Height > Height)
-                Height = _slider.Height;
+            var sliderHeightOffset = _slider.Height - (_sliderOffsetY * 2);
+            Height = _background.Height + (sliderHeightOffset <= 0 ? 0 : sliderHeightOffset);
+            Width = _background.Width;
+            if (_slider.Width > Width)
+                Width = _slider.Width;
 
             // center the background texture
             _bgPosition.X = (Width - _background.Width) / 2;
             _bgPosition.Y = (Height - _background.Height) / 2;
 
             _totalNotches = ((_maxValue - _minValue) / _increment) + 1;
-            _sliderIncrementX = (Width - _slider.Width - (_sliderOffsetX * 2)) / ((_maxValue - _minValue) / _increment);
+            _sliderIncrementY = (Height - _slider.Height - (_sliderOffsetY * 2)) / ((_maxValue - _minValue) / _increment);
 
             var elLabel = GetXMLElement("Label");
 
@@ -171,7 +171,7 @@ namespace ElementEngine
         protected void SetSliderPosition(Vector2 mousePosition)
         {
             var relativePosition = mousePosition - Position;
-            UpdateCurrentValue((int)((relativePosition.X - _sliderOffsetX) / _sliderIncrementX) * _increment);
+            UpdateCurrentValue((int)((relativePosition.Y - _sliderOffsetY) / _sliderIncrementY) * _increment);
             UpdateSliderPosition();
 
             if (_previousValue != _currentValue)
@@ -180,7 +180,7 @@ namespace ElementEngine
 
         protected void UpdateSliderPosition()
         {
-            _sliderPosition.X = _sliderOffsetX + (_sliderIncrementX * (_sliderIndex - 1)) - (_slider.Width / 2);
+            _sliderPosition.Y = _sliderOffsetY + (_sliderIncrementY * (_sliderIndex - 1)) - (_slider.Height / 2);
         }
 
         protected void UpdateCurrentValue(int value)
@@ -253,5 +253,6 @@ namespace ElementEngine
 
             SetSliderPosition(currentPosition);
         }
-    } // UIWHScrollBar
+
+    } // UIWVScrollBar
 }

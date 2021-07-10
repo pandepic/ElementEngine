@@ -139,9 +139,18 @@ namespace ElementEngine
 
     public class UISpriteAuto3Slice : UISprite
     {
+        public enum UISprite3SliceDirection
+        {
+            Vertical,
+            Horizontal,
+        }
+
         public Texture2D TextureLeft { get; set; }
-        public Texture2D TextureCenter { get; set; }
         public Texture2D TextureRight { get; set; }
+        public Texture2D TextureTop { get; set; }
+        public Texture2D TextureBottom { get; set; }
+        public Texture2D TextureCenter { get; set; }
+        public UISprite3SliceDirection Direction { get; set; }
 
         ~UISpriteAuto3Slice()
         {
@@ -150,20 +159,43 @@ namespace ElementEngine
 
         public UISpriteAuto3Slice(UIWidget widget, string elName) : base(widget, elName)
         {
-            var width = 0;
-            var attWidth = widget.GetXMLAttribute(elName, "Width");
-            if (attWidth != null)
-                width = int.Parse(attWidth.Value);
+            var direction = widget.GetXMLAttribute(elName, "Direction").Value;
+            Direction = direction.ToEnum<UISprite3SliceDirection>();
 
-            var assetLeft = widget.GetXMLElement(elName, "Left").Value;
-            var assetCenter = widget.GetXMLElement(elName, "Center").Value;
-            var assetRight = widget.GetXMLElement(elName, "Right").Value;
+            if (Direction == UISprite3SliceDirection.Horizontal)
+            {
+                var width = 0;
+                var attWidth = widget.GetXMLAttribute(elName, "Width");
+                if (attWidth != null)
+                    width = int.Parse(attWidth.Value);
 
-            TextureLeft = AssetManager.LoadTexture2D(assetLeft, PremultiplyType);
-            TextureCenter = AssetManager.LoadTexture2D(assetCenter, PremultiplyType);
-            TextureRight = AssetManager.LoadTexture2D(assetRight, PremultiplyType);
+                var assetLeft = widget.GetXMLElement(elName, "Left").Value;
+                var assetCenter = widget.GetXMLElement(elName, "Center").Value;
+                var assetRight = widget.GetXMLElement(elName, "Right").Value;
 
-            SetWidth(width);
+                TextureLeft = AssetManager.LoadTexture2D(assetLeft, PremultiplyType);
+                TextureCenter = AssetManager.LoadTexture2D(assetCenter, PremultiplyType);
+                TextureRight = AssetManager.LoadTexture2D(assetRight, PremultiplyType);
+
+                SetWidth(width);
+            }
+            else if (Direction == UISprite3SliceDirection.Vertical)
+            {
+                var height = 0;
+                var attHeight = widget.GetXMLAttribute(elName, "Height");
+                if (attHeight != null)
+                    height = int.Parse(attHeight.Value);
+
+                var assetTop = widget.GetXMLElement(elName, "Top").Value;
+                var assetCenter = widget.GetXMLElement(elName, "Center").Value;
+                var assetBottom = widget.GetXMLElement(elName, "Bottom").Value;
+
+                TextureTop = AssetManager.LoadTexture2D(assetTop, PremultiplyType);
+                TextureCenter = AssetManager.LoadTexture2D(assetCenter, PremultiplyType);
+                TextureBottom = AssetManager.LoadTexture2D(assetBottom, PremultiplyType);
+
+                SetHeight(height);
+            }
         }
 
         public override void SetSize(Vector2I size)
@@ -173,10 +205,27 @@ namespace ElementEngine
 
         public override void SetWidth(int width)
         {
+            if (Direction != UISprite3SliceDirection.Horizontal)
+                return;
+
             if (width <= 0)
                 width = 1;
 
-            var texture = GraphicsHelper.Create3SliceTexture(width, TextureLeft, TextureCenter, TextureRight);
+            var texture = GraphicsHelper.Create3SliceTextureHorizontal(width, TextureLeft, TextureCenter, TextureRight);
+
+            Sprite?.Dispose();
+            Sprite = new Sprite(texture);
+        }
+
+        public override void SetHeight(int height)
+        {
+            if (Direction != UISprite3SliceDirection.Vertical)
+                return;
+
+            if (height <= 0)
+                height = 1;
+
+            var texture = GraphicsHelper.Create3SliceTextureVertical(height, TextureTop, TextureCenter, TextureBottom);
 
             Sprite?.Dispose();
             Sprite = new Sprite(texture);

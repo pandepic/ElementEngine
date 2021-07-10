@@ -33,6 +33,7 @@ namespace ElementEngine
             { "Textbox", typeof(UIWTextBox) },
             { "ImageBox", typeof(UIWImageBox) },
             { "HScrollBar", typeof(UIWHScrollBar) },
+            { "VScrollBar", typeof(UIWVScrollBar) },
             { "HProgressBar", typeof(UIWHProgressBar) },
         };
 

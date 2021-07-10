@@ -8,7 +8,7 @@ namespace ElementEngine
 {
     public static class GraphicsHelper
     {
-        public static Texture2D Create3SliceTexture(int width, Texture2D left, Texture2D center, Texture2D right, string name = null)
+        public static Texture2D Create3SliceTextureHorizontal(int width, Texture2D left, Texture2D center, Texture2D right, string name = null)
         {
             var height = left.Height;
             if (center.Height > height)
@@ -55,9 +55,9 @@ namespace ElementEngine
 
             return newTexture;
 
-        } // Create3SliceTexture
+        } // Create3SliceTextureHorizontal
 
-        public static Texture2D Create3SliceTexture(int width, Texture2D atlas, Rectangle left, Rectangle center, Rectangle right, string name = null)
+        public static Texture2D Create3SliceTextureHorizontal(int width, Texture2D atlas, Rectangle left, Rectangle center, Rectangle right, string name = null)
         {
             var height = left.Height;
             if (center.Height > height)
@@ -98,7 +98,99 @@ namespace ElementEngine
 
             return newTexture;
 
-        } // Create3SliceTexture
+        } // Create3SliceTextureHorizontal
+
+        public static Texture2D Create3SliceTextureVertical(int height, Texture2D top, Texture2D center, Texture2D bottom, string name = null)
+        {
+            var width = top.Width;
+            if (center.Width > width)
+                width = center.Width;
+            if (bottom.Width > width)
+                width = bottom.Width;
+
+            var newTexture = new Texture2D(width, height, name);
+
+            newTexture.BeginRenderTarget();
+            newTexture.RenderTargetClear(RgbaFloat.Clear);
+
+            var spriteBatch = newTexture.GetRenderTargetSpriteBatch2D();
+            spriteBatch.Begin(SamplerType.Point);
+
+            var currentY = 0;
+            var endY = height;
+
+            if (top != null)
+            {
+                currentY += top.Height;
+                spriteBatch.DrawTexture2D(top, new Vector2(0, 0));
+            }
+
+            if (bottom != null)
+            {
+                endY = height - bottom.Height;
+                spriteBatch.DrawTexture2D(bottom, new Vector2(0, endY));
+            }
+
+            while (currentY < endY)
+            {
+                var drawHeight = center.Height;
+
+                if ((currentY + drawHeight) > endY)
+                    drawHeight = endY - currentY;
+
+                spriteBatch.DrawTexture2D(center, new Rectangle(0, currentY, center.Width, drawHeight));
+                currentY += center.Height;
+            }
+
+            spriteBatch.End();
+            newTexture.EndRenderTarget();
+
+            return newTexture;
+
+        } // Create3SliceTextureVertical
+
+        public static Texture2D Create3SliceTextureVertical(int height, Texture2D atlas, Rectangle top, Rectangle center, Rectangle bottom, string name = null)
+        {
+            var width = top.Width;
+            if (center.Width > width)
+                width = center.Width;
+            if (bottom.Width > width)
+                width = bottom.Width;
+
+            var newTexture = new Texture2D(width, height, name);
+
+            newTexture.BeginRenderTarget();
+            newTexture.RenderTargetClear(RgbaFloat.Clear);
+
+            var spriteBatch = newTexture.GetRenderTargetSpriteBatch2D();
+            spriteBatch.Begin(SamplerType.Point);
+
+            var currentY = 0;
+            var endY = height;
+
+            currentY += top.Height;
+            spriteBatch.DrawTexture2D(atlas, new Vector2(0, 0), top);
+
+            endY = height - bottom.Height;
+            spriteBatch.DrawTexture2D(atlas, new Vector2(0, endY), bottom);
+
+            while (currentY < endY)
+            {
+                var drawHeight = center.Width;
+
+                if ((currentY + drawHeight) > endY)
+                    drawHeight = endY - currentY;
+
+                spriteBatch.DrawTexture2D(atlas, new Rectangle(0, currentY, center.Width, drawHeight), center);
+                currentY += center.Width;
+            }
+
+            spriteBatch.End();
+            newTexture.EndRenderTarget();
+
+            return newTexture;
+
+        } // Create3SliceTextureVertical
 
         public static Texture2D Create9SliceTexture(int width, int height,
             Texture2D topLeft, Texture2D topCenter, Texture2D topRight,
@@ -108,9 +200,9 @@ namespace ElementEngine
         {
             var newTexture = new Texture2D(width, height, name);
 
-            var topTexture = Create3SliceTexture(width, topLeft, topCenter, topRight);
-            var middleTexture = Create3SliceTexture(width, middleLeft, middleCenter, middleRight);
-            var bottomTexture = Create3SliceTexture(width, bottomLeft, bottomCenter, bottomRight);
+            var topTexture = Create3SliceTextureHorizontal(width, topLeft, topCenter, topRight);
+            var middleTexture = Create3SliceTextureHorizontal(width, middleLeft, middleCenter, middleRight);
+            var bottomTexture = Create3SliceTextureHorizontal(width, bottomLeft, bottomCenter, bottomRight);
 
             var middleHeight = height - topTexture.Height - bottomTexture.Height;
             var middleDrawPos = new Vector2(0, topTexture.Height);
@@ -152,9 +244,9 @@ namespace ElementEngine
         {
             var newTexture = new Texture2D(width, height, name);
 
-            var topTexture = Create3SliceTexture(width, atlas, topLeft, topCenter, topRight);
-            var middleTexture = Create3SliceTexture(width, atlas, middleLeft, middleCenter, middleRight);
-            var bottomTexture = Create3SliceTexture(width, atlas, bottomLeft, bottomCenter, bottomRight);
+            var topTexture = Create3SliceTextureHorizontal(width, atlas, topLeft, topCenter, topRight);
+            var middleTexture = Create3SliceTextureHorizontal(width, atlas, middleLeft, middleCenter, middleRight);
+            var bottomTexture = Create3SliceTextureHorizontal(width, atlas, bottomLeft, bottomCenter, bottomRight);
 
             var middleHeight = height - topTexture.Height - bottomTexture.Height;
             var middleDrawPos = new Vector2(0, topTexture.Height);
