@@ -131,7 +131,7 @@ namespace ElementEngine
                 Height = _slider.Height;
 
             // center the background texture
-            _bgPosition.X = (Width - _background.Width) / 2;
+            //_bgPosition.X = (Width - _background.Width) / 2;
             _bgPosition.Y = (Height - _background.Height) / 2;
 
             _totalNotches = ((_maxValue - _minValue) / _increment) + 1;
