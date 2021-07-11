@@ -158,7 +158,7 @@ namespace ElementEngine
             if ((_textRect.Width + _textRect.X) > _textTexture.Width)
                 _textRect.Width = _textTexture.Width - _textRect.X;
 
-            TriggerUIEvent(UIEventType.ValueChanged);
+            TriggerUIEvent(UIEventType.OnValueChanged);
         }
 
         public override void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)

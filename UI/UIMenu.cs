@@ -9,8 +9,8 @@ namespace ElementEngine
 {
     public enum UIEventType
     {
-        ButtonClick,
-        ValueChanged,
+        OnMouseClicked,
+        OnValueChanged,
     } // UIEventType
 
     public interface IUIEventHandler

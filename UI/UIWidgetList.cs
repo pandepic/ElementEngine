@@ -156,7 +156,10 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                Widgets[i].OnMouseMoved(mousePosition - framePosition, prevMousePosition - framePosition, gameTimer);
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                    Widgets[i].OnMouseMoved(mousePosition - framePosition, prevMousePosition - framePosition, gameTimer);
             }
         }
 
@@ -164,7 +167,10 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                Widgets[i].OnMouseDown(button, mousePosition - framePosition, gameTimer);
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                    Widgets[i].OnMouseDown(button, mousePosition - framePosition, gameTimer);
             }
         }
 
@@ -172,7 +178,10 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                Widgets[i].OnMouseClicked(button, mousePosition - framePosition, gameTimer);
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                    Widgets[i].OnMouseClicked(button, mousePosition - framePosition, gameTimer);
             }
         }
 
@@ -180,8 +189,13 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                if (Widgets[i].OnMouseScroll(type, mouseWheelDelta, gameTimer))
-                    return true;
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                {
+                    if (Widgets[i].OnMouseScroll(type, mouseWheelDelta, gameTimer))
+                        return true;
+                }
             }
 
             return false;
@@ -191,7 +205,10 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                Widgets[i].OnKeyPressed(key, gameTimer);
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                    Widgets[i].OnKeyPressed(key, gameTimer);
             }
         }
 
@@ -199,7 +216,10 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                Widgets[i].OnKeyReleased(key, gameTimer);
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                    Widgets[i].OnKeyReleased(key, gameTimer);
             }
         }
 
@@ -207,7 +227,10 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                Widgets[i].OnKeyDown(key, gameTimer);
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                    Widgets[i].OnKeyDown(key, gameTimer);
             }
         }
 
@@ -215,7 +238,10 @@ namespace ElementEngine
         {
             for (int i = 0; i < Widgets.Count; i++)
             {
-                Widgets[i].OnTextInput(key, gameTimer);
+                var widget = Widgets[i];
+
+                if (widget.Active)
+                    Widgets[i].OnTextInput(key, gameTimer);
             }
         }
     }

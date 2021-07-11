@@ -182,7 +182,7 @@ namespace ElementEngine
             if (_isDirty)
             {
                 UpdateFillTexture();
-                TriggerUIEvent(UIEventType.ValueChanged);
+                TriggerUIEvent(UIEventType.OnValueChanged);
             }
 
             _background?.Draw(spriteBatch, Position + _bgPosition + Parent.Position);

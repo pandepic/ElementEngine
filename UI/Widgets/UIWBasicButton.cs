@@ -183,7 +183,7 @@ namespace ElementEngine
                 if (!string.IsNullOrWhiteSpace(_clickSound))
                     SoundManager.Play(_clickSound, SoundManager.UISoundType);
 
-                TriggerUIEvent(UIEventType.ButtonClick);
+                TriggerUIEvent(UIEventType.OnMouseClicked);
                 _buttonPressed = false;
             }
         }

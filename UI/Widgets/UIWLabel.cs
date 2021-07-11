@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Numerics;
+using System.Xml.Linq;
 using Veldrid;
 
 namespace ElementEngine
@@ -63,6 +64,15 @@ namespace ElementEngine
         public override void Draw(SpriteBatch2D spriteBatch)
         {
             spriteBatch.DrawText(Font, _text, Position + Parent.Position, Color, FontSize, Outline);
+        }
+
+        public override void OnMouseClicked(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
+        {
+            if (button != MouseButton.Left)
+                return;
+
+            if (PointInsideWidget(mousePosition))
+                TriggerUIEvent(UIEventType.OnMouseClicked);
         }
 
     } // UIWLabel

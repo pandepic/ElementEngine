@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using System.Xml.Linq;
+using Veldrid;
 
 namespace ElementEngine
 {
     public enum UISpriteType
     {
+        Color,
         Static,
         Animated,
         Auto3Slice,
@@ -22,6 +24,7 @@ namespace ElementEngine
 
             return type switch
             {
+                UISpriteType.Color => new UISpriteColor(widget, elName),
                 UISpriteType.Static => new UISpriteStatic(widget, elName),
                 UISpriteType.Animated => new UISpriteAnimated(widget, elName),
                 UISpriteType.Auto3Slice => new UISpriteAuto3Slice(widget, elName),
@@ -87,6 +90,44 @@ namespace ElementEngine
         public virtual void SetHeight(int height) { }
         public virtual void SetSize(Vector2I size) { }
     }
+
+    public class UISpriteColor : UISprite
+    {
+        public RgbaByte Color;
+
+        ~UISpriteColor()
+        {
+            Dispose(false);
+        }
+
+        public UISpriteColor(UIWidget widget, string elName) : base(widget, elName)
+        {
+            Color = new RgbaByte().FromHex(widget.GetXMLAttribute(elName, "Color").Value);
+
+            var attWidth = widget.GetXMLAttribute(elName, "Width");
+            var attHeight = widget.GetXMLAttribute(elName, "Height");
+
+            var width = 1;
+            var height = 1;
+
+            if (attWidth != null)
+                width = int.Parse(attWidth.Value);
+            if (attHeight != null)
+                height = int.Parse(attHeight.Value);
+
+            Sprite = new Sprite(new Texture2D(width, height, Color));
+        }
+
+        public override void SetWidth(int width)
+        {
+            Sprite.Texture = new Texture2D(width, Sprite.Height, Color);
+        }
+
+        public override void SetHeight(int height)
+        {
+            Sprite.Texture = new Texture2D(Sprite.Width, height, Color);
+        }
+    } // UISpriteStatic
 
     public class UISpriteStatic : UISprite
     {

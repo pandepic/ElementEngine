@@ -206,7 +206,7 @@ namespace ElementEngine
                 TextPosition = new Vector2(textX, textY);
             }
 
-            TriggerUIEvent(UIEventType.ValueChanged);
+            TriggerUIEvent(UIEventType.OnValueChanged);
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
