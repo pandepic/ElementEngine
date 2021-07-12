@@ -30,6 +30,7 @@ namespace ElementEngine
         protected Clipboard _clipboard = new Clipboard();
 
         public int FontSize { get; set; } = 0;
+        public int OutlineSize { get; set; } = 0;
 
         protected UISprite _background = null;
         protected Sprite _cursor = null;
@@ -143,22 +144,33 @@ namespace ElementEngine
                 if (!Focused)
                     GrabFocus();
 
-                //if (Focused)
-                //{
-                //    var relativeX = mousePosition.X - X;
-                //    var modifyDirection = relativeX < _cursorPosition.X ? -1 : 1;
+                if (Focused)
+                {
+                    if (_text.Length > 0)
+                    {
+                        var relativeX = mousePosition.X - X - _textPosition.X;
+                        var textSize = 0;
+                        var found = false;
 
-                //    while (modifyDirection == -1 ? (relativeX < _cursorPosition.X) : (relativeX > _cursorPosition.X))
-                //    {
-                //        if (modifyDirection == -1 && _cursorIndex == 0)
-                //            break;
-                //        if (modifyDirection == 1 && _cursorIndex == _text.Length)
-                //            break;
+                        for (var i = 0; i <= _text.Length; i++)
+                        {
+                            if (i > 0)
+                                textSize = (int)_font.MeasureText(_text.Substring(0, i), FontSize, OutlineSize).X;
 
-                //        _cursorIndex += modifyDirection;
-                //        CalculateCursorPosition();
-                //    }
-                //}
+                            if (textSize - _textRect.X > relativeX)
+                            {
+                                _cursorIndex = i - 1;
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found && textSize - _textRect.X < relativeX)
+                            _cursorIndex = _text.Length;
+
+                        _cursorIndex = Math.Clamp(_cursorIndex, 0, _text.Length);
+                    }
+                }
             }
             else if (Focused)
             {
