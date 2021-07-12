@@ -18,7 +18,7 @@ namespace ElementEngine
             {
                 _text = value;
                 _cursorIndex = _text.Length;
-                UpdateTextTexture();
+                TriggerUIEvent(UIEventType.OnValueChanged);
             }
         }
 
@@ -33,10 +33,11 @@ namespace ElementEngine
 
         protected UISprite _background = null;
         protected Sprite _cursor = null;
-        protected Texture2D _textTexture = null;
+        protected Texture2D _textTargetTexture = null;
 
         protected int _cursorPadding = 0;
         protected int _cursorIndex = 0;
+        protected Vector2 _cursorPosition = Vector2.Zero;
 
         protected List<char> _recentlyAdded = new List<char>();
 
@@ -126,39 +127,9 @@ namespace ElementEngine
             _textRect.X = 0;
             _textRect.Y = 0;
             _textRect.Width = Width - ((int)_textPosition.X * 2);
+            _textRect.Height = (int)(Height - _textPosition.Y * 2);
 
-            UpdateTextTexture();
-
-            _textRect.Height = _textTexture.Height;
-        }
-
-        public void UpdateTextTexture()
-        {
-            if (_textTexture != null)
-                _textTexture.Dispose();
-
-            var tSize = _font.MeasureText(_text.Length > 0 ? _text : " ", FontSize);
-
-            _textTexture = new Texture2D((int)tSize.X, (int)tSize.Y);
-            _textTexture.BeginRenderTarget();
-            _textTexture.RenderTargetClear(RgbaFloat.Clear);
-
-            var spriteBatch = _textTexture.GetRenderTargetSpriteBatch2D();
-            spriteBatch.Begin(SamplerType.Point);
-            spriteBatch.DrawText(_font, _text, Vector2.Zero, Colour, FontSize);
-            spriteBatch.End();
-            _textTexture.EndRenderTarget();
-
-            _textRect.Width = _textTexture.Width;
-            _textRect.Height = _textTexture.Height;
-
-            if (_textRect.Width > (Width - ((int)_textPosition.X * 2)))
-                _textRect.Width = (Width - ((int)_textPosition.X * 2));
-
-            if ((_textRect.Width + _textRect.X) > _textTexture.Width)
-                _textRect.Width = _textTexture.Width - _textRect.X;
-
-            TriggerUIEvent(UIEventType.OnValueChanged);
+            _textTargetTexture = new Texture2D(_textRect.Width, _textRect.Height, RgbaByte.Clear);
         }
 
         public override void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
@@ -167,10 +138,32 @@ namespace ElementEngine
 
         public override void OnMouseClicked(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
         {
-            if (!Focused && PointInsideWidget(mousePosition))
-                GrabFocus();
+            if (PointInsideWidget(mousePosition))
+            {
+                if (!Focused)
+                    GrabFocus();
+
+                //if (Focused)
+                //{
+                //    var relativeX = mousePosition.X - X;
+                //    var modifyDirection = relativeX < _cursorPosition.X ? -1 : 1;
+
+                //    while (modifyDirection == -1 ? (relativeX < _cursorPosition.X) : (relativeX > _cursorPosition.X))
+                //    {
+                //        if (modifyDirection == -1 && _cursorIndex == 0)
+                //            break;
+                //        if (modifyDirection == 1 && _cursorIndex == _text.Length)
+                //            break;
+
+                //        _cursorIndex += modifyDirection;
+                //        CalculateCursorPosition();
+                //    }
+                //}
+            }
             else if (Focused)
+            {
                 DropFocus();
+            }
         }
 
         public override void OnMouseMoved(Vector2 originalPosition, Vector2 currentPosition, GameTimer gameTimer)
@@ -203,7 +196,7 @@ namespace ElementEngine
                         if (_text.Length > 0 && _cursorIndex < _text.Length)
                         {
                             _text = _text.Remove(_cursorIndex, 1);
-                            UpdateTextTexture();
+                            TriggerUIEvent(UIEventType.OnValueChanged);
                         }
                     }
                     break;
@@ -221,7 +214,8 @@ namespace ElementEngine
                                     var c = clipboard[i];
                                     AddCharacter(c);
                                 }
-                                UpdateTextTexture();
+
+                                TriggerUIEvent(UIEventType.OnValueChanged);
                             }
                         }
                     }
@@ -233,8 +227,20 @@ namespace ElementEngine
                         {
                             _text = _text.Remove(_cursorIndex - 1, 1);
                             _cursorIndex -= 1;
-                            UpdateTextTexture();
+                            TriggerUIEvent(UIEventType.OnValueChanged);
                         }
+                    }
+                    break;
+
+                case Key.End:
+                    {
+                        _cursorIndex = _text.Length;
+                    }
+                    break;
+
+                case Key.Home:
+                    {
+                        _cursorIndex = 0;
                     }
                     break;
             }
@@ -250,7 +256,7 @@ namespace ElementEngine
                 return;
 
             AddCharacter(key);
-            UpdateTextTexture();
+            TriggerUIEvent(UIEventType.OnValueChanged);
         }
 
         private void AddCharacter(char c)
@@ -278,14 +284,25 @@ namespace ElementEngine
                 try
                 {
                     var offsetPosition = Vector2.Zero;
-                    var tSize = _font.MeasureText(_text.Length > 0 ? _text : " ", FontSize);
+                    var textSize = _font.MeasureText(_text.Length > 0 ? _text : " ", FontSize);
 
                     if (_centerTextX)
-                        offsetPosition.X = (Width / 2) - tSize.X / 2;
+                        offsetPosition.X = (Width / 2) - textSize.X / 2;
                     if (_centerTextY)
-                        offsetPosition.Y = (Height / 2) - tSize.Y / 2;
+                        offsetPosition.Y = (Height / 2) - textSize.Y / 2;
 
-                    spriteBatch.DrawTexture2D(_textTexture, offsetPosition + _textPosition + Position + Parent.Position, _textRect, null, null, 0f, Colour.ToRgbaFloat());
+                    var cursorOffset = new Vector2(_textRect.X * -1f, 0f);
+
+                    _textTargetTexture.BeginRenderTarget();
+                    _textTargetTexture.RenderTargetClear(RgbaFloat.Clear);
+                    
+                    var sb = _textTargetTexture.GetRenderTargetSpriteBatch2D();
+                    sb.Begin(SamplerType.Point);
+                    sb.DrawText(_font, _text, cursorOffset, Colour, FontSize);
+                    sb.End();
+                    _textTargetTexture.EndRenderTarget();
+
+                    spriteBatch.DrawTexture2D(_textTargetTexture, offsetPosition + _textPosition + Position + Parent.Position);
                 }
                 catch (ArgumentException)
                 {
@@ -296,7 +313,7 @@ namespace ElementEngine
                         _cursorIndex -= 1;
                     }
 
-                    UpdateTextTexture();
+                    TriggerUIEvent(UIEventType.OnValueChanged);
                 }
 
                 _recentlyAdded.Clear();
@@ -304,20 +321,28 @@ namespace ElementEngine
 
             if (Focused)
             {
-                var cursorPosition = new Vector2(_textPosition.X, _cursorPadding);
+                CalculateCursorPosition();
 
                 if (_text.Length > 0)
                 {
-                    var tSize = _font.MeasureText(_text.Substring(0, _cursorIndex), FontSize);
-                    cursorPosition.X = _textPosition.X + tSize.X - _textRect.X;
-
-                    if (cursorPosition.X > (Width - ((int)_textPosition.X * 2)))
-                        _textRect.X += ((int)cursorPosition.X - (Width - ((int)_textPosition.X * 2)));
-                    else if (cursorPosition.X < (int)_textPosition.X)
-                        _textRect.X -= (int)_textPosition.X - (int)cursorPosition.X;
+                    if (_cursorPosition.X > (Width - ((int)_textPosition.X * 2)))
+                        _textRect.X += ((int)_cursorPosition.X - (Width - ((int)_textPosition.X * 2)));
+                    else if (_cursorPosition.X < (int)_textPosition.X)
+                        _textRect.X -= (int)_textPosition.X - (int)_cursorPosition.X;
                 }
 
-                _cursor.Draw(spriteBatch, Position + Parent.Position + cursorPosition);
+                _cursor.Draw(spriteBatch, Position + Parent.Position + _cursorPosition);
+            }
+        }
+
+        protected void CalculateCursorPosition()
+        {
+            _cursorPosition = new Vector2(_textPosition.X, _cursorPadding);
+
+            if (_text.Length > 0)
+            {
+                var textSize = _font.MeasureText(_text.Substring(0, _cursorIndex), FontSize);
+                _cursorPosition.X = _textPosition.X + textSize.X - _textRect.X;
             }
         }
 
