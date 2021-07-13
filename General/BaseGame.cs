@@ -203,6 +203,9 @@ namespace ElementEngine
                 InputManager.Update(inputSnapshot, GameTimer);
                 SoundManager.Update();
             }
+
+            Exit();
+
         } // Run
 
         protected void HandleDraw()
@@ -228,17 +231,10 @@ namespace ElementEngine
             GraphicsDevice.SwapBuffers();
         }
 
-        public virtual void Load()
-        {
-        }
-
-        public virtual void Update(GameTimer gameTimer)
-        {
-        }
-
-        public virtual void Draw(GameTimer gameTimer)
-        {
-        }
+        public virtual void Load() { }
+        public virtual void Update(GameTimer gameTimer) { }
+        public virtual void Draw(GameTimer gameTimer) { }
+        public virtual void Exit() { }
 
         public virtual void OnWindowResized(Rectangle windowRect)
         {
