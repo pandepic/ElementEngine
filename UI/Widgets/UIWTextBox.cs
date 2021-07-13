@@ -337,10 +337,10 @@ namespace ElementEngine
 
                 if (_text.Length > 0)
                 {
-                    if (_cursorPosition.X > (Width - ((int)_textPosition.X * 2)))
-                        _textRect.X += ((int)_cursorPosition.X - (Width - ((int)_textPosition.X * 2)));
+                    if (_cursorPosition.X > (Width - _textPosition.X))
+                        _textRect.X += (int)(_cursorPosition.X - (Width - _textPosition.X));
                     else if (_cursorPosition.X < (int)_textPosition.X)
-                        _textRect.X -= (int)_textPosition.X - (int)_cursorPosition.X;
+                        _textRect.X -= (int)(_textPosition.X - _cursorPosition.X);
                 }
 
                 _cursor.Draw(spriteBatch, Position + Parent.Position + _cursorPosition);
