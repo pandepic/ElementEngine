@@ -120,7 +120,7 @@ namespace ElementEngine
                 },
                 Outputs = output
             };
-            
+
             _pipelineTriangleList = factory.CreateGraphicsPipeline(pipelineDescription);
 
             pipelineDescription.PrimitiveTopology = PrimitiveTopology.LineStrip;
