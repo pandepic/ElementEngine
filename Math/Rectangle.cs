@@ -17,7 +17,7 @@ namespace ElementEngine
         public bool IsZero => X == 0 && Y == 0 && Width == 0 && Height == 0;
 
         public static Rectangle Empty = new Rectangle(0, 0, 0, 0);
-        
+
         [JsonIgnore]
         public bool IsEmpty => this == Empty;
 
@@ -136,7 +136,7 @@ namespace ElementEngine
                 Height = value - Y;
             }
         }
-        
+
         [JsonIgnore]
         public Vector2I Center => new Vector2I(X + Width / 2, Y + Height / 2);
         [JsonIgnore]
