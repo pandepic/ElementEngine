@@ -5,6 +5,8 @@ Still very much an early stage work in progress with an initial focus on optimis
 
 There's currently no documentation but feel free to ask any questions on discord: https://discord.gg/5Q6AHHQwdM
 
+You might need to add the following myget source for the newest versions of veldrid to be able to build this project: dotnet nuget add source https://www.myget.org/F/mellinoe/api/v3/index.json -n "myget mellinoe"
+
 ### Features
 * Simply inherit from the base game class and overload the load, update and draw methods, and you'll get a fully working game loop out of the box
 * Game states are built into the core game loop so you can change states through a single easy method call

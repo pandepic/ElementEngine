@@ -109,8 +109,10 @@ namespace ElementEngine
         {
             var fontSystem = GetFontSystem(outlineSize);
             var font = fontSystem.GetFont(size);
+
             Bounds bounds = new Bounds();
             font.TextBounds(0, 0, text, ref bounds);
+            
             return new Vector2(bounds.X2, bounds.Y2);
         } // MeasureText
 
@@ -118,8 +120,10 @@ namespace ElementEngine
         {
             var fontSystem = GetFontSystem(outlineSize);
             var font = fontSystem.GetFont(size);
+
             Bounds bounds = new Bounds();
             font.TextBounds(0, 0, text, ref bounds);
+            
             return new Vector2(bounds.X2 - bounds.X, bounds.Y2 - bounds.Y);
         } // MeasureText
 
@@ -127,8 +131,10 @@ namespace ElementEngine
         {
             var fontSystem = GetFontSystem(outlineSize);
             var font = fontSystem.GetFont(size);
+            
             Bounds bounds = new Bounds();
             font.TextBounds(0, 0, text, ref bounds);
+            
             return new Rectangle(bounds.X, bounds.Y, bounds.X2, bounds.Y2);
         } // MeasureText
 

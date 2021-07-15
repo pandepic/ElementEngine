@@ -126,8 +126,8 @@ namespace ElementEngine
             
             _textRect.X = 0;
             _textRect.Y = 0;
-            _textRect.Width = Width - ((int)_textPosition.X * 2);
-            _textRect.Height = (int)(Height - _textPosition.Y * 2);
+            _textRect.Width = (int)(Width - (_textPosition.X * 2));
+            _textRect.Height = (int)(Height - (_textPosition.Y * 2));
         }
 
         public override void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
@@ -270,16 +270,19 @@ namespace ElementEngine
 
         private void AddCharacter(char c)
         {
+            var str = c.ToString();
+
+            // try catch is to filter out unsupported characters
             try
             {
-                _font.MeasureText(c.ToString(), FontSize);
+                _font.MeasureText(str, FontSize);
             }
             catch
             {
                 return;
             }
 
-            _text = _text.Insert(_cursorIndex, c.ToString());
+            _text = _text.Insert(_cursorIndex, str);
             _cursorIndex += 1;
             _recentlyAdded.Add(c);
         }
@@ -301,7 +304,6 @@ namespace ElementEngine
                         offsetPosition.Y = (Height / 2) - textSize.Y / 2;
 
                     var cursorOffset = new Vector2(_textRect.X * -1f, 0f);
-
                     var drawPosition = offsetPosition + _textPosition + Position + Parent.Position;
 
                     spriteBatch.SetScissorRect(new Rectangle(drawPosition, _textRect.SizeF));
