@@ -224,6 +224,7 @@ namespace ElementEngine
                 {
                     DepthClipEnabled = true,
                     CullMode = CullMode,
+                    ScissorTestEnabled = true,
                 },
                 PrimitiveTopology = PrimitiveTopology.TriangleList,
                 ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { Shader.VertexLayout }, shaders: Shader.Shaders),

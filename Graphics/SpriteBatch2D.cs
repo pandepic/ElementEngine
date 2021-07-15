@@ -232,6 +232,18 @@ namespace ElementEngine
                 _shaders[i]?.Dispose();
         }
 
+        public void SetScissorRect(Rectangle rect)
+        {
+            Flush(_currentTexture);
+            CommandList.SetScissorRect(0, (uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
+        }
+
+        public void ResetScissorRect()
+        {
+            Flush(_currentTexture);
+            CommandList.SetFullScissorRect(0);
+        }
+
         public void Begin(SamplerType samplerType, Matrix4x4? view = null)
         {
             switch (samplerType)

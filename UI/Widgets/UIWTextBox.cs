@@ -34,7 +34,6 @@ namespace ElementEngine
 
         protected UISprite _background = null;
         protected Sprite _cursor = null;
-        protected Texture2D _textTargetTexture = null;
 
         protected int _cursorPadding = 0;
         protected int _cursorIndex = 0;
@@ -129,8 +128,6 @@ namespace ElementEngine
             _textRect.Y = 0;
             _textRect.Width = Width - ((int)_textPosition.X * 2);
             _textRect.Height = (int)(Height - _textPosition.Y * 2);
-
-            _textTargetTexture = new Texture2D(_textRect.Width, _textRect.Height, RgbaByte.Clear);
         }
 
         public override void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
@@ -305,16 +302,11 @@ namespace ElementEngine
 
                     var cursorOffset = new Vector2(_textRect.X * -1f, 0f);
 
-                    _textTargetTexture.BeginRenderTarget();
-                    _textTargetTexture.RenderTargetClear(RgbaFloat.Clear);
-                    
-                    var sb = _textTargetTexture.GetRenderTargetSpriteBatch2D();
-                    sb.Begin(SamplerType.Point);
-                    sb.DrawText(_font, _text, cursorOffset, Colour, FontSize);
-                    sb.End();
-                    _textTargetTexture.EndRenderTarget();
+                    var drawPosition = offsetPosition + _textPosition + Position + Parent.Position;
 
-                    spriteBatch.DrawTexture2D(_textTargetTexture, offsetPosition + _textPosition + Position + Parent.Position);
+                    spriteBatch.SetScissorRect(new Rectangle(drawPosition, _textRect.SizeF));
+                    spriteBatch.DrawText(_font, _text, drawPosition + cursorOffset, Colour, FontSize);
+                    spriteBatch.ResetScissorRect();
                 }
                 catch (ArgumentException)
                 {
