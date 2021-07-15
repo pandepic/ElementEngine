@@ -199,8 +199,44 @@ namespace ElementEngine
             return new Rectangle(leftSide, topSide, rightSide - leftSide, bottomSide - topSide);
         }
 
+        public bool Intersect(CircleI circle)
+        {
+            return Intersect(new CircleF(circle.Center.ToVector2(), (float)circle.Radius));
+        }
+
+        public bool Intersect(CircleF circle)
+        {
+            float halfRectWidth = Width / 2.0f;
+            float halfRectHeight = Height / 2.0f;
+
+            float distX = MathF.Abs(circle.Center.X - (X + halfRectWidth));
+            float distY = MathF.Abs(circle.Center.Y - (Y + halfRectHeight));
+
+            if (distX >= circle.Radius + halfRectWidth || distY >= circle.Radius + halfRectHeight)
+            {
+                return false;
+            }
+            if (distX < halfRectWidth || distY < halfRectHeight)
+            {
+                return true;
+            }
+
+            distX -= halfRectWidth;
+            distY -= halfRectHeight;
+
+            if (distX * distX + distY * distY < circle.Radius * circle.Radius)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool Intersects(Rectangle rect1, Rectangle rect2) => rect1.Intersects(rect2);
         public static Rectangle Intersect(Rectangle rect1, Rectangle rect2) => rect1.Intersect(rect2);
+
+        public static bool Intersect(Rectangle rect, CircleI circle) => rect.Intersect(circle);
+        public static bool Intersect(Rectangle rect, CircleF circle) => rect.Intersect(circle);
 
         public override string ToString()
         {
