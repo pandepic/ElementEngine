@@ -31,3 +31,4 @@ Vulkan, OpenGL, OpenGLES and Direct3D11 have been tested with all library featur
 In the future some better sample projects for specific features will be created, but for now here are some of my open source projects that use this engine:
 
 * Github Game Off 2020 entry: https://github.com/pandepic/GAME_OFF_2020
+* Ludum Dare 48 entry: https://github.com/pandepic/LudumDare48
