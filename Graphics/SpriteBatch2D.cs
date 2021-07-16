@@ -280,6 +280,7 @@ namespace ElementEngine
 
             CommandList.UpdateBuffer(_transformBuffer, 0, _projection);
             CommandList.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
+            CommandList.SetFullScissorRect(0);
         }
 
         public void DrawText(SpriteFont font, string text, Vector2 position, RgbaByte color, int size, int outlineSize = 0)

@@ -26,9 +26,9 @@ namespace ElementEngine.MachineLearning
             GenerateTable();
         }
 
-        public string GetRandomString()
+        public string GetRandomString(int? maxSearchLength = null)
         {
-            return GetRandomString(null);
+            return GetRandomString(null, maxSearchLength);
         }
 
         public string GetRandomString(string startingValue, int? maxSearchLength = null)
@@ -128,6 +128,9 @@ namespace ElementEngine.MachineLearning
 
         private void AddKey(string key, string val)
         {
+            if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(val))
+                return;
+
             if (!_table.TryGetValue(key, out var keyData))
             {
                 keyData = new Dictionary<string, int>();

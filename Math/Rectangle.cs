@@ -213,21 +213,16 @@ namespace ElementEngine
             float distY = MathF.Abs(circle.Center.Y - (Y + halfRectHeight));
 
             if (distX >= circle.Radius + halfRectWidth || distY >= circle.Radius + halfRectHeight)
-            {
                 return false;
-            }
+
             if (distX < halfRectWidth || distY < halfRectHeight)
-            {
                 return true;
-            }
 
             distX -= halfRectWidth;
             distY -= halfRectHeight;
 
             if (distX * distX + distY * distY < circle.Radius * circle.Radius)
-            {
                 return true;
-            }
 
             return false;
         }
