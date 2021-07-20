@@ -5,19 +5,16 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class UIWBasicButton : UIWidget, IDisposable
+    public class UIImageButton : UIWidget, IDisposable
     {
-        public SpriteFont Font { get; set; } = null;
-        public int FontSize { get; set; } = 0;
-        public string ButtonText { get; set; }
-        public Vector2 TextPosition { get; set; }
-        public RgbaByte ButtonTextColor { get; set; }
+        public Vector2 ImagePosition { get; set; }
         public bool Disabled = false;
 
         protected UISprite _buttonSprite = null;
         protected UISprite _buttonPressedSprite = null;
         protected UISprite _buttonHoverSprite = null;
         protected UISprite _buttonDisabledSprite = null;
+        protected UISprite _imageSprite = null;
 
         protected string _clickSound = "";
         protected bool _buttonPressed = false;
@@ -42,6 +39,7 @@ namespace ElementEngine
                     _buttonPressedSprite?.Dispose();
                     _buttonHoverSprite?.Dispose();
                     _buttonDisabledSprite?.Dispose();
+                    _imageSprite?.Dispose();
                 }
 
                 _disposed = true;
@@ -49,9 +47,9 @@ namespace ElementEngine
         }
         #endregion
 
-        public UIWBasicButton() { }
+        public UIImageButton() { }
 
-        ~UIWBasicButton()
+        ~UIImageButton()
         {
             Dispose(false);
         }
@@ -74,32 +72,19 @@ namespace ElementEngine
             if (elButtonDisabled != null)
                 _buttonDisabledSprite = UISprite.CreateUISprite(this, "ButtonDisabled");
 
-            XElement buttonLabelPosition = GetXMLElement("Label", "Position");
-            XElement buttonLabelColor = GetXMLElement("Label", "Color");
+            _imageSprite = UISprite.CreateUISprite(this, "Image");
 
-            var font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
-            var fontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
+            XElement buttonImagePosition = GetXMLElement("Image", "Position");
 
-            var languageKeyAtt = GetXMLAttribute("Label", "LanguageKey");
-            string buttonText;
+            int imageX = (buttonImagePosition.Attribute("X").Value.ToUpper() != "CENTER"
+                ? int.Parse(buttonImagePosition.Attribute("X").Value)
+                : (int)((_buttonSprite.Width / 2) - (_imageSprite.Size.X / 2)));
 
-            if (languageKeyAtt != null)
-                buttonText = LocalisationManager.GetString(languageKeyAtt.Value);
-            else
-                buttonText = GetXMLAttribute("Label", "Text").Value;
+            int imageY = (buttonImagePosition.Attribute("Y").Value.ToUpper() != "CENTER"
+                ? int.Parse(buttonImagePosition.Attribute("Y").Value)
+                : (int)((_buttonSprite.Height / 2) - (_imageSprite.Size.Y / 2)));
 
-            var labelSize = font.MeasureText(buttonText, fontSize);
-
-            int textX = (buttonLabelPosition.Attribute("X").Value.ToUpper() != "CENTER"
-                ? int.Parse(buttonLabelPosition.Attribute("X").Value)
-                : (int)((_buttonSprite.Width / 2) - (labelSize.X / 2)));
-
-            int textY = (buttonLabelPosition.Attribute("Y").Value.ToUpper() != "CENTER"
-                ? int.Parse(buttonLabelPosition.Attribute("Y").Value)
-                : (int)((_buttonSprite.Height / 2) - (labelSize.Y / 2)));
-
-            var textPosition = new Vector2() { X = textX, Y = textY };
-            var buttonTextColor = new RgbaByte().FromHex(buttonLabelColor.Value);
+            var imagePosition = new Vector2() { X = imageX, Y = imageY };
 
             string clickSound = null;
             var clickSoundElement = GetXMLElement("ClickSound");
@@ -111,7 +96,9 @@ namespace ElementEngine
                 _buttonPressedSprite,
                 _buttonHoverSprite,
                 _buttonDisabledSprite,
-                buttonText, font, fontSize, 0, textPosition, buttonTextColor, clickSound);
+                _imageSprite,
+                imagePosition,
+                clickSound);
         }
 
         public void Load(UIFrame parent,
@@ -119,29 +106,21 @@ namespace ElementEngine
             UISprite buttonSpritePressed,
             UISprite buttonSpriteHover,
             UISprite buttonSpriteDisabled,
-            string buttonText,
-            SpriteFont font,
-            int fontSize,
-            int fontOutline,
-            Vector2 textPosition,
-            RgbaByte buttonTextColor,
+            UISprite imageSprite,
+            Vector2 imagePosition,
             string clickSound = null)
         {
             Init(parent);
-
-            Font = font;
-            FontSize = fontSize;
-            ButtonText = buttonText;
 
             _buttonSprite = buttonSprite;
             _buttonPressedSprite = buttonSpritePressed;
             _buttonHoverSprite = buttonSpriteHover;
             _buttonDisabledSprite = buttonSpriteDisabled;
+            _imageSprite = imageSprite;
 
             Width = _buttonSprite.Width;
             Height = _buttonSprite.Height;
-            TextPosition = textPosition;
-            ButtonTextColor = buttonTextColor;
+            ImagePosition = imagePosition;
             _clickSound = clickSound;
 
             UpdateRect();
@@ -219,6 +198,7 @@ namespace ElementEngine
             _buttonPressedSprite?.Update(gameTimer);
             _buttonHoverSprite?.Update(gameTimer);
             _buttonDisabledSprite?.Update(gameTimer);
+            _imageSprite?.Update(gameTimer);
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
@@ -265,11 +245,10 @@ namespace ElementEngine
                 }
             }
 
-            if (Font != null && ButtonText.Length > 0)
-            {
-                spriteBatch.DrawText(Font, ButtonText, TextPosition + Position + Parent.Position, ButtonTextColor, FontSize);
-            }
+            if (_imageSprite != null)
+                _imageSprite.Draw(spriteBatch, ImagePosition + Position + Parent.Position);
 
         } // Draw
-    } // UIBasicButton
+
+    } // UIImageButton
 }

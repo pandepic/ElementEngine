@@ -7,143 +7,6 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public enum UILayoutGroupDirection
-    {
-        Vertical,
-        Horizontal,
-    }
-
-    public class UILayoutGroup
-    {
-        public string Name { get; set; }
-        public UILayoutGroupDirection Direction { get; set; }
-        public int Spacing { get; set; }
-        public UIFrame ParentFrame { get; set; }
-        public List<UIWidget> Widgets { get; set; } = new List<UIWidget>();
-        public WidgetPositionFlags PositionFlags { get; set; } = new WidgetPositionFlags();
-
-        public UILayoutGroup(XElement el, UIFrame parentFrame)
-        {
-            ParentFrame = parentFrame;
-            Name = el.Attribute("Name").Value;
-            Direction = el.Attribute("Direction").Value.ToEnum<UILayoutGroupDirection>();
-            Spacing = 0;
-
-            var attSpacing = el.Attribute("Spacing");
-            if (attSpacing != null)
-                Spacing = int.Parse(attSpacing.Value);
-
-            var valueX = el.Element("StartPosition").Attribute("X").Value;
-
-            if (valueX.ToUpper() == "CENTER")
-                PositionFlags.CenterX = true;
-            else if (valueX.ToUpper() == "LEFT")
-                PositionFlags.AnchorLeft = true;
-            else if (valueX.ToUpper() == "RIGHT")
-                PositionFlags.AnchorRight = true;
-            else
-                PositionFlags.SetX = int.Parse(valueX);
-
-            var valueY = el.Element("StartPosition").Attribute("Y").Value;
-
-            if (valueY.ToUpper() == "CENTER")
-                PositionFlags.CenterY = true;
-            else if (valueY.ToUpper() == "TOP")
-                PositionFlags.AnchorTop = true;
-            else if (valueY.ToUpper() == "BOTTOM")
-                PositionFlags.AnchorBottom = true;
-            else
-                PositionFlags.SetY = int.Parse(valueY);
-        }
-
-        public void UpdateWidgetPositions()
-        {
-            var width = 0;
-            var height = 0;
-
-            foreach (var widget in Widgets)
-            {
-                var offset = widget.Offset.ToVector2I();
-
-                if (Direction == UILayoutGroupDirection.Vertical)
-                {
-                    if (widget.Width > width)
-                        width = widget.Width;
-
-                    height += widget.Height + Spacing + offset.Y;
-                }
-                else if (Direction == UILayoutGroupDirection.Horizontal)
-                {
-                    if (widget.Height > height)
-                        height = widget.Height;
-
-                    width += widget.Width + Spacing + offset.X;
-                }
-            }
-
-            var startPosition = Vector2I.Zero;
-
-            if (PositionFlags.CenterX)
-                startPosition.X = ParentFrame.Width / 2 - (Direction == UILayoutGroupDirection.Horizontal ? width / 2 : 0);
-            else if (PositionFlags.AnchorLeft)
-                startPosition.X = 0;
-            else if (PositionFlags.AnchorRight)
-                startPosition.X = ParentFrame.Width;
-            else if (PositionFlags.SetX.HasValue)
-                startPosition.X = PositionFlags.SetX.Value;
-
-            if (PositionFlags.CenterY)
-                startPosition.Y = ParentFrame.Height / 2 - (Direction == UILayoutGroupDirection.Vertical ? height / 2 : 0);
-            else if (PositionFlags.AnchorTop)
-                startPosition.Y = 0;
-            else if (PositionFlags.AnchorBottom)
-                startPosition.Y = ParentFrame.Height;
-            else if (PositionFlags.SetY.HasValue)
-                startPosition.Y = PositionFlags.SetY.Value;
-
-            var currentPosition = startPosition;
-
-            foreach (var widget in Widgets)
-            {
-                var offset = widget.Offset.ToVector2I();
-
-                if (Direction == UILayoutGroupDirection.Vertical)
-                {
-                    if (widget.PositionFlags.CenterX)
-                        currentPosition.X = startPosition.X - widget.Width / 2;
-                    else if (widget.PositionFlags.AnchorLeft)
-                        currentPosition.X = startPosition.X;
-                    else if (widget.PositionFlags.AnchorRight)
-                        currentPosition.X = startPosition.X - widget.Width;
-                    else if (widget.PositionFlags.SetX.HasValue)
-                        currentPosition.X = startPosition.X + widget.PositionFlags.SetX.Value;
-
-                    widget.X = currentPosition.X;
-                    widget.Y = currentPosition.Y;
-
-                    currentPosition.Y += widget.Height + Spacing + offset.Y;
-                }
-                else if (Direction == UILayoutGroupDirection.Horizontal)
-                {
-                    if (widget.PositionFlags.CenterY)
-                        currentPosition.Y = startPosition.Y - widget.Height / 2;
-                    else if (widget.PositionFlags.AnchorTop)
-                        currentPosition.Y = startPosition.Y;
-                    else if (widget.PositionFlags.AnchorBottom)
-                        currentPosition.Y = startPosition.Y - widget.Height;
-                    else if (widget.PositionFlags.SetY.HasValue)
-                        currentPosition.Y = startPosition.Y + widget.PositionFlags.SetY.Value;
-
-                    widget.X = currentPosition.X;
-                    widget.Y = currentPosition.Y;
-
-                    currentPosition.X += widget.Width + Spacing + offset.X;
-                }
-            }
-
-        } // UpdateWidgetPositions
-    } // UILayoutGroup
-
     public class CommonWidgetResources
     {
         public Dictionary<string, XElement> Templates { get; set; } = null;
@@ -156,6 +19,7 @@ namespace ElementEngine
         internal Rectangle FrameRect = Rectangle.Empty;
 
         public string Name { get; set; } = "";
+        public XElement XMLElement { get; set; } = null;
         public UISprite FrameSprite { get; set; } = null;
         public UIWidgetList Widgets { get; set; } = new UIWidgetList();
         public Dictionary<string, XElement> Templates { get; set; } = null;
@@ -269,27 +133,29 @@ namespace ElementEngine
 
         public UIFrame(UIMenu parent, XElement el, Dictionary<string, XElement> templates)
         {
+            Parent = parent;
+            Templates = templates;
+            CommonWidgetResources.Templates = templates;
+            XMLElement = el;
+
             var screenWidth = ElementGlobals.TargetResolutionWidth;
             var screenHeight = ElementGlobals.TargetResolutionHeight;
 
-            Parent = parent;
-            Templates = templates;
-
-            var drawOrderAttribute = el.Attribute("DrawOrder");
+            var drawOrderAttribute = XMLElement.Attribute("DrawOrder");
             if (drawOrderAttribute != null)
                 DrawOrder = int.Parse(drawOrderAttribute.Value);
 
-            var elBackground = el.Element("Background");
+            var elBackground = XMLElement.Element("Background");
 
             if (elBackground != null)
             {
                 var bgWidget = new UIWidget();
-                bgWidget.Init(this, el);
+                bgWidget.Init(this, XMLElement);
                 FrameSprite = UISprite.CreateUISprite(bgWidget, "Background");
             }
 
-            var framePosition = el.Element("Position");
-            var frameSize = el.Element("Size");
+            var framePosition = XMLElement.Element("Position");
+            var frameSize = XMLElement.Element("Size");
 
             var frameSizeW = frameSize.Attribute("Width").Value;
             var frameSizeH = frameSize.Attribute("Height").Value;
@@ -339,9 +205,9 @@ namespace ElementEngine
             if (frameY == "BOTTOM")
                 AnchorBottom = true;
 
-            var visibleAttribute = el.Attribute("Visible");
-            var activeAttribute = el.Attribute("Active");
-            var draggableAttribute = el.Attribute("Draggable");
+            var visibleAttribute = XMLElement.Attribute("Visible");
+            var activeAttribute = XMLElement.Attribute("Active");
+            var draggableAttribute = XMLElement.Attribute("Draggable");
 
             if (visibleAttribute != null)
                 Visible = bool.Parse(visibleAttribute.Value);
@@ -350,25 +216,56 @@ namespace ElementEngine
             if (draggableAttribute != null)
                 Draggable = bool.Parse(draggableAttribute.Value);
 
-            Name = el.Attribute("Name").Value;
+            Name = XMLElement.Attribute("Name").Value;
 
-            XElement widgetsRoot = el.Element("Widgets");
+            ReloadWidgets();
+
+            var draggableRectAttribute = XMLElement.Attribute("DraggableRect");
+            if (draggableRectAttribute != null)
+            {
+                var rectParts = draggableRectAttribute.Value.Split(',');
+                _draggableRect.X = int.Parse(rectParts[0]);
+                _draggableRect.Y = int.Parse(rectParts[1]);
+
+                var widthPart = rectParts[2];
+                var heightPart = rectParts[3];
+
+                if (widthPart.ToUpper() == "FILL")
+                    _draggableRect.Width = Width;
+                else
+                    _draggableRect.Width = int.Parse(widthPart);
+
+                if (heightPart.ToUpper() == "FILL")
+                    _draggableRect.Height = Height;
+                else
+                    _draggableRect.Height = int.Parse(heightPart);
+            }
+
+        } // UIFrame
+
+        ~UIFrame()
+        {
+            Dispose(false);
+        }
+
+        public void ReloadWidgets()
+        {
+            Widgets.Clear();
+            CommonWidgetResources.LayoutGroups.Clear();
+
+            var screenWidth = ElementGlobals.TargetResolutionWidth;
+            var screenHeight = ElementGlobals.TargetResolutionHeight;
+
+            XElement widgetsRoot = XMLElement.Element("Widgets");
 
             var currentWidth = 0;
             var currentHeight = 0;
-
-            CommonWidgetResources.Templates = templates;
 
             var tempWidgets = new List<UIWidget>();
 
             foreach (var elWidget in widgetsRoot.Elements())
             {
-                if (ElementGlobals.UIWidgetTypes.TryGetValue(elWidget.Name.ToString(), out var widgetType))
-                {
-                    UIWidget widget = (UIWidget)Activator.CreateInstance(widgetType);
-                    widget.Load(this, elWidget);
-                    tempWidgets.Add(widget);
-                }
+                AddWidget(elWidget, tempWidgets, false);
             }
 
             foreach (var widget in tempWidgets)
@@ -402,28 +299,7 @@ namespace ElementEngine
             if (AnchorBottom)
                 Y = screenHeight - Height;
 
-            var draggableRectAttribute = el.Attribute("DraggableRect");
-            if (draggableRectAttribute != null)
-            {
-                var rectParts = draggableRectAttribute.Value.Split(',');
-                _draggableRect.X = int.Parse(rectParts[0]);
-                _draggableRect.Y = int.Parse(rectParts[1]);
-
-                var widthPart = rectParts[2];
-                var heightPart = rectParts[3];
-
-                if (widthPart.ToUpper() == "FILL")
-                    _draggableRect.Width = Width;
-                else
-                    _draggableRect.Width = int.Parse(widthPart);
-
-                if (heightPart.ToUpper() == "FILL")
-                    _draggableRect.Height = Height;
-                else
-                    _draggableRect.Height = int.Parse(heightPart);
-            }
-
-            foreach (var elLayoutGroup in el.Elements("LayoutGroup"))
+            foreach (var elLayoutGroup in XMLElement.Elements("LayoutGroup"))
             {
                 var layoutGroup = new UILayoutGroup(elLayoutGroup, this);
                 CommonWidgetResources.LayoutGroups.Add(layoutGroup.Name, layoutGroup);
@@ -448,12 +324,44 @@ namespace ElementEngine
 
             Widgets.OrderByDrawOrder();
 
-        } // UIFrame
+        } // ReloadWidgets
 
-        ~UIFrame()
+        internal void AddWidget(XElement elWidget, List<UIWidget> widgets, bool ignoreBindRepeater = false, bool ignoreBindObject = false)
         {
-            Dispose(false);
-        }
+            var attRepeater = elWidget.Attribute("BindRepeater");
+            var attObject = elWidget.Attribute("BindObject");
+
+            if (attRepeater != null && !ignoreBindRepeater)
+            {
+                var repeaterName = attRepeater.Value;
+
+                var repeaterElements = UIDataBinding.GetRepeaterOutput(Parent, repeaterName, elWidget);
+
+                if (repeaterElements == null || repeaterElements.Count == 0)
+                    return;
+
+                foreach (var el in repeaterElements)
+                    AddWidget(el, widgets, ignoreBindRepeater: true);
+
+                Parent.RegisterBoundObject(this, repeaterName);
+            }
+            else if (attObject != null && !ignoreBindObject)
+            {
+                var objectName = attObject.Value;
+                AddWidget(UIDataBinding.GetElement(Parent, objectName, elWidget), widgets, ignoreBindObject: true);
+
+                Parent.RegisterBoundObject(this, objectName);
+            }
+            else
+            {
+                if (ElementGlobals.UIWidgetTypes.TryGetValue(elWidget.Name.ToString(), out var widgetType))
+                {
+                    UIWidget widget = (UIWidget)Activator.CreateInstance(widgetType);
+                    widget.Load(this, elWidget);
+                    widgets.Add(widget);
+                }
+            }
+        } // AddWidget
 
         internal void TriggerUIEvent(UIEventType type, UIWidget widget)
         {

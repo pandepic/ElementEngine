@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Numerics;
 using System.Xml.Linq;
 using Veldrid;
@@ -20,11 +21,14 @@ namespace ElementEngine
 
     public class UIMenu : IDisposable, IKeyboardHandler, IMouseHandler
     {
-        public UIFrameList Frames { get; set; } = new UIFrameList();
         public Dictionary<string, XElement> Templates { get; set; } = new Dictionary<string, XElement>();
-        protected List<IUIEventHandler> _eventHandlers { get; set; } = new List<IUIEventHandler>();
+        public Dictionary<string, object> BoundObjects = new Dictionary<string, object>();
+        public Dictionary<string, List<UIFrame>> FramesWithBoundObjects = new Dictionary<string, List<UIFrame>>();
 
+        public UIFrameList Frames { get; set; } = new UIFrameList();
         public bool Focused { get; private set; } = false;
+
+        protected List<IUIEventHandler> _eventHandlers { get; set; } = new List<IUIEventHandler>();
 
         #region IDisposable
         protected bool _disposed = false;
@@ -106,6 +110,48 @@ namespace ElementEngine
 
         } // Load
 
+        #region Data Binding
+        public void Bind<T>(string name, T obj) where T : IUIBoundType
+        {
+            if (BoundObjects.ContainsKey(name))
+                BoundObjects[name] = obj;
+            else
+                BoundObjects.Add(name, obj);
+
+            RefreshBoundFrames(name);
+        }
+
+        public void BindList<T>(string name, T obj) where T : List<IUIBoundType>
+        {
+            if (BoundObjects.ContainsKey(name))
+                BoundObjects[name] = obj;
+            else
+                BoundObjects.Add(name, obj);
+
+            RefreshBoundFrames(name);
+        }
+
+        public void RegisterBoundObject(UIFrame frame, string objName)
+        {
+            if (!FramesWithBoundObjects.TryGetValue(objName, out var frames))
+            {
+                frames = new List<UIFrame>();
+                FramesWithBoundObjects.Add(objName, frames);
+            }
+
+            frames.AddIfNotContains(frame);
+        }
+
+        public void RefreshBoundFrames(string objName)
+        {
+            if (!FramesWithBoundObjects.TryGetValue(objName, out var frames))
+                return;
+
+            foreach (var frame in frames)
+                frame.ReloadWidgets();
+        }
+        #endregion
+
         public void AddUIEventHandler(IUIEventHandler handler)
         {
             if (_eventHandlers.Contains(handler))
@@ -175,27 +221,28 @@ namespace ElementEngine
         public void Update(GameTimer gameTimer)
         {
             Frames.Update(gameTimer);
-        } // Update
+        }
 
         public void Draw(SpriteBatch2D spriteBatch)
         {
             Frames.Draw(spriteBatch);
-        } // Draw
+        }
 
+        #region Events
         public void HandleKeyPressed(Key key, GameTimer gameTimer)
         {
             Frames.OnKeyPressed(key, gameTimer);
-        } // HandleKeyPressed
+        }
 
         public void HandleKeyReleased(Key key, GameTimer gameTimer)
         {
             Frames.OnKeyReleased(key, gameTimer);
-        } // HandleKeyReleased
+        }
 
         public void HandleKeyDown(Key key, GameTimer gameTimer)
         {
             Frames.OnKeyDown(key, gameTimer);
-        } // HandleKeyDown
+        }
 
         public void HandleTextInput(char key, GameTimer gameTimer)
         {
@@ -205,27 +252,28 @@ namespace ElementEngine
         public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             Frames.OnMouseMoved(mousePosition, prevMousePosition, gameTimer);
-        } // HandleMouseMotion
+        }
 
         public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             Frames.OnMouseDown(button, mousePosition, gameTimer);
-        } // HandleMouseButtonPressed
+        }
 
         public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             Frames.OnMouseClicked(button, mousePosition, gameTimer);
-        } // HandleMouseButtonReleased
+        }
 
         public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             Frames.OnMouseDown(button, mousePosition, gameTimer);
-        } // HandleMouseButtonDown
+        }
 
         public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
             Frames.OnMouseScroll(type, mouseWheelDelta, gameTimer);
-        } // HandleMouseWheel
+        }
+        #endregion
 
     } // UIMenu
 }

@@ -34,6 +34,7 @@ namespace ElementEngine
         public bool Visible { get; set; }
         public bool Active { get; set; }
         public UILayoutGroup LayoutGroup { get; set; }
+        public string BindingID { get; set; } = null;
 
         protected WidgetPositionFlags _positionFlags = new WidgetPositionFlags();
         public WidgetPositionFlags PositionFlags => _positionFlags;
@@ -327,6 +328,7 @@ namespace ElementEngine
             DrawOrder = GetXMLAttribute("DrawOrder") == null ? 0 : int.Parse(GetXMLAttribute("DrawOrder").Value);
             Visible = (GetXMLAttribute("Visible") != null ? Convert.ToBoolean(GetXMLAttribute("Visible").Value) : true);
             Active = (GetXMLAttribute("Active") != null ? Convert.ToBoolean(GetXMLAttribute("Active").Value) : true);
+            BindingID = (GetXMLAttribute("BindingID") != null ? GetXMLAttribute("BindingID").Value : null);
 
         } // LoadStandardXML
 

@@ -76,10 +76,6 @@ namespace ElementEngine
 
         public void Add(UIWidget widget)
         {
-            foreach (var w in Widgets)
-                if (w.Name == widget.Name)
-                    throw new FrameListException("Widget with name " + widget.Name + " already in list.");
-
             Widgets.Add(widget);
         }
 

@@ -38,6 +38,8 @@ namespace ElementEngine
 
         public int Width => Sprite.Width;
         public int Height => Sprite.Height;
+        public Vector2I Size => new Vector2I(Width, Height);
+        public Vector2 SizeF => new Vector2(Width, Height);
         public Texture2D Texture => Sprite.Texture;
         public Rectangle SourceRect => Sprite.SourceRect;
 
@@ -120,11 +122,13 @@ namespace ElementEngine
 
         public override void SetWidth(int width)
         {
+            Sprite.Texture?.Dispose();
             Sprite.Texture = new Texture2D(width, Sprite.Height, Color);
         }
 
         public override void SetHeight(int height)
         {
+            Sprite.Texture?.Dispose();
             Sprite.Texture = new Texture2D(Sprite.Width, height, Color);
         }
     } // UISpriteStatic
