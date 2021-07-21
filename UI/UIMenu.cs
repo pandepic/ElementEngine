@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Veldrid;
 
@@ -80,7 +82,24 @@ namespace ElementEngine
         {
             using var fs = AssetManager.GetAssetStream(assetName);
 
-            XDocument doc = XDocument.Load(fs);
+            using var streamReader = new StreamReader(fs);
+            var xml = streamReader.ReadToEnd();
+
+            var importRegex = new Regex("@Import=\".*\"");
+            var matches = importRegex.Matches(xml);
+
+            foreach (Match match in matches)
+            {
+                var importAsset = match.Value.Replace("@Import=\"", "").Replace("\"", "");
+                
+                using var importFS = AssetManager.GetAssetStream(importAsset);
+                using var importSR = new StreamReader(importFS);
+                var importString = importSR.ReadToEnd();
+
+                xml = xml.Replace(match.Value, importString);
+            }
+            
+            XDocument doc = XDocument.Parse(xml);
             XElement menuRoot = doc.Element("Menu");
 
             XElement templatesRoot = null;

@@ -5,7 +5,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class UIImageButton : UIWidget, IDisposable
+    public class UIWImageButton : UIWidget, IDisposable
     {
         public Vector2 ImagePosition { get; set; }
         public bool Disabled = false;
@@ -47,9 +47,9 @@ namespace ElementEngine
         }
         #endregion
 
-        public UIImageButton() { }
+        public UIWImageButton() { }
 
-        ~UIImageButton()
+        ~UIWImageButton()
         {
             Dispose(false);
         }
@@ -74,7 +74,7 @@ namespace ElementEngine
 
             _imageSprite = UISprite.CreateUISprite(this, "Image");
 
-            XElement buttonImagePosition = GetXMLElement("Image", "Position");
+            XElement buttonImagePosition = GetXMLElement("ImagePosition");
 
             int imageX = (buttonImagePosition.Attribute("X").Value.ToUpper() != "CENTER"
                 ? int.Parse(buttonImagePosition.Attribute("X").Value)

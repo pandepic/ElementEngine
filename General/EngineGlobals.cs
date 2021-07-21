@@ -29,6 +29,7 @@ namespace ElementEngine
         public static Dictionary<string, Type> UIWidgetTypes { get; set; } = new Dictionary<string, Type>()
         {
             { "Button", typeof(UIWBasicButton) },
+            { "ImageButton", typeof(UIWImageButton) },
             { "Label", typeof(UIWLabel) },
             { "Textbox", typeof(UIWTextBox) },
             { "ImageBox", typeof(UIWImageBox) },
