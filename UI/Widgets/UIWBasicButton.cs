@@ -9,6 +9,7 @@ namespace ElementEngine
     {
         public SpriteFont Font { get; set; } = null;
         public int FontSize { get; set; } = 0;
+        public int FontOutline { get; set; } = 0;
         public string ButtonText { get; set; }
         public Vector2 TextPosition { get; set; }
         public RgbaByte ButtonTextColor { get; set; }
@@ -78,6 +79,11 @@ namespace ElementEngine
             var font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
             var fontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
 
+            var elFontOutline = GetXMLElement("Label", "FontOutline");
+
+            if (elFontOutline != null)
+                FontOutline = int.Parse(elFontOutline.Value);
+
             var languageKeyAtt = GetXMLAttribute("Label", "LanguageKey");
             string buttonText;
 
@@ -86,7 +92,7 @@ namespace ElementEngine
             else
                 buttonText = GetXMLAttribute("Label", "Text").Value;
 
-            var labelSize = font.MeasureText(buttonText, fontSize);
+            var labelSize = font.MeasureText(buttonText, fontSize, FontOutline);
 
             int textX = (buttonLabelPosition.Attribute("X").Value.ToUpper() != "CENTER"
                 ? int.Parse(buttonLabelPosition.Attribute("X").Value)
@@ -109,7 +115,7 @@ namespace ElementEngine
                 _buttonPressedSprite,
                 _buttonHoverSprite,
                 _buttonDisabledSprite,
-                buttonText, font, fontSize, 0, textPosition, buttonTextColor, clickSound);
+                buttonText, font, fontSize, FontOutline, textPosition, buttonTextColor, clickSound);
         }
 
         public void Load(UIFrame parent,
@@ -129,6 +135,7 @@ namespace ElementEngine
 
             Font = font;
             FontSize = fontSize;
+            FontOutline = fontOutline;
             ButtonText = buttonText;
 
             _buttonSprite = buttonSprite;
@@ -162,9 +169,7 @@ namespace ElementEngine
                 return;
 
             if (PointInsideWidget(mousePosition))
-            {
                 _buttonPressed = true;
-            }
         }
 
         public override void OnMouseClicked(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
@@ -190,24 +195,16 @@ namespace ElementEngine
                 return;
 
             if (PointInsideWidget(currentPosition))
-            {
                 _buttonHover = true;
-            }
             else
-            {
                 _buttonHover = false;
-            }
 
             if (_buttonPressed)
             {
                 if (PointInsideWidget(currentPosition) == false)
-                {
                     _buttonPressed = false;
-                }
                 else
-                {
                     _buttonPressed = true;
-                }
             }
         }
 
