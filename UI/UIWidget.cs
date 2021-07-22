@@ -332,7 +332,7 @@ namespace ElementEngine
 
         } // LoadStandardXML
 
-        protected void UpdatePositionFromFlags(bool updateLayout = false)
+        public void UpdatePositionFromFlags()
         {
             if (LayoutGroup != null)
             {

@@ -15,6 +15,8 @@ namespace ElementEngine
 
         public UIPanel(UIFrame parent, XElement el)
         {
+            var scrollBarH = GetXMLElement("HScrollBar");
+            var scrollBarV = GetXMLElement("VScrollBar");
         }
 
     } // UIPanel

@@ -209,6 +209,23 @@ namespace ElementEngine
 
             ReloadWidgets();
 
+            var elBackground = XMLElement.Element("Background");
+
+            if (elBackground != null)
+            {
+                var bgWidget = new UIWidget();
+                bgWidget.Init(this, XMLElement);
+                bgWidget.Width = Width;
+                bgWidget.Height = Height;
+                FrameSprite = UISprite.CreateUISprite(bgWidget, "Background");
+            }
+
+            if (frameSizeW.ToUpper() == "BG")
+                Width = FrameSprite.Width;
+
+            if (frameSizeH.ToUpper() == "BG")
+                Height = FrameSprite.Height;
+
             var draggableRectAttribute = XMLElement.Attribute("DraggableRect");
             if (draggableRectAttribute != null)
             {
@@ -230,22 +247,10 @@ namespace ElementEngine
                     _draggableRect.Height = int.Parse(heightPart);
             }
 
-            var elBackground = XMLElement.Element("Background");
-
-            if (elBackground != null)
+            foreach (var widget in Widgets.Widgets)
             {
-                var bgWidget = new UIWidget();
-                bgWidget.Init(this, XMLElement);
-                bgWidget.Width = Width;
-                bgWidget.Height = Height;
-                FrameSprite = UISprite.CreateUISprite(bgWidget, "Background");
+                widget.UpdatePositionFromFlags();
             }
-
-            if (frameSizeW.ToUpper() == "BG")
-                Width = FrameSprite.Width;
-
-            if (frameSizeH.ToUpper() == "BG")
-                Height = FrameSprite.Height;
 
         } // UIFrame
 
