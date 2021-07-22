@@ -145,15 +145,6 @@ namespace ElementEngine
             if (drawOrderAttribute != null)
                 DrawOrder = int.Parse(drawOrderAttribute.Value);
 
-            var elBackground = XMLElement.Element("Background");
-
-            if (elBackground != null)
-            {
-                var bgWidget = new UIWidget();
-                bgWidget.Init(this, XMLElement);
-                FrameSprite = UISprite.CreateUISprite(bgWidget, "Background");
-            }
-
             var framePosition = XMLElement.Element("Position");
             var frameSize = XMLElement.Element("Size");
 
@@ -164,8 +155,7 @@ namespace ElementEngine
                 Width = screenWidth;
             else if (frameSizeW.ToUpper() == "AUTO")
                 AutoWidth = true;
-            else if (frameSizeW.ToUpper() == "BG")
-                Width = FrameSprite.Width;
+            else if (frameSizeW.ToUpper() == "BG") { }
             else
                 Width = int.Parse(frameSizeW);
 
@@ -173,8 +163,7 @@ namespace ElementEngine
                 Height = screenHeight;
             else if (frameSizeH.ToUpper() == "AUTO")
                 AutoHeight = true;
-            else if (frameSizeH.ToUpper() == "BG")
-                Height = FrameSprite.Height;
+            else if (frameSizeH.ToUpper() == "BG") { }
             else
                 Height = int.Parse(frameSizeH);
 
@@ -240,6 +229,23 @@ namespace ElementEngine
                 else
                     _draggableRect.Height = int.Parse(heightPart);
             }
+
+            var elBackground = XMLElement.Element("Background");
+
+            if (elBackground != null)
+            {
+                var bgWidget = new UIWidget();
+                bgWidget.Init(this, XMLElement);
+                bgWidget.Width = Width;
+                bgWidget.Height = Height;
+                FrameSprite = UISprite.CreateUISprite(bgWidget, "Background");
+            }
+
+            if (frameSizeW.ToUpper() == "BG")
+                Width = FrameSprite.Width;
+
+            if (frameSizeH.ToUpper() == "BG")
+                Height = FrameSprite.Height;
 
         } // UIFrame
 

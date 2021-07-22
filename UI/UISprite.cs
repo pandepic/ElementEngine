@@ -16,6 +16,13 @@ namespace ElementEngine
         Auto9Slice,
     }
 
+    public enum UISpriteFillType
+    {
+        None,
+        Contain,
+        Cover,
+    }
+
     public class UISprite : IDisposable
     {
         public static UISprite CreateUISprite(UIWidget widget, string elName)
@@ -33,6 +40,9 @@ namespace ElementEngine
             };
         } // CreateUISprite
 
+        public readonly UIWidget Parent;
+        public readonly string ElementName;
+
         public TexturePremultiplyType PremultiplyType { get; protected set; } = TexturePremultiplyType.None;
         public Sprite Sprite { get; set; }
 
@@ -42,6 +52,7 @@ namespace ElementEngine
         public Vector2 SizeF => new Vector2(Width, Height);
         public Texture2D Texture => Sprite.Texture;
         public Rectangle SourceRect => Sprite.SourceRect;
+        public Vector2 Position;
 
         protected void Preload(UIWidget widget, string elName)
         {
@@ -52,6 +63,8 @@ namespace ElementEngine
 
         public UISprite(UIWidget widget, string elName)
         {
+            Parent = widget;
+            ElementName = elName;
             Preload(widget, elName);
         }
 
@@ -78,9 +91,9 @@ namespace ElementEngine
         }
         #endregion
 
-        public virtual void Draw(SpriteBatch2D spriteBatch, Vector2 position)
+        public virtual void Draw(SpriteBatch2D spriteBatch, Vector2 offset)
         {
-            Sprite.Draw(spriteBatch, position);
+            Sprite.Draw(spriteBatch, Position + offset);
         }
 
         public virtual void Update(GameTimer gameTimer)
@@ -91,6 +104,16 @@ namespace ElementEngine
         public virtual void SetWidth(int width) { }
         public virtual void SetHeight(int height) { }
         public virtual void SetSize(Vector2I size) { }
+
+        public UISpriteFillType? GetFillType()
+        {
+            var attFillType = Parent.GetXMLAttribute(ElementName, "UISpriteFillType");
+
+            if (attFillType != null)
+                return attFillType.Value.ToEnum<UISpriteFillType>();
+
+            return null;
+        }
     }
 
     public class UISpriteColor : UISprite
@@ -143,6 +166,52 @@ namespace ElementEngine
         public UISpriteStatic(UIWidget widget, string elName) : base(widget, elName)
         {
             Sprite = new Sprite(AssetManager.LoadTexture2D(widget.GetXMLElement(elName).Value, PremultiplyType));
+
+            var fillType = GetFillType();
+
+            if (fillType.HasValue)
+            {
+                switch (fillType.Value)
+                {
+                    case UISpriteFillType.Contain:
+                        {
+                            var aspectRatio = (float)Width / Height;
+
+                            if (Width < Height)
+                            {
+                                var targetHeight = (float)Parent.Height;
+                                var targetWidth = targetHeight * aspectRatio;
+                                Sprite.Scale = new Vector2(targetWidth / Width, targetHeight / Height);
+                            }
+                            else
+                            {
+                                var targetWidth = (float)Parent.Width;
+                                var targetHeight = targetWidth / aspectRatio;
+                                Sprite.Scale = new Vector2(targetWidth / Width, targetHeight / Height);
+                            }
+                        }
+                        break;
+
+                    case UISpriteFillType.Cover:
+                        {
+                            var aspectRatio = (float)Width / Height;
+
+                            if (Width > Height)
+                            {
+                                var targetHeight = (float)Parent.Height;
+                                var targetWidth = targetHeight * aspectRatio;
+                                Sprite.Scale = new Vector2(targetWidth / Width, targetHeight / Height);
+                            }
+                            else
+                            {
+                                var targetWidth = (float)Parent.Width;
+                                var targetHeight = targetWidth / aspectRatio;
+                                Sprite.Scale = new Vector2(targetWidth / Width, targetHeight / Height);
+                            }
+                        }
+                        break;
+                }
+            }
         }
     } // UISpriteStatic
 
