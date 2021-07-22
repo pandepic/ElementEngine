@@ -167,33 +167,6 @@ namespace ElementEngine
             else
                 Height = int.Parse(frameSizeH);
 
-            var frameX = framePosition.Attribute("X").Value.ToUpper();
-            var frameY = framePosition.Attribute("Y").Value.ToUpper();
-
-            X = (frameX != "CENTER"
-                ? int.Parse(frameX)
-                : (int)((screenWidth / 2) - (Width / 2))
-                );
-
-            Y = (frameY != "CENTER"
-                ? int.Parse(frameY)
-                : (int)((screenHeight / 2) - (Height / 2))
-                );
-
-            if (frameX == "CENTER")
-                CenterX = true;
-            else if (frameX == "LEFT")
-                AnchorLeft = true;
-            else if (frameX == "RIGHT")
-                AnchorRight = true;
-
-            if (frameY == "CENTER")
-                CenterY = true;
-            if (frameY == "TOP")
-                AnchorTop = true;
-            if (frameY == "BOTTOM")
-                AnchorBottom = true;
-
             var visibleAttribute = XMLElement.Attribute("Visible");
             var activeAttribute = XMLElement.Attribute("Active");
             var draggableAttribute = XMLElement.Attribute("Draggable");
@@ -251,6 +224,31 @@ namespace ElementEngine
             {
                 widget.UpdatePositionFromFlags();
             }
+
+            var frameX = framePosition.Attribute("X").Value.ToUpper();
+            var frameY = framePosition.Attribute("Y").Value.ToUpper();
+
+            X = (frameX != "CENTER"
+                ? int.Parse(frameX)
+                : (screenWidth / 2) - (Width / 2));
+
+            Y = (frameY != "CENTER"
+                ? int.Parse(frameY)
+                : (screenHeight / 2) - (Height / 2));
+
+            if (frameX == "CENTER")
+                CenterX = true;
+            else if (frameX == "LEFT")
+                AnchorLeft = true;
+            else if (frameX == "RIGHT")
+                AnchorRight = true;
+
+            if (frameY == "CENTER")
+                CenterY = true;
+            if (frameY == "TOP")
+                AnchorTop = true;
+            if (frameY == "BOTTOM")
+                AnchorBottom = true;
 
         } // UIFrame
 
