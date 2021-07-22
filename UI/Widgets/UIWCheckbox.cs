@@ -14,6 +14,7 @@ namespace ElementEngine
         public int FontOutline { get; set; } = 0;
         public string Text { get; set; }
         public Vector2 TextPosition { get; set; }
+        public Vector2 TextOffset { get; set; }
         public RgbaByte TextColor { get; set; }
         public bool Disabled { get; set; } = false;
         public bool Checked { get; set; } = false;
@@ -65,7 +66,6 @@ namespace ElementEngine
             FontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
 
             var elFontOutline = GetXMLElement("Label", "FontOutline");
-
             if (elFontOutline != null)
                 FontOutline = int.Parse(elFontOutline.Value);
 
@@ -86,6 +86,10 @@ namespace ElementEngine
             TextPosition = new Vector2() { X = textX, Y = textY };
             TextColor = new RgbaByte().FromHex(elLabelColor.Value);
 
+            var elTextOffset = GetXMLElement("Label", "Offset");
+            if (elTextOffset != null)
+                TextOffset = new Vector2(int.Parse(elTextOffset.Attribute("X").Value), int.Parse(elTextOffset.Attribute("Y").Value));
+
             var clickSoundElement = GetXMLElement("ClickSound");
             if (clickSoundElement != null)
                 _clickSound = clickSoundElement.Value;
@@ -93,8 +97,8 @@ namespace ElementEngine
             Width = (int)(_uncheckedSprite.Width + textX + labelSize.X);
             Height = _uncheckedSprite.Height;
 
-            if (textY + labelSize.Y > Height)
-                Height = (int)(textY + labelSize.Y);
+            if (textY + labelSize.Y + TextOffset.Y > Height)
+                Height = (int)(textY + labelSize.Y + TextOffset.Y);
         }
 
         public override void OnMouseDown(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)
@@ -164,7 +168,7 @@ namespace ElementEngine
             }
 
             sprite.Draw(spriteBatch, Position + Parent.Position);
-            spriteBatch.DrawText(Font, Text, Position + new Vector2(sprite.Width, 0) + Parent.Position + TextPosition, TextColor, FontSize, FontOutline);
+            spriteBatch.DrawText(Font, Text, Position + new Vector2(sprite.Width, 0) + Parent.Position + TextPosition + TextOffset, TextColor, FontSize, FontOutline);
         }
 
     } // UIWCheckbox
