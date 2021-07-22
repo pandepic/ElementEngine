@@ -36,6 +36,7 @@ namespace ElementEngine
             { "HScrollBar", typeof(UIWHScrollBar) },
             { "VScrollBar", typeof(UIWVScrollBar) },
             { "HProgressBar", typeof(UIWHProgressBar) },
+            { "CheckBox", typeof(UIWCheckbox) },
         };
 
         public static void RegisterWidgetType(Type type, string elementName)

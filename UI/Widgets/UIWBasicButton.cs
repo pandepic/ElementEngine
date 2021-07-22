@@ -58,8 +58,6 @@ namespace ElementEngine
 
         public override void Load(UIFrame parent, XElement el)
         {
-            Init(parent, el);
-
             var elButton = GetXMLElement("Button");
             var elButtonPressed = GetXMLElement("ButtonPressed");
             var elButtonHover = GetXMLElement("ButtonHover");

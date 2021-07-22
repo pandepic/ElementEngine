@@ -76,8 +76,6 @@ namespace ElementEngine
 
         public override void Load(UIFrame parent, XElement el)
         {
-            Init(parent, el);
-
             _background = UISprite.CreateUISprite(this, "Background");
 
             Height = _background.Height;

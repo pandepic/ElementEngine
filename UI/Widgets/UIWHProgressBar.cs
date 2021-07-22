@@ -92,8 +92,6 @@ namespace ElementEngine
 
         public override void Load(UIFrame parent, XElement el)
         {
-            Init(parent, el);
-
             var atStartValue = GetXMLAttribute("StartValue");
             var atMinValue = GetXMLAttribute("MinValue");
             var atMaxValue = GetXMLAttribute("MaxValue");

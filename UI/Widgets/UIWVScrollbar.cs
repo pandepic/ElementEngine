@@ -95,8 +95,6 @@ namespace ElementEngine
 
         public override void Load(UIFrame parent, XElement el)
         {
-            Init(parent, el);
-
             _slider = UISprite.CreateUISprite(this, "Slider");
             _background = UISprite.CreateUISprite(this, "Background");
 

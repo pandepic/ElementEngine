@@ -15,7 +15,6 @@ namespace ElementEngine
 
         public UIPanel(UIFrame parent, XElement el)
         {
-            Init(parent, el);
         }
 
     } // UIPanel

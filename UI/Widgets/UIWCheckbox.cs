@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 
 namespace ElementEngine
 {
@@ -31,5 +32,9 @@ namespace ElementEngine
             }
         }
         #endregion
+
+        public override void Load(UIFrame parent, XElement el)
+        {
+        }
     }
 }

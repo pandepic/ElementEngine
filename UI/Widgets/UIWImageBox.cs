@@ -41,8 +41,6 @@ namespace ElementEngine
 
         public override void Load(UIFrame parent, XElement el)
         {
-            Init(parent, el);
-
             _image = UISprite.CreateUISprite(this, "Image");
             
             Width = _image.Width;

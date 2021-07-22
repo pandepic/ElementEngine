@@ -334,7 +334,6 @@ namespace ElementEngine
             if (attRepeater != null && !ignoreBindRepeater)
             {
                 var repeaterName = attRepeater.Value;
-
                 var repeaterElements = UIDataBinding.GetRepeaterOutput(Parent, repeaterName, elWidget);
 
                 if (repeaterElements == null || repeaterElements.Count == 0)
@@ -359,6 +358,7 @@ namespace ElementEngine
                     if (typeName.ToUpper() == elWidget.Name.ToString().ToUpper())
                     {
                         UIWidget widget = (UIWidget)Activator.CreateInstance(type);
+                        widget.Init(this, elWidget);
                         widget.Load(this, elWidget);
                         widgets.Add(widget);
                         break;
