@@ -278,7 +278,7 @@ namespace ElementEngine
 
             if (Direction == UISprite3SliceDirection.Horizontal)
             {
-                var width = 0;
+                var width = Parent.Width;
                 var attWidth = widget.GetXMLAttribute(elName, "Width");
                 if (attWidth != null)
                     width = int.Parse(attWidth.Value);
@@ -295,7 +295,7 @@ namespace ElementEngine
             }
             else if (Direction == UISprite3SliceDirection.Vertical)
             {
-                var height = 0;
+                var height = Parent.Height;
                 var attHeight = widget.GetXMLAttribute(elName, "Height");
                 if (attHeight != null)
                     height = int.Parse(attHeight.Value);
@@ -365,12 +365,12 @@ namespace ElementEngine
 
         public UISpriteAuto9Slice(UIWidget widget, string elName) : base(widget, elName)
         {
-            var width = 0;
+            var width = Parent.Width;
             var attWidth = widget.GetXMLAttribute(elName, "Width");
             if (attWidth != null)
                 width = int.Parse(attWidth.Value);
 
-            var height = 0;
+            var height = Parent.Height;
             var attHeight = widget.GetXMLAttribute(elName, "Height");
             if (attHeight != null)
                 height = int.Parse(attHeight.Value);

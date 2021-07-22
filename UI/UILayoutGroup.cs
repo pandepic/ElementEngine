@@ -81,6 +81,11 @@ namespace ElementEngine
                 }
             }
 
+            if (ParentFrame.AutoWidth && ParentFrame.Width == 0)
+                ParentFrame.Width = width;
+            if (ParentFrame.AutoHeight && ParentFrame.Height == 0)
+                ParentFrame.Height = height;
+
             var startPosition = Vector2I.Zero;
 
             if (PositionFlags.CenterX)

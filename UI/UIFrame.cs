@@ -24,6 +24,11 @@ namespace ElementEngine
         public UIWidgetList Widgets { get; set; } = new UIWidgetList();
         public Dictionary<string, XElement> Templates { get; set; } = null;
 
+        public int PaddingTop { get; set; } = 0;
+        public int PaddingBottom { get; set; } = 0;
+        public int PaddingLeft { get; set; } = 0;
+        public int PaddingRight { get; set; } = 0;
+
         public int DrawOrder { get; set; } = 0;
 
         public bool Visible { get; set; } = true;
@@ -277,6 +282,74 @@ namespace ElementEngine
                 AddWidget(elWidget, tempWidgets, false);
             }
 
+            foreach (var elLayoutGroup in XMLElement.Elements("LayoutGroup"))
+            {
+                var layoutGroup = new UILayoutGroup(elLayoutGroup, this);
+                CommonWidgetResources.LayoutGroups.Add(layoutGroup.Name, layoutGroup);
+            }
+
+            foreach (var widget in tempWidgets)
+            {
+                widget.LoadStandardXML();
+
+                var attLayoutGroup = widget.GetXMLAttribute("LayoutGroup");
+                if (attLayoutGroup != null && CommonWidgetResources.LayoutGroups.TryGetValue(attLayoutGroup.Value, out var layoutGroup))
+                {
+                    widget.LayoutGroup = layoutGroup;
+                    layoutGroup.Widgets.Add(widget);
+                }
+
+                AddWidget(widget, false);
+            }
+
+            foreach (var kvp in CommonWidgetResources.LayoutGroups)
+                kvp.Value.UpdateWidgetPositions();
+
+            var attPadding = XMLElement.Attribute("Padding");
+            if (attPadding != null)
+            {
+                var paddingSplit = attPadding.Value.Split(",");
+
+                switch (paddingSplit.Length)
+                {
+                    case 1:
+                        {
+                            var all = int.Parse(paddingSplit[0]);
+                            PaddingTop = all;
+                            PaddingBottom = all;
+                            PaddingLeft = all;
+                            PaddingRight = all;
+                        }
+                        break;
+
+                    case 2:
+                        {
+                            var horizontal = int.Parse(paddingSplit[0]);
+                            var vertical = int.Parse(paddingSplit[1]);
+                            PaddingTop = vertical;
+                            PaddingBottom = vertical;
+                            PaddingLeft = horizontal;
+                            PaddingRight = horizontal;
+                        }
+                        break;
+
+                    case 4:
+                        {
+                            PaddingLeft = int.Parse(paddingSplit[0]);
+                            PaddingRight = int.Parse(paddingSplit[1]);
+                            PaddingTop = int.Parse(paddingSplit[2]);
+                            PaddingBottom = int.Parse(paddingSplit[3]);
+                        }
+                        break;
+                }
+            }
+
+            foreach (var widget in tempWidgets)
+            {
+                widget.X += PaddingLeft;
+                widget.Y += PaddingTop;
+            }
+
             foreach (var widget in tempWidgets)
             {
                 if (AutoWidth)
@@ -308,28 +381,8 @@ namespace ElementEngine
             if (AnchorBottom)
                 Y = screenHeight - Height;
 
-            foreach (var elLayoutGroup in XMLElement.Elements("LayoutGroup"))
-            {
-                var layoutGroup = new UILayoutGroup(elLayoutGroup, this);
-                CommonWidgetResources.LayoutGroups.Add(layoutGroup.Name, layoutGroup);
-            }
-
-            foreach (var widget in tempWidgets)
-            {
-                widget.LoadStandardXML();
-
-                var attLayoutGroup = widget.GetXMLAttribute("LayoutGroup");
-                if (attLayoutGroup != null && CommonWidgetResources.LayoutGroups.TryGetValue(attLayoutGroup.Value, out var layoutGroup))
-                {
-                    widget.LayoutGroup = layoutGroup;
-                    layoutGroup.Widgets.Add(widget);
-                }
-
-                AddWidget(widget, false);
-            }
-
-            foreach (var kvp in CommonWidgetResources.LayoutGroups)
-                kvp.Value.UpdateWidgetPositions();
+            Width += PaddingRight;
+            Height += PaddingBottom;
 
             Widgets.OrderByDrawOrder();
 
