@@ -31,7 +31,7 @@ namespace ElementEngine
             { "Button", typeof(UIWBasicButton) },
             { "ImageButton", typeof(UIWImageButton) },
             { "Label", typeof(UIWLabel) },
-            { "Textbox", typeof(UIWTextBox) },
+            { "TextBox", typeof(UIWTextBox) },
             { "ImageBox", typeof(UIWImageBox) },
             { "HScrollBar", typeof(UIWHScrollBar) },
             { "VScrollBar", typeof(UIWVScrollBar) },

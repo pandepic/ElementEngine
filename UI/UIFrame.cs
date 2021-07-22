@@ -354,11 +354,15 @@ namespace ElementEngine
             }
             else
             {
-                if (ElementGlobals.UIWidgetTypes.TryGetValue(elWidget.Name.ToString(), out var widgetType))
+                foreach (var (typeName, type) in ElementGlobals.UIWidgetTypes)
                 {
-                    UIWidget widget = (UIWidget)Activator.CreateInstance(widgetType);
-                    widget.Load(this, elWidget);
-                    widgets.Add(widget);
+                    if (typeName.ToUpper() == elWidget.Name.ToString().ToUpper())
+                    {
+                        UIWidget widget = (UIWidget)Activator.CreateInstance(type);
+                        widget.Load(this, elWidget);
+                        widgets.Add(widget);
+                        break;
+                    }
                 }
             }
         } // AddWidget
