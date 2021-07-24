@@ -18,7 +18,6 @@ namespace ElementEngine
         protected int _previousValue = -1;
         protected int _currentValue = 1;
         protected int _sliderIndex = 1;
-        protected int _totalNotches = 1;
 
         public int Value
         {
@@ -44,7 +43,7 @@ namespace ElementEngine
         public SpriteFont Font { get; set; } = null;
         public int FontSize { get; set; } = 0;
         public string LabelText { get; set; }
-        public string LabelTemplate { get; set; }
+        public string LabelTemplate { get; set; } = "";
         public RgbaByte LabelTextColor { get; set; }
 
         public Vector2 TextPosition { get; set; }
@@ -132,8 +131,7 @@ namespace ElementEngine
             _bgPosition.X = (Width - _background.Width) / 2;
             //_bgPosition.Y = (Height - _background.Height) / 2;
 
-            _totalNotches = ((_maxValue - _minValue) / _increment) + 1;
-            _sliderIncrementY = (Height - _slider.Height - (_sliderOffsetY * 2)) / ((_maxValue - _minValue) / _increment);
+            _sliderIncrementY = (float)(Height - _slider.Height - (_sliderOffsetY * 2)) / ((_maxValue - _minValue) / _increment);
 
             var elLabel = GetXMLElement("Label");
 
@@ -145,7 +143,10 @@ namespace ElementEngine
                 Font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
                 FontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
                 LabelTextColor = new RgbaByte().FromHex(labelColor.Value);
-                LabelTemplate = GetXMLElement("Label", "Template").Value;
+
+                var elLabelTemplate = GetXMLElement("Label", "Template");
+                if (elLabelTemplate != null)
+                    LabelTemplate = elLabelTemplate.Value;
 
                 var labelX = labelPosition.Attribute("X").Value;
                 var labelY = labelPosition.Attribute("Y").Value;
@@ -163,6 +164,20 @@ namespace ElementEngine
 
             UpdateCurrentValue(_currentValue);
             _previousValue = _currentValue;
+            UpdateSliderPosition();
+        }
+
+        public void SetMinValue(int value)
+        {
+            _minValue = value;
+            _sliderIncrementY = (float)(Height - _slider.Height - (_sliderOffsetY * 2)) / ((_maxValue - _minValue) / _increment);
+            UpdateSliderPosition();
+        }
+
+        public void SetMaxValue(int value)
+        {
+            _maxValue = value;
+            _sliderIncrementY = (float)(Height - _slider.Height - (_sliderOffsetY * 2)) / ((_maxValue - _minValue) / _increment);
             UpdateSliderPosition();
         }
 
@@ -209,15 +224,15 @@ namespace ElementEngine
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            _background.Draw(spriteBatch, Position + _bgPosition + Parent.Position);
+            _background.Draw(spriteBatch, Position + _bgPosition + ParentPosition);
 
             if (Focused && _sliderHover != null)
-                _sliderHover.Draw(spriteBatch, Position + _sliderPosition + Parent.Position);
+                _sliderHover.Draw(spriteBatch, Position + _sliderPosition + ParentPosition);
             else
-                _slider.Draw(spriteBatch, Position + _sliderPosition + Parent.Position);
+                _slider.Draw(spriteBatch, Position + _sliderPosition + ParentPosition);
 
             if (Font != null && LabelText.Length > 0)
-                spriteBatch.DrawText(Font, LabelText, TextPosition + Position + Parent.Position, LabelTextColor, FontSize);
+                spriteBatch.DrawText(Font, LabelText, TextPosition + Position + ParentPosition, LabelTextColor, FontSize);
         }
 
         public override void Update(GameTimer gameTimer)

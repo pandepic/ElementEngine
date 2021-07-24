@@ -34,10 +34,16 @@ namespace ElementEngine
         public bool Visible { get; set; }
         public bool Active { get; set; }
         public UILayoutGroup LayoutGroup { get; set; }
+        public UIPanel Panel { get; set; }
+        public bool IgnorePanelScissorRect { get; set; } = false;
         public string BindingID { get; set; } = null;
 
         protected WidgetPositionFlags _positionFlags = new WidgetPositionFlags();
         public WidgetPositionFlags PositionFlags => _positionFlags;
+
+        public Vector2 ParentPosition => Panel != null ? Parent.Position + Panel.Position + (IgnorePanelScissorRect ? Vector2.Zero : Panel.ScrollOffset) : Parent.Position;
+
+        public Rectangle Bounds => new Rectangle(Position + ParentPosition, _widgetRect.Size.ToVector2());
 
         public Vector2 Position
         {
@@ -361,12 +367,12 @@ namespace ElementEngine
         } // UpdatePositionFromFlags
 
         public void AnchorTop() { Y = 0; }
-        public void AnchorBottom() { Y = Parent.Height - Height; }
+        public void AnchorBottom() { Y = (Panel != null ? Panel.Height : Parent.Height) - Height; }
         public void AnchorLeft() { X = 0; }
-        public void AnchorRight() { X = Parent.Width - Width; }
-        public void CenterX() { X = (Parent.Width / 2) - (Width / 2); }
-        public void CenterY() { Y = (Parent.Height / 2) - (Height / 2); }
-
+        public void AnchorRight() { X = (Panel != null ? Panel.Width : Parent.Width) - Width; }
+        public void CenterX() { X = ((Panel != null ? Panel.Width : Parent.Width) / 2) - (Width / 2); }
+        public void CenterY() { Y = ((Panel != null ? Panel.Height : Parent.Height) / 2) - (Height / 2); }
+        
         internal void TriggerUIEvent(UIEventType type)
         {
             Parent.TriggerUIEvent(type, this);
@@ -377,16 +383,19 @@ namespace ElementEngine
             if (_widgetRect.Width == 0 && _widgetRect.Height == 0)
                 return false;
 
-            if (point.X < X)
-                return false;
-            if (point.Y < Y)
-                return false;
-            if (point.X > (X + _widgetRect.Width))
-                return false;
-            if (point.Y > (Y + _widgetRect.Height))
-                return false;
+            if (Panel != null && !IgnorePanelScissorRect)
+            {
+                var scissorRect = Panel.ScissorRect - Panel.ScrollOffset;
+                scissorRect -= Panel.Parent.Position;
+                scissorRect.X -= Panel.Parent.PaddingLeft;
+                scissorRect.Y -= Panel.Parent.PaddingTop;
 
-            return true;
+                if (!scissorRect.Contains(point))
+                    return false;
+            }
+
+            return _widgetRect.Contains(point);
+
         } // PointInsideWidget
 
     } // UIWidget

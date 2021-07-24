@@ -21,7 +21,8 @@ namespace ElementEngine
         public string Name { get; set; } = "";
         public XElement XMLElement { get; set; } = null;
         public UISprite FrameSprite { get; set; } = null;
-        public UIWidgetList Widgets { get; set; } = new UIWidgetList();
+        public UIWidgetList Widgets { get; } = new UIWidgetList();
+        public List<UIPanel> Panels { get; } = new List<UIPanel>();
         public Dictionary<string, XElement> Templates { get; set; } = null;
 
         public int PaddingTop { get; set; } = 0;
@@ -233,27 +234,25 @@ namespace ElementEngine
             var frameX = framePosition.Attribute("X").Value.ToUpper();
             var frameY = framePosition.Attribute("Y").Value.ToUpper();
 
-            X = (frameX != "CENTER"
-                ? int.Parse(frameX)
-                : (screenWidth / 2) - (Width / 2));
-
-            Y = (frameY != "CENTER"
-                ? int.Parse(frameY)
-                : (screenHeight / 2) - (Height / 2));
-
             if (frameX == "CENTER")
                 CenterX = true;
             else if (frameX == "LEFT")
                 AnchorLeft = true;
             else if (frameX == "RIGHT")
                 AnchorRight = true;
+            else
+                X = int.Parse(frameX);
 
             if (frameY == "CENTER")
                 CenterY = true;
-            if (frameY == "TOP")
+            else if (frameY == "TOP")
                 AnchorTop = true;
-            if (frameY == "BOTTOM")
+            else if (frameY == "BOTTOM")
                 AnchorBottom = true;
+            else
+                Y = int.Parse(frameY);
+
+            UpdatePosition();
 
         } // UIFrame
 
@@ -262,13 +261,31 @@ namespace ElementEngine
             Dispose(false);
         }
 
+        public void UpdatePosition()
+        {
+            var screenWidth = ElementGlobals.TargetResolutionWidth;
+            var screenHeight = ElementGlobals.TargetResolutionHeight;
+
+            if (AutoWidth && CenterX)
+                X = (int)((screenWidth / 2) - (Width / 2));
+
+            if (AutoHeight && CenterY)
+                Y = (int)((screenHeight / 2) - (Height / 2));
+
+            if (AnchorLeft)
+                X = 0;
+            if (AnchorRight)
+                X = screenWidth - Width;
+            if (AnchorTop)
+                Y = 0;
+            if (AnchorBottom)
+                Y = screenHeight - Height;
+        }
+
         public void ReloadWidgets()
         {
             Widgets.Clear();
             CommonWidgetResources.LayoutGroups.Clear();
-
-            var screenWidth = ElementGlobals.TargetResolutionWidth;
-            var screenHeight = ElementGlobals.TargetResolutionHeight;
 
             XElement widgetsRoot = XMLElement.Element("Widgets");
 
@@ -279,7 +296,10 @@ namespace ElementEngine
 
             foreach (var elWidget in widgetsRoot.Elements())
             {
-                AddWidget(elWidget, tempWidgets, false);
+                if (elWidget.Name.ToString().ToUpper() == "PANEL")
+                    AddPanel(elWidget, tempWidgets);
+                else
+                    AddWidget(elWidget, tempWidgets);
             }
 
             foreach (var elLayoutGroup in XMLElement.Elements("LayoutGroup"))
@@ -350,8 +370,17 @@ namespace ElementEngine
                 widget.Y += PaddingTop;
             }
 
+            foreach (var panel in Panels)
+            {
+                panel.X += PaddingLeft;
+                panel.Y += PaddingTop;
+            }
+
             foreach (var widget in tempWidgets)
             {
+                if (widget.Panel != null)
+                    continue;
+
                 if (AutoWidth)
                     if ((widget.X + widget.Width) > currentWidth)
                         currentWidth = widget.X + widget.Width;
@@ -361,34 +390,51 @@ namespace ElementEngine
                         currentHeight = widget.Y + widget.Height;
             }
 
+            foreach (var panel in Panels)
+            {
+                if (AutoWidth)
+                    if ((panel.X + panel.Width) > currentWidth)
+                        currentWidth = panel.X + panel.Width;
+
+                if (AutoHeight)
+                    if ((panel.Y + panel.Height) > currentHeight)
+                        currentHeight = panel.Y + panel.Height;
+            }
+
             if (AutoWidth)
                 Width = currentWidth;
             if (AutoHeight)
                 Height = currentHeight;
 
-            if (AutoWidth && CenterX)
-                X = (int)((screenWidth / 2) - (Width / 2));
-
-            if (AutoHeight && CenterY)
-                Y = (int)((screenHeight / 2) - (Height / 2));
-
-            if (AnchorLeft)
-                X = 0;
-            if (AnchorRight)
-                X = screenWidth - Width;
-            if (AnchorTop)
-                Y = 0;
-            if (AnchorBottom)
-                Y = screenHeight - Height;
-
             Width += PaddingRight;
             Height += PaddingBottom;
 
+            UpdatePosition();
             Widgets.OrderByDrawOrder();
 
         } // ReloadWidgets
 
-        internal void AddWidget(XElement elWidget, List<UIWidget> widgets, bool ignoreBindRepeater = false, bool ignoreBindObject = false)
+        internal void AddPanel(XElement elPanel, List<UIWidget> widgets)
+        {
+            var panel = new UIPanel(this, elPanel);
+            var widgetsRoot = elPanel.Element("Widgets");
+
+            foreach (var elWidget in widgetsRoot.Elements())
+            {
+                var widget = AddWidget(elWidget, widgets, panel);
+                if (widget != null)
+                    panel.AddWidget(widget);
+            }
+
+            if (panel.HScrollBar != null)
+                widgets.Add(panel.HScrollBar);
+            if (panel.VScrollBar != null)
+                widgets.Add(panel.VScrollBar);
+
+            Panels.Add(panel);
+        }
+
+        internal UIWidget AddWidget(XElement elWidget, List<UIWidget> widgets, UIPanel panel = null, bool ignoreBindRepeater = false, bool ignoreBindObject = false)
         {
             var attRepeater = elWidget.Attribute("BindRepeater");
             var attObject = elWidget.Attribute("BindObject");
@@ -399,18 +445,18 @@ namespace ElementEngine
                 var repeaterElements = UIDataBinding.GetRepeaterOutput(Parent, repeaterName, elWidget);
 
                 if (repeaterElements == null || repeaterElements.Count == 0)
-                    return;
+                    return null;
 
                 foreach (var el in repeaterElements)
-                    AddWidget(el, widgets, ignoreBindRepeater: true);
+                    AddWidget(el, widgets, panel, ignoreBindRepeater: true);
 
                 Parent.RegisterBoundObject(this, repeaterName);
             }
             else if (attObject != null && !ignoreBindObject)
             {
                 var objectName = attObject.Value;
-                AddWidget(UIDataBinding.GetElement(Parent, objectName, elWidget), widgets, ignoreBindObject: true);
 
+                AddWidget(UIDataBinding.GetElement(Parent, objectName, elWidget), widgets, panel, ignoreBindObject: true);
                 Parent.RegisterBoundObject(this, objectName);
             }
             else
@@ -420,13 +466,16 @@ namespace ElementEngine
                     if (typeName.ToUpper() == elWidget.Name.ToString().ToUpper())
                     {
                         UIWidget widget = (UIWidget)Activator.CreateInstance(type);
+                        widget.Panel = panel;
                         widget.Init(this, elWidget);
                         widget.Load(this, elWidget);
                         widgets.Add(widget);
-                        break;
+                        return widget;
                     }
                 }
             }
+
+            return null;
         } // AddWidget
 
         internal void TriggerUIEvent(UIEventType type, UIWidget widget)
@@ -499,6 +548,9 @@ namespace ElementEngine
         {
             FrameSprite?.Update(gameTimer);
             Widgets.Update(gameTimer);
+
+            foreach (var panel in Panels)
+                panel.Update(gameTimer);
         }
 
         public virtual void Draw(SpriteBatch2D spriteBatch)

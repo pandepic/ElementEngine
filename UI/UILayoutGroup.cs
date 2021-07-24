@@ -19,8 +19,12 @@ namespace ElementEngine
         public UILayoutGroupDirection Direction { get; set; }
         public int Spacing { get; set; }
         public UIFrame ParentFrame { get; set; }
+        public UIPanel ParentPanel { get; set; }
         public List<UIWidget> Widgets { get; set; } = new List<UIWidget>();
         public WidgetPositionFlags PositionFlags { get; set; } = new WidgetPositionFlags();
+
+        public int ParentWidth => ParentPanel != null ? ParentPanel.Width : ParentFrame.Width;
+        public int ParentHeight => ParentPanel != null ? ParentPanel.Height : ParentFrame.Height;
 
         public UILayoutGroup(XElement el, UIFrame parentFrame)
         {
@@ -81,28 +85,31 @@ namespace ElementEngine
                 }
             }
 
-            if (ParentFrame.AutoWidth && ParentFrame.Width == 0)
-                ParentFrame.Width = width;
-            if (ParentFrame.AutoHeight && ParentFrame.Height == 0)
-                ParentFrame.Height = height;
+            if (ParentPanel == null)
+            {
+                if (ParentFrame.AutoWidth && ParentFrame.Width == 0)
+                    ParentFrame.Width = width;
+                if (ParentFrame.AutoHeight && ParentFrame.Height == 0)
+                    ParentFrame.Height = height;
+            }
 
             var startPosition = Vector2I.Zero;
 
             if (PositionFlags.CenterX)
-                startPosition.X = ParentFrame.Width / 2 - (Direction == UILayoutGroupDirection.Horizontal ? width / 2 : 0);
+                startPosition.X = ParentWidth / 2 - (Direction == UILayoutGroupDirection.Horizontal ? width / 2 : 0);
             else if (PositionFlags.AnchorLeft)
                 startPosition.X = 0;
             else if (PositionFlags.AnchorRight)
-                startPosition.X = ParentFrame.Width;
+                startPosition.X = ParentWidth;
             else if (PositionFlags.SetX.HasValue)
                 startPosition.X = PositionFlags.SetX.Value;
 
             if (PositionFlags.CenterY)
-                startPosition.Y = ParentFrame.Height / 2 - (Direction == UILayoutGroupDirection.Vertical ? height / 2 : 0);
+                startPosition.Y = ParentHeight / 2 - (Direction == UILayoutGroupDirection.Vertical ? height / 2 : 0);
             else if (PositionFlags.AnchorTop)
                 startPosition.Y = 0;
             else if (PositionFlags.AnchorBottom)
-                startPosition.Y = ParentFrame.Height;
+                startPosition.Y = ParentHeight;
             else if (PositionFlags.SetY.HasValue)
                 startPosition.Y = PositionFlags.SetY.Value;
 

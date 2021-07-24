@@ -221,11 +221,11 @@ namespace ElementEngine
             if (Disabled)
             {
                 if (_buttonDisabledSprite != null)
-                    _buttonDisabledSprite.Draw(spriteBatch, Position + Parent.Position);
+                    _buttonDisabledSprite.Draw(spriteBatch, Position + ParentPosition);
                 else
                 {
                     if (_buttonSprite != null)
-                        _buttonSprite.Draw(spriteBatch, Position + Parent.Position);
+                        _buttonSprite.Draw(spriteBatch, Position + ParentPosition);
                 }
 
                 return;
@@ -236,33 +236,33 @@ namespace ElementEngine
                 if (_buttonHover)
                 {
                     if (_buttonHoverSprite != null)
-                        _buttonHoverSprite.Draw(spriteBatch, Position + Parent.Position);
+                        _buttonHoverSprite.Draw(spriteBatch, Position + ParentPosition);
                     else
                     {
                         if (_buttonSprite != null)
-                            _buttonSprite.Draw(spriteBatch, Position + Parent.Position);
+                            _buttonSprite.Draw(spriteBatch, Position + ParentPosition);
                     }
                 }
                 else
                 {
                     if (_buttonSprite != null)
-                        _buttonSprite.Draw(spriteBatch, Position + Parent.Position);
+                        _buttonSprite.Draw(spriteBatch, Position + ParentPosition);
                 }
             }
             else
             {
                 if (_buttonPressedSprite != null)
-                    _buttonPressedSprite.Draw(spriteBatch, Position + Parent.Position);
+                    _buttonPressedSprite.Draw(spriteBatch, Position + ParentPosition);
                 else
                 {
                     if (_buttonSprite != null)
-                        _buttonSprite.Draw(spriteBatch, Position + Parent.Position);
+                        _buttonSprite.Draw(spriteBatch, Position + ParentPosition);
                 }
             }
 
             if (Font != null && ButtonText.Length > 0)
             {
-                spriteBatch.DrawText(Font, ButtonText, TextPosition + Position + Parent.Position, ButtonTextColor, FontSize);
+                spriteBatch.DrawText(Font, ButtonText, TextPosition + Position + ParentPosition, ButtonTextColor, FontSize);
             }
 
         } // Draw

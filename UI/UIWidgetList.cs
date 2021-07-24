@@ -16,6 +16,8 @@ namespace ElementEngine
     {
         public List<UIWidget> Widgets = new List<UIWidget>();
 
+        protected UIPanel _prevPanel;
+
         public UIWidgetList()
         {
 
@@ -144,8 +146,18 @@ namespace ElementEngine
                 var widget = Widgets[i];
 
                 if (widget.Visible)
+                {
+                    if (widget.Panel != null && !widget.IgnorePanelScissorRect)
+                        spriteBatch.SetScissorRect(widget.Panel.ScissorRect);
+                    else
+                        spriteBatch.ResetScissorRect();
+
                     widget.Draw(spriteBatch);
+                    _prevPanel = widget.Panel;
+                }
             }
+
+            spriteBatch.ResetScissorRect();
         }
 
         public void OnMouseMoved(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer, Vector2 framePosition)
@@ -155,7 +167,7 @@ namespace ElementEngine
                 var widget = Widgets[i];
 
                 if (widget.Active)
-                    Widgets[i].OnMouseMoved(mousePosition - framePosition, prevMousePosition - framePosition, gameTimer);
+                    Widgets[i].OnMouseMoved(mousePosition - widget.ParentPosition, prevMousePosition - widget.ParentPosition, gameTimer);
             }
         }
 
@@ -166,7 +178,7 @@ namespace ElementEngine
                 var widget = Widgets[i];
 
                 if (widget.Active)
-                    Widgets[i].OnMouseDown(button, mousePosition - framePosition, gameTimer);
+                    Widgets[i].OnMouseDown(button, mousePosition - widget.ParentPosition, gameTimer);
             }
         }
 
@@ -177,7 +189,7 @@ namespace ElementEngine
                 var widget = Widgets[i];
 
                 if (widget.Active)
-                    Widgets[i].OnMouseClicked(button, mousePosition - framePosition, gameTimer);
+                    Widgets[i].OnMouseClicked(button, mousePosition - widget.ParentPosition, gameTimer);
             }
         }
 

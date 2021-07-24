@@ -287,7 +287,7 @@ namespace ElementEngine
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            _background.Draw(spriteBatch, Position + Parent.Position);
+            _background.Draw(spriteBatch, Position + ParentPosition);
 
             if (_font != null && _text.Length > 0)
             {
@@ -302,7 +302,7 @@ namespace ElementEngine
                         offsetPosition.Y = (Height / 2) - textSize.Y / 2;
 
                     var cursorOffset = new Vector2(_textRect.X * -1f, 0f);
-                    var drawPosition = offsetPosition + _textPosition + Position + Parent.Position;
+                    var drawPosition = offsetPosition + _textPosition + Position + ParentPosition;
 
                     spriteBatch.SetScissorRect(new Rectangle(drawPosition, _textRect.SizeF));
                     spriteBatch.DrawText(_font, _text, drawPosition + cursorOffset, Colour, FontSize);
@@ -335,7 +335,7 @@ namespace ElementEngine
                         _textRect.X -= (int)(_textPosition.X - _cursorPosition.X);
                 }
 
-                _cursor.Draw(spriteBatch, Position + Parent.Position + _cursorPosition);
+                _cursor.Draw(spriteBatch, Position + ParentPosition + _cursorPosition);
             }
         }
 

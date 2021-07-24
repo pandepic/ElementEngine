@@ -167,8 +167,8 @@ namespace ElementEngine
                     sprite = _uncheckedHoverSprite ?? _uncheckedSprite;
             }
 
-            sprite.Draw(spriteBatch, Position + Parent.Position);
-            spriteBatch.DrawText(Font, Text, Position + new Vector2(sprite.Width, 0) + Parent.Position + TextPosition + TextOffset, TextColor, FontSize, FontOutline);
+            sprite.Draw(spriteBatch, Position + ParentPosition);
+            spriteBatch.DrawText(Font, Text, Position + new Vector2(sprite.Width, 0) + ParentPosition + TextPosition + TextOffset, TextColor, FontSize, FontOutline);
         }
 
     } // UIWCheckbox

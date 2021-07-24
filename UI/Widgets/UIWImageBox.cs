@@ -49,7 +49,7 @@ namespace ElementEngine
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            _image?.Draw(spriteBatch, Position + Parent.Position);
+            _image?.Draw(spriteBatch, Position + ParentPosition);
         }
 
         public override void OnMouseClicked(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)

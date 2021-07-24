@@ -61,7 +61,7 @@ namespace ElementEngine
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(Font, _text, Position + Parent.Position, Color, FontSize, Outline);
+            spriteBatch.DrawText(Font, _text, Position + ParentPosition, Color, FontSize, Outline);
         }
 
         public override void OnMouseClicked(MouseButton button, Vector2 mousePosition, GameTimer gameTimer)

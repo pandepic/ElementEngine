@@ -183,11 +183,11 @@ namespace ElementEngine
                 TriggerUIEvent(UIEventType.OnValueChanged);
             }
 
-            _background?.Draw(spriteBatch, Position + _bgPosition + Parent.Position);
-            _fill?.Draw(spriteBatch, Position + _fillPosition + Parent.Position);
+            _background?.Draw(spriteBatch, Position + _bgPosition + ParentPosition);
+            _fill?.Draw(spriteBatch, Position + _fillPosition + ParentPosition);
 
             if (Font != null && LabelText != null && LabelText.Length > 0)
-                spriteBatch.DrawText(Font, LabelText, TextPosition + Position + Parent.Position, LabelTextColor, FontSize);
+                spriteBatch.DrawText(Font, LabelText, TextPosition + Position + ParentPosition, LabelTextColor, FontSize);
         }
 
         protected void UpdateText()
