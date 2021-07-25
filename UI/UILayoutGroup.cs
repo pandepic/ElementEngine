@@ -113,7 +113,7 @@ namespace ElementEngine
             else if (PositionFlags.SetY.HasValue)
                 startPosition.Y = PositionFlags.SetY.Value;
 
-            var currentPosition = startPosition;
+            var currentPosition = startPosition + new Vector2I(ParentFrame.PaddingLeft, ParentFrame.PaddingTop);
 
             foreach (var widget in Widgets)
             {

@@ -21,7 +21,7 @@ namespace ElementEngine
 
         public string Name { get; set; } = "";
         public XElement XMLElement { get; set; } = null;
-        public UISprite FrameSprite { get; set; } = null;
+        public List<UISprite> FrameSprites { get; set; } = new List<UISprite>();
         public UIWidgetList Widgets { get; } = new UIWidgetList();
         public List<UIPanel> Panels { get; } = new List<UIPanel>();
         public Dictionary<string, XElement> Templates { get; set; } = null;
@@ -131,6 +131,9 @@ namespace ElementEngine
                 if (disposing)
                 {
                     Widgets?.Dispose();
+
+                    foreach (var fs in FrameSprites)
+                        fs?.Dispose();
                 }
 
                 _disposed = true;
@@ -191,22 +194,22 @@ namespace ElementEngine
 
             ReloadWidgets();
 
-            var elBackground = GetXMLElement("Background");
+            var elBackgrounds = GetXMLElements("Background");
 
-            if (elBackground != null)
+            foreach (var elBackground in elBackgrounds)
             {
                 var bgWidget = new UIWidget();
                 bgWidget.Init(this, XMLElement);
                 bgWidget.Width = Width;
                 bgWidget.Height = Height;
-                FrameSprite = UISprite.CreateUISprite(bgWidget, "Background");
+                FrameSprites.Add(UISprite.CreateUISprite(bgWidget, elBackground));
             }
 
             if (frameSizeW.ToUpper() == "BG")
-                Width = FrameSprite.Width;
+                Width = FrameSprites[0].Width;
 
             if (frameSizeH.ToUpper() == "BG")
-                Height = FrameSprite.Height;
+                Height = FrameSprites[0].Height;
 
             var draggableRectAttribute = GetXMLAttribute("DraggableRect");
             if (draggableRectAttribute != null)
@@ -601,6 +604,40 @@ namespace ElementEngine
             return el;
         } // GetXMLElement
 
+        public IEnumerable<XElement> GetXMLElements(string name)
+        {
+            IEnumerable<XElement> el = null;
+
+            if (_template != null)
+                el = _template.Elements(name);
+
+            if (el == null)
+                el = XMLElement.Elements(name);
+
+            return el;
+        } // GetXMLElements
+
+        public IEnumerable<XElement> GetXMLElements(string parent, string name)
+        {
+            IEnumerable<XElement> el = null;
+
+            if (_template != null)
+            {
+                var p = _template.Elements(parent);
+                if (p != null)
+                    el = p.Elements(name);
+            }
+
+            if (el == null)
+            {
+                var p = XMLElement.Elements(parent);
+                if (p != null)
+                    el = p.Elements(name);
+            }
+
+            return el;
+        } // GetXMLElements
+
         public XAttribute GetXMLAttribute(string name)
         {
             XAttribute att = null;
@@ -655,7 +692,9 @@ namespace ElementEngine
 
         public virtual void Update(GameTimer gameTimer)
         {
-            FrameSprite?.Update(gameTimer);
+            foreach (var frameSprite in FrameSprites)
+                frameSprite?.Update(gameTimer);
+
             Widgets.Update(gameTimer);
 
             foreach (var panel in Panels)
@@ -664,7 +703,9 @@ namespace ElementEngine
 
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
-            FrameSprite?.Draw(spriteBatch, Position);
+            foreach (var frameSprite in FrameSprites)
+                frameSprite?.Draw(spriteBatch, Position);
+
             Widgets.Draw(spriteBatch);
         }
 
