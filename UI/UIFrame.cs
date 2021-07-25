@@ -17,6 +17,7 @@ namespace ElementEngine
     {
         internal UIMenu Parent = null;
         internal Rectangle FrameRect = Rectangle.Empty;
+        protected XElement _template = null;
 
         public string Name { get; set; } = "";
         public XElement XMLElement { get; set; } = null;
@@ -144,15 +145,17 @@ namespace ElementEngine
             CommonWidgetResources.Templates = templates;
             XMLElement = el;
 
+            LoadTemplate();
+
             var screenWidth = ElementGlobals.TargetResolutionWidth;
             var screenHeight = ElementGlobals.TargetResolutionHeight;
 
-            var drawOrderAttribute = XMLElement.Attribute("DrawOrder");
+            var drawOrderAttribute = GetXMLAttribute("DrawOrder");
             if (drawOrderAttribute != null)
                 DrawOrder = int.Parse(drawOrderAttribute.Value);
 
-            var framePosition = XMLElement.Element("Position");
-            var frameSize = XMLElement.Element("Size");
+            var framePosition = GetXMLElement("Position");
+            var frameSize = GetXMLElement("Size");
 
             var frameSizeW = frameSize.Attribute("Width").Value;
             var frameSizeH = frameSize.Attribute("Height").Value;
@@ -173,9 +176,9 @@ namespace ElementEngine
             else
                 Height = int.Parse(frameSizeH);
 
-            var visibleAttribute = XMLElement.Attribute("Visible");
-            var activeAttribute = XMLElement.Attribute("Active");
-            var draggableAttribute = XMLElement.Attribute("Draggable");
+            var visibleAttribute = GetXMLAttribute("Visible");
+            var activeAttribute = GetXMLAttribute("Active");
+            var draggableAttribute = GetXMLAttribute("Draggable");
 
             if (visibleAttribute != null)
                 Visible = bool.Parse(visibleAttribute.Value);
@@ -184,11 +187,11 @@ namespace ElementEngine
             if (draggableAttribute != null)
                 Draggable = bool.Parse(draggableAttribute.Value);
 
-            Name = XMLElement.Attribute("Name").Value;
+            Name = GetXMLAttribute("Name").Value;
 
             ReloadWidgets();
 
-            var elBackground = XMLElement.Element("Background");
+            var elBackground = GetXMLElement("Background");
 
             if (elBackground != null)
             {
@@ -205,7 +208,7 @@ namespace ElementEngine
             if (frameSizeH.ToUpper() == "BG")
                 Height = FrameSprite.Height;
 
-            var draggableRectAttribute = XMLElement.Attribute("DraggableRect");
+            var draggableRectAttribute = GetXMLAttribute("DraggableRect");
             if (draggableRectAttribute != null)
             {
                 var rectParts = draggableRectAttribute.Value.Split(',');
@@ -266,10 +269,10 @@ namespace ElementEngine
             var screenWidth = ElementGlobals.TargetResolutionWidth;
             var screenHeight = ElementGlobals.TargetResolutionHeight;
 
-            if (AutoWidth && CenterX)
+            if (CenterX)
                 X = (int)((screenWidth / 2) - (Width / 2));
 
-            if (AutoHeight && CenterY)
+            if (CenterY)
                 Y = (int)((screenHeight / 2) - (Height / 2));
 
             if (AnchorLeft)
@@ -325,7 +328,7 @@ namespace ElementEngine
             foreach (var kvp in CommonWidgetResources.LayoutGroups)
                 kvp.Value.UpdateWidgetPositions();
 
-            var attPadding = XMLElement.Attribute("Padding");
+            var attPadding = GetXMLAttribute("Padding");
             if (attPadding != null)
             {
                 var paddingSplit = attPadding.Value.Split(",");
@@ -543,6 +546,112 @@ namespace ElementEngine
         {
             return (T)GetWidget(name);
         }
+
+        #region Templates
+        public void LoadTemplate()
+        {
+            if (Templates == null || Templates.Count == 0)
+                return;
+
+            var templateAttribute = XMLElement.Attribute("Template");
+            if (templateAttribute == null)
+                return;
+
+            var templateName = templateAttribute.Value;
+            if (string.IsNullOrWhiteSpace(templateName))
+                return;
+
+            if (!Templates.ContainsKey(templateName))
+                return;
+
+            _template = Templates[templateName];
+        } // LoadTemplate
+
+        public XElement GetXMLElement(string name)
+        {
+            XElement el = null;
+
+            if (_template != null)
+                el = _template.Element(name);
+
+            if (el == null)
+                el = XMLElement.Element(name);
+
+            return el;
+        } // GetXMLElement
+
+        public XElement GetXMLElement(string parent, string name)
+        {
+            XElement el = null;
+
+            if (_template != null)
+            {
+                var p = _template.Element(parent);
+                if (p != null)
+                    el = p.Element(name);
+            }
+
+            if (el == null)
+            {
+                var p = XMLElement.Element(parent);
+                if (p != null)
+                    el = p.Element(name);
+            }
+
+            return el;
+        } // GetXMLElement
+
+        public XAttribute GetXMLAttribute(string name)
+        {
+            XAttribute att = null;
+
+            if (_template != null)
+                att = _template.Attribute(name);
+
+            if (att == null)
+                att = XMLElement.Attribute(name);
+
+            return att;
+        } // GetXMLAttribute
+
+        public XAttribute GetXMLAttribute(string parent, string name)
+        {
+            XAttribute att = null;
+
+            var p = XMLElement.Element(parent);
+            if (p != null)
+                att = p.Attribute(name);
+
+            if (_template != null && att == null)
+            {
+                p = _template.Element(parent);
+                if (p != null)
+                    att = p.Attribute(name);
+            }
+
+            return att;
+        } // GetXMLAttribute
+
+        public T GetXMLAttribute<T>(string name)
+        {
+            return GetXMLAttribute(name).Value.ConvertTo<T>();
+        }
+
+        public T GetXMLAttribute<T>(string parent, string name)
+        {
+            return GetXMLAttribute(parent, name).Value.ConvertTo<T>();
+        }
+
+        public T GetXMLElement<T>(string name)
+        {
+            return GetXMLElement(name).Value.ConvertTo<T>();
+        }
+
+        public T GetXMLElement<T>(string parent, string name)
+        {
+            return GetXMLElement(parent, name).Value.ConvertTo<T>();
+        }
+        #endregion
 
         public virtual void Update(GameTimer gameTimer)
         {

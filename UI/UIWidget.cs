@@ -25,7 +25,7 @@ namespace ElementEngine
         protected Vector2 _offset = Vector2.Zero;
         public Vector2 Offset => _offset;
 
-        public XElement XmlRoot { get; set; } = null;
+        public XElement XMLElement { get; set; } = null;
         public UIFrame Parent { get; set; }
 
         public string Name { get; set; }
@@ -134,7 +134,7 @@ namespace ElementEngine
         public void Init(UIFrame parent, XElement el)
         {
             Parent = parent;
-            XmlRoot = el;
+            XMLElement = el;
             LoadTemplate();
         } // init
 
@@ -185,12 +185,13 @@ namespace ElementEngine
             Focused = false;
         }
 
+        #region Templates
         public void LoadTemplate()
         {
             if (Parent == null || Parent.Templates == null || Parent.Templates.Count == 0)
                 return;
 
-            var templateAttribute = XmlRoot.Attribute("Template");
+            var templateAttribute = XMLElement.Attribute("Template");
             if (templateAttribute == null)
                 return;
 
@@ -212,7 +213,7 @@ namespace ElementEngine
                 el = _template.Element(name);
 
             if (el == null)
-                el = XmlRoot.Element(name);
+                el = XMLElement.Element(name);
 
             return el;
         } // GetXMLElement
@@ -230,7 +231,7 @@ namespace ElementEngine
 
             if (el == null)
             {
-                var p = XmlRoot.Element(parent);
+                var p = XMLElement.Element(parent);
                 if (p != null)
                     el = p.Element(name);
             }
@@ -246,7 +247,7 @@ namespace ElementEngine
                 att = _template.Attribute(name);
 
             if (att == null)
-                att = XmlRoot.Attribute(name);
+                att = XMLElement.Attribute(name);
 
             return att;
         } // GetXMLAttribute
@@ -255,7 +256,7 @@ namespace ElementEngine
         {
             XAttribute att = null;
 
-            var p = XmlRoot.Element(parent);
+            var p = XMLElement.Element(parent);
             if (p != null)
                 att = p.Attribute(name);
 
@@ -288,6 +289,7 @@ namespace ElementEngine
         {
             return GetXMLElement(parent, name).Value.ConvertTo<T>();
         }
+        #endregion
 
         public void LoadStandardXML()
         {
