@@ -14,6 +14,7 @@ namespace ElementEngine.ElementUI
         public List<UIObject> Children = new List<UIObject>();
         public string Name;
 
+        #region Position, Size & Bounds
         public int Width => (int)_size.X;
         public int Height => (int)_size.Y;
 
@@ -70,30 +71,7 @@ namespace ElementEngine.ElementUI
         {
             get => new Rectangle(_position + _padding.TopLeftF, _size - _padding.TopLeftF - _padding.BottomRightF);
         }
-
-        public bool IsActive
-        {
-            get => _isActive;
-            set
-            {
-                if (value)
-                    Disable();
-                else
-                    Enable();
-            }
-        }
-
-        public bool IsVisible
-        {
-            get => _isVisible;
-            set
-            {
-                if (value)
-                    Show();
-                else
-                    Hide();
-            }
-        }
+        #endregion
 
         #region Positioning
 
@@ -297,33 +275,6 @@ namespace ElementEngine.ElementUI
         }
         #endregion
 
-        internal bool _isActive = true;
-        internal bool _isVisible = true;
-        internal bool _useScissorRect => _style == null ? false : _style.OverflowType == OverflowType.Hide;
-
-        internal UIStyle _style;
-        internal UIPosition _uiPosition;
-        internal UISize _uiSize;
-        internal Vector2 _position;
-        internal Vector2 _childOrigin;
-        internal Vector2 _size;
-        internal UISpacing _margins;
-        internal UISpacing _padding;
-
-        internal bool _layoutDirty = false;
-
-        #region Reusable Lists
-        protected static class TempFindChildrenList<T> where T : UIObject
-        {
-            public static List<T> List = new List<T>();
-        }
-        #endregion
-
-        public UIObject(string name)
-        {
-            Name = name;
-        }
-
         #region Find Children
         public T FindChildByName<T>(string name, bool recursive) where T : UIObject
         {
@@ -366,6 +317,95 @@ namespace ElementEngine.ElementUI
         }
         #endregion
 
+        #region Visible & Active
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                if (value)
+                    Enable();
+                else
+                    Disable();
+            }
+        }
+
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                if (value)
+                    Show();
+                else
+                    Hide();
+            }
+        }
+
+        public virtual void Show()
+        {
+            _isVisible = true;
+        }
+
+        public virtual void Hide()
+        {
+            _isVisible = false;
+        }
+
+        public void ToggleVisible()
+        {
+            if (_isVisible)
+                Hide();
+            else
+                Show();
+        }
+
+        public virtual void Enable()
+        {
+            _isActive = true;
+        }
+
+        public virtual void Disable()
+        {
+            _isActive = false;
+        }
+
+        public void ToggleActive()
+        {
+            if (_isActive)
+                Disable();
+            else
+                Enable();
+        }
+        #endregion
+
+        internal bool _isActive = true;
+        internal bool _isVisible = true;
+        internal bool _useScissorRect => _style == null ? false : _style.OverflowType == OverflowType.Hide;
+
+        internal UIStyle _style;
+        internal UIPosition _uiPosition;
+        internal UISize _uiSize;
+        internal Vector2 _position;
+        internal Vector2 _childOrigin;
+        internal Vector2 _size;
+        internal UISpacing _margins;
+        internal UISpacing _padding;
+
+        internal bool _layoutDirty = false;
+
+        #region Reusable Lists
+        protected static class TempFindChildrenList<T> where T : UIObject
+        {
+            public static List<T> List = new List<T>();
+        }
+        #endregion
+
+        public UIObject(string name)
+        {
+            Name = name;
+        }
+
         public void ApplyStyle(UIStyle style)
         {
             _style = style;
@@ -406,44 +446,6 @@ namespace ElementEngine.ElementUI
                 return false;
             }
         }
-
-        #region Toggle Visible/Active
-        public virtual void Show()
-        {
-            _isVisible = true;
-        }
-
-        public virtual void Hide()
-        {
-            _isVisible = false;
-        }
-
-        public void ToggleVisible()
-        {
-            if (_isVisible)
-                Hide();
-            else
-                Show();
-        }
-
-        public virtual void Enable()
-        {
-            _isActive = true;
-        }
-
-        public virtual void Disable()
-        {
-            _isActive = false;
-        }
-
-        public void ToggleActive()
-        {
-            if (_isActive)
-                Disable();
-            else
-                Enable();
-        }
-        #endregion
 
         internal virtual void CheckLayout()
         {
