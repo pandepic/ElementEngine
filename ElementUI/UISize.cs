@@ -14,8 +14,12 @@ namespace ElementEngine.ElementUI
         public bool AutoHeight;
         public bool ParentWidth;
         public bool ParentHeight;
+        public float? ParentWidthRatio;
+        public float? ParentHeightRatio;
 
-        public bool IsAutoSized => (AutoWidth || ParentWidth) && (AutoHeight || ParentHeight);
+        public bool IsAutoSized => AutoWidth || ParentWidth || ParentWidthRatio.HasValue || AutoHeight || ParentHeight || ParentHeightRatio.HasValue;
+        public bool IsAutoSizedX => AutoWidth || ParentWidth || ParentWidthRatio.HasValue;
+        public bool IsAutoSizedY => AutoHeight || ParentHeight || ParentHeightRatio.HasValue;
 
         public Vector2 GetSize(UIObject obj)
         {
@@ -39,6 +43,16 @@ namespace ElementEngine.ElementUI
                 if (AutoHeight)
                     size.Y = height + obj.PaddingBottom;
             }
+
+            if (ParentWidth)
+                size.X = obj.Parent.Size.X;
+            if (ParentHeight)
+                size.Y = obj.Parent.Size.Y;
+
+            if (ParentWidthRatio.HasValue)
+                size.X = obj.Parent.Size.X * ParentWidthRatio.Value;
+            if (ParentHeightRatio.HasValue)
+                size.Y = obj.Parent.Size.Y * ParentHeightRatio.Value;
 
             return size;
         }

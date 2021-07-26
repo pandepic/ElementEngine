@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,9 +18,7 @@ namespace ElementEngine.ElementUI
         public UIButton(string name, UIButtonStyle style, UILabel label = null) : base(name)
         {
             ApplyStyle(style);
-
-            if (!_uiSize.IsAutoSized && !_uiSize.Size.HasValue)
-                Size = Style.SpriteNormal.Size;
+            ApplyDefaultSize(Style.SpriteNormal);
 
             Label = label;
             AddChild(label);

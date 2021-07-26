@@ -14,9 +14,7 @@ namespace ElementEngine.ElementUI
         public UIImage(string name, UIImageStyle style) : base(name)
         {
             ApplyStyle(style);
-
-            if (!_uiSize.IsAutoSized && !_uiSize.Size.HasValue)
-                Size = Style.Sprite.Size;
+            ApplyDefaultSize(Style.Sprite);
         }
 
         public override void Update(GameTimer gameTimer)

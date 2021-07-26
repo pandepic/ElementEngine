@@ -37,6 +37,30 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public float SizeX
+        {
+            get => _size.X;
+            set
+            {
+                var current = _uiSize.Size ?? Vector2.Zero;
+                current.X = value;
+                _uiSize.Size = current;
+                _layoutDirty = true;
+            }
+        }
+
+        public float SizeY
+        {
+            get => _size.Y;
+            set
+            {
+                var current = _uiSize.Size ?? Vector2.Zero;
+                current.Y = value;
+                _uiSize.Size = current;
+                _layoutDirty = true;
+            }
+        }
+
         public Rectangle Bounds
         {
             get => new Rectangle(_position, _size);
@@ -73,7 +97,7 @@ namespace ElementEngine.ElementUI
 
         internal bool _isActive = true;
         internal bool _isVisible = true;
-        internal bool _useScissorRect => _style.OverflowType == OverflowType.Hide;
+        internal bool _useScissorRect => _style == null ? false : _style.OverflowType == OverflowType.Hide;
 
         internal UIStyle _style;
         internal UIPosition _uiPosition;
@@ -140,6 +164,24 @@ namespace ElementEngine.ElementUI
             _uiSize = style.UISize ?? new UISize();
             _margins = style.Margins ?? new UISpacing();
             _padding = style.Padding ?? new UISpacing();
+        }
+
+        public void ApplyDefaultSize(UISprite sprite)
+        {
+            ApplyDefaultSize(sprite.Size);
+        }
+
+        public void ApplyDefaultSize(UIObject obj)
+        {
+            ApplyDefaultSize(obj.Size);
+        }
+
+        public void ApplyDefaultSize(Vector2 size)
+        {
+            if (!_uiSize.IsAutoSizedX)
+                SizeX = size.X;
+            if (!_uiSize.IsAutoSizedY)
+                SizeY = size.Y;
         }
 
         public bool AddChild(UIObject child)
@@ -216,10 +258,15 @@ namespace ElementEngine.ElementUI
 
         public bool AnchorTop
         {
-            get => _uiPosition.AnchorTop;
+            get => _uiPosition.Position.HasValue ? _uiPosition.Position.Value.Y == 0 : false;
             set
             {
-                _uiPosition.AnchorTop = value;
+                if (!value)
+                    return;
+                if (!_uiPosition.Position.HasValue)
+                    return;
+
+                _uiPosition.Position = new Vector2(_uiPosition.Position.Value.X, 0);
                 _layoutDirty = true;
             }
         }
@@ -236,10 +283,15 @@ namespace ElementEngine.ElementUI
 
         public bool AnchorLeft
         {
-            get => _uiPosition.AnchorLeft;
+            get => _uiPosition.Position.HasValue ? _uiPosition.Position.Value.X == 0 : false;
             set
             {
-                _uiPosition.AnchorLeft = value;
+                if (!value)
+                    return;
+                if (!_uiPosition.Position.HasValue)
+                    return;
+
+                _uiPosition.Position = new Vector2(0, _uiPosition.Position.Value.Y);
                 _layoutDirty = true;
             }
         }
