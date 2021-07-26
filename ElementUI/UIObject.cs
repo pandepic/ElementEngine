@@ -95,146 +95,7 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        internal bool _isActive = true;
-        internal bool _isVisible = true;
-        internal bool _useScissorRect => _style == null ? false : _style.OverflowType == OverflowType.Hide;
-
-        internal UIStyle _style;
-        internal UIPosition _uiPosition;
-        internal UISize _uiSize;
-        internal Vector2 _position;
-        internal Vector2 _childOrigin;
-        internal Vector2 _size;
-        internal UISpacing _margins;
-        internal UISpacing _padding;
-
-        internal bool _layoutDirty = false;
-
-        #region Reusable Lists
-        protected static class TempFindChildrenList<T> where T : UIObject
-        {
-            public static List<T> List = new List<T>();
-        }
-        #endregion
-
-        public UIObject(string name)
-        {
-            Name = name;
-        }
-
-        public T FindChildByName<T>(string name, bool recursive) where T : UIObject
-        {
-            foreach (var child in Children)
-            {
-                if (child is T t && child.Name == name)
-                    return t;
-
-                if (recursive)
-                {
-                    t = child.FindChildByName<T>(name, recursive);
-                    if (t != null)
-                        return t;
-                }
-            }
-
-            return null;
-        }
-
-        public List<T> FindChildrenByName<T>(string name, bool recursive, bool clearList = true) where T : UIObject
-        {
-            if (clearList)
-                TempFindChildrenList<T>.List.Clear();
-
-            foreach (var child in Children)
-            {
-                if (child is T t && child.Name == name)
-                    TempFindChildrenList<T>.List.Add(t);
-
-                if (recursive)
-                    child.FindChildrenByName<T>(name, recursive, false);
-            }
-
-            return TempFindChildrenList<T>.List;
-        }
-
-        public void ApplyStyle(UIStyle style)
-        {
-            _style = style;
-            _uiPosition = style.UIPosition ?? new UIPosition();
-            _uiSize = style.UISize ?? new UISize();
-            _margins = style.Margins ?? new UISpacing();
-            _padding = style.Padding ?? new UISpacing();
-        }
-
-        public void ApplyDefaultSize(UISprite sprite)
-        {
-            ApplyDefaultSize(sprite.Size);
-        }
-
-        public void ApplyDefaultSize(UIObject obj)
-        {
-            ApplyDefaultSize(obj.Size);
-        }
-
-        public void ApplyDefaultSize(Vector2 size)
-        {
-            if (!_uiSize.IsAutoSizedX)
-                SizeX = size.X;
-            if (!_uiSize.IsAutoSizedY)
-                SizeY = size.Y;
-        }
-
-        public bool AddChild(UIObject child)
-        {
-            if (Children.AddIfNotContains(child))
-            {
-                child.Parent = this;
-                _layoutDirty = true;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public virtual void Show()
-        {
-            _isVisible = true;
-        }
-
-        public virtual void Hide()
-        {
-            _isVisible = false;
-        }
-
-        public void ToggleVisible()
-        {
-            if (_isVisible)
-                Hide();
-            else
-                Show();
-        }
-
-        public virtual void Enable()
-        {
-            _isActive = true;
-        }
-
-        public virtual void Disable()
-        {
-            _isActive = false;
-        }
-
-        public void ToggleActive()
-        {
-            if (_isActive)
-                Disable();
-            else
-                Enable();
-        }
-
-        #region Positioning Properties
+        #region Positioning
 
         public bool CenterX
         {
@@ -304,6 +165,13 @@ namespace ElementEngine.ElementUI
                 _uiPosition.AnchorRight = value;
                 _layoutDirty = true;
             }
+        }
+
+        public void Center()
+        {
+            _uiPosition.CenterX = true;
+            _uiPosition.CenterY = true;
+            _layoutDirty = true;
         }
         #endregion
 
@@ -429,12 +297,153 @@ namespace ElementEngine.ElementUI
         }
         #endregion
 
-        public void Center()
+        internal bool _isActive = true;
+        internal bool _isVisible = true;
+        internal bool _useScissorRect => _style == null ? false : _style.OverflowType == OverflowType.Hide;
+
+        internal UIStyle _style;
+        internal UIPosition _uiPosition;
+        internal UISize _uiSize;
+        internal Vector2 _position;
+        internal Vector2 _childOrigin;
+        internal Vector2 _size;
+        internal UISpacing _margins;
+        internal UISpacing _padding;
+
+        internal bool _layoutDirty = false;
+
+        #region Reusable Lists
+        protected static class TempFindChildrenList<T> where T : UIObject
         {
-            _uiPosition.CenterX = true;
-            _uiPosition.CenterY = true;
-            _layoutDirty = true;
+            public static List<T> List = new List<T>();
         }
+        #endregion
+
+        public UIObject(string name)
+        {
+            Name = name;
+        }
+
+        #region Find Children
+        public T FindChildByName<T>(string name, bool recursive) where T : UIObject
+        {
+            foreach (var child in Children)
+            {
+                if (child is T t && child.Name == name)
+                    return t;
+
+                if (recursive)
+                {
+                    t = child.FindChildByName<T>(name, recursive);
+                    if (t != null)
+                        return t;
+                }
+            }
+
+            return null;
+        }
+
+        public List<T> FindChildrenByName<T>(string name, bool recursive) where T : UIObject
+        {
+            return FindChildrenByName<T>(name, recursive, true);
+        }
+
+        internal List<T> FindChildrenByName<T>(string name, bool recursive, bool clearList) where T : UIObject
+        {
+            if (clearList)
+                TempFindChildrenList<T>.List.Clear();
+
+            foreach (var child in Children)
+            {
+                if (child is T t && child.Name == name)
+                    TempFindChildrenList<T>.List.Add(t);
+
+                if (recursive)
+                    child.FindChildrenByName<T>(name, recursive, false);
+            }
+
+            return TempFindChildrenList<T>.List;
+        }
+        #endregion
+
+        public void ApplyStyle(UIStyle style)
+        {
+            _style = style;
+            _uiPosition = style.UIPosition ?? new UIPosition();
+            _uiSize = style.UISize ?? new UISize();
+            _margins = style.Margins ?? new UISpacing();
+            _padding = style.Padding ?? new UISpacing();
+        }
+
+        public void ApplyDefaultSize(UISprite sprite)
+        {
+            ApplyDefaultSize(sprite.Size);
+        }
+
+        public void ApplyDefaultSize(UIObject obj)
+        {
+            ApplyDefaultSize(obj.Size);
+        }
+
+        public void ApplyDefaultSize(Vector2 size)
+        {
+            if (!_uiSize.IsAutoSizedX)
+                SizeX = size.X;
+            if (!_uiSize.IsAutoSizedY)
+                SizeY = size.Y;
+        }
+
+        public bool AddChild(UIObject child)
+        {
+            if (Children.AddIfNotContains(child))
+            {
+                child.Parent = this;
+                _layoutDirty = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        #region Toggle Visible/Active
+        public virtual void Show()
+        {
+            _isVisible = true;
+        }
+
+        public virtual void Hide()
+        {
+            _isVisible = false;
+        }
+
+        public void ToggleVisible()
+        {
+            if (_isVisible)
+                Hide();
+            else
+                Show();
+        }
+
+        public virtual void Enable()
+        {
+            _isActive = true;
+        }
+
+        public virtual void Disable()
+        {
+            _isActive = false;
+        }
+
+        public void ToggleActive()
+        {
+            if (_isActive)
+                Disable();
+            else
+                Enable();
+        }
+        #endregion
 
         internal virtual void CheckLayout()
         {
@@ -446,6 +455,16 @@ namespace ElementEngine.ElementUI
 
             foreach (var child in Children)
                 child.CheckLayout();
+        }
+
+        internal virtual void UpdateLayout()
+        {
+            _size = _uiSize.GetSize(this);
+            _position = _uiPosition.GetPosition(this);
+            _childOrigin = _position + _padding.TopLeftF;
+
+            foreach (var child in Children)
+                child.UpdateLayout();
         }
 
         public virtual void Update(GameTimer gameTimer)
@@ -472,16 +491,6 @@ namespace ElementEngine.ElementUI
 
             if (_useScissorRect)
                 spriteBatch.ResetScissorRect();
-        }
-
-        internal virtual void UpdateLayout()
-        {
-            _size = _uiSize.GetSize(this);
-            _position = _uiPosition.GetPosition(this);
-            _childOrigin = _position + _padding.TopLeftF;
-
-            foreach (var child in Children)
-                child.UpdateLayout();
         }
 
         #region Input Handling
