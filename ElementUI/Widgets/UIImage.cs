@@ -26,7 +26,7 @@ namespace ElementEngine.ElementUI
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            Style.Sprite.Draw(spriteBatch, _position, _size);
+            Style.Sprite.Draw(this, spriteBatch, _position, _size);
             base.Draw(spriteBatch);
         }
 

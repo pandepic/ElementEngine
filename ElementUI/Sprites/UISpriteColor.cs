@@ -17,11 +17,11 @@ namespace ElementEngine.ElementUI
             Texture = new Texture2D(1, 1, color);
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch, Vector2 position, Vector2? size = null, float rotation = 0)
+        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2 position, Vector2? size = null, float rotation = 0)
         {
             spriteBatch.DrawTexture2D(
                 texture: Texture,
-                position: position,
+                position: GetDrawPosition(parent, position, size ?? Size),
                 scale: size ?? Size,
                 rotation: rotation);
         }

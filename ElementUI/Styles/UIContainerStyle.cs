@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ElementUI
 {
-    public class UIContainerBackground
-    {
-        public UISprite Sprite;
-        public UISize Size;
-        public UIPosition UIPosition;
-    }
-
     public class UIContainerStyle : UIStyle
     {
-        public List<UIContainerBackground> Backgrounds = new List<UIContainerBackground>();
+        public UISprite Background;
+
+        public UIContainerStyle(UISprite background)
+        {
+            Background = background;
+        }
     }
 }

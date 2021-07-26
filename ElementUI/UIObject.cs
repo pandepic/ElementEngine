@@ -37,20 +37,15 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        //public Rectangle Bounds
-        //{
-        //    get => new Rectangle(_position, _size);
-        //}
+        public Rectangle Bounds
+        {
+            get => new Rectangle(_position, _size);
+        }
 
-        //public Rectangle MarginBounds
-        //{
-        //    get => new Rectangle(_position - _margins.TopLeftF, _margins.TopLeftF + _size + _margins.BottomRightF);
-        //}
-
-        //public Rectangle PaddingBounds
-        //{
-        //    get => new Rectangle(_position + _padding.TopLeftF, _size - _padding.TopLeftF - _padding.BottomRightF);
-        //}
+        public Rectangle PaddingBounds
+        {
+            get => new Rectangle(_position + _padding.TopLeftF, _size - _padding.TopLeftF - _padding.BottomRightF);
+        }
 
         public bool IsActive
         {
@@ -78,6 +73,7 @@ namespace ElementEngine.ElementUI
 
         internal bool _isActive = true;
         internal bool _isVisible = true;
+        internal bool _useScissorRect => _style.OverflowType == OverflowType.Hide;
 
         internal UIStyle _style;
         internal UIPosition _uiPosition;
@@ -411,11 +407,19 @@ namespace ElementEngine.ElementUI
 
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
+            CheckLayout();
+
+            if (_useScissorRect)
+                spriteBatch.SetScissorRect(PaddingBounds);
+
             foreach (var child in Children)
             {
                 if (child.IsVisible)
                     child.Draw(spriteBatch);
             }
+
+            if (_useScissorRect)
+                spriteBatch.ResetScissorRect();
         }
 
         internal virtual void UpdateLayout()

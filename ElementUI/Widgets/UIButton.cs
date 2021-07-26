@@ -32,7 +32,7 @@ namespace ElementEngine.ElementUI
             if (!IsActive)
                 sprite = Style.SpriteDisabled ?? Style.SpriteNormal;
 
-            sprite?.Draw(spriteBatch, _position, _size);
+            sprite?.Draw(this, spriteBatch, _position, _size);
             base.Draw(spriteBatch);
         }
     }

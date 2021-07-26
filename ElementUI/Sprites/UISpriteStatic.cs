@@ -22,9 +22,9 @@ namespace ElementEngine.ElementUI
             Size = Texture.SourceRect.SizeF;
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch, Vector2 position, Vector2? size = null, float rotation = 0f)
+        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2 position, Vector2? size = null, float rotation = 0f)
         {
-            Texture.Draw(spriteBatch, position, Texture.GetScale(size), rotation);
+            Texture.Draw(spriteBatch, GetDrawPosition(parent, position, size ?? Size), Texture.GetScale(size), rotation);
         }
     }
 }

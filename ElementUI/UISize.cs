@@ -35,9 +35,9 @@ namespace ElementEngine.ElementUI
                 }
 
                 if (AutoWidth)
-                    size.X = width;
+                    size.X = width + obj.PaddingRight;
                 if (AutoHeight)
-                    size.Y = height;
+                    size.Y = height + obj.PaddingBottom;
             }
 
             return size;

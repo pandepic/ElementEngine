@@ -13,5 +13,6 @@ namespace ElementEngine.ElementUI
         public UISize? UISize;
         public UISpacing? Margins;
         public UISpacing? Padding;
+        public OverflowType OverflowType = OverflowType.Show;
     }
 }

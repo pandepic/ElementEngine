@@ -47,8 +47,6 @@ namespace ElementEngine.ElementUI
             if (!IsVisible)
                 return;
 
-            CheckLayout();
-
             base.Draw(spriteBatch);
         }
 
