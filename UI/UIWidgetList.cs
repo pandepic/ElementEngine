@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using Veldrid;
 
-namespace ElementEngine
+namespace ElementEngine.UI
 {
     public class WidgetListException : Exception
     {

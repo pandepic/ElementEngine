@@ -25,8 +25,4 @@
     <PackageReference Include="Veldrid.Utilities" Version="4.9.0-g04d2d9fc8e" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UI\ElementUI\Widgets\" />
-  </ItemGroup>
-
 </Project>

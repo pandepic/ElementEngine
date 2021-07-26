@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace ElementEngine
+namespace ElementEngine.UI
 {
     public class UIWDropDown : UIWidget
     {

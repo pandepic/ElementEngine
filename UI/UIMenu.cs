@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Veldrid;
 
-namespace ElementEngine
+namespace ElementEngine.UI
 {
     public enum UIEventType
     {

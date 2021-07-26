@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Xml.Linq;
 using Veldrid;
 
-namespace ElementEngine
+namespace ElementEngine.UI
 {
     public class CommonWidgetResources
     {

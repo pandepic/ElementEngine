@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ElementUI
 {
-    public class UIContainer : UIObject
-    {
-        public List<UIObject> UIObjects = new List<UIObject>();
-    } // UIContainer
+    //public class UIContainer : UIObject
+    //{
+    //    public UIContainer(UIContainerStyle style)
+    //    {
+    //    }
+    //} // UIContainer
 }

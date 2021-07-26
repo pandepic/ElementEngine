@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml.Linq;
 using Veldrid;
 
-namespace ElementEngine
+namespace ElementEngine.UI
 {
     public enum UISpriteType
     {

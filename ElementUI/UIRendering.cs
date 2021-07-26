@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ElementUI
 {
-    public class UIWidget : UIObject
+    public static class UIRendering
     {
     }
 }

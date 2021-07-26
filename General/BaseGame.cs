@@ -240,6 +240,9 @@ namespace ElementEngine
         {
             ElementGlobals.GraphicsDevice.ResizeMainWindow((uint)windowRect.Width, (uint)windowRect.Height);
             ElementGlobals.Viewport = new Viewport(0f, 0f, windowRect.Width, windowRect.Height, 0f, 1f);
+            ElementGlobals.ScreenSpaceSpriteBatch2D?.SetViewSize(ElementGlobals.TargetResolutionSize);
+            
+            CurrentGameState.OnWindowResized(windowRect);
         }
 
         public void AddEngineService<T>(T service) where T : IEngineService

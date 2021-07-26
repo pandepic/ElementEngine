@@ -95,6 +95,8 @@ namespace ElementEngine
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(GameTimer gameTimer) { }
 
+        public virtual void OnWindowResized(Rectangle windowRect) { }
+
         public virtual void HandleGameControl(string controlName, GameControlState state, GameTimer gameTimer) { }
         public virtual void HandleKeyPressed(Key key, GameTimer gameTimer) { }
         public virtual void HandleKeyReleased(Key key, GameTimer gameTimer) { }

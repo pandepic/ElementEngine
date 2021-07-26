@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using TextCopy;
 using Veldrid;
 
-namespace ElementEngine
+namespace ElementEngine.UI
 {
     public class UIWTextBox : UIWidget, IDisposable
     {

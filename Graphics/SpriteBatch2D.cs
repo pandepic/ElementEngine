@@ -38,6 +38,8 @@ namespace ElementEngine
         public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
         public CommandList CommandList => ElementGlobals.CommandList;
 
+        public readonly bool InvertY;
+
         // Constants
         public const int IndicesPerQuad = 6;
         public const int VerticesPerQuad = 4;
@@ -122,11 +124,9 @@ namespace ElementEngine
             var factory = GraphicsDevice.ResourceFactory;
             LoadStaticResources(factory);
 
-            _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, 0f, 1f);
-
-            if (invertY && !GraphicsDevice.IsUvOriginTopLeft)
-                _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
-
+            InvertY = invertY;
+            SetViewSize(new Vector2(width, height));
+            
             if (simplePipeline == null)
                 simplePipeline = GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, output, null);
 
@@ -182,6 +182,14 @@ namespace ElementEngine
         ~SpriteBatch2D()
         {
             Dispose(false);
+        }
+
+        public void SetViewSize(Vector2 size)
+        {
+            _projection = Matrix4x4.CreateOrthographicOffCenter(0f, size.X, size.Y, 0f, 0f, 1f);
+
+            if (InvertY && !GraphicsDevice.IsUvOriginTopLeft)
+                _projection = Matrix4x4.CreateOrthographicOffCenter(0f, size.X, 0f, size.Y, 0f, 1f);
         }
 
         public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, Texture2D target, SimpleShader shader = null)

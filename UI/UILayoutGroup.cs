@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace ElementEngine
+namespace ElementEngine.UI
 {
     public enum UILayoutGroupDirection
     {

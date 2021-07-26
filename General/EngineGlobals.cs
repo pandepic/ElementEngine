@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Veldrid;
 using Veldrid.Sdl2;
 
@@ -19,6 +20,7 @@ namespace ElementEngine
         internal static List<Action> ScreenSpaceDrawList = new List<Action>();
 
         // Target resolution
+        public static Vector2 TargetResolutionSize => new Vector2(TargetResolutionWidth, TargetResolutionHeight);
         public static int TargetResolutionWidth => Window.Width;
         public static int TargetResolutionHeight => Window.Height;
 
@@ -28,15 +30,15 @@ namespace ElementEngine
         // UI
         public static Dictionary<string, Type> UIWidgetTypes { get; set; } = new Dictionary<string, Type>()
         {
-            { "Button", typeof(UIWBasicButton) },
-            { "ImageButton", typeof(UIWImageButton) },
-            { "Label", typeof(UIWLabel) },
-            { "TextBox", typeof(UIWTextBox) },
-            { "ImageBox", typeof(UIWImageBox) },
-            { "HScrollBar", typeof(UIWHScrollBar) },
-            { "VScrollBar", typeof(UIWVScrollBar) },
-            { "HProgressBar", typeof(UIWHProgressBar) },
-            { "CheckBox", typeof(UIWCheckbox) },
+            { "Button", typeof(UI.UIWBasicButton) },
+            { "ImageButton", typeof(UI.UIWImageButton) },
+            { "Label", typeof(UI.UIWLabel) },
+            { "TextBox", typeof(UI.UIWTextBox) },
+            { "ImageBox", typeof(UI.UIWImageBox) },
+            { "HScrollBar", typeof(UI.UIWHScrollBar) },
+            { "VScrollBar", typeof(UI.UIWVScrollBar) },
+            { "HProgressBar", typeof(UI.UIWHProgressBar) },
+            { "CheckBox", typeof(UI.UIWCheckbox) },
         };
 
         public static void RegisterWidgetType(Type type, string elementName)
