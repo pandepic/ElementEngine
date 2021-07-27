@@ -20,7 +20,7 @@ namespace ElementEngine.ElementUI
 
         public Vector2 GetRelativePosition(UIObject obj)
         {
-            return (Position ?? Vector2.Zero) + obj._margins.TopLeftF;
+            return (Position ?? Vector2.Zero);
         }
 
         public Vector2 GetPosition(UIObject obj)
@@ -28,7 +28,17 @@ namespace ElementEngine.ElementUI
             if (obj.Parent == null)
                 return GetRelativePosition(obj);
 
-            var position = obj.Parent._childOrigin + GetRelativePosition(obj);
+            var position = GetRelativePosition(obj);
+
+            if (IsAutoPositionX)
+                position.X += obj.Parent._position.X;
+            else
+                position.X += obj.Parent._childOrigin.X;
+
+            if (IsAutoPositionY)
+                position.Y += obj.Parent._position.Y;
+            else
+                position.Y += obj.Parent._childOrigin.Y;
 
             if (CenterX)
                 position.X += (obj.Parent._size.X / 2f) - (obj._size.X / 2f);

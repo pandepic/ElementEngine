@@ -16,8 +16,6 @@ namespace ElementEngine.ElementUI
         public string Name;
 
         #region Position, Size & Bounds
-        public int Width => (int)_size.X;
-        public int Height => (int)_size.Y;
         public bool HasMargin => !_margins.IsZero;
         public bool HasPadding => !_padding.IsZero;
 
@@ -27,6 +25,30 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiPosition.Position = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public float X
+        {
+            get => _position.X;
+            set
+            {
+                var current = _uiPosition.Position ?? Vector2.Zero;
+                current.X = value;
+                _uiPosition.Position = current;
+                _layoutDirty = true;
+            }
+        }
+
+        public float Y
+        {
+            get => _position.Y;
+            set
+            {
+                var current = _uiPosition.Position ?? Vector2.Zero;
+                current.Y = value;
+                _uiPosition.Position = current;
                 _layoutDirty = true;
             }
         }
@@ -41,7 +63,7 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        public float SizeX
+        public float Width
         {
             get => _size.X;
             set
@@ -53,7 +75,7 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        public float SizeY
+        public float Height
         {
             get => _size.Y;
             set
@@ -61,6 +83,66 @@ namespace ElementEngine.ElementUI
                 var current = _uiSize.Size ?? Vector2.Zero;
                 current.Y = value;
                 _uiSize.Size = current;
+                _layoutDirty = true;
+            }
+        }
+
+        public bool AutoWidth
+        {
+            get => _uiSize.AutoWidth;
+            set
+            {
+                _uiSize.AutoWidth = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public bool AutoHeight
+        {
+            get => _uiSize.AutoHeight;
+            set
+            {
+                _uiSize.AutoHeight = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public bool ParentWidth
+        {
+            get => _uiSize.ParentWidth;
+            set
+            {
+                _uiSize.ParentWidth = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public bool ParentHeight
+        {
+            get => _uiSize.ParentHeight;
+            set
+            {
+                _uiSize.ParentHeight = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public float? ParentWidthRatio
+        {
+            get => _uiSize.ParentWidthRatio;
+            set
+            {
+                _uiSize.ParentWidthRatio = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public float? ParentHeightRatio
+        {
+            get => _uiSize.ParentHeightRatio;
+            set
+            {
+                _uiSize.ParentHeightRatio = value;
                 _layoutDirty = true;
             }
         }
@@ -441,9 +523,9 @@ namespace ElementEngine.ElementUI
                 return;
 
             if (!_uiSize.IsAutoSizedX)
-                SizeX = size.X;
+                Width = size.X;
             if (!_uiSize.IsAutoSizedY)
-                SizeY = size.Y;
+                Height = size.Y;
         }
 
         public bool AddChild(UIObject child)
@@ -471,6 +553,9 @@ namespace ElementEngine.ElementUI
 
         internal virtual void UpdateLayout()
         {
+            foreach (var child in Children)
+                child.UpdateLayout();
+
             UpdateSize();
             UpdatePosition();
 
@@ -575,7 +660,7 @@ namespace ElementEngine.ElementUI
                 }
             }
         } // HandleMargins
-        
+
         public virtual void Update(GameTimer gameTimer)
         {
             foreach (var child in Children)

@@ -10,18 +10,14 @@ namespace ElementEngine.ElementUI
     public class UIButton : UIObject
     {
         public new UIButtonStyle Style => (UIButtonStyle)_style;
-        public UILabel Label;
 
         public bool IsPressed;
         public bool IsHovered;
 
-        public UIButton(string name, UIButtonStyle style, UILabel label = null) : base(name)
+        public UIButton(string name, UIButtonStyle style) : base(name)
         {
             ApplyStyle(style);
             ApplyDefaultSize(Style.SpriteNormal);
-
-            Label = label;
-            AddChild(label);
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
