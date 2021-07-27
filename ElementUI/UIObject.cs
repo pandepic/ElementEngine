@@ -384,6 +384,24 @@ namespace ElementEngine.ElementUI
             return null;
         }
 
+        public T FindChildByType<T>(bool recursive) where T : UIObject
+        {
+            foreach (var child in Children)
+            {
+                if (child is T t)
+                    return t;
+
+                if (recursive)
+                {
+                    t = child.FindChildByType<T>(recursive);
+                    if (t != null)
+                        return t;
+                }
+            }
+
+            return null;
+        }
+
         public List<T> FindChildrenByName<T>(string name, bool recursive) where T : UIObject
         {
             return FindChildrenByName<T>(name, recursive, true);
@@ -401,6 +419,28 @@ namespace ElementEngine.ElementUI
 
                 if (recursive)
                     child.FindChildrenByName<T>(name, recursive, false);
+            }
+
+            return TempFindChildrenList<T>.List;
+        }
+
+        public List<T> FindChildrenByType<T>(bool recursive) where T : UIObject
+        {
+            return FindChildrenByType<T>(recursive, true);
+        }
+
+        internal List<T> FindChildrenByType<T>(bool recursive, bool clearList) where T : UIObject
+        {
+            if (clearList)
+                TempFindChildrenList<T>.List.Clear();
+
+            foreach (var child in Children)
+            {
+                if (child is T t)
+                    TempFindChildrenList<T>.List.Add(t);
+
+                if (recursive)
+                    child.FindChildrenByType<T>(recursive, false);
             }
 
             return TempFindChildrenList<T>.List;
@@ -489,8 +529,6 @@ namespace ElementEngine.ElementUI
         {
             public static List<T> List = new List<T>();
         }
-
-        internal List<UIObject> _tempChildrenList = new List<UIObject>();
         #endregion
 
         public UIObject(string name)
@@ -539,6 +577,47 @@ namespace ElementEngine.ElementUI
             else
             {
                 return false;
+            }
+        }
+
+        public bool RemoveChild(string name)
+        {
+            var child = Children.Find((obj) => { return obj.Name == name; });
+
+            if (child != null)
+            {
+                Children.Remove(child);
+                _layoutDirty = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool RemoveChild<T>() where T : UIObject
+        {
+            for (var i = Children.Count - 1; i >= 0; i--)
+            {
+                var child = Children[i];
+                if (child is T)
+                {
+                    Children.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void RemoveChildren<T>() where T : UIObject
+        {
+            for (var i = Children.Count - 1; i >= 0; i--)
+            {
+                var child = Children[i];
+                if (child is T)
+                    Children.RemoveAt(i);
             }
         }
 

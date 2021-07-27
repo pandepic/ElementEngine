@@ -49,35 +49,5 @@ namespace ElementEngine.ElementUI
             return position;
         }
 
-        //public void HandleMargins(UIObject obj)
-        //{
-        //    if (obj.HasMargin && Position.HasValue)
-        //    {
-        //        foreach (var sibling in obj.Parent.Children)
-        //        {
-        //            if (sibling == obj)
-        //                continue;
-        //            if (sibling is UIContainer)
-        //                continue;
-        //            if (!sibling.HasMargin)
-        //                continue;
-
-        //            //var intersect = obj.MarginBounds.Intersect(sibling.MarginBounds);
-
-        //            //if (intersect.IsZero)
-        //            //    continue;
-
-        //            if ((obj.MarginTop > 0 || sibling.MarginBottom > 0) && !IsAutoPositionY)
-        //            {
-        //                if (obj.MarginBounds.Top > sibling.MarginBounds.Bottom && obj.MarginBounds.Bottom > sibling.MarginBounds.Top)
-        //                {
-        //                    Position += new Vector2(0, obj.MarginBounds.Top - sibling.MarginBounds.Bottom);
-        //                    obj.UpdateLayout();
-        //                }
-        //            }
-        //        }
-        //    }
-        //} // HandleMargins
-
     } // UIPosition
 }
