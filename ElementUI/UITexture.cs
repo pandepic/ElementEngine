@@ -20,11 +20,7 @@ namespace ElementEngine.ElementUI
         public UITexture(Texture2D texture, Rectangle? sourceRect = null)
         {
             Texture = texture;
-
-            if (sourceRect.HasValue)
-                SourceRect = sourceRect.Value;
-            else
-                SourceRect = new Rectangle(Vector2I.Zero, texture.Size);
+            SourceRect = sourceRect ?? new Rectangle(Vector2I.Zero, texture.Size);
         }
 
         public void Draw(SpriteBatch2D spriteBatch, Vector2 position, Vector2? scale = null, float rotation = 0f)

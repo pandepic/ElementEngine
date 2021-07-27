@@ -11,7 +11,7 @@ namespace ElementEngine.ElementUI
 {
     public class UIScreen : UIObject
     {
-        public UIScreen(Vector2? position = null, Vector2? size = null, string name = "") : base(name)
+        public UIScreen(Vector2? position = null, Vector2? size = null, string name = "Screen") : base(name)
         {
             _uiPosition.Position = position ?? Vector2.Zero;
             _uiSize.Size = size ?? new Vector2(ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight);
@@ -36,6 +36,8 @@ namespace ElementEngine.ElementUI
 
         public override void Update(GameTimer gameTimer)
         {
+            CheckLayout();
+
             if (!IsActive)
                 return;
 

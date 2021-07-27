@@ -235,7 +235,7 @@ namespace ElementEngine
 
         public override string ToString()
         {
-            return string.Format("{0}, {1}, {2}, {3}, {4}, {5}", X, Y, Right, Bottom, Width, Height);
+            return string.Format("{0}, {1}, {2}, {3}, {4}, {5}", X, Y, Width, Height, Right, Bottom);
         }
 
         public override bool Equals(object obj)

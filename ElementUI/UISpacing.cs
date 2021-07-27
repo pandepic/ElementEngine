@@ -19,6 +19,8 @@ namespace ElementEngine.ElementUI
         public Vector2 TopLeftF => new Vector2(Left, Top);
         public Vector2 BottomRightF => new Vector2(Right, Bottom);
 
+        public bool IsZero => Top == 0 && Bottom == 0 && Left == 0 && Right == 0;
+
         public UISpacing(int top, int bottom, int left, int right)
         {
             Top = top;

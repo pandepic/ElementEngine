@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Veldrid;
 
@@ -17,6 +18,8 @@ namespace ElementEngine.ElementUI
         #region Position, Size & Bounds
         public int Width => (int)_size.X;
         public int Height => (int)_size.Y;
+        public bool HasMargin => !_margins.IsZero;
+        public bool HasPadding => !_padding.IsZero;
 
         public Vector2 Position
         {
@@ -65,6 +68,11 @@ namespace ElementEngine.ElementUI
         public Rectangle Bounds
         {
             get => new Rectangle(_position, _size);
+        }
+
+        public Rectangle MarginBounds
+        {
+            get => new Rectangle(_position - _margins.TopLeftF, _size + _margins.TopLeftF + _margins.BottomRightF);
         }
 
         public Rectangle PaddingBounds
@@ -399,6 +407,8 @@ namespace ElementEngine.ElementUI
         {
             public static List<T> List = new List<T>();
         }
+
+        internal List<UIObject> _tempChildrenList = new List<UIObject>();
         #endregion
 
         public UIObject(string name)
@@ -427,6 +437,9 @@ namespace ElementEngine.ElementUI
 
         public void ApplyDefaultSize(Vector2 size)
         {
+            if (_uiSize.Size.HasValue)
+                return;
+
             if (!_uiSize.IsAutoSizedX)
                 SizeX = size.X;
             if (!_uiSize.IsAutoSizedY)
@@ -450,10 +463,7 @@ namespace ElementEngine.ElementUI
         internal virtual void CheckLayout()
         {
             if (_layoutDirty)
-            {
                 UpdateLayout();
-                _layoutDirty = false;
-            }
 
             foreach (var child in Children)
                 child.CheckLayout();
@@ -461,14 +471,111 @@ namespace ElementEngine.ElementUI
 
         internal virtual void UpdateLayout()
         {
-            _size = _uiSize.GetSize(this);
-            _position = _uiPosition.GetPosition(this);
-            _childOrigin = _position + _padding.TopLeftF;
+            UpdateSize();
+            UpdatePosition();
 
             foreach (var child in Children)
                 child.UpdateLayout();
+
+            HandleMargins();
+            _layoutDirty = false;
         }
 
+        internal void UpdateSize()
+        {
+            _size = _uiSize.GetSize(this);
+        }
+
+        internal void UpdatePosition()
+        {
+            _position = _uiPosition.GetPosition(this);
+            _childOrigin = _position + _padding.TopLeftF;
+        }
+
+        internal virtual void HandleMargins()
+        {
+            UIObject firstChildWithMargin = null;
+
+            foreach (var child in Children)
+            {
+                if (child.HasMargin)
+                {
+                    firstChildWithMargin = child;
+                    break;
+                }
+            }
+
+            // vertical margin
+            foreach (var child in Children)
+            {
+                if (child == firstChildWithMargin)
+                    continue;
+                if (!child._uiPosition.Position.HasValue)
+                    continue;
+                if (child is UIContainer)
+                    continue;
+                if (!child.HasMargin)
+                    continue;
+
+                foreach (var sibling in Children.OrderBy(c => c.Position.Y))
+                {
+                    if (child == sibling)
+                        continue;
+                    if (!sibling.HasMargin)
+                        continue;
+                    if (sibling is UIContainer)
+                        continue;
+                    if (!child.MarginBounds.Intersects(sibling.MarginBounds))
+                        continue;
+
+                    if ((child.MarginTop > 0 || sibling.MarginBottom > 0) && !child._uiPosition.IsAutoPositionY)
+                    {
+                        if (child.MarginBounds.Top < sibling.MarginBounds.Bottom && child.MarginBounds.Bottom > sibling.MarginBounds.Top)
+                        {
+                            var offset = new Vector2(0, sibling.MarginBounds.Bottom - child.MarginBounds.Top);
+                            child._uiPosition.Position += offset;
+                            child.UpdateLayout();
+                        }
+                    }
+                }
+            }
+
+            // horizontal margin
+            foreach (var child in Children)
+            {
+                if (child == firstChildWithMargin)
+                    continue;
+                if (!child._uiPosition.Position.HasValue)
+                    continue;
+                if (child is UIContainer)
+                    continue;
+                if (!child.HasMargin)
+                    continue;
+
+                foreach (var sibling in Children.OrderBy(c => c.Position.Y))
+                {
+                    if (child == sibling)
+                        continue;
+                    if (!sibling.HasMargin)
+                        continue;
+                    if (sibling is UIContainer)
+                        continue;
+                    if (!child.MarginBounds.Intersects(sibling.MarginBounds))
+                        continue;
+
+                    if ((child.MarginLeft > 0 || sibling.MarginRight > 0) && !child._uiPosition.IsAutoPositionX)
+                    {
+                        if (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left)
+                        {
+                            var offset = new Vector2(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
+                            child._uiPosition.Position += offset;
+                            child.UpdateLayout();
+                        }
+                    }
+                }
+            }
+        } // HandleMargins
+        
         public virtual void Update(GameTimer gameTimer)
         {
             foreach (var child in Children)
@@ -480,8 +587,6 @@ namespace ElementEngine.ElementUI
 
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
-            CheckLayout();
-
             if (_useScissorRect)
                 spriteBatch.SetScissorRect(PaddingBounds);
 
@@ -507,6 +612,11 @@ namespace ElementEngine.ElementUI
         public void HandleKeyDown(Key key, GameTimer gameTimer) { }
         public void HandleTextInput(char key, GameTimer gameTimer) { }
         #endregion
+
+        public override string ToString()
+        {
+            return $"{GetType().Name} - {Name} [{Bounds}]";
+        }
 
     } // UIObject
 }

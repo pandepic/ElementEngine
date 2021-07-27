@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ElementUI
 {
-    //public class UIContainer : UIObject
-    //{
-    //    public UIContainer(UIContainerStyle style)
-    //    {
-    //    }
-    //} // UIContainer
+    public class UIContainer : UIObject
+    {
+        public UIContainer(string name, UIContainerStyle style) : base(name)
+        {
+            ApplyStyle(style);
+            ApplyDefaultSize(style.Background);
+        }
+    } // UIContainer
 }

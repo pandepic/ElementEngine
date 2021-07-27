@@ -27,7 +27,8 @@ namespace ElementEngine
         protected TimeSpan _targetFrameTime = TimeSpan.Zero;
         protected TimeSpan _totalFrameTime = TimeSpan.Zero;
 
-        // Window title
+        // Window
+        public bool Focused { get => ElementGlobals.Window.Focused; }
         public string GameTitle { get; set; }
         public bool TitleShowFPS { get; set; } = true;
         protected TimeSpan _fpsCounter = TimeSpan.Zero;
