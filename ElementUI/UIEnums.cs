@@ -11,4 +11,10 @@ namespace ElementEngine.ElementUI
         Show,
         Hide,
     }
+
+    public enum UIEventType
+    {
+        OnClick,
+        OnValueChanged,
+    }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -47,6 +48,9 @@ namespace ElementEngine.ElementUI
             Style.SpriteHover?.Update(gameTimer);
 
             base.Update(gameTimer);
+
+            //if (IsHovered && !Bounds.Contains(InputManager.MousePosition))
+            //    IsHovered = false;
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
@@ -60,6 +64,28 @@ namespace ElementEngine.ElementUI
         public override void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             IsHovered = true;
+        }
+
+        public override void HandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        {
+            IsHovered = false;
+            IsPressed = false;
+
+            base.HandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
+        }
+
+        public override void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            IsPressed = true;
+        }
+
+        public override void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            if (IsPressed)
+            {
+                IsPressed = false;
+                TriggerEvent(UIEventType.OnClick);
+            }
         }
 
     } // UIButton

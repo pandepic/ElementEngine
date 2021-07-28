@@ -19,6 +19,9 @@ namespace ElementEngine.ElementUI
         public string Name;
         public int DrawOrder = NO_DRAW_ORDER;
 
+        internal readonly Dictionary<(string, UIEventType), List<Action<UIObject, UIEventType>>> _registeredEventCallbacksByName = new Dictionary<(string, UIEventType), List<Action<UIObject, UIEventType>>>();
+        internal readonly Dictionary<UIEventType, List<Action<UIObject, UIEventType>>> _registeredEventCallbacks = new Dictionary<UIEventType, List<Action<UIObject, UIEventType>>>();
+
         #region Position, Size & Bounds
         public bool HasMargin => !_margins.IsZero;
         public bool HasPadding => !_padding.IsZero;
@@ -832,6 +835,52 @@ namespace ElementEngine.ElementUI
                 spriteBatch.ResetScissorRect(UIGlobals.SCISSOR_INDEX_OBJECT);
         }
 
+        #region UI Events
+        public void RegisterCallback(string name, UIEventType eventType, Action<UIObject, UIEventType> action)
+        {
+            if (!_registeredEventCallbacksByName.TryGetValue((name, eventType), out var callbacks))
+            {
+                callbacks = new List<Action<UIObject, UIEventType>>();
+                _registeredEventCallbacksByName.Add((name, eventType), callbacks);
+            }
+
+            callbacks.AddIfNotContains(action);
+        }
+
+        public void RegisterCallback(UIEventType eventType, Action<UIObject, UIEventType> action)
+        {
+            if (!_registeredEventCallbacks.TryGetValue(eventType, out var callbacks))
+            {
+                callbacks = new List<Action<UIObject, UIEventType>>();
+                _registeredEventCallbacks.Add(eventType, callbacks);
+            }
+
+            callbacks.AddIfNotContains(action);
+        }
+
+        internal void TriggerEvent(UIEventType eventType)
+        {
+            TriggerEvent(this, eventType);
+        }
+
+        internal void TriggerEvent(UIObject obj, UIEventType eventType)
+        {
+            if (_registeredEventCallbacksByName.TryGetValue((obj.Name, eventType), out var callbacksByName))
+            {
+                foreach (var callback in callbacksByName)
+                    callback(obj, eventType);
+            }
+
+            if (_registeredEventCallbacks.TryGetValue(eventType, out var callbacks))
+            {
+                foreach (var callback in callbacks)
+                    callback(obj, eventType);
+            }
+
+            Parent?.TriggerEvent(obj, eventType);
+        }
+        #endregion
+
         #region Input Handling
         internal UIObject GetFirstChildContainsMouse(Vector2 mousePosition)
         {
@@ -851,6 +900,20 @@ namespace ElementEngine.ElementUI
         {
             var child = GetFirstChildContainsMouse(mousePosition);
             child?.HandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
+
+            foreach (var childNoMotion in Children)
+            {
+                if (childNoMotion == child)
+                    continue;
+
+                childNoMotion?.HandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
+            }
+        }
+
+        public virtual void HandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        {
+            foreach (var childNoMotion in Children)
+                childNoMotion?.HandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
         }
 
         public virtual void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
