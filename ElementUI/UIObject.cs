@@ -10,10 +10,14 @@ namespace ElementEngine.ElementUI
 {
     public class UIObject : IMouseHandler, IKeyboardHandler
     {
+        public const int NO_DRAW_ORDER = -1;
+
         public UIObject Parent;
         public UIStyle Style => _style;
-        public List<UIObject> Children = new List<UIObject>();
+        public readonly List<UIObject> Children = new List<UIObject>();
+        public readonly List<UIObject> ReverseChildren = new List<UIObject>();
         public string Name;
+        public int DrawOrder = NO_DRAW_ORDER;
 
         #region Position, Size & Bounds
         public bool HasMargin => !_margins.IsZero;
@@ -143,6 +147,46 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.ParentHeightRatio = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public int? MinWidth
+        {
+            get => _uiSize.MinWidth;
+            set
+            {
+                _uiSize.MinWidth = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public int? MaxWidth
+        {
+            get => _uiSize.MaxWidth;
+            set
+            {
+                _uiSize.MaxWidth = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public int? MinHeight
+        {
+            get => _uiSize.MinHeight;
+            set
+            {
+                _uiSize.MinHeight = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public int? MaxHeight
+        {
+            get => _uiSize.MaxHeight;
+            set
+            {
+                _uiSize.MaxHeight = value;
                 _layoutDirty = true;
             }
         }
@@ -553,10 +597,28 @@ namespace ElementEngine.ElementUI
                 Height = size.Y;
         }
 
+        internal int GetHighestChildDrawOrder()
+        {
+            var val = NO_DRAW_ORDER;
+
+            foreach (var child in Children)
+                val = Math.Max(val, child.DrawOrder);
+
+            return val;
+        }
+
         public bool AddChild(UIObject child)
         {
             if (Children.AddIfNotContains(child))
             {
+                if (child.DrawOrder == NO_DRAW_ORDER)
+                {
+                    if (Children.Count == 1)
+                        child.DrawOrder = 1;
+                    else
+                        child.DrawOrder = GetHighestChildDrawOrder() + 1;
+                }
+
                 child.Parent = this;
                 _layoutDirty = true;
                 return true;
@@ -630,6 +692,11 @@ namespace ElementEngine.ElementUI
 
             HandleMargins();
             _layoutDirty = false;
+
+            Children.Sort((c1, c2) => { return c1.DrawOrder.CompareTo(c2.DrawOrder); });
+            ReverseChildren.Clear();
+            ReverseChildren.AddRange(Children);
+            ReverseChildren.Sort((c1, c2) => { return c2.DrawOrder.CompareTo(c1.DrawOrder); });
         }
 
         internal void UpdateSize()
@@ -668,7 +735,12 @@ namespace ElementEngine.ElementUI
                 if (!child.HasMargin)
                     continue;
 
-                foreach (var sibling in Children.OrderBy(c => c.Position.Y))
+                var sortedChildren = GlobalObjectPool<List<UIObject>>.Rent();
+                sortedChildren.Clear();
+                sortedChildren.AddRange(Children);
+                sortedChildren.Sort((obj1, obj2) => { return obj1.Position.Y.CompareTo(obj2.Position.Y); });
+
+                foreach (var sibling in sortedChildren)
                 {
                     if (child == sibling)
                         continue;
@@ -689,6 +761,8 @@ namespace ElementEngine.ElementUI
                         }
                     }
                 }
+
+                GlobalObjectPool<List<UIObject>>.Return(sortedChildren);
             }
 
             // horizontal margin
@@ -703,7 +777,12 @@ namespace ElementEngine.ElementUI
                 if (!child.HasMargin)
                     continue;
 
-                foreach (var sibling in Children.OrderBy(c => c.Position.Y))
+                var sortedChildren = GlobalObjectPool<List<UIObject>>.Rent();
+                sortedChildren.Clear();
+                sortedChildren.AddRange(Children);
+                sortedChildren.Sort((obj1, obj2) => { return obj1.Position.X.CompareTo(obj2.Position.X); });
+
+                foreach (var sibling in sortedChildren)
                 {
                     if (child == sibling)
                         continue;
@@ -724,6 +803,8 @@ namespace ElementEngine.ElementUI
                         }
                     }
                 }
+
+                GlobalObjectPool<List<UIObject>>.Return(sortedChildren);
             }
         } // HandleMargins
 
@@ -752,11 +833,49 @@ namespace ElementEngine.ElementUI
         }
 
         #region Input Handling
-        public virtual void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
-        public virtual void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public virtual void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public virtual void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public virtual void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer) { }
+        internal UIObject GetFirstChildContainsMouse(Vector2 mousePosition)
+        {
+            if (_useScissorRect && !PaddingBounds.Contains(mousePosition))
+                return null;
+
+            foreach (var child in ReverseChildren)
+            {
+                if (child.Bounds.Contains(mousePosition))
+                    return child;
+            }
+
+            return null;
+        }
+
+        public virtual void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        {
+            var child = GetFirstChildContainsMouse(mousePosition);
+            child?.HandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
+        }
+
+        public virtual void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            var child = GetFirstChildContainsMouse(mousePosition);
+            child?.HandleMouseButtonPressed(mousePosition, button, gameTimer);
+        }
+
+        public virtual void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            var child = GetFirstChildContainsMouse(mousePosition);
+            child?.HandleMouseButtonReleased(mousePosition, button, gameTimer);
+        }
+
+        public virtual void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            var child = GetFirstChildContainsMouse(mousePosition);
+            child?.HandleMouseButtonDown(mousePosition, button, gameTimer);
+        }
+
+        public virtual void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
+        {
+            var child = GetFirstChildContainsMouse(mousePosition);
+            child?.HandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+        }
 
         public virtual void HandleKeyPressed(Key key, GameTimer gameTimer) { }
         public virtual void HandleKeyReleased(Key key, GameTimer gameTimer) { }

@@ -10,8 +10,6 @@ namespace ElementEngine.ElementUI
     {
         public UISprite Sprite;
 
-        public UIImageStyle() { }
-
         public UIImageStyle(UISprite sprite)
         {
             Sprite = sprite;

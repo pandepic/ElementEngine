@@ -28,10 +28,15 @@ namespace ElementEngine.ElementUI
 
         public void Draw(SpriteBatch2D spriteBatch, Vector2 position, Vector2? scale = null, float rotation = 0f)
         {
+            Draw(spriteBatch, position, SourceRect, scale, rotation);
+        }
+
+        public void Draw(SpriteBatch2D spriteBatch, Vector2 position, Rectangle sourceRect, Vector2? scale = null, float rotation = 0f)
+        {
             spriteBatch.DrawTexture2D(
                 texture: Texture,
                 position: position,
-                sourceRect: SourceRect,
+                sourceRect: sourceRect,
                 scale: scale ?? new Vector2(1f),
                 rotation: rotation);
         }

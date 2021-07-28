@@ -11,6 +11,11 @@ namespace ElementEngine.ElementUI
     {
         public List<UISprite> Sprites;
 
+        public UISpriteLayered(params UISprite[] sprites)
+            : this(sprites.ToList())
+        {
+        }
+
         public UISpriteLayered(List<UISprite> sprites)
         {
             Sprites = sprites;

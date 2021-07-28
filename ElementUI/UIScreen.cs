@@ -53,16 +53,16 @@ namespace ElementEngine.ElementUI
         }
 
         #region Input Handling
-        public override void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
-        public override void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public override void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public override void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public override void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer) { }
+        //public override void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
+        //public override void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        //public override void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        //public override void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        //public override void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer) { }
 
-        public override void HandleKeyPressed(Key key, GameTimer gameTimer) { }
-        public override void HandleKeyReleased(Key key, GameTimer gameTimer) { }
-        public override void HandleKeyDown(Key key, GameTimer gameTimer) { }
-        public override void HandleTextInput(char key, GameTimer gameTimer) { }
+        //public override void HandleKeyPressed(Key key, GameTimer gameTimer) { }
+        //public override void HandleKeyReleased(Key key, GameTimer gameTimer) { }
+        //public override void HandleKeyDown(Key key, GameTimer gameTimer) { }
+        //public override void HandleTextInput(char key, GameTimer gameTimer) { }
         #endregion
 
     } // UIScreen

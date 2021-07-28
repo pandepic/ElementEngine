@@ -16,7 +16,9 @@ namespace ElementEngine.ElementUI
         public bool ParentHeight;
         public float? ParentWidthRatio;
         public float? ParentHeightRatio;
-
+        public int? MinWidth, MaxWidth;
+        public int? MinHeight, MaxHeight;
+        
         public bool IsAutoSized => AutoWidth || ParentWidth || ParentWidthRatio.HasValue || AutoHeight || ParentHeight || ParentHeightRatio.HasValue;
         public bool IsAutoSizedX => AutoWidth || ParentWidth || ParentWidthRatio.HasValue;
         public bool IsAutoSizedY => AutoHeight || ParentHeight || ParentHeightRatio.HasValue;
@@ -53,6 +55,16 @@ namespace ElementEngine.ElementUI
                 size.X = (int)(obj.Parent.Size.X * ParentWidthRatio.Value);
             if (ParentHeightRatio.HasValue)
                 size.Y = (int)(obj.Parent.Size.Y * ParentHeightRatio.Value);
+
+            if (MinWidth.HasValue && size.X < MinWidth.Value)
+                size.X = MinWidth.Value;
+            if (MinHeight.HasValue && size.Y < MinHeight.Value)
+                size.Y = MinHeight.Value;
+
+            if (MaxWidth.HasValue && size.X > MaxWidth.Value)
+                size.X = MaxWidth.Value;
+            if (MaxHeight.HasValue && size.Y > MaxHeight.Value)
+                size.Y = MaxHeight.Value;
 
             return size;
         }

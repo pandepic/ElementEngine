@@ -57,5 +57,10 @@ namespace ElementEngine.ElementUI
             base.Draw(spriteBatch);
         }
 
+        public override void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        {
+            IsHovered = true;
+        }
+
     } // UIButton
 }
