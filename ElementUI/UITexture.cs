@@ -12,6 +12,9 @@ namespace ElementEngine.ElementUI
         public Texture2D Texture;
         public Rectangle SourceRect;
 
+        public int Width => SourceRect.Width;
+        public int Height => SourceRect.Height;
+
         public UITexture(string assetName, Rectangle? sourceRect = null)
             : this(AssetManager.LoadTexture2D(assetName), sourceRect)
         {
@@ -33,12 +36,12 @@ namespace ElementEngine.ElementUI
                 rotation: rotation);
         }
 
-        public Vector2 GetScale(Vector2? targetSize)
+        public Vector2 GetScale(Vector2I? targetSize)
         {
             if (!targetSize.HasValue)
                 return new Vector2(1f);
 
-            return targetSize.Value / Texture.SizeF;
+            return targetSize.Value.ToVector2() / Texture.SizeF;
         }
 
     } // UITexture

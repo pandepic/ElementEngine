@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace ElementEngine.UI
@@ -43,7 +44,7 @@ namespace ElementEngine.UI
             else
                return false;
 
-            ImGui.SetNextWindowSizeConstraints(Vector2I.Zero, MaxSize);
+            ImGui.SetNextWindowSizeConstraints(Vector2.Zero, MaxSize.ToVector2());
             _result = ImGui.BeginPopupModal(Name, ref IsOpen, Flags);
             return _result;
         }

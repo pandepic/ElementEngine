@@ -19,6 +19,7 @@ namespace ElementEngine.ElementUI
 
         public override void Update(GameTimer gameTimer)
         {
+            Style.Sprite.Update(gameTimer);
             base.Update(gameTimer);
         }
 

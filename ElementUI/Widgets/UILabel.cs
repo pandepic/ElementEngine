@@ -30,12 +30,12 @@ namespace ElementEngine.ElementUI
         public void SetText(string text)
         {
             _text = text;
-            Size = Style.Font.MeasureText(_text, Style.Size, Style.Outline);
+            Size = Style.Font.MeasureText(_text, Style.Size, Style.Outline).ToVector2I();
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(Style.Font, _text, _position, Style.Color, Style.Size, Style.Outline);
+            spriteBatch.DrawText(Style.Font, _text, _position.ToVector2(), Style.Color, Style.Size, Style.Outline);
             base.Draw(spriteBatch);
         }
     }

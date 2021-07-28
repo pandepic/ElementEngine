@@ -528,7 +528,7 @@ namespace ElementEngine
             if (Layers.Count <= 0)
                 return;
 
-            position = position.ToVector2I();
+            position = position.ToVector2I().ToVector2();
 
             if (start >= Layers.Count)
                 start = Layers.Count - 1;

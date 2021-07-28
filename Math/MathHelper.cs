@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ElementEngine
 {
-    public class MathHelper
+    public static class MathHelper
     {
         public const float ToRadians = (MathF.PI * 2f) / 360f;
         public const float ToDegrees = 360f / (MathF.PI * 2f);
@@ -114,6 +114,16 @@ namespace ElementEngine
             return new Vector2(
                     MathF.Cos(i) * radius + position.X,
                     MathF.Sin(i) * radius + position.Y);
+        }
+
+        public static int Max(int v1, int v2, int v3)
+        {
+            return Math.Max(v1, Math.Max(v2, v3));
+        }
+
+        public static int Max(int v1, int v2, int v3, int v4)
+        {
+            return Math.Max(v1, Math.Max(v2, Math.Max(v3, v4)));
         }
 
     } // MathHelper

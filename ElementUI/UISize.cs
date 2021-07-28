@@ -9,7 +9,7 @@ namespace ElementEngine.ElementUI
 {
     public struct UISize
     {
-        public Vector2? Size;
+        public Vector2I? Size;
         public bool AutoWidth;
         public bool AutoHeight;
         public bool ParentWidth;
@@ -21,9 +21,9 @@ namespace ElementEngine.ElementUI
         public bool IsAutoSizedX => AutoWidth || ParentWidth || ParentWidthRatio.HasValue;
         public bool IsAutoSizedY => AutoHeight || ParentHeight || ParentHeightRatio.HasValue;
 
-        public Vector2 GetSize(UIObject obj)
+        public Vector2I GetSize(UIObject obj)
         {
-            var size = Size ?? Vector2.One;
+            var size = Size ?? Vector2I.One;
 
             if (AutoWidth || AutoHeight)
             {
@@ -50,9 +50,9 @@ namespace ElementEngine.ElementUI
                 size.Y = obj.Parent.Size.Y;
 
             if (ParentWidthRatio.HasValue)
-                size.X = obj.Parent.Size.X * ParentWidthRatio.Value;
+                size.X = (int)(obj.Parent.Size.X * ParentWidthRatio.Value);
             if (ParentHeightRatio.HasValue)
-                size.Y = obj.Parent.Size.Y * ParentHeightRatio.Value;
+                size.Y = (int)(obj.Parent.Size.Y * ParentHeightRatio.Value);
 
             return size;
         }

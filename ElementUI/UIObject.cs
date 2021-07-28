@@ -19,7 +19,7 @@ namespace ElementEngine.ElementUI
         public bool HasMargin => !_margins.IsZero;
         public bool HasPadding => !_padding.IsZero;
 
-        public Vector2 Position
+        public Vector2I Position
         {
             get => _position;
             set
@@ -29,31 +29,31 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        public float X
+        public int X
         {
             get => _position.X;
             set
             {
-                var current = _uiPosition.Position ?? Vector2.Zero;
+                var current = _uiPosition.Position ?? Vector2I.Zero;
                 current.X = value;
                 _uiPosition.Position = current;
                 _layoutDirty = true;
             }
         }
 
-        public float Y
+        public int Y
         {
             get => _position.Y;
             set
             {
-                var current = _uiPosition.Position ?? Vector2.Zero;
+                var current = _uiPosition.Position ?? Vector2I.Zero;
                 current.Y = value;
                 _uiPosition.Position = current;
                 _layoutDirty = true;
             }
         }
 
-        public Vector2 Size
+        public Vector2I Size
         {
             get => _size;
             set
@@ -63,24 +63,24 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        public float Width
+        public int Width
         {
             get => _size.X;
             set
             {
-                var current = _uiSize.Size ?? Vector2.Zero;
+                var current = _uiSize.Size ?? Vector2I.Zero;
                 current.X = value;
                 _uiSize.Size = current;
                 _layoutDirty = true;
             }
         }
 
-        public float Height
+        public int Height
         {
             get => _size.Y;
             set
             {
-                var current = _uiSize.Size ?? Vector2.Zero;
+                var current = _uiSize.Size ?? Vector2I.Zero;
                 current.Y = value;
                 _uiSize.Size = current;
                 _layoutDirty = true;
@@ -154,12 +154,12 @@ namespace ElementEngine.ElementUI
 
         public Rectangle MarginBounds
         {
-            get => new Rectangle(_position - _margins.TopLeftF, _size + _margins.TopLeftF + _margins.BottomRightF);
+            get => new Rectangle(_position - _margins.TopLeft, _size + _margins.TopLeft + _margins.BottomRight);
         }
 
         public Rectangle PaddingBounds
         {
-            get => new Rectangle(_position + _padding.TopLeftF, _size - _padding.TopLeftF - _padding.BottomRightF);
+            get => new Rectangle(_position + _padding.TopLeft, _size - _padding.TopLeft - _padding.BottomRight);
         }
         #endregion
 
@@ -195,7 +195,7 @@ namespace ElementEngine.ElementUI
                 if (!_uiPosition.Position.HasValue)
                     return;
 
-                _uiPosition.Position = new Vector2(_uiPosition.Position.Value.X, 0);
+                _uiPosition.Position = new Vector2I(_uiPosition.Position.Value.X, 0);
                 _layoutDirty = true;
             }
         }
@@ -220,7 +220,7 @@ namespace ElementEngine.ElementUI
                 if (!_uiPosition.Position.HasValue)
                     return;
 
-                _uiPosition.Position = new Vector2(0, _uiPosition.Position.Value.Y);
+                _uiPosition.Position = new Vector2I(0, _uiPosition.Position.Value.Y);
                 _layoutDirty = true;
             }
         }
@@ -404,46 +404,40 @@ namespace ElementEngine.ElementUI
 
         public List<T> FindChildrenByName<T>(string name, bool recursive) where T : UIObject
         {
-            return FindChildrenByName<T>(name, recursive, true);
+            var list = new List<T>();
+            FindChildrenByName(name, recursive, list);
+            return list;
         }
 
-        internal List<T> FindChildrenByName<T>(string name, bool recursive, bool clearList) where T : UIObject
+        internal void FindChildrenByName<T>(string name, bool recursive, List<T> list) where T : UIObject
         {
-            if (clearList)
-                TempFindChildrenList<T>.List.Clear();
-
             foreach (var child in Children)
             {
                 if (child is T t && child.Name == name)
-                    TempFindChildrenList<T>.List.Add(t);
+                    list.Add(t);
 
                 if (recursive)
-                    child.FindChildrenByName<T>(name, recursive, false);
+                    child.FindChildrenByName<T>(name, recursive, list);
             }
-
-            return TempFindChildrenList<T>.List;
         }
 
         public List<T> FindChildrenByType<T>(bool recursive) where T : UIObject
         {
-            return FindChildrenByType<T>(recursive, true);
+            var list = new List<T>();
+            FindChildrenByType(recursive, list);
+            return list;
         }
 
-        internal List<T> FindChildrenByType<T>(bool recursive, bool clearList) where T : UIObject
+        internal void FindChildrenByType<T>(bool recursive, List<T> list) where T : UIObject
         {
-            if (clearList)
-                TempFindChildrenList<T>.List.Clear();
-
             foreach (var child in Children)
             {
                 if (child is T t)
-                    TempFindChildrenList<T>.List.Add(t);
+                    list.Add(t);
 
                 if (recursive)
-                    child.FindChildrenByType<T>(recursive, false);
+                    child.FindChildrenByType<T>(recursive, list);
             }
-
-            return TempFindChildrenList<T>.List;
         }
         #endregion
 
@@ -516,20 +510,13 @@ namespace ElementEngine.ElementUI
         internal UIStyle _style;
         internal UIPosition _uiPosition;
         internal UISize _uiSize;
-        internal Vector2 _position;
-        internal Vector2 _childOrigin;
-        internal Vector2 _size;
+        internal Vector2I _position;
+        internal Vector2I _childOrigin;
+        internal Vector2I _size;
         internal UISpacing _margins;
         internal UISpacing _padding;
 
         internal bool _layoutDirty = false;
-
-        #region Reusable Lists
-        protected static class TempFindChildrenList<T> where T : UIObject
-        {
-            public static List<T> List = new List<T>();
-        }
-        #endregion
 
         public UIObject(string name)
         {
@@ -555,7 +542,7 @@ namespace ElementEngine.ElementUI
             ApplyDefaultSize(obj.Size);
         }
 
-        public void ApplyDefaultSize(Vector2 size)
+        public void ApplyDefaultSize(Vector2I size)
         {
             if (_uiSize.Size.HasValue)
                 return;
@@ -653,7 +640,7 @@ namespace ElementEngine.ElementUI
         internal void UpdatePosition()
         {
             _position = _uiPosition.GetPosition(this);
-            _childOrigin = _position + _padding.TopLeftF;
+            _childOrigin = _position + _padding.TopLeft;
         }
 
         internal virtual void HandleMargins()
@@ -696,7 +683,7 @@ namespace ElementEngine.ElementUI
                     {
                         if (child.MarginBounds.Top < sibling.MarginBounds.Bottom && child.MarginBounds.Bottom > sibling.MarginBounds.Top)
                         {
-                            var offset = new Vector2(0, sibling.MarginBounds.Bottom - child.MarginBounds.Top);
+                            var offset = new Vector2I(0, sibling.MarginBounds.Bottom - child.MarginBounds.Top);
                             child._uiPosition.Position += offset;
                             child.UpdateLayout();
                         }
@@ -731,7 +718,7 @@ namespace ElementEngine.ElementUI
                     {
                         if (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left)
                         {
-                            var offset = new Vector2(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
+                            var offset = new Vector2I(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
                             child._uiPosition.Position += offset;
                             child.UpdateLayout();
                         }
@@ -752,7 +739,7 @@ namespace ElementEngine.ElementUI
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
             if (_useScissorRect)
-                spriteBatch.SetScissorRect(PaddingBounds);
+                spriteBatch.SetScissorRect(PaddingBounds, UIGlobals.SCISSOR_INDEX_OBJECT);
 
             foreach (var child in Children)
             {
@@ -761,20 +748,20 @@ namespace ElementEngine.ElementUI
             }
 
             if (_useScissorRect)
-                spriteBatch.ResetScissorRect();
+                spriteBatch.ResetScissorRect(UIGlobals.SCISSOR_INDEX_OBJECT);
         }
 
         #region Input Handling
-        public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
-        public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
-        public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer) { }
+        public virtual void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
+        public virtual void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        public virtual void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        public virtual void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
+        public virtual void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer) { }
 
-        public void HandleKeyPressed(Key key, GameTimer gameTimer) { }
-        public void HandleKeyReleased(Key key, GameTimer gameTimer) { }
-        public void HandleKeyDown(Key key, GameTimer gameTimer) { }
-        public void HandleTextInput(char key, GameTimer gameTimer) { }
+        public virtual void HandleKeyPressed(Key key, GameTimer gameTimer) { }
+        public virtual void HandleKeyReleased(Key key, GameTimer gameTimer) { }
+        public virtual void HandleKeyDown(Key key, GameTimer gameTimer) { }
+        public virtual void HandleTextInput(char key, GameTimer gameTimer) { }
         #endregion
 
         public override string ToString()

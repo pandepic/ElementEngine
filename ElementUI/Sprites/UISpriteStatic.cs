@@ -19,12 +19,12 @@ namespace ElementEngine.ElementUI
         public UISpriteStatic(UITexture texture)
         {
             Texture = texture;
-            Size = Texture.SourceRect.SizeF;
+            Size = Texture.SourceRect.Size;
         }
 
-        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2 position, Vector2? size = null, float rotation = 0f)
+        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0f)
         {
-            Texture.Draw(spriteBatch, GetDrawPosition(parent, position, size ?? Size), Texture.GetScale(size), rotation);
+            Texture.Draw(spriteBatch, GetDrawPosition(parent, position, size ?? Size).ToVector2(), Texture.GetScale(size), rotation);
         }
     }
 }

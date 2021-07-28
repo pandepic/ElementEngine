@@ -11,7 +11,8 @@ namespace ElementEngine
         public int X;
         public int Y;
 
-        public static Vector2I Zero = new Vector2I(0, 0);
+        public static Vector2I Zero = new Vector2I(0);
+        public static Vector2I One = new Vector2I(1);
 
         public Vector2I(int val)
         {
@@ -109,8 +110,8 @@ namespace ElementEngine
         public static Vector2I operator /(Vector2I p1, float p2) => new Vector2I(p1.X / p2, p1.Y / p2);
         public static Vector2I operator %(Vector2I p1, float p2) => new Vector2I(p1.X % p2, p1.Y % p2);
 
-        public static implicit operator Vector2I(Vector2 v) => new Vector2I(v);
-        public static implicit operator Vector2(Vector2I v) => new Vector2(v.X, v.Y);
+        //public static implicit operator Vector2I(Vector2 v) => new Vector2I(v);
+        //public static implicit operator Vector2(Vector2I v) => new Vector2(v.X, v.Y);
 
     } // Vector2I
 }

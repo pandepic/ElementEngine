@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElementEngine.ElementUI.Sprites
+namespace ElementEngine.ElementUI
 {
     public class UISprite9Slice : UISprite
     {
@@ -46,8 +46,12 @@ namespace ElementEngine.ElementUI.Sprites
             BottomCenter = bottomCenter;
         }
 
-        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2 position, Vector2? size = null, float rotation = 0)
+        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0)
         {
+            UIRendering.Render9Slice(spriteBatch, GetDrawPosition(parent, position, size ?? Size), size ?? Size,
+                TopLeft, TopRight, TopCenter,
+                MiddleLeft, MiddleRight, MiddleCenter,
+                BottomLeft, BottomRight, BottomCenter);
         }
 
     } // UISprite9Slice

@@ -14,12 +14,21 @@ namespace ElementEngine.ElementUI
         public UISpriteLayered(List<UISprite> sprites)
         {
             Sprites = sprites;
+
+            // set to a size that can contain all sprites
+            foreach (var sprite in Sprites)
+            {
+                if (sprite.Size.X > Size.X)
+                    Size.X = sprite.Size.X;
+                if (sprite.Size.Y > Size.Y)
+                    Size.Y = sprite.Size.Y;
+            }
         }
 
-        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2 position, Vector2? size = null, float rotation = 0)
+        public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0)
         {
             foreach (var sprite in Sprites)
-                sprite.Draw(parent, spriteBatch, GetDrawPosition(parent, position, size ?? Size), size, rotation);
+                sprite.Draw(parent, spriteBatch, position, size, rotation);
         }
 
     } // UISpriteLayered

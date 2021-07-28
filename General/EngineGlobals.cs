@@ -20,7 +20,8 @@ namespace ElementEngine
         internal static List<Action> ScreenSpaceDrawList = new List<Action>();
 
         // Target resolution
-        public static Vector2 TargetResolutionSize => new Vector2(TargetResolutionWidth, TargetResolutionHeight);
+        public static Vector2I TargetResolutionSize => new Vector2I(TargetResolutionWidth, TargetResolutionHeight);
+        public static Vector2 TargetResolutionSizeF => new Vector2(TargetResolutionWidth, TargetResolutionHeight);
         public static int TargetResolutionWidth => Window.Width;
         public static int TargetResolutionHeight => Window.Height;
 

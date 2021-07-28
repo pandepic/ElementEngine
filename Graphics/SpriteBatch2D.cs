@@ -240,16 +240,16 @@ namespace ElementEngine
                 _shaders[i]?.Dispose();
         }
 
-        public void SetScissorRect(Rectangle rect)
+        public void SetScissorRect(Rectangle rect, uint index = 0)
         {
             Flush(_currentTexture);
-            CommandList.SetScissorRect(0, (uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
+            CommandList.SetScissorRect(index, (uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
         }
 
-        public void ResetScissorRect()
+        public void ResetScissorRect(uint index = 0)
         {
             Flush(_currentTexture);
-            CommandList.SetFullScissorRect(0);
+            CommandList.SetFullScissorRect(index);
         }
 
         public void Begin(SamplerType samplerType, Matrix4x4? view = null)

@@ -117,11 +117,11 @@ namespace ElementEngine
 
         public Matrix4x4 GetViewMatrixI(float z = 0f)
         {
-            return Matrix4x4.CreateTranslation(new Vector3((-_position).ToVector2I(), z)) *
-                    Matrix4x4.CreateTranslation(new Vector3((-Origin).ToVector2I(), z)) *
+            return Matrix4x4.CreateTranslation(new Vector3((-_position).ToVector2I().ToVector2(), z)) *
+                    Matrix4x4.CreateTranslation(new Vector3((-Origin).ToVector2I().ToVector2(), z)) *
                     Matrix4x4.CreateScale(Zoom, Zoom, 1) *
                     Matrix4x4.CreateRotationZ(Rotation) *
-                    Matrix4x4.CreateTranslation(new Vector3(Origin.ToVector2I(), z));
+                    Matrix4x4.CreateTranslation(new Vector3(Origin.ToVector2I().ToVector2(), z));
         }
 
         public void Center(Vector2I position)

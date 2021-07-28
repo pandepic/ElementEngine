@@ -9,7 +9,7 @@ namespace ElementEngine.ElementUI
 {
     public struct UIPosition
     {
-        public Vector2? Position;
+        public Vector2I? Position;
         public bool CenterX, CenterY;
         public bool AnchorBottom;
         public bool AnchorRight;
@@ -18,12 +18,12 @@ namespace ElementEngine.ElementUI
         public bool IsAutoPositionX => CenterX || AnchorRight;
         public bool IsAutoPositionY => CenterY || AnchorBottom;
 
-        public Vector2 GetRelativePosition(UIObject obj)
+        public Vector2I GetRelativePosition(UIObject obj)
         {
-            return (Position ?? Vector2.Zero);
+            return (Position ?? Vector2I.Zero);
         }
 
-        public Vector2 GetPosition(UIObject obj)
+        public Vector2I GetPosition(UIObject obj)
         {
             if (obj.Parent == null)
                 return GetRelativePosition(obj);
@@ -41,11 +41,11 @@ namespace ElementEngine.ElementUI
                 position.Y += obj.Parent._childOrigin.Y;
 
             if (CenterX)
-                position.X += (obj.Parent._size.X / 2f) - (obj._size.X / 2f);
+                position.X += (obj.Parent._size.X / 2) - (obj._size.X / 2);
             if (CenterY)
-                position.Y += (obj.Parent._size.Y / 2f) - (obj._size.Y / 2f);
+                position.Y += (obj.Parent._size.Y / 2) - (obj._size.Y / 2);
 
-            position += obj._margins.TopLeftF;
+            position += obj._margins.TopLeft;
             return position;
         }
 
