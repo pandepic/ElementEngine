@@ -50,7 +50,18 @@ namespace ElementEngine.ElementUI
                     _prevDragMousePosition = mousePosition;
                 }
 
-                Parent?.BringToFront(this);
+                UIObject parent = Parent;
+                UIObject child = this;
+
+                while (parent != null)
+                {
+                    if (child is UIContainer container && container.IsDraggable)
+                        parent.BringToFront(child);
+
+                    child = parent;
+                    parent = parent.Parent;
+                }
+
                 return true;
             }
 

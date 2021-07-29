@@ -857,7 +857,7 @@ namespace ElementEngine.ElementUI
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
             if (_useScissorRect)
-                spriteBatch.PushScissorRect(0, PaddingBounds);
+                spriteBatch.PushScissorRect(0, PaddingBounds, true);
 
             foreach (var child in Children)
             {

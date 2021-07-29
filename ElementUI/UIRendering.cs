@@ -90,9 +90,9 @@ namespace ElementEngine.ElementUI
             while (middleHeight > 0)
             {
                 //spriteBatch.DrawTexture2D(middleTexture, middleDrawPos, new Rectangle(0, 0, middleTexture.Width, middleHeight >= middleTexture.Height ? middleTexture.Height : middleHeight));
-                //spriteBatch.PushScissorRect(0, new Rectangle(position + middleDrawPos, new Vector2I((int)size.X, middleHeight >= middleTextureHeight ? middleTextureHeight : middleHeight)));
+                spriteBatch.PushScissorRect(0, new Rectangle(position + middleDrawPos, new Vector2I((int)size.X, middleHeight >= middleTextureHeight ? middleTextureHeight : middleHeight)), true);
                 Render3SliceHorizontal(spriteBatch, position + middleDrawPos, size, middleLeft, middleRight, middleCenter);
-                //spriteBatch.PopScissorRect(0);
+                spriteBatch.PopScissorRect(0);
                 middleDrawPos.Y += (middleHeight >= middleTextureHeight ? middleTextureHeight : middleHeight);
                 middleHeight -= middleTextureHeight;
             }

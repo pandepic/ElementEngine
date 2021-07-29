@@ -242,17 +242,40 @@ namespace ElementEngine
                 _shaders[i]?.Dispose();
         }
 
-        public void PushScissorRect(uint index, Rectangle? rect)
+        public void PushScissorRect(uint index, Rectangle? rect, bool containedByPreviousRect = false)
         {
+            if (!_scissorStack.ContainsKey(index))
+                _scissorStack.Add(index, new Stack<Rectangle?>());
+
             Flush(_currentTexture);
 
             if (rect.HasValue)
-                CommandList.SetScissorRect(index, (uint)rect.Value.X, (uint)rect.Value.Y, (uint)rect.Value.Width, (uint)rect.Value.Height);
-            else
-                CommandList.SetFullScissorRect(index);
+            {
+                var useRect = rect.Value;
 
-            if (!_scissorStack.ContainsKey(index))
-                _scissorStack.Add(index, new Stack<Rectangle?>());
+                if (containedByPreviousRect)
+                {
+                    var prevRect = _scissorStack[index].Count == 0 ? null : _scissorStack[index].Peek();
+
+                    if (prevRect.HasValue)
+                    {
+                        if (useRect.Left < prevRect.Value.Left)
+                            useRect.Left = prevRect.Value.Left;
+                        if (useRect.Top < prevRect.Value.Top)
+                            useRect.Top = prevRect.Value.Top;
+                        if (useRect.Right > prevRect.Value.Right)
+                            useRect.Right = prevRect.Value.Right;
+                        if (useRect.Bottom > prevRect.Value.Bottom)
+                            useRect.Bottom = prevRect.Value.Bottom;
+                    }
+                }
+
+                CommandList.SetScissorRect(index, (uint)useRect.X, (uint)useRect.Y, (uint)useRect.Width, (uint)useRect.Height);
+            }
+            else
+            {
+                CommandList.SetFullScissorRect(index);
+            }
 
             _scissorStack[index].Push(rect);
         }
