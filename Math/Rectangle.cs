@@ -265,6 +265,11 @@ namespace ElementEngine
         public static Rectangle operator *(Rectangle rect, Vector2 vec) => new Rectangle(rect.X * vec.X, rect.Y * vec.Y, rect.Width, rect.Height);
         public static Rectangle operator /(Rectangle rect, Vector2 vec) => new Rectangle(rect.X / vec.X, rect.Y / vec.Y, rect.Width, rect.Height);
 
+        public static Rectangle operator -(Rectangle rect, Vector2I vec) => new Rectangle(rect.X - vec.X, rect.Y - vec.Y, rect.Width, rect.Height);
+        public static Rectangle operator +(Rectangle rect, Vector2I vec) => new Rectangle(rect.X + vec.X, rect.Y + vec.Y, rect.Width, rect.Height);
+        public static Rectangle operator *(Rectangle rect, Vector2I vec) => new Rectangle(rect.X * vec.X, rect.Y * vec.Y, rect.Width, rect.Height);
+        public static Rectangle operator /(Rectangle rect, Vector2I vec) => new Rectangle(rect.X / vec.X, rect.Y / vec.Y, rect.Width, rect.Height);
+
         public static Rectangle operator -(Rectangle rect1, Rectangle rect2) => new Rectangle(rect1.X - rect2.X, rect1.Y - rect2.Y, rect1.Width - rect2.Width, rect1.Height - rect2.Height);
         public static Rectangle operator +(Rectangle rect1, Rectangle rect2) => new Rectangle(rect1.X + rect2.X, rect1.Y + rect2.Y, rect1.Width + rect2.Width, rect1.Height + rect2.Height);
         public static Rectangle operator *(Rectangle rect1, Rectangle rect2) => new Rectangle(rect1.X * rect2.X, rect1.Y * rect2.Y, rect1.Width * rect2.Width, rect1.Height * rect2.Height);

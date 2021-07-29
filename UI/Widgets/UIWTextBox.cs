@@ -304,9 +304,9 @@ namespace ElementEngine.UI
                     var cursorOffset = new Vector2(_textRect.X * -1f, 0f);
                     var drawPosition = offsetPosition + _textPosition + Position + ParentPosition;
 
-                    spriteBatch.SetScissorRect(new Rectangle(drawPosition, _textRect.SizeF));
+                    //spriteBatch.SetScissorRect(new Rectangle(drawPosition, _textRect.SizeF));
                     spriteBatch.DrawText(_font, _text, drawPosition + cursorOffset, Colour, FontSize);
-                    spriteBatch.ResetScissorRect();
+                    //spriteBatch.ResetScissorRect();
                 }
                 catch (ArgumentException)
                 {

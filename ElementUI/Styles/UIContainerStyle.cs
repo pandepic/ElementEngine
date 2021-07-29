@@ -10,10 +10,14 @@ namespace ElementEngine.ElementUI
     public class UIContainerStyle : UIStyle
     {
         public UISprite Background;
+        public Rectangle? DraggableRect;
+        public bool IsFullDraggableRect;
 
-        public UIContainerStyle(UISprite background)
+        public UIContainerStyle(UISprite background, Rectangle? draggableRect = null, bool fullDraggableRect = false)
         {
             Background = background;
+            DraggableRect = draggableRect;
+            IsFullDraggableRect = fullDraggableRect;
         }
     }
 }

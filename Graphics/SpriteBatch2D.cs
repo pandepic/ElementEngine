@@ -79,6 +79,8 @@ namespace ElementEngine
         protected int _currentBatchCount = 0;
         protected Texture2D _currentTexture = null;
 
+        protected Dictionary<uint, Stack<Rectangle?>> _scissorStack = new Dictionary<uint, Stack<Rectangle?>>();
+
         #region IDisposable
         protected bool _disposed = false;
 
@@ -240,17 +242,51 @@ namespace ElementEngine
                 _shaders[i]?.Dispose();
         }
 
-        public void SetScissorRect(Rectangle rect, uint index = 0)
+        public void PushScissorRect(uint index, Rectangle? rect)
         {
             Flush(_currentTexture);
-            CommandList.SetScissorRect(index, (uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
+
+            if (rect.HasValue)
+                CommandList.SetScissorRect(index, (uint)rect.Value.X, (uint)rect.Value.Y, (uint)rect.Value.Width, (uint)rect.Value.Height);
+            else
+                CommandList.SetFullScissorRect(index);
+
+            if (!_scissorStack.ContainsKey(index))
+                _scissorStack.Add(index, new Stack<Rectangle?>());
+
+            _scissorStack[index].Push(rect);
         }
 
-        public void ResetScissorRect(uint index = 0)
+        public void PopScissorRect(uint index)
         {
             Flush(_currentTexture);
-            CommandList.SetFullScissorRect(index);
+
+            if (!_scissorStack.ContainsKey(index) || _scissorStack[index].Count == 0)
+            {
+                CommandList.SetFullScissorRect(index);
+                return;
+            }
+
+            _scissorStack[index].Pop();
+            var rect = _scissorStack[index].Count > 0 ? _scissorStack[index].Peek() : null;
+
+            if (rect.HasValue)
+                CommandList.SetScissorRect(index, (uint)rect.Value.X, (uint)rect.Value.Y, (uint)rect.Value.Width, (uint)rect.Value.Height);
+            else
+                CommandList.SetFullScissorRect(index);
         }
+
+        //public void SetScissorRect(Rectangle rect, uint index = 0)
+        //{
+        //    Flush(_currentTexture);
+        //    CommandList.SetScissorRect(index, (uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
+        //}
+
+        //public void ResetScissorRect(uint index = 0)
+        //{
+        //    Flush(_currentTexture);
+        //    CommandList.SetFullScissorRect(index);
+        //}
 
         public void Begin(SamplerType samplerType, Matrix4x4? view = null)
         {

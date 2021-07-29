@@ -147,17 +147,17 @@ namespace ElementEngine.UI
 
                 if (widget.Visible)
                 {
-                    if (widget.Panel != null && !widget.IgnorePanelScissorRect)
-                        spriteBatch.SetScissorRect(widget.Panel.ScissorRect);
-                    else
-                        spriteBatch.ResetScissorRect();
+                    //if (widget.Panel != null && !widget.IgnorePanelScissorRect)
+                    //    spriteBatch.SetScissorRect(widget.Panel.ScissorRect);
+                    //else
+                    //    spriteBatch.ResetScissorRect();
 
                     widget.Draw(spriteBatch);
                     _prevPanel = widget.Panel;
                 }
             }
 
-            spriteBatch.ResetScissorRect();
+            //spriteBatch.ResetScissorRect();
         }
 
         public void OnMouseMoved(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer, Vector2 framePosition)

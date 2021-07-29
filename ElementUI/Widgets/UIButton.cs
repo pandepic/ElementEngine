@@ -61,31 +61,45 @@ namespace ElementEngine.ElementUI
             base.Draw(spriteBatch);
         }
 
-        public override void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
+            if (base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer))
+                return true;
+
             IsHovered = true;
+            return true;
         }
 
-        public override void HandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        internal override void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             IsHovered = false;
             IsPressed = false;
 
-            base.HandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
+            base.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
         }
 
-        public override void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        internal override bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
+            if (base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer))
+                return true;
+
             IsPressed = true;
+            return true;
         }
 
-        public override void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        internal override bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
+            if (base.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer))
+                return true;
+
             if (IsPressed)
             {
                 IsPressed = false;
                 TriggerEvent(UIEventType.OnClick);
+                return true;
             }
+
+            return false;
         }
 
     } // UIButton
