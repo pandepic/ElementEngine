@@ -11,14 +11,10 @@ namespace ElementEngine.ElementUI
         public new UILabelStyle Style => (UILabelStyle)_style;
 
         internal string _text = "";
-
         public string Text
         {
             get => _text;
-            set
-            {
-                SetText(value);
-            }
+            set => SetText(value);
         }
 
         public UILabel(string name, UILabelStyle style, string text) : base(name)

@@ -27,14 +27,14 @@ namespace ElementEngine.ElementUI
 
             if (!IsActive)
             {
-                sprite = Style.SpriteDisabled ?? Style.SpriteNormal;
+                sprite = Style.SpriteDisabled ?? sprite;
             }
             else
             {
                 if (IsPressed)
-                    sprite = Style.SpritePressed ?? Style.SpriteNormal;
+                    sprite = Style.SpritePressed ?? sprite;
                 else if (IsHovered)
-                    sprite = Style.SpriteHover ?? Style.SpriteNormal;
+                    sprite = Style.SpriteHover ?? sprite;
             }
 
             return sprite;
@@ -48,16 +48,13 @@ namespace ElementEngine.ElementUI
             Style.SpriteHover?.Update(gameTimer);
 
             base.Update(gameTimer);
-
-            //if (IsHovered && !Bounds.Contains(InputManager.MousePosition))
-            //    IsHovered = false;
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
             var sprite = CurrentSprite();
-
             sprite?.Draw(this, spriteBatch, _position, _size);
+
             base.Draw(spriteBatch);
         }
 

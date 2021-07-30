@@ -13,7 +13,8 @@ namespace ElementEngine.ElementUI
         public UISprite SpriteChecked;
         public UISprite SpritePressed;
         public UISprite SpriteHover;
-        public UISprite SpriteDisabled;
+        public UISprite SpriteDisabledUnchecked;
+        public UISprite SpriteDisabledChecked;
 
         public SpriteFont Font;
         public RgbaByte TextColorNormal;
@@ -31,7 +32,8 @@ namespace ElementEngine.ElementUI
             RgbaByte? textColorHover = null,
             UISprite spritePressed = null,
             UISprite spriteHover = null,
-            UISprite spriteDisabled = null)
+            UISprite spriteDisabledUnchecked = null,
+            UISprite spriteDisabledChecked = null)
         {
             Font = font;
             TextColorNormal = textColorNormal;
@@ -42,7 +44,8 @@ namespace ElementEngine.ElementUI
             SpriteChecked = spriteChecked;
             SpritePressed = spritePressed;
             SpriteHover = spriteHover;
-            SpriteDisabled = spriteDisabled;
+            SpriteDisabledUnchecked = spriteDisabledUnchecked;
+            SpriteDisabledChecked = spriteDisabledChecked;
         }
     } // UICheckboxStyle
 }
