@@ -268,6 +268,8 @@ namespace ElementEngine
                         if (useRect.Bottom > prevRect.Value.Bottom)
                             useRect.Bottom = prevRect.Value.Bottom;
                     }
+
+                    rect = useRect;
                 }
 
                 CommandList.SetScissorRect(index, (uint)useRect.X, (uint)useRect.Y, (uint)useRect.Width, (uint)useRect.Height);

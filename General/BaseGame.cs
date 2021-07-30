@@ -107,6 +107,7 @@ namespace ElementEngine
             {
                 OnWindowResized(new Rectangle(Window.X, Window.Y, Window.Width, Window.Height));
             };
+
         } // SetupWindow
 
         public void SetupAssets(string modsPath = "Mods")

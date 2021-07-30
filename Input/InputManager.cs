@@ -170,49 +170,49 @@ namespace ElementEngine
 
         } // Update
 
-        public static void HandleKeyPressed(Key key, GameTimer gameTimer)
+        internal static void HandleKeyPressed(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
                 _keyboardHandlers[i]?.HandleKeyPressed(key, gameTimer);
         }
 
-        public static void HandleKeyReleased(Key key, GameTimer gameTimer)
+        internal static void HandleKeyReleased(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
                 _keyboardHandlers[i]?.HandleKeyReleased(key, gameTimer);
         }
 
-        public static void HandleKeyDown(Key key, GameTimer gameTimer)
+        internal static void HandleKeyDown(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
                 _keyboardHandlers[i]?.HandleKeyDown(key, gameTimer);
         }
 
-        public static void HandleMouseMotion(GameTimer gameTimer)
+        internal static void HandleMouseMotion(GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i]?.HandleMouseMotion(MousePosition, PrevMousePosition, gameTimer);
         }
 
-        public static void HandleMouseWheel(GameTimer gameTimer)
+        internal static void HandleMouseWheel(GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i]?.HandleMouseWheel(MousePosition, MouseWheelDelta > 0 ? MouseWheelChangeType.WheelUp : MouseWheelChangeType.WheelDown, MouseWheelDelta, gameTimer);
         }
 
-        public static void HandleMouseButtonPressed(MouseButton button, GameTimer gameTimer)
+        internal static void HandleMouseButtonPressed(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i]?.HandleMouseButtonPressed(MousePosition, button, gameTimer);
         }
 
-        public static void HandleMouseButtonReleased(MouseButton button, GameTimer gameTimer)
+        internal static void HandleMouseButtonReleased(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i]?.HandleMouseButtonReleased(MousePosition, button, gameTimer);
         }
 
-        public static void HandleMouseButtonDown(MouseButton button, GameTimer gameTimer)
+        internal static void HandleMouseButtonDown(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i]?.HandleMouseButtonDown(MousePosition, button, gameTimer);

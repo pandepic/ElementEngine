@@ -11,6 +11,8 @@ namespace ElementEngine.ElementUI
 {
     public class UIScreen : UIObject
     {
+        public UIObject FocusedObject;
+
         public UIScreen(Vector2I? position = null, Vector2I? size = null, string name = "Screen") : base(name)
         {
             _uiPosition.Position = position ?? Vector2I.Zero;
@@ -18,6 +20,8 @@ namespace ElementEngine.ElementUI
 
             UpdateLayout();
             Enable();
+
+            CanFocus = false;
         }
 
         public override void Enable()

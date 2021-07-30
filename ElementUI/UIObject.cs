@@ -13,10 +13,15 @@ namespace ElementEngine.ElementUI
         public const int NO_DRAW_ORDER = -1;
 
         public UIObject Parent;
+        public UIScreen ParentScreen;
+
         public UIStyle Style => _style;
         public readonly List<UIObject> Children = new List<UIObject>();
         public readonly List<UIObject> ReverseChildren = new List<UIObject>();
         public string Name;
+
+        public bool IsFocused => ParentScreen.FocusedObject == this;
+        public bool CanFocus = true;
 
         internal int _drawOrder = NO_DRAW_ORDER;
         public int DrawOrder
@@ -629,6 +634,12 @@ namespace ElementEngine.ElementUI
             {
                 child.Parent = this;
                 _layoutDirty = true;
+
+                if (this is UIScreen screen)
+                    child.ParentScreen = screen;
+                else
+                    child.ParentScreen = ParentScreen;
+
                 return true;
             }
             else
@@ -854,16 +865,23 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public virtual void DrawBeforeChildren(SpriteBatch2D spriteBatch) { }
+        public virtual void DrawAfterChildren(SpriteBatch2D spriteBatch) { }
+
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
             if (_useScissorRect)
                 spriteBatch.PushScissorRect(0, PaddingBounds, true);
+
+            DrawBeforeChildren(spriteBatch);
 
             foreach (var child in Children)
             {
                 if (child.IsVisible)
                     child.Draw(spriteBatch);
             }
+
+            DrawAfterChildren(spriteBatch);
 
             if (_useScissorRect)
                 spriteBatch.PopScissorRect(0);
@@ -988,6 +1006,9 @@ namespace ElementEngine.ElementUI
         {
             var child = GetFirstChildContainsMouse(mousePosition);
             child?.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
+
+            if (child == null && CanFocus)
+                ParentScreen.FocusedObject = this;
 
             return child != null;
         }

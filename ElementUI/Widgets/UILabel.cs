@@ -25,6 +25,8 @@ namespace ElementEngine.ElementUI
         {
             ApplyStyle(style);
             SetText(text);
+
+            CanFocus = false;
         }
 
         public void SetText(string text)
