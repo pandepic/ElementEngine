@@ -11,18 +11,18 @@ namespace ElementEngine.ElementUI
     {
         public SpriteFont Font;
         public RgbaByte Color;
-        public int Size;
+        public int FontSize;
         public int Outline;
 
         public UILabelStyle(
             SpriteFont font,
             RgbaByte color,
-            int size,
+            int fontSize,
             int outline = 0)
         {
             Font = font;
             Color = color;
-            Size = size;
+            FontSize = fontSize;
             Outline = outline;
         }
 

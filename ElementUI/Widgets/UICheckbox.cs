@@ -28,6 +28,17 @@ namespace ElementEngine.ElementUI
                     checkChild.IsChecked = false;
             }
         }
+
+        public UICheckbox GetSelected()
+        {
+            foreach (var child in Children)
+            {
+                if (child.IsChecked)
+                    return child;
+            }
+
+            return null;
+        }
     } // UIRadioSelectionGroup
 
     public class UICheckbox : UIObject
@@ -35,9 +46,24 @@ namespace ElementEngine.ElementUI
         public new UICheckboxStyle Style => (UICheckboxStyle)_style;
 
         public readonly UIRadioSelectionGroup RadioGroup;
-        public bool IsChecked;
         public bool IsPressed;
         public bool IsHovered;
+
+        public bool IsRadioButton => RadioGroup != null;
+
+        internal bool _isChecked;
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set
+            {
+                var prev = _isChecked;
+                _isChecked = value;
+
+                if (prev != _isChecked)
+                    OnValueChanged?.Invoke(new UIOnValueChangedArgs<bool>(this, prev, _isChecked));
+            }
+        }
 
         internal string _text = "";
         public string Text
@@ -46,7 +72,9 @@ namespace ElementEngine.ElementUI
             set => SetText(value);
         }
 
-        public bool IsRadioButton => RadioGroup != null;
+        public event Action<UIOnValueChangedArgs<bool>> OnValueChanged;
+
+        internal Vector2I _textSize;
 
         public UICheckbox(string name, UICheckboxStyle style, string text, UIRadioSelectionGroup radioGroup = null) : base(name)
         {
@@ -56,6 +84,9 @@ namespace ElementEngine.ElementUI
             {
                 RadioGroup = radioGroup;
                 RadioGroup.Children.AddIfNotContains(this);
+
+                if (RadioGroup.Children.Count == 1)
+                    RadioGroup.Select(this);
             }
 
             Text = text;
@@ -64,6 +95,11 @@ namespace ElementEngine.ElementUI
         public void SetText(string text)
         {
             _text = text;
+            _textSize = Style.Font.MeasureText(text, Style.FontSize, Style.Outline).ToVector2I();
+
+            Size = new Vector2I(
+                (int)(Style.SpriteUnchecked.Size.X + Style.TextPadding + _textSize.X),
+                Math.Max(_textSize.Y, Style.SpriteUnchecked.Size.Y));
         }
 
         public override void Update(GameTimer gameTimer)
@@ -81,6 +117,7 @@ namespace ElementEngine.ElementUI
         public override void Draw(SpriteBatch2D spriteBatch)
         {
             var sprite = IsChecked ? Style.SpriteChecked : Style.SpriteUnchecked;
+            var textColor = IsHovered ? Style.TextColorHover : Style.TextColorNormal;
 
             if (!IsActive)
             {
@@ -93,11 +130,21 @@ namespace ElementEngine.ElementUI
             {
                 if (!IsChecked && IsPressed)
                     sprite = Style.SpritePressed ?? sprite;
-                else if (IsHovered)
+                else if (!IsChecked && IsHovered)
                     sprite = Style.SpriteHover ?? sprite;
             }
 
-            sprite?.Draw(this, spriteBatch, _position, _size);
+            var textSize = Style.Font.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
+            if (textSize != _textSize)
+                SetText(_text);
+
+            var textPosition = new Vector2I(
+                DrawPosition.X + sprite.Size.X + Style.TextPadding,
+                DrawPosition.Y + ((sprite.Size.Y / 2f) - (_textSize.Y / 2)));
+
+            sprite?.Draw(this, spriteBatch, DrawPosition, null);
+            Style.Font.DrawText(spriteBatch, _text, textPosition.ToVector2(), textColor, Style.FontSize, Style.Outline);
+
             base.Draw(spriteBatch);
         }
 
@@ -135,7 +182,6 @@ namespace ElementEngine.ElementUI
             if (IsPressed)
             {
                 IsPressed = false;
-                TriggerEvent(UIEventType.OnValueChanged);
 
                 if (!IsRadioButton)
                 {

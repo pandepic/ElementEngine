@@ -10,11 +10,19 @@ namespace ElementEngine.ElementUI
     {
         Show,
         Hide,
+        Scroll,
     }
 
     public enum UIEventType
     {
         OnClick,
         OnValueChanged,
+    }
+
+    public enum UISizeFillType
+    {
+        Contain,
+        Cover,
+        Stretch,
     }
 }

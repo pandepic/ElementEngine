@@ -14,20 +14,20 @@ namespace ElementEngine.ElementUI
 
         public SpriteFont Font;
         public RgbaByte TextColor;
-        public int Size;
+        public int FontSize;
         public int Outline;
         
         public UITextboxStyle(
             SpriteFont font,
             RgbaByte textColor,
-            int size,
+            int fontSize,
             int outline,
             UISprite backgroundNormal,
             UISprite backgroundDisabled = null)
         {
             Font = font;
             TextColor = textColor;
-            Size = size;
+            FontSize = fontSize;
             Outline = outline;
             BackgroundNormal = backgroundNormal;
             BackgroundDisabled = backgroundDisabled;

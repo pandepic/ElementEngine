@@ -15,6 +15,8 @@ namespace ElementEngine.ElementUI
         public bool IsPressed;
         public bool IsHovered;
 
+        public event Action<UIOnClickArgs> OnClick;
+
         public UIButton(string name, UIButtonStyle style) : base(name)
         {
             ApplyStyle(style);
@@ -53,7 +55,7 @@ namespace ElementEngine.ElementUI
         public override void Draw(SpriteBatch2D spriteBatch)
         {
             var sprite = CurrentSprite();
-            sprite?.Draw(this, spriteBatch, _position, _size);
+            sprite?.Draw(this, spriteBatch, DrawPosition, _size);
 
             base.Draw(spriteBatch);
         }
@@ -92,7 +94,7 @@ namespace ElementEngine.ElementUI
             if (IsPressed)
             {
                 IsPressed = false;
-                TriggerEvent(UIEventType.OnClick);
+                OnClick?.Invoke(new UIOnClickArgs(this));
                 return true;
             }
 

@@ -14,7 +14,7 @@ namespace ElementEngine.ElementUI
         public bool AnchorBottom;
         public bool AnchorRight;
 
-        public bool IsAutoPosition => CenterX || CenterY || AnchorBottom || AnchorRight;
+        public bool IsAutoPosition => IsAutoPositionX || IsAutoPositionY;
         public bool IsAutoPositionX => CenterX || AnchorRight;
         public bool IsAutoPositionY => CenterY || AnchorBottom;
 

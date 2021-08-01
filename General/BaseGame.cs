@@ -78,19 +78,26 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public void SetupWindow(Rectangle windowRect, string gameTitle, GraphicsBackend? graphicsBackend = null, bool vsync = false)
+        public void SetupWindow(Rectangle windowRect, string windowTitle, GraphicsBackend? graphicsBackend = null, bool vsync = false, WindowState? windowState = null)
         {
-            var windowCI = new WindowCreateInfo()
+            windowState ??= WindowState.Normal;
+
+            var windowInfo = new WindowCreateInfo()
             {
                 X = windowRect.X,
                 Y = windowRect.Y,
                 WindowWidth = windowRect.Width,
                 WindowHeight = windowRect.Height,
-                WindowInitialState = WindowState.Normal,
-                WindowTitle = GameTitle,
+                WindowInitialState = windowState.Value,
+                WindowTitle = windowTitle,
             };
 
-            ElementGlobals.Window = VeldridStartup.CreateWindow(ref windowCI);
+            SetupWindow(windowInfo, graphicsBackend, vsync);
+        }
+
+        public void SetupWindow(WindowCreateInfo windowInfo, GraphicsBackend? graphicsBackend = null, bool vsync = false)
+        {
+            ElementGlobals.Window = VeldridStartup.CreateWindow(ref windowInfo);
             ElementGlobals.GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new GraphicsDeviceOptions()
             {
                 SyncToVerticalBlank = vsync,
@@ -98,7 +105,8 @@ namespace ElementEngine
             }, graphicsBackend ?? VeldridStartup.GetPlatformDefaultBackend());
 
             CreateGraphicsResources();
-            GameTitle = gameTitle + " [" + ElementGlobals.GraphicsDevice.BackendType.ToString() + "]";
+
+            GameTitle = $"{windowInfo.WindowTitle} [{ElementGlobals.GraphicsDevice.BackendType}]";
 
             ElementGlobals.Load(this);
             ElementGlobals.Viewport = new Viewport(0f, 0f, ElementGlobals.Window.Width, ElementGlobals.Window.Height, 0f, 1f);
@@ -109,6 +117,26 @@ namespace ElementEngine
             };
 
         } // SetupWindow
+
+        public unsafe SDL_DisplayMode GetCurrentDisplayMode()
+        {
+            var dm = new SDL_DisplayMode();
+            var result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &dm);
+
+            if (result == -1)
+            {
+                VeldridStartup.CreateWindow(new WindowCreateInfo());
+                result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &dm);
+
+                if (result == -1)
+                {
+                    var error = StringHelper.GetString(Sdl2Native.SDL_GetError());
+                    throw new Exception($"GetCurrentDisplayMode SDL error: {error}");
+                }
+            }
+
+            return dm;
+        }
 
         public void SetupAssets(string modsPath = "Mods")
         {
@@ -195,7 +223,7 @@ namespace ElementEngine
 
                     if (_fpsCounter >= TimeSpan.FromSeconds(1))
                     {
-                        Window.Title = GameTitle + " " + _frameCounter + " fps";
+                        Window.Title = $"{GameTitle} {_frameCounter}fps";
                         _fpsCounter -= TimeSpan.FromSeconds(1);
                         _frameCounter = 0;
                     }

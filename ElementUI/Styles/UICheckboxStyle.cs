@@ -19,14 +19,16 @@ namespace ElementEngine.ElementUI
         public SpriteFont Font;
         public RgbaByte TextColorNormal;
         public RgbaByte TextColorHover;
-        public int Size;
+        public int FontSize;
         public int Outline;
+        public int TextPadding;
 
         public UICheckboxStyle(
             SpriteFont font,
             RgbaByte textColorNormal,
-            int size,
+            int fontSize,
             int outline,
+            int textPadding,
             UISprite spriteUnchecked,
             UISprite spriteChecked,
             RgbaByte? textColorHover = null,
@@ -38,8 +40,9 @@ namespace ElementEngine.ElementUI
             Font = font;
             TextColorNormal = textColorNormal;
             TextColorHover = textColorHover ?? textColorNormal;
-            Size = size;
+            FontSize = fontSize;
             Outline = outline;
+            TextPadding = textPadding;
             SpriteUnchecked = spriteUnchecked;
             SpriteChecked = spriteChecked;
             SpritePressed = spritePressed;

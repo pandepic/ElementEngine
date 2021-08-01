@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -28,13 +30,29 @@ namespace ElementEngine.ElementUI
         public void SetText(string text)
         {
             _text = text;
-            Size = Style.Font.MeasureText(_text, Style.Size, Style.Outline).ToVector2I();
+            Size = Style.Font.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(Style.Font, _text, _position.ToVector2(), Style.Color, Style.Size, Style.Outline);
+            spriteBatch.DrawText(Style.Font, _text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
             base.Draw(spriteBatch);
         }
-    }
+
+        internal override bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            return base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
+        }
+
+        internal override bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            return base.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
+        }
+
+        internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        {
+            return base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
+        }
+
+    } // UILabel
 }

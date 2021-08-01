@@ -10,15 +10,18 @@ namespace ElementEngine.ElementUI
 {
     public class UIObject : IMouseHandler, IKeyboardHandler
     {
-        public const int NO_DRAW_ORDER = -1;
+        internal static int _nextObjectID = 0;
+        internal const int NO_DRAW_ORDER = -1;
 
+        public int ObjectID = _nextObjectID++;
         public UIObject Parent;
-        public UIScreen ParentScreen;
+        public UIScreen ParentScreen => this is UIScreen thisScreen ? thisScreen : (Parent is UIScreen screen ? screen : Parent.ParentScreen);
 
         public UIStyle Style => _style;
         public readonly List<UIObject> Children = new List<UIObject>();
         public readonly List<UIObject> ReverseChildren = new List<UIObject>();
         public string Name;
+        public int ScrollSpeed = 10;
 
         public bool IsFocused => ParentScreen.FocusedObject == this;
         public bool CanFocus = true;
@@ -36,13 +39,14 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        internal readonly Dictionary<(string, UIEventType), List<Action<UIObject, UIEventType>>> _registeredEventCallbacksByName = new Dictionary<(string, UIEventType), List<Action<UIObject, UIEventType>>>();
-        internal readonly Dictionary<UIEventType, List<Action<UIObject, UIEventType>>> _registeredEventCallbacks = new Dictionary<UIEventType, List<Action<UIObject, UIEventType>>>();
-        internal int _childIndex;
-
         #region Position, Size & Bounds
         public bool HasMargin => !_margins.IsZero;
         public bool HasPadding => !_padding.IsZero;
+
+        public Vector2I DrawPosition
+        {
+            get => _position + _parentOffset;
+        }
 
         public Vector2I Position
         {
@@ -224,7 +228,7 @@ namespace ElementEngine.ElementUI
 
         public Rectangle Bounds
         {
-            get => new Rectangle(_position, _size);
+            get => new Rectangle(DrawPosition, _size);
         }
 
         public Rectangle MarginBounds
@@ -578,19 +582,24 @@ namespace ElementEngine.ElementUI
         }
         #endregion
 
+        internal int _childIndex;
+
         internal bool _isActive = true;
         internal bool _isVisible = true;
-        internal bool _useScissorRect => _style == null ? false : _style.OverflowType == OverflowType.Hide;
+        internal bool _useScissorRect => _style == null ? false : (_style.OverflowType == OverflowType.Hide || _style.OverflowType == OverflowType.Scroll);
+        internal bool _isScrollable => _style == null ? false : _style.OverflowType == OverflowType.Scroll;
 
         internal UIStyle _style;
         internal UIPosition _uiPosition;
         internal UISize _uiSize;
         internal Vector2I _position;
         internal Vector2I _childOrigin;
+        internal Vector2I _childOffset;
         internal Vector2I _size;
         internal UISpacing _margins;
         internal UISpacing _padding;
 
+        internal Vector2I _parentOffset => Parent == null ? Vector2I.Zero : Parent._childOffset + Parent._parentOffset;
         internal bool _layoutDirty = false;
 
         public UIObject(string name)
@@ -600,11 +609,15 @@ namespace ElementEngine.ElementUI
 
         public void ApplyStyle(UIStyle style)
         {
+            if (style == null)
+                return;
+
             _style = style;
             _uiPosition = style.UIPosition ?? new UIPosition();
             _uiSize = style.UISize ?? new UISize();
             _margins = style.Margins ?? new UISpacing();
             _padding = style.Padding ?? new UISpacing();
+            ScrollSpeed = style.ScrollSpeed ?? ScrollSpeed;
         }
 
         public void ApplyDefaultSize(UISprite sprite)
@@ -622,23 +635,23 @@ namespace ElementEngine.ElementUI
             if (_uiSize.Size.HasValue)
                 return;
 
-            if (!_uiSize.IsAutoSizedX)
-                Width = size.X;
-            if (!_uiSize.IsAutoSizedY)
-                Height = size.Y;
+            Width = size.X;
+            Height = size.Y;
         }
 
+        public void OverrideDefaultSize(Vector2I size)
+        {
+            Width = size.X;
+            Height = size.Y;
+        }
+
+        #region Children
         public bool AddChild(UIObject child)
         {
             if (Children.AddIfNotContains(child))
             {
                 child.Parent = this;
                 _layoutDirty = true;
-
-                if (this is UIScreen screen)
-                    child.ParentScreen = screen;
-                else
-                    child.ParentScreen = ParentScreen;
 
                 return true;
             }
@@ -669,9 +682,11 @@ namespace ElementEngine.ElementUI
             for (var i = Children.Count - 1; i >= 0; i--)
             {
                 var child = Children[i];
+
                 if (child is T)
                 {
                     Children.RemoveAt(i);
+                    _layoutDirty = true;
                     return true;
                 }
             }
@@ -684,10 +699,106 @@ namespace ElementEngine.ElementUI
             for (var i = Children.Count - 1; i >= 0; i--)
             {
                 var child = Children[i];
+
                 if (child is T)
+                {
                     Children.RemoveAt(i);
+                    _layoutDirty = true;
+                }
             }
         }
+
+        public void ClearChildren()
+        {
+            Children.Clear();
+            _layoutDirty = true;
+        }
+
+        public void BringToFront(UIObject child)
+        {
+            Children.Remove(child);
+            Children.Add(child);
+
+            for (var i = 0; i < Children.Count; i++)
+                Children[i].DrawOrder = i;
+
+            SortChildren();
+            _layoutDirty = true;
+        }
+
+        public bool HasFocusedChild(bool recursive)
+        {
+            foreach (var child in Children)
+            {
+                if (child.IsFocused)
+                    return true;
+
+                if (recursive && child.HasFocusedChild(recursive))
+                    return true;
+            }
+
+            return false;
+        }
+
+        internal void SortChildren()
+        {
+            for (var i = 0; i < Children.Count; i++)
+                Children[i]._childIndex = i;
+
+            Children.Sort((c1, c2) =>
+            {
+                if (c1.DrawOrder == c2.DrawOrder)
+                    return c1._childIndex.CompareTo(c2._childIndex);
+
+                return c1.DrawOrder.CompareTo(c2.DrawOrder);
+            });
+
+            for (var i = 0; i < Children.Count; i++)
+                Children[i].DrawOrder = i;
+
+            ReverseChildren.Clear();
+            ReverseChildren.AddRange(Children);
+            ReverseChildren.Sort((c1, c2) => { return c2.DrawOrder.CompareTo(c1.DrawOrder); });
+        }
+        #endregion
+
+        #region Scrolling
+        internal void ScrollLeft()
+        {
+            _childOffset.X += ScrollSpeed;
+            ClampScroll();
+        }
+
+        internal void ScrollRight()
+        {
+            _childOffset.X -= ScrollSpeed;
+            ClampScroll();
+        }
+
+        internal void ScrollUp()
+        {
+            _childOffset.Y += ScrollSpeed;
+            ClampScroll();
+        }
+
+        internal void ScrollDown()
+        {
+            _childOffset.Y -= ScrollSpeed;
+            ClampScroll();
+        }
+
+        internal void ClampScroll()
+        {
+            if (_uiSize._fullChildBounds.IsZero)
+            {
+                _childOffset = Vector2I.Zero;
+                return;
+            }
+
+            _childOffset.X = Math.Clamp(_childOffset.X, (_uiSize._fullChildBounds.Right - PaddingBounds.Width) * -1, _uiSize._fullChildBounds.Left * -1);
+            _childOffset.Y = Math.Clamp(_childOffset.Y, (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1, _uiSize._fullChildBounds.Top * -1);
+        }
+        #endregion
 
         internal virtual void CheckLayout()
         {
@@ -712,39 +823,6 @@ namespace ElementEngine.ElementUI
             SortChildren();
             HandleMargins();
             _layoutDirty = false;
-        }
-
-        internal void SortChildren()
-        {
-            for (var i = 0; i < Children.Count; i++)
-                Children[i]._childIndex = i;
-
-            Children.Sort((c1, c2) =>
-            {
-                if (c1.DrawOrder == c2.DrawOrder)
-                    return c1._childIndex.CompareTo(c2._childIndex);
-
-                return c1.DrawOrder.CompareTo(c2.DrawOrder);
-            });
-
-            for (var i = 0; i < Children.Count; i++)
-                Children[i].DrawOrder = i;
-
-            ReverseChildren.Clear();
-            ReverseChildren.AddRange(Children);
-            ReverseChildren.Sort((c1, c2) => { return c2.DrawOrder.CompareTo(c1.DrawOrder); });
-        }
-
-        internal void BringToFront(UIObject child)
-        {
-            Children.Remove(child);
-            Children.Add(child);
-            
-            for (var i = 0; i < Children.Count; i++)
-                Children[i].DrawOrder = i;
-
-            SortChildren();
-            _layoutDirty = true;
         }
 
         internal void UpdateSize()
@@ -887,52 +965,6 @@ namespace ElementEngine.ElementUI
                 spriteBatch.PopScissorRect(0);
         }
 
-        #region UI Events
-        public void RegisterCallback(string name, UIEventType eventType, Action<UIObject, UIEventType> action)
-        {
-            if (!_registeredEventCallbacksByName.TryGetValue((name, eventType), out var callbacks))
-            {
-                callbacks = new List<Action<UIObject, UIEventType>>();
-                _registeredEventCallbacksByName.Add((name, eventType), callbacks);
-            }
-
-            callbacks.AddIfNotContains(action);
-        }
-
-        public void RegisterCallback(UIEventType eventType, Action<UIObject, UIEventType> action)
-        {
-            if (!_registeredEventCallbacks.TryGetValue(eventType, out var callbacks))
-            {
-                callbacks = new List<Action<UIObject, UIEventType>>();
-                _registeredEventCallbacks.Add(eventType, callbacks);
-            }
-
-            callbacks.AddIfNotContains(action);
-        }
-
-        internal void TriggerEvent(UIEventType eventType)
-        {
-            TriggerEvent(this, eventType);
-        }
-
-        internal void TriggerEvent(UIObject obj, UIEventType eventType)
-        {
-            if (_registeredEventCallbacksByName.TryGetValue((obj.Name, eventType), out var callbacksByName))
-            {
-                foreach (var callback in callbacksByName)
-                    callback(obj, eventType);
-            }
-
-            if (_registeredEventCallbacks.TryGetValue(eventType, out var callbacks))
-            {
-                foreach (var callback in callbacks)
-                    callback(obj, eventType);
-            }
-
-            Parent?.TriggerEvent(obj, eventType);
-        }
-        #endregion
-
         #region Input Handling (Interface Passthrough)
         public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
@@ -980,10 +1012,31 @@ namespace ElementEngine.ElementUI
             return null;
         }
 
+        internal UIObject GetFirstChildScrollableContainsMouse(Vector2 mousePosition)
+        {
+            if (_useScissorRect && !PaddingBounds.Contains(mousePosition))
+                return null;
+
+            foreach (var child in ReverseChildren)
+            {
+                if (!child.IsVisible)
+                    continue;
+                if (!child.IsActive)
+                    continue;
+                if (!child._isScrollable)
+                    continue;
+
+                if (child.Bounds.Contains(mousePosition))
+                    return child;
+            }
+
+            return null;
+        }
+
         internal virtual bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             var child = GetFirstChildContainsMouse(mousePosition);
-            child?.HandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
+            var childCaptured = child?.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
 
             foreach (var childNoMotion in Children)
             {
@@ -993,7 +1046,10 @@ namespace ElementEngine.ElementUI
                 childNoMotion?.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
             }
 
-            return child != null;
+            if (childCaptured.HasValue && childCaptured.Value == true)
+                return true;
+            else
+                return false;
         }
 
         internal virtual void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
@@ -1005,20 +1061,26 @@ namespace ElementEngine.ElementUI
         internal virtual bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             var child = GetFirstChildContainsMouse(mousePosition);
-            child?.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
+            var childCaptured = child?.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
+
+            if (childCaptured.HasValue && childCaptured.Value == true)
+                return true;
 
             if (child == null && CanFocus)
                 ParentScreen.FocusedObject = this;
 
-            return child != null;
+            return false;
         }
 
         internal virtual bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             var child = GetFirstChildContainsMouse(mousePosition);
-            child?.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
+            var childCaptured = child?.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
 
-            return child != null;
+            if (childCaptured.HasValue && childCaptured.Value == true)
+                return true;
+            else
+                return false;
         }
 
         internal virtual bool InternalHandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
@@ -1031,8 +1093,16 @@ namespace ElementEngine.ElementUI
 
         internal virtual bool InternalHandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
-            var child = GetFirstChildContainsMouse(mousePosition);
+            var child = GetFirstChildScrollableContainsMouse(mousePosition);
             child?.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+
+            if (child == null && _isScrollable)
+            {
+                if (mouseWheelDelta > 0)
+                    ScrollUp();
+                else if (mouseWheelDelta < 0)
+                    ScrollDown();
+            }
 
             return child != null;
         }

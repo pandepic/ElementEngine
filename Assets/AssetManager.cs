@@ -243,7 +243,7 @@ namespace ElementEngine
 
             using var streamReader = new StreamReader(GetAssetStream(assetName));
             using var jsonTextReader = new JsonTextReader(streamReader);
-
+            
             if (serializer == null)
                 serializer = new JsonSerializer();
 
