@@ -25,6 +25,7 @@ namespace ElementEngine.ElementUI
 
         public bool IsFocused => ParentScreen.FocusedObject == this;
         public bool CanFocus = true;
+        public bool IgnoreOverflow = false;
 
         internal int _drawOrder = NO_DRAW_ORDER;
         public int DrawOrder
@@ -40,6 +41,17 @@ namespace ElementEngine.ElementUI
         }
 
         #region Position, Size & Bounds
+        internal bool _ignoreParentPadding;
+        public bool IgnoreParentPadding
+        {
+            get => _ignoreParentPadding;
+            set
+            {
+                _ignoreParentPadding = value;
+                _layoutDirty = true;
+            }
+        }
+
         public bool HasMargin => !_margins.IsZero;
         public bool HasPadding => !_padding.IsZero;
 
@@ -51,6 +63,21 @@ namespace ElementEngine.ElementUI
         public Vector2I Position
         {
             get => _position;
+        }
+
+        public UISizeFillType? FillType
+        {
+            get => _uiSize.FillType;
+            set
+            {
+                _uiSize.FillType = value;
+                _layoutDirty = true;
+            }
+        }
+
+        public void SetPosition(Vector2 position)
+        {
+            SetPosition(position.ToVector2I());
         }
 
         public void SetPosition(Vector2I position)
@@ -618,6 +645,7 @@ namespace ElementEngine.ElementUI
             _margins = style.Margins ?? new UISpacing();
             _padding = style.Padding ?? new UISpacing();
             ScrollSpeed = style.ScrollSpeed ?? ScrollSpeed;
+            IgnoreOverflow = style.IgnoreOverflow ?? IgnoreOverflow;
         }
 
         public void ApplyDefaultSize(UISprite sprite)
@@ -763,28 +791,35 @@ namespace ElementEngine.ElementUI
         #endregion
 
         #region Scrolling
-        internal void ScrollLeft()
+        internal virtual void InternalOnScrollX() { }
+        internal virtual void InternalOnScrollY() { }
+
+        internal void ScrollLeft(int? amount = null)
         {
-            _childOffset.X += ScrollSpeed;
+            _childOffset.X += amount ?? ScrollSpeed;
             ClampScroll();
+            InternalOnScrollX();
         }
 
-        internal void ScrollRight()
+        internal void ScrollRight(int? amount = null)
         {
-            _childOffset.X -= ScrollSpeed;
+            _childOffset.X -= amount ?? ScrollSpeed;
             ClampScroll();
+            InternalOnScrollX();
         }
 
-        internal void ScrollUp()
+        internal void ScrollUp(int? amount = null)
         {
-            _childOffset.Y += ScrollSpeed;
+            _childOffset.Y += amount ?? ScrollSpeed;
             ClampScroll();
+            InternalOnScrollY();
         }
 
-        internal void ScrollDown()
+        internal void ScrollDown(int? amount = null)
         {
-            _childOffset.Y -= ScrollSpeed;
+            _childOffset.Y -= amount ?? ScrollSpeed;
             ClampScroll();
+            InternalOnScrollY();
         }
 
         internal void ClampScroll()
@@ -794,9 +829,12 @@ namespace ElementEngine.ElementUI
                 _childOffset = Vector2I.Zero;
                 return;
             }
+            
+            if (_uiSize._fullChildBounds.Right > PaddingBounds.Width)
+                _childOffset.X = Math.Clamp(_childOffset.X, (_uiSize._fullChildBounds.Right - PaddingBounds.Width) * -1, _uiSize._fullChildBounds.Left * -1);
 
-            _childOffset.X = Math.Clamp(_childOffset.X, (_uiSize._fullChildBounds.Right - PaddingBounds.Width) * -1, _uiSize._fullChildBounds.Left * -1);
-            _childOffset.Y = Math.Clamp(_childOffset.Y, (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1, _uiSize._fullChildBounds.Top * -1);
+            if (_uiSize._fullChildBounds.Bottom > PaddingBounds.Height)
+                _childOffset.Y = Math.Clamp(_childOffset.Y, (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1, _uiSize._fullChildBounds.Top * -1);
         }
         #endregion
 
@@ -943,23 +981,32 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        public virtual void DrawBeforeChildren(SpriteBatch2D spriteBatch) { }
-        public virtual void DrawAfterChildren(SpriteBatch2D spriteBatch) { }
+        internal virtual void PreDraw(SpriteBatch2D spriteBatch)
+        {
+            if (IgnoreOverflow)
+                spriteBatch.PushScissorRect(0, null);
+        }
+
+        internal virtual void PostDraw(SpriteBatch2D spriteBatch)
+        {
+            if (IgnoreOverflow)
+                spriteBatch.PopScissorRect(0);
+        }
 
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
             if (_useScissorRect)
                 spriteBatch.PushScissorRect(0, PaddingBounds, true);
 
-            DrawBeforeChildren(spriteBatch);
-
             foreach (var child in Children)
             {
                 if (child.IsVisible)
+                {
+                    child.PreDraw(spriteBatch);
                     child.Draw(spriteBatch);
+                    child.PostDraw(spriteBatch);
+                }
             }
-
-            DrawAfterChildren(spriteBatch);
 
             if (_useScissorRect)
                 spriteBatch.PopScissorRect(0);

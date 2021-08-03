@@ -26,6 +26,17 @@ namespace ElementEngine.ElementUI
 
         internal Rectangle _fullChildBounds;
 
+        public Vector2I GetRespectedParentSize(UIObject obj)
+        {
+            if (obj.Parent == null)
+                return Vector2I.Zero;
+
+            if (obj.IgnoreParentPadding)
+                return obj.Parent.Size;
+            else
+                return obj.Parent.Size - new Vector2I(obj.Parent.PaddingLeft + obj.Parent.PaddingRight, obj.Parent.PaddingTop + obj.Parent.PaddingBottom);
+        }
+
         public Vector2I GetSize(UIObject obj)
         {
             var size = Size ?? Vector2I.One;
@@ -36,6 +47,9 @@ namespace ElementEngine.ElementUI
 
             foreach (var child in obj.Children)
             {
+                if (child.IgnoreOverflow)
+                    continue;
+
                 var checkBounds = new Rectangle(child._uiPosition.GetRelativePosition(child), child._size);
 
                 width = Math.Max(checkBounds.Right, width);
@@ -56,15 +70,17 @@ namespace ElementEngine.ElementUI
             if (AutoHeight)
                 size.Y = height + obj.PaddingTop + obj.PaddingBottom;
 
+            var parentSize = GetRespectedParentSize(obj);
+
             if (ParentWidth)
-                size.X = obj.Parent.Size.X;
+                size.X = parentSize.X;
             if (ParentHeight)
-                size.Y = obj.Parent.Size.Y;
+                size.Y = parentSize.Y;
 
             if (ParentWidthRatio.HasValue)
-                size.X = (int)(obj.Parent.Size.X * ParentWidthRatio.Value);
+                size.X = (int)(parentSize.X * ParentWidthRatio.Value);
             if (ParentHeightRatio.HasValue)
-                size.Y = (int)(obj.Parent.Size.Y * ParentHeightRatio.Value);
+                size.Y = (int)(parentSize.Y * ParentHeightRatio.Value);
 
             if (MinWidth.HasValue && size.X < MinWidth.Value)
                 size.X = MinWidth.Value;
@@ -84,15 +100,15 @@ namespace ElementEngine.ElementUI
                         {
                             var aspectRatio = (float)size.X / size.Y;
 
-                            if (size.X < size.Y)
+                            if (size.X > size.Y)
                             {
-                                var targetHeight = (float)obj.Parent.Height;
+                                var targetHeight = (float)parentSize.Y;
                                 var targetWidth = targetHeight * aspectRatio;
                                 size = new Vector2I(targetWidth, targetHeight);
                             }
                             else
                             {
-                                var targetWidth = (float)obj.Parent.Width;
+                                var targetWidth = (float)parentSize.X;
                                 var targetHeight = targetWidth / aspectRatio;
                                 size = new Vector2I(targetWidth, targetHeight);
                             }
@@ -103,16 +119,30 @@ namespace ElementEngine.ElementUI
                         {
                             var aspectRatio = (float)size.X / size.Y;
 
-                            if (size.X > size.Y)
+                            if (size.X < size.Y)
                             {
-                                var targetHeight = (float)obj.Parent.Height;
+                                var targetHeight = (float)parentSize.Y;
                                 var targetWidth = targetHeight * aspectRatio;
+
+                                if (targetWidth < obj.Parent.Width)
+                                {
+                                    targetWidth = (float)parentSize.X;
+                                    targetHeight = targetWidth / aspectRatio;
+                                }
+
                                 size = new Vector2I(targetWidth, targetHeight);
                             }
                             else
                             {
-                                var targetWidth = (float)obj.Parent.Width;
+                                var targetWidth = (float)parentSize.X;
                                 var targetHeight = targetWidth / aspectRatio;
+
+                                if (targetHeight < obj.Parent.Height)
+                                {
+                                    targetHeight = (float)parentSize.Y;
+                                    targetWidth = targetHeight * aspectRatio;
+                                }
+
                                 size = new Vector2I(targetWidth, targetHeight);
                             }
                         }

@@ -29,16 +29,17 @@ namespace ElementEngine.ElementUI
                 return GetRelativePosition(obj);
 
             var position = GetRelativePosition(obj);
+            var parentOrigin = obj.IgnoreParentPadding ? Vector2I.Zero : obj.Parent._childOrigin;
 
             if (IsAutoPositionX)
                 position.X += obj.Parent._position.X;
             else
-                position.X += obj.Parent._childOrigin.X;
+                position.X += parentOrigin.X;
 
             if (IsAutoPositionY)
                 position.Y += obj.Parent._position.Y;
             else
-                position.Y += obj.Parent._childOrigin.Y;
+                position.Y += parentOrigin.Y;
 
             if (CenterX)
                 position.X += (obj.Parent._size.X / 2) - (obj._size.X / 2);

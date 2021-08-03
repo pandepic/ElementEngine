@@ -9,21 +9,28 @@ namespace ElementEngine.ElementUI
 {
     public class UILabelStyle : UIStyle
     {
-        public SpriteFont Font;
+        public UIFontFamily FontFamily;
         public RgbaByte Color;
         public int FontSize;
         public int Outline;
 
+        public UIFontStyle? FontStyle;
+        public UIFontWeight? FontWeight;
+
         public UILabelStyle(
-            SpriteFont font,
+            UIFontFamily fontFamily,
             RgbaByte color,
             int fontSize,
-            int outline = 0)
+            int outline = 0,
+            UIFontStyle? fontStyle = null,
+            UIFontWeight? fontWeight = null)
         {
-            Font = font;
+            FontFamily = fontFamily;
             Color = color;
             FontSize = fontSize;
             Outline = outline;
+            FontWeight = fontWeight;
+            FontStyle = fontStyle;
         }
 
     } // UILabelStyle

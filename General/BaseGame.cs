@@ -120,13 +120,13 @@ namespace ElementEngine
 
         public unsafe SDL_DisplayMode GetCurrentDisplayMode()
         {
-            var dm = new SDL_DisplayMode();
-            var result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &dm);
+            var displayMode = new SDL_DisplayMode();
+            var result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &displayMode);
 
             if (result == -1)
             {
                 VeldridStartup.CreateWindow(new WindowCreateInfo());
-                result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &dm);
+                result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &displayMode);
 
                 if (result == -1)
                 {
@@ -135,7 +135,7 @@ namespace ElementEngine
                 }
             }
 
-            return dm;
+            return displayMode;
         }
 
         public void SetupAssets(string modsPath = "Mods")

@@ -49,8 +49,14 @@ namespace ElementEngine.ElementUI
         public bool IsPressed;
         public bool IsHovered;
 
-        public bool IsRadioButton => RadioGroup != null;
+        public UIFontStyle FontStyle;
+        public UIFontWeight FontWeight;
 
+        public bool IsRadioButton => RadioGroup != null;
+        public UILabelStyle TextStyle => IsHovered ? Style.TextStyleHover ?? Style.TextStyleNormal : Style.TextStyleNormal;
+        
+        public event Action<UIOnValueChangedArgs<bool>> OnValueChanged;
+        
         internal bool _isChecked;
         public bool IsChecked
         {
@@ -72,13 +78,14 @@ namespace ElementEngine.ElementUI
             set => SetText(value);
         }
 
-        public event Action<UIOnValueChangedArgs<bool>> OnValueChanged;
-
         internal Vector2I _textSize;
 
         public UICheckbox(string name, UICheckboxStyle style, string text, UIRadioSelectionGroup radioGroup = null) : base(name)
         {
             ApplyStyle(style);
+
+            FontWeight = TextStyle.FontWeight ?? FontWeight;
+            FontStyle = TextStyle.FontStyle ?? FontStyle;
 
             if (radioGroup != null)
             {
@@ -95,7 +102,7 @@ namespace ElementEngine.ElementUI
         public void SetText(string text)
         {
             _text = text;
-            _textSize = Style.Font.MeasureText(text, Style.FontSize, Style.Outline).ToVector2I();
+            _textSize = TextStyle.FontFamily.GetFont(FontStyle, FontWeight).MeasureText(text, TextStyle.FontSize, TextStyle.Outline).ToVector2I();
 
             Size = new Vector2I(
                 (int)(Style.SpriteUnchecked.Size.X + Style.TextPadding + _textSize.X),
@@ -117,7 +124,7 @@ namespace ElementEngine.ElementUI
         public override void Draw(SpriteBatch2D spriteBatch)
         {
             var sprite = IsChecked ? Style.SpriteChecked : Style.SpriteUnchecked;
-            var textColor = IsHovered ? Style.TextColorHover : Style.TextColorNormal;
+            var textColor = TextStyle.Color;
 
             if (!IsActive)
             {
@@ -134,7 +141,7 @@ namespace ElementEngine.ElementUI
                     sprite = Style.SpriteHover ?? sprite;
             }
 
-            var textSize = Style.Font.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
+            var textSize = TextStyle.FontFamily.GetFont(FontStyle, FontWeight).MeasureText(_text, TextStyle.FontSize, TextStyle.Outline).ToVector2I();
             if (textSize != _textSize)
                 SetText(_text);
 
@@ -143,7 +150,7 @@ namespace ElementEngine.ElementUI
                 DrawPosition.Y + ((sprite.Size.Y / 2f) - (_textSize.Y / 2)));
 
             sprite?.Draw(this, spriteBatch, DrawPosition, null);
-            Style.Font.DrawText(spriteBatch, _text, textPosition.ToVector2(), textColor, Style.FontSize, Style.Outline);
+            TextStyle.FontFamily.GetFont(FontStyle, FontWeight).DrawText(spriteBatch, _text, textPosition.ToVector2(), textColor, TextStyle.FontSize, TextStyle.Outline);
 
             base.Draw(spriteBatch);
         }

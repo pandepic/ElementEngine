@@ -12,6 +12,9 @@ namespace ElementEngine.ElementUI
     {
         public new UILabelStyle Style => (UILabelStyle)_style;
 
+        public UIFontStyle FontStyle;
+        public UIFontWeight FontWeight;
+
         internal string _text = "";
         public string Text
         {
@@ -22,20 +25,23 @@ namespace ElementEngine.ElementUI
         public UILabel(string name, UILabelStyle style, string text) : base(name)
         {
             ApplyStyle(style);
-            SetText(text);
 
+            FontWeight = Style.FontWeight ?? FontWeight;
+            FontStyle = Style.FontStyle ?? FontStyle;
+
+            SetText(text);
             CanFocus = false;
         }
 
         public void SetText(string text)
         {
             _text = text;
-            Size = Style.Font.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
+            Size = Style.FontFamily.GetFont(FontStyle, FontWeight).MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(Style.Font, _text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
+            spriteBatch.DrawText(Style.FontFamily.GetFont(FontStyle, FontWeight), _text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
             base.Draw(spriteBatch);
         }
 

@@ -242,6 +242,16 @@ namespace ElementEngine
                 _shaders[i]?.Dispose();
         }
 
+        public Rectangle? GetCurrentScissorRect(uint index)
+        {
+            if (!_scissorStack.ContainsKey(index))
+                return null;
+            if (_scissorStack[index].Count == 0)
+                return null;
+
+            return _scissorStack[index].Peek();
+        }
+
         public void PushScissorRect(uint index, Rectangle? rect, bool containedByPreviousRect = false)
         {
             if (!_scissorStack.ContainsKey(index))

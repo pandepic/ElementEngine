@@ -25,4 +25,18 @@ namespace ElementEngine.ElementUI
         Cover,
         Stretch,
     }
+
+    public enum UIFontStyle
+    {
+        Normal,
+        Italic,
+    }
+
+    public enum UIFontWeight
+    {
+        Normal,
+        Light,
+        Bold,
+        Black,
+    }
 }

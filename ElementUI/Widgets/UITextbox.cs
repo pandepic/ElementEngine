@@ -10,6 +10,8 @@ namespace ElementEngine.ElementUI
     {
         public new UITextboxStyle Style => (UITextboxStyle)_style;
 
+        public event Action<UIOnValueChangedArgs<string>> OnValueChanged;
+
         public UITextbox(string name, UITextboxStyle style) : base(name)
         {
             ApplyStyle(style);

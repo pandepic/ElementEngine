@@ -11,24 +11,14 @@ namespace ElementEngine.ElementUI
     {
         public UISprite BackgroundNormal;
         public UISprite BackgroundDisabled;
+        public UILabelStyle TextStyle;
 
-        public SpriteFont Font;
-        public RgbaByte TextColor;
-        public int FontSize;
-        public int Outline;
-        
         public UITextboxStyle(
-            SpriteFont font,
-            RgbaByte textColor,
-            int fontSize,
-            int outline,
+            UILabelStyle textStyle,
             UISprite backgroundNormal,
             UISprite backgroundDisabled = null)
         {
-            Font = font;
-            TextColor = textColor;
-            FontSize = fontSize;
-            Outline = outline;
+            TextStyle = textStyle;
             BackgroundNormal = backgroundNormal;
             BackgroundDisabled = backgroundDisabled;
         }

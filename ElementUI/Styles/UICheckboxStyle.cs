@@ -16,33 +16,24 @@ namespace ElementEngine.ElementUI
         public UISprite SpriteDisabledUnchecked;
         public UISprite SpriteDisabledChecked;
 
-        public SpriteFont Font;
-        public RgbaByte TextColorNormal;
-        public RgbaByte TextColorHover;
-        public int FontSize;
-        public int Outline;
+        public UILabelStyle TextStyleNormal;
+        public UILabelStyle TextStyleHover;
         public int TextPadding;
 
         public UICheckboxStyle(
-            SpriteFont font,
-            RgbaByte textColorNormal,
-            int fontSize,
-            int outline,
-            int textPadding,
+            UILabelStyle textStyleNormal,
             UISprite spriteUnchecked,
             UISprite spriteChecked,
-            RgbaByte? textColorHover = null,
+            int textPadding = 0,
+            UILabelStyle textStyleHover = null,
             UISprite spritePressed = null,
             UISprite spriteHover = null,
             UISprite spriteDisabledUnchecked = null,
             UISprite spriteDisabledChecked = null)
         {
-            Font = font;
-            TextColorNormal = textColorNormal;
-            TextColorHover = textColorHover ?? textColorNormal;
-            FontSize = fontSize;
-            Outline = outline;
             TextPadding = textPadding;
+            TextStyleNormal = textStyleNormal;
+            TextStyleHover = textStyleHover;
             SpriteUnchecked = spriteUnchecked;
             SpriteChecked = spriteChecked;
             SpritePressed = spritePressed;

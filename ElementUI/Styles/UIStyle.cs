@@ -15,5 +15,6 @@ namespace ElementEngine.ElementUI
         public UISpacing? Padding;
         public OverflowType OverflowType = OverflowType.Show;
         public int? ScrollSpeed;
+        public bool? IgnoreOverflow;
     }
 }
