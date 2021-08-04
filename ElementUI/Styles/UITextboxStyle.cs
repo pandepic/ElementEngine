@@ -13,14 +13,26 @@ namespace ElementEngine.ElementUI
         public UISprite BackgroundDisabled;
         public UILabelStyle TextStyle;
 
+        public int? CursorHeight; // if null then text height
+        public int CursorWidth = 1;
+        public RgbaByte CursorColor;
+
         public UITextboxStyle(
             UILabelStyle textStyle,
             UISprite backgroundNormal,
-            UISprite backgroundDisabled = null)
+            UISprite backgroundDisabled = null,
+            int? cursorHeight = null,
+            int cursorWidth = 1,
+            RgbaByte? cursorColor = null)
         {
             TextStyle = textStyle;
             BackgroundNormal = backgroundNormal;
             BackgroundDisabled = backgroundDisabled;
+            CursorHeight = cursorHeight;
+            CursorWidth = cursorWidth;
+
+            OverflowType = OverflowType.Hide;
+            CursorColor = cursorColor ?? RgbaByte.White;
         }
     } // UITextboxStyle
 }

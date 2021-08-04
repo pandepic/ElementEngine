@@ -15,7 +15,7 @@ namespace ElementEngine.ElementUI
 
         public int ObjectID = _nextObjectID++;
         public UIObject Parent;
-        public UIScreen ParentScreen => this is UIScreen thisScreen ? thisScreen : (Parent is UIScreen screen ? screen : Parent.ParentScreen);
+        public UIScreen ParentScreen => this is UIScreen thisScreen ? thisScreen : (Parent == null ? null : (Parent is UIScreen screen ? screen : Parent.ParentScreen));
 
         public UIStyle Style => _style;
         public readonly List<UIObject> Children = new List<UIObject>();
@@ -36,7 +36,7 @@ namespace ElementEngine.ElementUI
                 _drawOrder = value;
 
                 if (Parent != null)
-                    Parent._layoutDirty = true;
+                    Parent.SetLayoutDirty();
             }
         }
 
@@ -48,7 +48,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _ignoreParentPadding = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -71,7 +71,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.FillType = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -83,7 +83,7 @@ namespace ElementEngine.ElementUI
         public void SetPosition(Vector2I position)
         {
             _uiPosition.Position = position;
-            _layoutDirty = true;
+            SetLayoutDirty();
         }
 
         public void OffsetPosition(Vector2I offset)
@@ -92,7 +92,7 @@ namespace ElementEngine.ElementUI
                 _uiPosition.Position = new Vector2I();
 
             _uiPosition.Position += offset;
-            _layoutDirty = true;
+            SetLayoutDirty();
         }
 
         public int X
@@ -103,7 +103,7 @@ namespace ElementEngine.ElementUI
                 var current = _uiPosition.Position ?? Vector2I.Zero;
                 current.X = value;
                 _uiPosition.Position = current;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -115,7 +115,7 @@ namespace ElementEngine.ElementUI
                 var current = _uiPosition.Position ?? Vector2I.Zero;
                 current.Y = value;
                 _uiPosition.Position = current;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -125,7 +125,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.Size = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -137,7 +137,7 @@ namespace ElementEngine.ElementUI
                 var current = _uiSize.Size ?? Vector2I.Zero;
                 current.X = value;
                 _uiSize.Size = current;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -149,7 +149,7 @@ namespace ElementEngine.ElementUI
                 var current = _uiSize.Size ?? Vector2I.Zero;
                 current.Y = value;
                 _uiSize.Size = current;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -159,7 +159,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.AutoWidth = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -169,7 +169,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.AutoHeight = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -179,7 +179,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.ParentWidth = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -189,7 +189,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.ParentHeight = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -199,7 +199,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.ParentWidthRatio = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -209,7 +209,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.ParentHeightRatio = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -219,7 +219,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.MinWidth = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -229,7 +229,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.MaxWidth = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -239,7 +239,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.MinHeight = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -249,7 +249,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.MaxHeight = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -277,7 +277,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiPosition.CenterX = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -287,7 +287,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiPosition.CenterY = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -302,7 +302,7 @@ namespace ElementEngine.ElementUI
                     return;
 
                 _uiPosition.Position = new Vector2I(_uiPosition.Position.Value.X, 0);
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -312,7 +312,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiPosition.AnchorBottom = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -327,7 +327,7 @@ namespace ElementEngine.ElementUI
                     return;
 
                 _uiPosition.Position = new Vector2I(0, _uiPosition.Position.Value.Y);
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -337,7 +337,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiPosition.AnchorRight = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -345,7 +345,7 @@ namespace ElementEngine.ElementUI
         {
             _uiPosition.CenterX = true;
             _uiPosition.CenterY = true;
-            _layoutDirty = true;
+            SetLayoutDirty();
         }
         #endregion
 
@@ -356,7 +356,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _margins.Left = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -366,7 +366,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _margins.Right = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -376,7 +376,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _margins.Top = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -386,7 +386,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _margins.Bottom = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -406,7 +406,7 @@ namespace ElementEngine.ElementUI
             _margins.Right = right;
             _margins.Top = top;
             _margins.Bottom = bottom;
-            _layoutDirty = true;
+            SetLayoutDirty();
         }
         #endregion
 
@@ -417,7 +417,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _padding.Left = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -427,7 +427,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _padding.Right = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -437,7 +437,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _padding.Top = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -447,7 +447,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _padding.Bottom = value;
-                _layoutDirty = true;
+                SetLayoutDirty();
             }
         }
 
@@ -467,7 +467,7 @@ namespace ElementEngine.ElementUI
             _padding.Right = right;
             _padding.Top = top;
             _padding.Bottom = bottom;
-            _layoutDirty = true;
+            SetLayoutDirty();
         }
         #endregion
 
@@ -679,7 +679,7 @@ namespace ElementEngine.ElementUI
             if (Children.AddIfNotContains(child))
             {
                 child.Parent = this;
-                _layoutDirty = true;
+                SetLayoutDirty();
 
                 return true;
             }
@@ -696,7 +696,7 @@ namespace ElementEngine.ElementUI
             if (child != null)
             {
                 Children.Remove(child);
-                _layoutDirty = true;
+                SetLayoutDirty();
                 return true;
             }
             else
@@ -714,7 +714,7 @@ namespace ElementEngine.ElementUI
                 if (child is T)
                 {
                     Children.RemoveAt(i);
-                    _layoutDirty = true;
+                    SetLayoutDirty();
                     return true;
                 }
             }
@@ -731,7 +731,7 @@ namespace ElementEngine.ElementUI
                 if (child is T)
                 {
                     Children.RemoveAt(i);
-                    _layoutDirty = true;
+                    SetLayoutDirty();
                 }
             }
         }
@@ -739,7 +739,7 @@ namespace ElementEngine.ElementUI
         public void ClearChildren()
         {
             Children.Clear();
-            _layoutDirty = true;
+            SetLayoutDirty();
         }
 
         public void BringToFront(UIObject child)
@@ -751,7 +751,7 @@ namespace ElementEngine.ElementUI
                 Children[i].DrawOrder = i;
 
             SortChildren();
-            _layoutDirty = true;
+            SetLayoutDirty();
         }
 
         public bool HasFocusedChild(bool recursive)
@@ -837,6 +837,15 @@ namespace ElementEngine.ElementUI
                 _childOffset.Y = Math.Clamp(_childOffset.Y, (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1, _uiSize._fullChildBounds.Top * -1);
         }
         #endregion
+
+        internal virtual void SetLayoutDirty()
+        {
+            //_layoutDirty = true;
+            //Parent?.SetLayoutDirty();
+
+            if (ParentScreen != null)
+                ParentScreen._layoutDirty = true;
+        }
 
         internal virtual void CheckLayout()
         {
@@ -993,10 +1002,15 @@ namespace ElementEngine.ElementUI
                 spriteBatch.PopScissorRect(0);
         }
 
+        protected virtual void InnerPreDraw(SpriteBatch2D spriteBatch) { }
+        protected virtual void InnerPostDraw(SpriteBatch2D spriteBatch) { }
+
         public virtual void Draw(SpriteBatch2D spriteBatch)
         {
             if (_useScissorRect)
                 spriteBatch.PushScissorRect(0, PaddingBounds, true);
+
+            InnerPreDraw(spriteBatch);
 
             foreach (var child in Children)
             {
@@ -1007,6 +1021,8 @@ namespace ElementEngine.ElementUI
                     child.PostDraw(spriteBatch);
                 }
             }
+
+            InnerPostDraw(spriteBatch);
 
             if (_useScissorRect)
                 spriteBatch.PopScissorRect(0);
@@ -1036,6 +1052,26 @@ namespace ElementEngine.ElementUI
         public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
             InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+        }
+
+        public virtual void HandleKeyPressed(Key key, GameTimer gameTimer)
+        {
+            InternalHandleKeyPressed(key, gameTimer);
+        }
+
+        public virtual void HandleKeyReleased(Key key, GameTimer gameTimer)
+        {
+            InternalHandleKeyReleased(key, gameTimer);
+        }
+
+        public virtual void HandleKeyDown(Key key, GameTimer gameTimer)
+        {
+            InternalHandleKeyDown(key, gameTimer);
+        }
+
+        public virtual void HandleTextInput(char key, GameTimer gameTimer)
+        {
+            InternalHandleTextInput(key, gameTimer);
         }
         #endregion
 
@@ -1074,6 +1110,24 @@ namespace ElementEngine.ElementUI
                     continue;
 
                 if (child.Bounds.Contains(mousePosition))
+                    return child;
+            }
+
+            return null;
+        }
+
+        internal UIObject GetFirstChildFocused()
+        {
+            foreach (var child in ReverseChildren)
+            {
+                if (!child.IsVisible)
+                    continue;
+                if (!child.IsActive)
+                    continue;
+                if (!child.CanFocus)
+                    return child;
+                
+                if (child.IsFocused)
                     return child;
             }
 
@@ -1154,10 +1208,37 @@ namespace ElementEngine.ElementUI
             return child != null;
         }
 
-        public virtual void HandleKeyPressed(Key key, GameTimer gameTimer) { }
-        public virtual void HandleKeyReleased(Key key, GameTimer gameTimer) { }
-        public virtual void HandleKeyDown(Key key, GameTimer gameTimer) { }
-        public virtual void HandleTextInput(char key, GameTimer gameTimer) { }
+        public virtual bool InternalHandleKeyPressed(Key key, GameTimer gameTimer)
+        {
+            if (this is UIScreen screen && screen.FocusedObject != null)
+                return ParentScreen.FocusedObject.InternalHandleKeyPressed(key, gameTimer);
+
+            return false;
+        }
+
+        public virtual bool InternalHandleKeyReleased(Key key, GameTimer gameTimer)
+        {
+            if (this is UIScreen screen && screen.FocusedObject != null)
+                return ParentScreen.FocusedObject.InternalHandleKeyReleased(key, gameTimer);
+
+            return false;
+        }
+
+        public virtual bool InternalHandleKeyDown(Key key, GameTimer gameTimer)
+        {
+            if (this is UIScreen screen && screen.FocusedObject != null)
+                return ParentScreen.FocusedObject.InternalHandleKeyDown(key, gameTimer);
+
+            return false;
+        }
+
+        public virtual bool InternalHandleTextInput(char key, GameTimer gameTimer)
+        {
+            if (this is UIScreen screen && screen.FocusedObject != null)
+                return ParentScreen.FocusedObject.InternalHandleTextInput(key, gameTimer);
+
+            return false;
+        }
         #endregion
 
         public override string ToString()

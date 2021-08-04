@@ -21,12 +21,15 @@ namespace ElementEngine.ElementUI
 
         public bool IsZero => Top == 0 && Bottom == 0 && Left == 0 && Right == 0;
 
-        public UISpacing(int top, int bottom, int left, int right)
+        public UISpacing(int all) : this(all, all) { }
+        public UISpacing(int horizontal, int vertical) : this(horizontal, horizontal, vertical, vertical) { }
+
+        public UISpacing(int left, int right, int top, int bottom)
         {
-            Top = top;
-            Bottom = bottom;
             Left = left;
             Right = right;
+            Top = top;
+            Bottom = bottom;
         }
-    } // UIMargins
+    } // UISpacing
 }

@@ -172,6 +172,8 @@ namespace ElementEngine
 
         internal static void HandleKeyPressed(Key key, GameTimer gameTimer)
         {
+            HandleKeyDown(key, gameTimer);
+
             for (var i = 0; i < _keyboardHandlers.Count; i++)
                 _keyboardHandlers[i]?.HandleKeyPressed(key, gameTimer);
         }

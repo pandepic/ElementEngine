@@ -14,6 +14,7 @@ namespace ElementEngine.ElementUI
 
         public UIFontStyle FontStyle;
         public UIFontWeight FontWeight;
+        public Vector2I TextSize { get; protected set; }
 
         internal string _text = "";
         public string Text
@@ -21,6 +22,8 @@ namespace ElementEngine.ElementUI
             get => _text;
             set => SetText(value);
         }
+
+        public SpriteFont CurrentFont => Style.FontFamily.GetFont(FontStyle, FontWeight);
 
         public UILabel(string name, UILabelStyle style, string text) : base(name)
         {
@@ -36,12 +39,13 @@ namespace ElementEngine.ElementUI
         public void SetText(string text)
         {
             _text = text;
-            Size = Style.FontFamily.GetFont(FontStyle, FontWeight).MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
+            TextSize = CurrentFont.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
+            Size = TextSize;
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(Style.FontFamily.GetFont(FontStyle, FontWeight), _text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
+            spriteBatch.DrawText(CurrentFont, _text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
             base.Draw(spriteBatch);
         }
 

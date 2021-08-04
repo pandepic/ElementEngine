@@ -201,7 +201,7 @@ namespace ElementEngine
 
         public bool Intersect(CircleI circle)
         {
-            return Intersect(new CircleF(circle.Center.ToVector2(), (float)circle.Radius));
+            return Intersect(new CircleF(circle.Center.ToVector2(), circle.Radius));
         }
 
         public bool Intersect(CircleF circle)

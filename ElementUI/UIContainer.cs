@@ -95,7 +95,7 @@ namespace ElementEngine.ElementUI
                 var offset = mousePosition.ToVector2I() - _prevDragMousePosition.ToVector2I();
                 _uiPosition.Position += offset;
                 _prevDragMousePosition = mousePosition;
-                _layoutDirty = true;
+                SetLayoutDirty();
                 return true;
             }
 
