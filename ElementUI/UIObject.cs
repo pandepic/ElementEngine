@@ -1095,6 +1095,27 @@ namespace ElementEngine.ElementUI
             return null;
         }
 
+        internal UIObject GetFirstChildContainsMouseCanFocus(Vector2 mousePosition)
+        {
+            if (_useScissorRect && !PaddingBounds.Contains(mousePosition))
+                return null;
+
+            foreach (var child in ReverseChildren)
+            {
+                if (!child.IsVisible)
+                    continue;
+                if (!child.IsActive)
+                    continue;
+                if (!child.CanFocus)
+                    continue;
+
+                if (child.Bounds.Contains(mousePosition))
+                    return child;
+            }
+
+            return null;
+        }
+
         internal UIObject GetFirstChildScrollableContainsMouse(Vector2 mousePosition)
         {
             if (_useScissorRect && !PaddingBounds.Contains(mousePosition))
@@ -1161,7 +1182,7 @@ namespace ElementEngine.ElementUI
 
         internal virtual bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-            var child = GetFirstChildContainsMouse(mousePosition);
+            var child = GetFirstChildContainsMouseCanFocus(mousePosition);
             var childCaptured = child?.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
 
             if (childCaptured.HasValue && childCaptured.Value == true)

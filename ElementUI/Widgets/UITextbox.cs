@@ -34,7 +34,11 @@ namespace ElementEngine.ElementUI
             get => Label.Text;
             set
             {
+                var prev = Label.Text;
                 Label.Text = value;
+
+                if (prev != Label.Text)
+                    OnValueChanged?.Invoke(new UIOnValueChangedArgs<string>(this, prev, Label.Text));
             }
         }
 
