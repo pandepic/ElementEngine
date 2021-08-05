@@ -214,11 +214,25 @@ namespace ElementEngine.ElementUI
                     break;
 
                 case Key.Home:
-                    CursorIndex = 0;
+                    {
+                        if (!InputManager.IsKeyDown(Key.ShiftLeft) && !InputManager.IsKeyDown(Key.ShiftRight))
+                            _selectionIndexStart = -1;
+                        else if (_selectionIndexStart == -1)
+                            _selectionIndexStart = CursorIndex;
+
+                        CursorIndex = 0;
+                    }
                     break;
 
                 case Key.End:
-                    CursorIndex = Text.Length;
+                    {
+                        if (!InputManager.IsKeyDown(Key.ShiftLeft) && !InputManager.IsKeyDown(Key.ShiftRight))
+                            _selectionIndexStart = -1;
+                        else if (_selectionIndexStart == -1)
+                            _selectionIndexStart = CursorIndex;
+
+                        CursorIndex = Text.Length;
+                    }
                     break;
 
                 case Key.C:
