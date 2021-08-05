@@ -16,6 +16,7 @@ namespace ElementEngine.ElementUI
         public int? CursorHeight; // if null then text height
         public int CursorWidth = 1;
         public RgbaByte CursorColor;
+        public RgbaByte SelectionColor;
 
         public UITextboxStyle(
             UILabelStyle textStyle,
@@ -23,7 +24,8 @@ namespace ElementEngine.ElementUI
             UISprite backgroundDisabled = null,
             int? cursorHeight = null,
             int cursorWidth = 1,
-            RgbaByte? cursorColor = null)
+            RgbaByte? cursorColor = null,
+            RgbaByte? selectionColor = null)
         {
             TextStyle = textStyle;
             BackgroundNormal = backgroundNormal;
@@ -33,6 +35,7 @@ namespace ElementEngine.ElementUI
 
             OverflowType = OverflowType.Hide;
             CursorColor = cursorColor ?? RgbaByte.White;
+            SelectionColor = selectionColor ?? new RgbaByte(0, 0, 255, 120);
         }
     } // UITextboxStyle
 }

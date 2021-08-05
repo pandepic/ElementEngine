@@ -18,6 +18,18 @@ namespace ElementEngine.ElementUI
             Name = name;
         }
 
+        public void Select(string name)
+        {
+            foreach (var child  in Children)
+            {
+                if (child.Name == name)
+                {
+                    Select(child);
+                    return;
+                }
+            }
+        }
+
         public void Select(UICheckbox child)
         {
             foreach (var checkChild in Children)

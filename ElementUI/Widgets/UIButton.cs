@@ -11,11 +11,10 @@ namespace ElementEngine.ElementUI
     public class UIButton : UIObject
     {
         public new UIButtonStyle Style => (UIButtonStyle)_style;
-
-        public bool IsPressed;
-        public bool IsHovered;
-
         public event Action<UIOnClickArgs> OnClick;
+
+        public bool IsPressed { get; protected set; }
+        public bool IsHovered { get; protected set; }
 
         public UIButton(string name, UIButtonStyle style) : base(name)
         {

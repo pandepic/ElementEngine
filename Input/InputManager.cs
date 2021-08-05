@@ -204,6 +204,8 @@ namespace ElementEngine
 
         internal static void HandleMouseButtonPressed(MouseButton button, GameTimer gameTimer)
         {
+            HandleMouseButtonDown(button, gameTimer);
+
             for (var i = 0; i < _mouseHandlers.Count; i++)
                 _mouseHandlers[i]?.HandleMouseButtonPressed(MousePosition, button, gameTimer);
         }

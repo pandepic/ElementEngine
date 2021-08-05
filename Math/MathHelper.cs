@@ -126,5 +126,26 @@ namespace ElementEngine
             return Math.Max(v1, Math.Max(v2, Math.Max(v3, v4)));
         }
 
+        public static void Swap(ref int v1, ref int v2)
+        {
+            var t = v1;
+            v1 = v2;
+            v2 = t;
+        }
+
+        public static void Swap(ref float v1, ref float v2)
+        {
+            var t = v1;
+            v1 = v2;
+            v2 = t;
+        }
+
+        public static void Swap(ref double v1, ref double v2)
+        {
+            var t = v1;
+            v1 = v2;
+            v2 = t;
+        }
+
     } // MathHelper
 }
