@@ -34,6 +34,8 @@ namespace ElementEngine.ElementUI
             set
             {
                 _minValue = value;
+                UpdateSizesPositions();
+                CurrentValue = CurrentValue;
             }
         }
 
@@ -44,6 +46,8 @@ namespace ElementEngine.ElementUI
             set
             {
                 _maxValue = value;
+                UpdateSizesPositions();
+                CurrentValue = CurrentValue;
             }
         }
 
@@ -54,6 +58,8 @@ namespace ElementEngine.ElementUI
             set
             {
                 _stepSize = value;
+                UpdateSizesPositions();
+                CurrentValue = CurrentValue;
             }
         }
 
@@ -126,6 +132,9 @@ namespace ElementEngine.ElementUI
 
         protected void UpdateSizesPositions()
         {
+            if (!IsVisible)
+                return;
+
             var railWidth = Size.X;
             Height = MathHelper.Max(Height, Rail.Height, Slider.Height);
 

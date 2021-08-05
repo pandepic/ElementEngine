@@ -15,18 +15,156 @@ namespace ElementEngine.ElementUI
         public bool IsDraggable => (Style.DraggableRect.HasValue || Style.IsFullDraggableRect) && !_uiPosition.IsAutoPosition;
         public bool IsDragging { get; protected set; }
 
+        public readonly UIScrollbarV ScrollbarV;
+        public readonly UIScrollbarH ScrollbarH;
+
+        internal bool _dirtyNextUpdate = false;
         internal Vector2 _prevDragMousePosition;
 
         public UIContainer(string name, UIContainerStyle style) : base(name)
         {
             ApplyStyle(style);
             ApplyDefaultSize(style.Background);
+
+            if (_isScrollable)
+            {
+                if (Style.ScrollbarV != null)
+                {
+                    ScrollbarV = new UIScrollbarV(name + "_ScrollbarV", Style.ScrollbarV, 0, 0, ScrollSpeed, 0);
+                    ScrollbarV._uiPosition.StopAutoPositionX();
+                    ScrollbarV._uiPosition.StopAutoPositionY();
+                    ScrollbarV.AnchorTop = true;
+                    ScrollbarV.AnchorRight = true;
+                    ScrollbarV.IgnoreOverflow = true;
+                    AddChild(ScrollbarV);
+
+                    ScrollbarV.OnValueChanged += (args) =>
+                    {
+                        var minY = (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1;
+                        var maxY = _uiSize._fullChildBounds.Top * -1;
+                        var absY = Math.Abs(maxY - minY);
+
+                        _childOffset.Y = minY + (absY - args.CurrentValue);
+                        ClampScroll();
+                    };
+
+                    ScrollbarV.IsVisible = false;
+                    ScrollbarV.IsActive = false;
+                }
+
+                if (Style.ScrollbarH != null)
+                {
+                    ScrollbarH = new UIScrollbarH(name + "_ScrollbarH", Style.ScrollbarH, 0, 0, ScrollSpeed, 0);
+                    ScrollbarH._uiPosition.StopAutoPositionX();
+                    ScrollbarH._uiPosition.StopAutoPositionY();
+                    ScrollbarH.AnchorLeft = true;
+                    ScrollbarH.AnchorBottom = true;
+                    ScrollbarH.IgnoreOverflow = true;
+                    AddChild(ScrollbarH);
+
+                    ScrollbarH.OnValueChanged += (args) =>
+                    {
+                        var minX = (_uiSize._fullChildBounds.Right - PaddingBounds.Width) * -1;
+                        var maxX = _uiSize._fullChildBounds.Left * -1;
+                        var absX = Math.Abs(maxX - minX);
+
+                        _childOffset.X = minX + (absX - args.CurrentValue);
+                        ClampScroll();
+                    };
+
+                    ScrollbarH.IsVisible = false;
+                    ScrollbarH.IsActive = false;
+                }
+            }
+
+            UpdateScrollbars(true);
+        } // constructor
+
+        protected void UpdateScrollbars(bool force)
+        {
+            if (!_isScrollable)
+                return;
+
+            var minX = (_uiSize._fullChildBounds.Right - PaddingBounds.Width) * -1;
+            var maxX = _uiSize._fullChildBounds.Left * -1;
+            var minY = (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1;
+            var maxY = _uiSize._fullChildBounds.Top * -1;
+
+            var absX = Math.Abs(maxX - minX);
+            var absY = Math.Abs(maxY - minY);
+
+            if (ScrollbarV != null)
+            {
+                if (absY == 0 || _uiSize._fullChildBounds.Height <= PaddingBounds.Height)
+                {
+                    ScrollbarV.IsVisible = false;
+                    ScrollbarV.IsActive = false;
+                }
+                else
+                {
+                    if (ScrollbarV.MaxValue != absY || force)
+                    {
+                        ScrollbarV.MinValue = 0;
+                        ScrollbarV.MaxValue = absY;
+                        ScrollbarV.Height = PaddingBounds.Height;
+
+                        var diff = Math.Abs(_childOffset.Y - minY);
+                        ScrollbarV.CurrentValue = absY - diff;
+
+                        ScrollbarV.IsVisible = true;
+                        ScrollbarV.IsActive = true;
+                        _dirtyNextUpdate = true;
+                    }
+                }
+            }
+
+            if (ScrollbarH != null)
+            {
+                if (absX == 0 || _uiSize._fullChildBounds.Width <= PaddingBounds.Width)
+                {
+                    ScrollbarH.IsVisible = false;
+                    ScrollbarH.IsActive = false;
+                }
+                else
+                {
+                    if (ScrollbarH.MaxValue != absX || force)
+                    {
+                        ScrollbarH.MinValue = 0;
+                        ScrollbarH.MaxValue = absX;
+                        ScrollbarH.Width = PaddingBounds.Width;
+
+                        var diff = Math.Abs(_childOffset.X - minX);
+                        ScrollbarH.CurrentValue = absX - diff;
+
+                        ScrollbarH.IsVisible = true;
+                        ScrollbarH.IsActive = true;
+                        _dirtyNextUpdate = true;
+                    }
+                }
+            }
+        } // UpdateScrollbars
+
+        internal override void InternalOnScrollY()
+        {
+            UpdateScrollbars(true);
+        }
+
+        internal override void UpdateLayout()
+        {
+            base.UpdateLayout();
+            UpdateScrollbars(false);
         }
 
         public override void Update(GameTimer gameTimer)
         {
             Style.Background?.Update(gameTimer);
             base.Update(gameTimer);
+
+            if (_dirtyNextUpdate)
+            {
+                SetLayoutDirty();
+                _dirtyNextUpdate = false;
+            }
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)

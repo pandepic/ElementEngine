@@ -634,8 +634,8 @@ namespace ElementEngine.ElementUI
         internal UISpacing _margins;
         internal UISpacing _padding;
 
-        internal Vector2I _parentOffset => Parent == null ? Vector2I.Zero : Parent._childOffset + Parent._parentOffset;
-        internal bool _layoutDirty = false;
+        internal Vector2I _parentOffset => Parent == null ? Vector2I.Zero : IgnoreOverflow ? Parent._parentOffset : Parent._childOffset + Parent._parentOffset;
+        internal bool _layoutDirty { get; set; } = false;
 
         public UIObject(string name)
         {
@@ -837,12 +837,23 @@ namespace ElementEngine.ElementUI
                 _childOffset = Vector2I.Zero;
                 return;
             }
-            
-            if (_uiSize._fullChildBounds.Right > PaddingBounds.Width)
-                _childOffset.X = Math.Clamp(_childOffset.X, (_uiSize._fullChildBounds.Right - PaddingBounds.Width) * -1, _uiSize._fullChildBounds.Left * -1);
 
-            if (_uiSize._fullChildBounds.Bottom > PaddingBounds.Height)
-                _childOffset.Y = Math.Clamp(_childOffset.Y, (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1, _uiSize._fullChildBounds.Top * -1);
+            var prevOffset = _childOffset;
+
+            var minX = (_uiSize._fullChildBounds.Right - PaddingBounds.Width) * -1;
+            var maxX = _uiSize._fullChildBounds.Left * -1;
+            var minY = (_uiSize._fullChildBounds.Bottom - PaddingBounds.Height) * -1;
+            var maxY = _uiSize._fullChildBounds.Top * -1;
+
+            if (_uiSize._fullChildBounds.Width <= PaddingBounds.Width)
+                _childOffset.X = _uiSize._fullChildBounds.Left * -1;
+            else if (_uiSize._fullChildBounds.Right > PaddingBounds.Width)
+                _childOffset.X = Math.Clamp(_childOffset.X, minX, maxX);
+
+            if (_uiSize._fullChildBounds.Height <= PaddingBounds.Height)
+                _childOffset.Y = _uiSize._fullChildBounds.Top * -1;
+            else if (_uiSize._fullChildBounds.Bottom > PaddingBounds.Height)
+                _childOffset.Y = Math.Clamp(_childOffset.Y, minY, maxY);
         }
         #endregion
 
@@ -877,6 +888,7 @@ namespace ElementEngine.ElementUI
 
             SortChildren();
             HandleMargins();
+            ClampScroll();
             _layoutDirty = false;
         }
 
