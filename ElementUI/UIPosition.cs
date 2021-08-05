@@ -20,6 +20,18 @@ namespace ElementEngine.ElementUI
 
         internal Vector2I _internalOffset;
 
+        public void StopAutoPositionX()
+        {
+            CenterX = false;
+            AnchorRight = false;
+        }
+
+        public void StopAutoPositionY()
+        {
+            CenterY = false;
+            AnchorBottom = false;
+        }
+
         public Vector2I GetRelativePosition(UIObject obj)
         {
             return (Position ?? Vector2I.Zero);
@@ -47,6 +59,11 @@ namespace ElementEngine.ElementUI
                 position.X += (obj.Parent._size.X / 2) - (obj._size.X / 2);
             if (CenterY)
                 position.Y += (obj.Parent._size.Y / 2) - (obj._size.Y / 2);
+
+            if (AnchorRight)
+                position.X = obj.Parent.PaddingBounds.Right - obj._size.X;
+            if (AnchorBottom)
+                position.Y = obj.Parent.PaddingBounds.Bottom - obj._size.Y;
 
             position += obj._margins.TopLeft;
             position += _internalOffset;

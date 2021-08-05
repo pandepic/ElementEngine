@@ -83,6 +83,7 @@ namespace ElementEngine.ElementUI
         public void SetPosition(Vector2I position)
         {
             _uiPosition.Position = position;
+            InternalOnPositionChanged();
             SetLayoutDirty();
         }
 
@@ -92,6 +93,7 @@ namespace ElementEngine.ElementUI
                 _uiPosition.Position = new Vector2I();
 
             _uiPosition.Position += offset;
+            InternalOnPositionChanged();
             SetLayoutDirty();
         }
 
@@ -103,6 +105,7 @@ namespace ElementEngine.ElementUI
                 var current = _uiPosition.Position ?? Vector2I.Zero;
                 current.X = value;
                 _uiPosition.Position = current;
+                InternalOnPositionChanged();
                 SetLayoutDirty();
             }
         }
@@ -115,6 +118,7 @@ namespace ElementEngine.ElementUI
                 var current = _uiPosition.Position ?? Vector2I.Zero;
                 current.Y = value;
                 _uiPosition.Position = current;
+                InternalOnPositionChanged();
                 SetLayoutDirty();
             }
         }
@@ -125,6 +129,7 @@ namespace ElementEngine.ElementUI
             set
             {
                 _uiSize.Size = value;
+                InternalOnSizeChanged();
                 SetLayoutDirty();
             }
         }
@@ -267,6 +272,9 @@ namespace ElementEngine.ElementUI
         {
             get => new Rectangle(_position + _padding.TopLeft, _size - _padding.TopLeft - _padding.BottomRight);
         }
+
+        internal virtual void InternalOnPositionChanged() { }
+        internal virtual void InternalOnSizeChanged() { }
         #endregion
 
         #region Positioning

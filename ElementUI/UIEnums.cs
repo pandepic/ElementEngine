@@ -39,4 +39,17 @@ namespace ElementEngine.ElementUI
         Bold,
         Black,
     }
+
+    public enum UIScrollbarButtonType
+    {
+        OutsideRail,
+        CenterRailEdge,
+        InsideRail,
+    }
+
+    public enum UIScrollbarSliderType
+    {
+        Contain,
+        Center,
+    }
 }

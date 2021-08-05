@@ -260,6 +260,16 @@ namespace ElementEngine.ElementUI
                         }
                     }
                     break;
+
+                case Key.A:
+                    {
+                        if (InputManager.IsKeyDown(Key.ControlLeft) || InputManager.IsKeyDown(Key.ControlRight))
+                        {
+                            CursorIndex = 0;
+                            _selectionIndexStart = Text.Length;
+                        }
+                    }
+                    break;
             }
 
             return true;
@@ -336,9 +346,11 @@ namespace ElementEngine.ElementUI
             if (base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer))
                 return true;
 
-            IsPressed = true;
             UpdateCursorIndexFromMouse(mousePosition);
+
+            IsPressed = true;
             _selectionIndexStart = CursorIndex;
+
             return true;
         }
 

@@ -26,6 +26,22 @@ namespace ElementEngine.ElementUI
 
         internal Rectangle _fullChildBounds;
 
+        public void StopAutoSizeX()
+        {
+            AutoWidth = false;
+            ParentWidth = false;
+            ParentWidthRatio = null;
+            FillType = null;
+        }
+
+        public void StopAutoSizeY()
+        {
+            AutoHeight = false;
+            ParentHeight = false;
+            ParentHeightRatio = null;
+            FillType = null;
+        }
+
         public Vector2I GetRespectedParentSize(UIObject obj)
         {
             if (obj.Parent == null)
@@ -157,6 +173,7 @@ namespace ElementEngine.ElementUI
             }
 
             return size;
-        }
-    }
+
+        } // GetSize
+    } // UISize
 }

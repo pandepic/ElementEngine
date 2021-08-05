@@ -20,13 +20,13 @@ namespace ElementEngine.ElementUI
     {
         public UIObject Object;
         public T PreviousValue;
-        public T NextValue;
+        public T CurrentValue;
 
-        public UIOnValueChangedArgs(UIObject obj, T prev, T next)
+        public UIOnValueChangedArgs(UIObject obj, T prev, T current)
         {
             Object = obj;
             PreviousValue = prev;
-            NextValue = next;
+            CurrentValue = current;
         }
     }
 }

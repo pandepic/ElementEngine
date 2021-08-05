@@ -35,7 +35,7 @@ namespace ElementEngine.ElementUI
 
             OverflowType = OverflowType.Hide;
             CursorColor = cursorColor ?? RgbaByte.White;
-            SelectionColor = selectionColor ?? new RgbaByte(0, 0, 255, 120);
+            SelectionColor = selectionColor ?? new RgbaByte(100, 149, 237, 120);
         }
     } // UITextboxStyle
 }
