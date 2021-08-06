@@ -78,6 +78,7 @@ namespace ElementEngine
         protected Vertex2DPositionTexCoordsColor[] _vertexData;
         protected int _currentBatchCount = 0;
         protected Texture2D _currentTexture = null;
+        protected int _batchFlushCount = 0;
 
         protected Dictionary<uint, Stack<Rectangle?>> _scissorStack = new Dictionary<uint, Stack<Rectangle?>>();
 
@@ -360,6 +361,7 @@ namespace ElementEngine
             CommandList.UpdateBuffer(_transformBuffer, 0, _projection);
             CommandList.UpdateBuffer(_transformBuffer, (uint)sizeof(Matrix4x4), _view);
             CommandList.SetFullScissorRect(0);
+            _batchFlushCount = 0;
         }
 
         public void DrawText(SpriteFont font, string text, Vector2 position, RgbaByte color, int size, int outlineSize = 0)
@@ -578,13 +580,15 @@ namespace ElementEngine
             _currentBatchCount += 1;
         }
 
-        public void End()
+        public int End()
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call End.");
 
             Flush(_currentTexture);
             _begin = false;
+
+            return _batchFlushCount;
         }
 
         public unsafe void Flush(Texture2D texture)
@@ -592,6 +596,7 @@ namespace ElementEngine
             if (_currentBatchCount == 0)
                 return;
 
+            _batchFlushCount += 1;
             uint resourceSetIndex = 0;
 
             CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_currentBatchCount * VerticesPerQuad * sizeof(Vertex2DPositionTexCoordsColor)));

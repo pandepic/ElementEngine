@@ -33,6 +33,9 @@ namespace ElementEngine.ElementUI
             get => _drawOrder;
             set
             {
+                if (_drawOrder == value)
+                    return;
+
                 _drawOrder = value;
 
                 if (Parent != null)
@@ -47,6 +50,9 @@ namespace ElementEngine.ElementUI
             get => _ignoreParentPadding;
             set
             {
+                if (_ignoreParentPadding == value)
+                    return;
+
                 _ignoreParentPadding = value;
                 SetLayoutDirty();
             }
@@ -70,6 +76,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.FillType;
             set
             {
+                if (_uiSize.FillType == value)
+                    return;
+
                 _uiSize.FillType = value;
                 SetLayoutDirty();
             }
@@ -82,6 +91,9 @@ namespace ElementEngine.ElementUI
 
         public void SetPosition(Vector2I position)
         {
+            if (_uiPosition.Position == position)
+                return;
+
             _uiPosition.Position = position;
             InternalOnPositionChanged();
             SetLayoutDirty();
@@ -103,6 +115,10 @@ namespace ElementEngine.ElementUI
             set
             {
                 var current = _uiPosition.Position ?? Vector2I.Zero;
+
+                if (current.X == value)
+                    return;
+
                 current.X = value;
                 _uiPosition.Position = current;
                 InternalOnPositionChanged();
@@ -116,6 +132,10 @@ namespace ElementEngine.ElementUI
             set
             {
                 var current = _uiPosition.Position ?? Vector2I.Zero;
+
+                if (current.Y == value)
+                    return;
+
                 current.Y = value;
                 _uiPosition.Position = current;
                 InternalOnPositionChanged();
@@ -128,6 +148,9 @@ namespace ElementEngine.ElementUI
             get => _size;
             set
             {
+                if (_uiSize.Size == value)
+                    return;
+
                 _uiSize.Size = value;
                 InternalOnSizeChanged();
                 SetLayoutDirty();
@@ -140,6 +163,10 @@ namespace ElementEngine.ElementUI
             set
             {
                 var current = _uiSize.Size ?? Vector2I.Zero;
+
+                if (current.X == value)
+                    return;
+
                 current.X = value;
                 _uiSize.Size = current;
                 SetLayoutDirty();
@@ -152,6 +179,10 @@ namespace ElementEngine.ElementUI
             set
             {
                 var current = _uiSize.Size ?? Vector2I.Zero;
+
+                if (current.Y == value)
+                    return;
+
                 current.Y = value;
                 _uiSize.Size = current;
                 SetLayoutDirty();
@@ -163,6 +194,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.AutoWidth;
             set
             {
+                if (_uiSize.AutoWidth == value)
+                    return;
+
                 _uiSize.AutoWidth = value;
                 SetLayoutDirty();
             }
@@ -173,6 +207,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.AutoHeight;
             set
             {
+                if (_uiSize.AutoHeight == value)
+                    return;
+
                 _uiSize.AutoHeight = value;
                 SetLayoutDirty();
             }
@@ -183,6 +220,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.ParentWidth;
             set
             {
+                if (_uiSize.ParentWidth == value)
+                    return;
+
                 _uiSize.ParentWidth = value;
                 SetLayoutDirty();
             }
@@ -193,6 +233,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.ParentHeight;
             set
             {
+                if (_uiSize.ParentHeight == value)
+                    return;
+
                 _uiSize.ParentHeight = value;
                 SetLayoutDirty();
             }
@@ -203,6 +246,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.ParentWidthRatio;
             set
             {
+                if (_uiSize.ParentWidthRatio == value)
+                    return;
+
                 _uiSize.ParentWidthRatio = value;
                 SetLayoutDirty();
             }
@@ -213,6 +259,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.ParentHeightRatio;
             set
             {
+                if (_uiSize.ParentHeightRatio == value)
+                    return;
+
                 _uiSize.ParentHeightRatio = value;
                 SetLayoutDirty();
             }
@@ -223,6 +272,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.MinWidth;
             set
             {
+                if (_uiSize.MinWidth == value)
+                    return;
+
                 _uiSize.MinWidth = value;
                 SetLayoutDirty();
             }
@@ -233,6 +285,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.MaxWidth;
             set
             {
+                if (_uiSize.MaxWidth == value)
+                    return;
+
                 _uiSize.MaxWidth = value;
                 SetLayoutDirty();
             }
@@ -243,6 +298,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.MinHeight;
             set
             {
+                if (_uiSize.MinHeight == value)
+                    return;
+
                 _uiSize.MinHeight = value;
                 SetLayoutDirty();
             }
@@ -253,6 +311,9 @@ namespace ElementEngine.ElementUI
             get => _uiSize.MaxHeight;
             set
             {
+                if (_uiSize.MaxHeight == value)
+                    return;
+
                 _uiSize.MaxHeight = value;
                 SetLayoutDirty();
             }
@@ -862,6 +923,11 @@ namespace ElementEngine.ElementUI
             //_layoutDirty = true;
             //Parent?.SetLayoutDirty();
 
+            if (this is UIScreen)
+            {
+                var b = 0;
+            }
+
             if (ParentScreen != null)
                 ParentScreen._layoutDirty = true;
         }
@@ -872,7 +938,7 @@ namespace ElementEngine.ElementUI
                 UpdateLayout();
         }
 
-        internal virtual void UpdateLayout()
+        internal virtual void UpdateLayout(bool secondCheck = true)
         {
             _layoutDirty = false;
 
@@ -888,6 +954,12 @@ namespace ElementEngine.ElementUI
             SortChildren();
             HandleMargins();
             ClampScroll();
+
+            if (_layoutDirty && secondCheck)
+            {
+                UpdateLayout(false);
+                _layoutDirty = false;
+            }
         }
 
         internal void UpdateSize()
