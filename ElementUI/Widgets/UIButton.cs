@@ -11,8 +11,10 @@ namespace ElementEngine.ElementUI
     public class UIButton : UIObject
     {
         public new UIButtonStyle Style => (UIButtonStyle)_style;
-        public event Action<UIOnClickArgs> OnClick;
 
+        public event Action<UIOnClickArgs> OnClick;
+        public event Action<UIOnClickArgs> OnMouseDown;
+        
         public bool IsPressed { get; protected set; }
         public bool IsHovered { get; protected set; }
 
@@ -85,6 +87,22 @@ namespace ElementEngine.ElementUI
             return true;
         }
 
+        internal override bool InternalHandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            if (base.InternalHandleMouseButtonDown(mousePosition, button, gameTimer))
+                return true;
+
+            Console.WriteLine($"WHAT {Name} {IsPressed}");
+
+            if (IsPressed)
+            {
+                OnMouseDown?.Invoke(new UIOnClickArgs(this, button));
+                return true;
+            }
+
+            return false;
+        }
+
         internal override bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             if (base.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer))
@@ -93,7 +111,7 @@ namespace ElementEngine.ElementUI
             if (IsPressed)
             {
                 IsPressed = false;
-                OnClick?.Invoke(new UIOnClickArgs(this));
+                OnClick?.Invoke(new UIOnClickArgs(this, button));
                 return true;
             }
 

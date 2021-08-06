@@ -80,6 +80,9 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        internal bool _buttonLeftHeld = false;
+        internal bool _buttonRightHeld = false;
+
         public UIScrollbarH(string name, UIScrollbarStyleH style, int minValue, int maxValue, int stepSize = 1, int currentValue = 0) : base(name)
         {
             ApplyStyle(style);
@@ -110,7 +113,19 @@ namespace ElementEngine.ElementUI
 
                 ButtonLeft.OnClick += (args) =>
                 {
+                    if (_buttonLeftHeld)
+                    {
+                        _buttonLeftHeld = false;
+                        return;
+                    }
+
                     CurrentValue -= StepSize;
+                };
+
+                ButtonLeft.OnMouseDown += (args) =>
+                {
+                    CurrentValue -= StepSize;
+                    _buttonLeftHeld = true;
                 };
 
                 ButtonRight = new UIButton(name + "_ButtonRight", Style.ButtonRight);
@@ -122,7 +137,19 @@ namespace ElementEngine.ElementUI
 
                 ButtonRight.OnClick += (args) =>
                 {
+                    if (_buttonRightHeld)
+                    {
+                        _buttonRightHeld = false;
+                        return;
+                    }
+
                     CurrentValue += StepSize;
+                };
+
+                ButtonRight.OnMouseDown += (args) =>
+                {
+                    CurrentValue += StepSize;
+                    _buttonRightHeld = true;
                 };
             }
 

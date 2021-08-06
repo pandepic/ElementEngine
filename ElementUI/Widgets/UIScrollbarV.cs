@@ -81,6 +81,9 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        internal bool _buttonUpHeld = false;
+        internal bool _buttonDownHeld = false;
+
         public UIScrollbarV(string name, UIScrollbarStyleV style, int minValue, int maxValue, int stepSize = 1, int currentValue = 0) : base(name)
         {
             ApplyStyle(style);
@@ -111,7 +114,19 @@ namespace ElementEngine.ElementUI
 
                 ButtonUp.OnClick += (args) =>
                 {
+                    if (_buttonUpHeld)
+                    {
+                        _buttonUpHeld = false;
+                        return;
+                    }
+
                     CurrentValue -= StepSize;
+                };
+
+                ButtonUp.OnMouseDown += (args) =>
+                {
+                    CurrentValue -= StepSize;
+                    _buttonUpHeld = true;
                 };
 
                 ButtonDown = new UIButton(name + "_ButtonDown", Style.ButtonDown);
@@ -123,7 +138,19 @@ namespace ElementEngine.ElementUI
 
                 ButtonDown.OnClick += (args) =>
                 {
+                    if (_buttonDownHeld)
+                    {
+                        _buttonDownHeld = false;
+                        return;
+                    }
+
                     CurrentValue += StepSize;
+                };
+
+                ButtonDown.OnMouseDown += (args) =>
+                {
+                    CurrentValue += StepSize;
+                    _buttonDownHeld = true;
                 };
             }
 

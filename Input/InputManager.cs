@@ -31,13 +31,25 @@ namespace ElementEngine
 
     public static class InputManager
     {
+        public class MouseButtonDownState
+        {
+            public bool Down;
+            public float RepeatTimer;
+        }
+
+        /// <summary>
+        /// How often should a mouse button down event auto repeat while the button is held in seconds
+        /// </summary>
+        public static float MouseButtonDownRepeatTime = 0.1f;
+        public static bool MouseButtonDownAutoRepeat = true;
+
         public static InputSnapshot PrevSnapshot { get; set; }
         public static Vector2 PrevMousePosition { get; set; }
         public static Vector2 MousePosition { get; set; }
         public static float MouseWheelDelta { get; set; }
 
         public static Dictionary<Key, bool> KeysDown { get; set; } = new Dictionary<Key, bool>();
-        public static Dictionary<MouseButton, bool> MouseButtonsDown { get; set; } = new Dictionary<MouseButton, bool>();
+        public static Dictionary<MouseButton, MouseButtonDownState> MouseButtonsDown { get; set; } = new Dictionary<MouseButton, MouseButtonDownState>();
 
         private readonly static List<IKeyboardHandler> _keyboardHandlers = new List<IKeyboardHandler>();
         private readonly static List<IMouseHandler> _mouseHandlers = new List<IMouseHandler>();
@@ -141,9 +153,9 @@ namespace ElementEngine
 
                 if (MouseButtonsDown.ContainsKey(mouseEvent.MouseButton))
                 {
-                    if (MouseButtonsDown[mouseEvent.MouseButton] != mouseEvent.Down)
+                    if (MouseButtonsDown[mouseEvent.MouseButton].Down != mouseEvent.Down)
                     {
-                        MouseButtonsDown[mouseEvent.MouseButton] = mouseEvent.Down;
+                        MouseButtonsDown[mouseEvent.MouseButton].Down = mouseEvent.Down;
 
                         if (mouseEvent.Down)
                             HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
@@ -157,7 +169,7 @@ namespace ElementEngine
                 }
                 else
                 {
-                    MouseButtonsDown.Add(mouseEvent.MouseButton, mouseEvent.Down);
+                    MouseButtonsDown.Add(mouseEvent.MouseButton, new MouseButtonDownState() { Down = mouseEvent.Down });
 
                     if (mouseEvent.Down)
                         HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
@@ -165,6 +177,23 @@ namespace ElementEngine
                         HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
                 }
             } // MouseEvents
+
+            if (MouseButtonDownAutoRepeat)
+            {
+                foreach (var (button, mouseDown) in MouseButtonsDown)
+                {
+                    if (!mouseDown.Down)
+                        continue;
+
+                    mouseDown.RepeatTimer += gameTimer.DeltaS;
+
+                    if (mouseDown.RepeatTimer >= MouseButtonDownRepeatTime)
+                    {
+                        mouseDown.RepeatTimer = 0;
+                        HandleMouseButtonDown(button, gameTimer);
+                    }
+                }
+            }
 
             PrevSnapshot = snapshot;
 
