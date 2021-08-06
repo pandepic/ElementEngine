@@ -178,7 +178,14 @@ namespace ElementEngine.ElementUI
             if (base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer))
                 return true;
 
-            if (IsDraggable)
+            var disableDrag = false;
+
+            if (ScrollbarV?.IsSliding == true)
+                disableDrag = true;
+            if (ScrollbarH?.IsSliding == true)
+                disableDrag = true;
+
+            if (IsDraggable && !disableDrag)
             {
                 var draggableRect = (Style.IsFullDraggableRect ? new Rectangle(0, 0, Width, Height) : Style.DraggableRect.Value) + Position;
 

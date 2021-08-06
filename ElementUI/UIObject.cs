@@ -923,11 +923,6 @@ namespace ElementEngine.ElementUI
             //_layoutDirty = true;
             //Parent?.SetLayoutDirty();
 
-            if (this is UIScreen)
-            {
-                var b = 0;
-            }
-
             if (ParentScreen != null)
                 ParentScreen._layoutDirty = true;
         }
@@ -1104,12 +1099,14 @@ namespace ElementEngine.ElementUI
 
             foreach (var child in Children)
             {
-                if (child.IsVisible)
-                {
-                    child.PreDraw(spriteBatch);
-                    child.Draw(spriteBatch);
-                    child.PostDraw(spriteBatch);
-                }
+                if (!child.IsVisible)
+                    continue;
+                if (_useScissorRect && !child.IgnoreOverflow && !Bounds.Intersects(child.Bounds))
+                    continue;
+
+                child.PreDraw(spriteBatch);
+                child.Draw(spriteBatch);
+                child.PostDraw(spriteBatch);
             }
 
             InnerPostDraw(spriteBatch);
@@ -1237,7 +1234,7 @@ namespace ElementEngine.ElementUI
                     continue;
                 if (!child.CanFocus)
                     return child;
-                
+
                 if (child.IsFocused)
                     return child;
             }
