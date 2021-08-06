@@ -92,8 +92,6 @@ namespace ElementEngine.ElementUI
             if (base.InternalHandleMouseButtonDown(mousePosition, button, gameTimer))
                 return true;
 
-            Console.WriteLine($"WHAT {Name} {IsPressed}");
-
             if (IsPressed)
             {
                 OnMouseDown?.Invoke(new UIOnClickArgs(this, button));
