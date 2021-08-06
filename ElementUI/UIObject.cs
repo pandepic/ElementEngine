@@ -265,12 +265,12 @@ namespace ElementEngine.ElementUI
 
         public Rectangle MarginBounds
         {
-            get => new Rectangle(_position - _margins.TopLeft, _size + _margins.TopLeft + _margins.BottomRight);
+            get => new Rectangle(DrawPosition - _margins.TopLeft, _size + _margins.TopLeft + _margins.BottomRight);
         }
 
         public Rectangle PaddingBounds
         {
-            get => new Rectangle(_position + _padding.TopLeft, _size - _padding.TopLeft - _padding.BottomRight);
+            get => new Rectangle(DrawPosition + _padding.TopLeft, _size - _padding.TopLeft - _padding.BottomRight);
         }
 
         internal virtual void InternalOnPositionChanged() { }
@@ -870,13 +870,12 @@ namespace ElementEngine.ElementUI
         {
             if (_layoutDirty)
                 UpdateLayout();
-
-            foreach (var child in Children)
-                child.CheckLayout();
         }
 
         internal virtual void UpdateLayout()
         {
+            _layoutDirty = false;
+
             foreach (var child in Children)
                 child.UpdateLayout();
 
@@ -889,7 +888,6 @@ namespace ElementEngine.ElementUI
             SortChildren();
             HandleMargins();
             ClampScroll();
-            _layoutDirty = false;
         }
 
         internal void UpdateSize()

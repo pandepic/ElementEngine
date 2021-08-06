@@ -237,7 +237,7 @@ namespace ElementEngine.ElementUI
             }
             else if (!ButtonLeft.IsPressed && !ButtonRight.IsPressed)
             {
-                _slidingMouseOffset = new Vector2I(0, Slider.Height / 2);
+                _slidingMouseOffset = new Vector2I(Slider.Width / 2, 0);
                 var currentMouseOffset = mousePosition.ToVector2I() - Slider.Position;
 
                 if (currentMouseOffset.X == _slidingMouseOffset.X)

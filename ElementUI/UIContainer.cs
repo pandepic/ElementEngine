@@ -36,6 +36,7 @@ namespace ElementEngine.ElementUI
                     ScrollbarV.AnchorTop = true;
                     ScrollbarV.AnchorRight = true;
                     ScrollbarV.IgnoreOverflow = true;
+                    ScrollbarV.DrawOrder = int.MaxValue;
                     AddChild(ScrollbarV);
 
                     ScrollbarV.OnValueChanged += (args) =>
@@ -60,6 +61,7 @@ namespace ElementEngine.ElementUI
                     ScrollbarH.AnchorLeft = true;
                     ScrollbarH.AnchorBottom = true;
                     ScrollbarH.IgnoreOverflow = true;
+                    ScrollbarH.DrawOrder = int.MaxValue;
                     AddChild(ScrollbarH);
 
                     ScrollbarH.OnValueChanged += (args) =>
@@ -102,18 +104,19 @@ namespace ElementEngine.ElementUI
                 }
                 else
                 {
-                    if (ScrollbarV.MaxValue != absY || force)
+                    var height = PaddingBounds.Height;
+
+                    if (ScrollbarV.MaxValue != absY || ScrollbarV.Height != height || force)
                     {
                         ScrollbarV.MinValue = 0;
                         ScrollbarV.MaxValue = absY;
-                        ScrollbarV.Height = PaddingBounds.Height;
+                        ScrollbarV.Height = height;
 
                         var diff = Math.Abs(_childOffset.Y - minY);
                         ScrollbarV.CurrentValue = absY - diff;
 
                         ScrollbarV.IsVisible = true;
                         ScrollbarV.IsActive = true;
-                        _dirtyNextUpdate = true;
                     }
                 }
             }
@@ -127,18 +130,21 @@ namespace ElementEngine.ElementUI
                 }
                 else
                 {
-                    if (ScrollbarH.MaxValue != absX || force)
+                    var width = PaddingBounds.Width;
+                    if (ScrollbarV != null && ScrollbarV.IsVisible)
+                        width = PaddingBounds.Width - ScrollbarV._uiSize.Size.Value.X;
+
+                    if (ScrollbarH.MaxValue != absX || ScrollbarH.Width != width || force)
                     {
                         ScrollbarH.MinValue = 0;
                         ScrollbarH.MaxValue = absX;
-                        ScrollbarH.Width = PaddingBounds.Width;
+                        ScrollbarH.Width = width;
 
                         var diff = Math.Abs(_childOffset.X - minX);
                         ScrollbarH.CurrentValue = absX - diff;
 
                         ScrollbarH.IsVisible = true;
                         ScrollbarH.IsActive = true;
-                        _dirtyNextUpdate = true;
                     }
                 }
             }
@@ -159,12 +165,6 @@ namespace ElementEngine.ElementUI
         {
             Style.Background?.Update(gameTimer);
             base.Update(gameTimer);
-
-            if (_dirtyNextUpdate)
-            {
-                SetLayoutDirty();
-                _dirtyNextUpdate = false;
-            }
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
