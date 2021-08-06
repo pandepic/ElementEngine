@@ -263,7 +263,7 @@ namespace ElementEngine.ElementUI
                 _slidingMouseOffset = mousePosition.ToVector2I() - Slider.Position;
                 IsSliding = true;
             }
-            else if (!ButtonUp.IsPressed && !ButtonDown.IsPressed)
+            else if ((ButtonUp == null || !ButtonUp.IsPressed) && (ButtonDown == null || !ButtonDown.IsPressed))
             {
                 _slidingMouseOffset = new Vector2I(0, Slider.Height / 2);
                 var currentMouseOffset = mousePosition.ToVector2I() - Slider.Position;

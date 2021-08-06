@@ -84,13 +84,15 @@ namespace ElementEngine.ElementUI
             ButtonCollapsed = new UIButton(name + "_ButtonCollapsed", Style.ButtonCollapsed);
             ButtonCollapsedLabel = new UILabel(name + "_ButtonCollapsedLabel", Style.SelectedLabelStyle, "");
             ButtonCollapsed.AddChild(ButtonCollapsedLabel);
+            ButtonCollapsed.UpdateLayout();
 
             ButtonExpanded = new UIButton(name + "_ButtonExpanded", Style.ButtonExpanded);
             ButtonExpandedLabel = new UILabel(name + "_ButtonExpandedLabel", Style.SelectedLabelStyle, "");
             ButtonExpanded.AddChild(ButtonExpandedLabel);
+            ButtonExpanded.UpdateLayout();
 
             ListContainer = new UIContainer(name + "_ListContainer", Style.ListContainer);
-            ListContainer.SetPosition(0, ButtonExpanded._uiSize.Size.Value.Y);
+            ListContainer.SetPosition(0, ButtonExpanded.Height);
             ListContainer.CenterX = true;
 
             AddChild(ListContainer);
@@ -146,11 +148,13 @@ namespace ElementEngine.ElementUI
             {
                 var itemButton = new UIButton(Name + "_ListContainer_" + item.Value.ToString(), Style.ItemButtonStyle);
                 var itemLabel = new UILabel(Name + "_ListContainer_" + item.Value.ToString() + "_Label", Style.ItemButtonLabelStyle, item.Text);
+                
                 itemButton.AddChild(itemLabel);
                 itemButton.SetPosition(nextButtonPosition);
+                itemButton.UpdateLayout();
                 ListContainer.AddChild(itemButton);
 
-                nextButtonPosition.Y += itemButton._uiSize.Size.HasValue ? itemButton._uiSize.Size.Value.Y : itemButton.Height;
+                nextButtonPosition.Y += itemButton.Height;
 
                 itemButton.OnClick += (args) =>
                 {
