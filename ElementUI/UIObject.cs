@@ -84,6 +84,9 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public void SetPosition(float x, float y) => SetPosition(new Vector2(x, y));
+        public void SetPosition(int x, int y) => SetPosition(new Vector2I(x, y));
+
         public void SetPosition(Vector2 position)
         {
             SetPosition(position.ToVector2I());
@@ -736,6 +739,16 @@ namespace ElementEngine.ElementUI
             Height = size.Y;
         }
 
+        public void OverrideDefaultSize(UISprite sprite)
+        {
+            OverrideDefaultSize(sprite.Size);
+        }
+
+        public void OverrideDefaultSize(UIObject obj)
+        {
+            OverrideDefaultSize(obj.Size);
+        }
+
         public void OverrideDefaultSize(Vector2I size)
         {
             Width = size.X;
@@ -803,6 +816,18 @@ namespace ElementEngine.ElementUI
                     SetLayoutDirty();
                 }
             }
+        }
+
+        public void ClearChildrenByType<T>() where T : UIObject
+        {
+            for (var i = Children.Count - 1; i >= 0; i--)
+            {
+                var child = Children[i];
+                if (child is T)
+                    Children.RemoveAt(i);
+            }
+
+            SetLayoutDirty();
         }
 
         public void ClearChildren()
@@ -1295,9 +1320,12 @@ namespace ElementEngine.ElementUI
         internal virtual bool InternalHandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             var child = GetFirstChildContainsMouse(mousePosition);
-            child?.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
+            var childCaptured = child?.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
 
-            return child != null;
+            if (childCaptured.HasValue && childCaptured.Value == true)
+                return true;
+            else
+                return false;
         }
 
         internal virtual bool InternalHandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)

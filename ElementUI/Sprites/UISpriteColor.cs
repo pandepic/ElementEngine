@@ -14,7 +14,7 @@ namespace ElementEngine.ElementUI
         public UISpriteColor(Veldrid.RgbaByte color, Vector2I? size = null)
         {
             Size = size ?? Vector2I.One;
-            Texture = new Texture2D(Size.X, Size.Y, color);
+            Texture = new Texture2D(1, 1, color);
         }
 
         public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0)

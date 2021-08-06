@@ -11,6 +11,8 @@ namespace ElementEngine.ElementUI
     {
         public Vector2I Size;
         public UIPosition Position;
+        public UISpacing Margin;
+        public bool IgnoreSize;
 
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0f) { }
@@ -22,8 +24,14 @@ namespace ElementEngine.ElementUI
             if (Position.CenterX)
                 position.X += (parent.Size.X / 2) - (size.X / 2);
             if (Position.CenterY)
-                position.X += (parent.Size.Y / 2) - (size.Y / 2);
+                position.Y += (parent.Size.Y / 2) - (size.Y / 2);
 
+            if (Position.AnchorRight)
+                position.X += parent.PaddingLeft + (parent.PaddingBounds.Width - size.X) - Margin.Right;
+            if (Position.AnchorBottom)
+                position.Y += parent.PaddingTop + (parent.PaddingBounds.Height - size.Y) - Margin.Bottom;
+
+            position += Margin.TopLeft;
             return position;
         }
 

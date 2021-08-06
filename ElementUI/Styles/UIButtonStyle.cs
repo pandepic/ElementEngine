@@ -8,21 +8,21 @@ namespace ElementEngine.ElementUI
 {
     public class UIButtonStyle : UIStyle
     {
-        public UISprite SpriteNormal;
-        public UISprite SpritePressed;
-        public UISprite SpriteHover;
-        public UISprite SpriteDisabled;
+        public UIImageStyle ImageNormal;
+        public UIImageStyle ImagePressed;
+        public UIImageStyle ImageHover;
+        public UIImageStyle ImageDisabled;
 
         public UIButtonStyle(
-            UISprite spriteNormal,
-            UISprite spritePressed = null,
-            UISprite spriteHover = null,
-            UISprite spriteDisabled = null)
+            UIImageStyle spriteNormal,
+            UIImageStyle spritePressed = null,
+            UIImageStyle spriteHover = null,
+            UIImageStyle spriteDisabled = null)
         {
-            SpriteNormal = spriteNormal;
-            SpritePressed = spritePressed;
-            SpriteHover = spriteHover;
-            SpriteDisabled = spriteDisabled;
+            ImageNormal = spriteNormal;
+            ImagePressed = spritePressed;
+            ImageHover = spriteHover;
+            ImageDisabled = spriteDisabled;
         }
 
     } // UIButtonStyle

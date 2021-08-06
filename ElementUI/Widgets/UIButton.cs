@@ -18,46 +18,86 @@ namespace ElementEngine.ElementUI
         public bool IsPressed { get; protected set; }
         public bool IsHovered { get; protected set; }
 
+        public readonly UIImage ImageNormal;
+        public readonly UIImage ImagePressed;
+        public readonly UIImage ImageHover;
+        public readonly UIImage ImageDisabled;
+
+        internal UIImage _prevCurrentImage = null;
+
         public UIButton(string name, UIButtonStyle style) : base(name)
         {
             ApplyStyle(style);
-            ApplyDefaultSize(Style.SpriteNormal);
+            ApplyDefaultSize(Style.ImageNormal.Sprite);
+
+            ImageNormal = new UIImage(name + "_Normal", Style.ImageNormal);
+            AddChild(ImageNormal);
+
+            if (Style.ImagePressed != null)
+            {
+                ImagePressed = new UIImage(name + "_Normal", Style.ImagePressed);
+                AddChild(ImagePressed);
+            }
+
+            if (Style.ImageHover != null)
+            {
+                ImageHover = new UIImage(name + "_Normal", Style.ImageHover);
+                AddChild(ImageHover);
+            }
+
+            if (Style.ImageDisabled != null)
+            {
+                ImageDisabled = new UIImage(name + "_Normal", Style.ImageDisabled);
+                AddChild(ImageDisabled);
+            }
+
+            UpdateCurrentImage();
         }
 
-        public UISprite CurrentSprite()
+        public void UpdateCurrentImage()
         {
-            var sprite = Style.SpriteNormal;
+            var currentImage = ImageNormal;
 
             if (!IsActive)
             {
-                sprite = Style.SpriteDisabled ?? sprite;
+                currentImage = ImageDisabled ?? currentImage;
             }
             else
             {
                 if (IsPressed)
-                    sprite = Style.SpritePressed ?? sprite;
+                    currentImage = ImagePressed ?? currentImage;
                 else if (IsHovered)
-                    sprite = Style.SpriteHover ?? sprite;
+                    currentImage = ImageHover ?? currentImage;
             }
 
-            return sprite;
-        }
+            if (_prevCurrentImage != currentImage)
+            {
+                ImageNormal?.Hide();
+                ImageNormal?.Disable();
+                ImagePressed?.Hide();
+                ImagePressed?.Disable();
+                ImageHover?.Hide();
+                ImageHover?.Disable();
+                ImageDisabled?.Hide();
+                ImageDisabled?.Disable();
+
+                currentImage.Show();
+                currentImage.Enable();
+            }
+
+        } // UpdateCurrentImage
 
         public override void Update(GameTimer gameTimer)
         {
-            Style.SpriteNormal?.Update(gameTimer);
-            Style.SpriteDisabled?.Update(gameTimer);
-            Style.SpritePressed?.Update(gameTimer);
-            Style.SpriteHover?.Update(gameTimer);
+            if (!IsVisible)
+                UpdateCurrentImage();
 
             base.Update(gameTimer);
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            var sprite = CurrentSprite();
-            sprite?.Draw(this, spriteBatch, DrawPosition, _size);
-
+            UpdateCurrentImage();
             base.Draw(spriteBatch);
         }
 

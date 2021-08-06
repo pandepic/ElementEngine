@@ -24,7 +24,7 @@ namespace ElementEngine.ElementUI
 
         public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0f)
         {
-            Texture.Draw(spriteBatch, GetDrawPosition(parent, position, size ?? Size).ToVector2(), Texture.GetScale(size), rotation);
+            Texture.Draw(spriteBatch, GetDrawPosition(parent, position, IgnoreSize ? Size : (size ?? Size)).ToVector2(), IgnoreSize ? Vector2.One : Texture.GetScale(size), rotation);
         }
     }
 }
