@@ -155,7 +155,7 @@ namespace ElementEngine.ElementUI
             UpdateScrollbars(true);
         }
 
-        internal override void UpdateLayout(bool secondCheck = true)
+        public override void UpdateLayout(bool secondCheck = true)
         {
             base.UpdateLayout(secondCheck);
             UpdateScrollbars(false);

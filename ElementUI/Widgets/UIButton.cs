@@ -8,9 +8,57 @@ using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
+    public class UIButtonTabGroup
+    {
+        public string Name;
+        public List<UIButton> Children = new List<UIButton>();
+
+        public UIButtonTabGroup(string name)
+        {
+            Name = name;
+        }
+
+        public void Select(string name)
+        {
+            foreach (var child in Children)
+            {
+                if (child.Name == name)
+                {
+                    Select(child);
+                    return;
+                }
+            }
+        }
+
+        public void Select(UIButton child)
+        {
+            foreach (var checkChild in Children)
+            {
+                if (checkChild == child)
+                    checkChild.IsSelected = true;
+                else
+                    checkChild.IsSelected = false;
+            }
+        }
+
+        public UIButton GetSelected()
+        {
+            foreach (var child in Children)
+            {
+                if (child.IsSelected)
+                    return child;
+            }
+
+            return null;
+        }
+    } // UIButtonTabGroup
+
     public class UIButton : UIObject
     {
         public new UIButtonStyle Style => (UIButtonStyle)_style;
+
+        public bool IsTab => TabGroup != null;
+        public UIButtonTabGroup TabGroup;
 
         public event Action<UIOnClickArgs> OnClick;
         public event Action<UIOnClickArgs> OnMouseDown;
@@ -18,14 +66,25 @@ namespace ElementEngine.ElementUI
         public bool IsPressed { get; protected set; }
         public bool IsHovered { get; protected set; }
 
+        internal bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+            }
+        }
+
         public readonly UIImage ImageNormal;
         public readonly UIImage ImagePressed;
         public readonly UIImage ImageHover;
         public readonly UIImage ImageDisabled;
+        public readonly UIImage ImageSelected;
 
         internal UIImage _prevCurrentImage = null;
 
-        public UIButton(string name, UIButtonStyle style) : base(name)
+        public UIButton(string name, UIButtonStyle style, UIButtonTabGroup tabGroup = null) : base(name)
         {
             ApplyStyle(style);
             ApplyDefaultSize(Style.ImageNormal.Sprite);
@@ -35,20 +94,35 @@ namespace ElementEngine.ElementUI
 
             if (Style.ImagePressed != null)
             {
-                ImagePressed = new UIImage(name + "_Normal", Style.ImagePressed);
+                ImagePressed = new UIImage(name + "_Pressed", Style.ImagePressed);
                 AddChild(ImagePressed);
             }
 
             if (Style.ImageHover != null)
             {
-                ImageHover = new UIImage(name + "_Normal", Style.ImageHover);
+                ImageHover = new UIImage(name + "_Hover", Style.ImageHover);
                 AddChild(ImageHover);
             }
 
             if (Style.ImageDisabled != null)
             {
-                ImageDisabled = new UIImage(name + "_Normal", Style.ImageDisabled);
+                ImageDisabled = new UIImage(name + "_Disabled", Style.ImageDisabled);
                 AddChild(ImageDisabled);
+            }
+
+            if (Style.ImageSelected != null)
+            {
+                ImageSelected = new UIImage(name + "_Selected", Style.ImageSelected);
+                AddChild(ImageSelected);
+            }
+
+            if (tabGroup != null)
+            {
+                TabGroup = tabGroup;
+                TabGroup.Children.AddIfNotContains(this);
+
+                if (TabGroup.Children.Count == 1)
+                    TabGroup.Select(this);
             }
 
             UpdateCurrentImage();
@@ -57,6 +131,9 @@ namespace ElementEngine.ElementUI
         public void UpdateCurrentImage()
         {
             var currentImage = ImageNormal;
+
+            if (IsSelected)
+                currentImage = ImageSelected ?? currentImage;
 
             if (!IsActive)
             {
@@ -72,17 +149,13 @@ namespace ElementEngine.ElementUI
 
             if (_prevCurrentImage != currentImage)
             {
-                ImageNormal?.Hide();
-                ImageNormal?.Disable();
-                ImagePressed?.Hide();
-                ImagePressed?.Disable();
-                ImageHover?.Hide();
-                ImageHover?.Disable();
-                ImageDisabled?.Hide();
-                ImageDisabled?.Disable();
+                ImageNormal?.HideDisable();
+                ImagePressed?.HideDisable();
+                ImageHover?.HideDisable();
+                ImageDisabled?.HideDisable();
+                ImageSelected?.HideDisable();
 
-                currentImage.Show();
-                currentImage.Enable();
+                currentImage.ShowEnable();
             }
 
         } // UpdateCurrentImage
@@ -150,6 +223,10 @@ namespace ElementEngine.ElementUI
             {
                 IsPressed = false;
                 OnClick?.Invoke(new UIOnClickArgs(this, button));
+
+                if (IsTab)
+                    TabGroup.Select(this);
+
                 return true;
             }
 

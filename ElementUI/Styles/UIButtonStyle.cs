@@ -12,17 +12,20 @@ namespace ElementEngine.ElementUI
         public UIImageStyle ImagePressed;
         public UIImageStyle ImageHover;
         public UIImageStyle ImageDisabled;
+        public UIImageStyle ImageSelected;
 
         public UIButtonStyle(
             UIImageStyle spriteNormal,
             UIImageStyle spritePressed = null,
             UIImageStyle spriteHover = null,
-            UIImageStyle spriteDisabled = null)
+            UIImageStyle spriteDisabled = null,
+            UIImageStyle spriteSelected = null)
         {
             ImageNormal = spriteNormal;
             ImagePressed = spritePressed;
             ImageHover = spriteHover;
             ImageDisabled = spriteDisabled;
+            ImageSelected = spriteSelected;
         }
 
     } // UIButtonStyle

@@ -977,7 +977,7 @@ namespace ElementEngine.ElementUI
                 UpdateLayout();
         }
 
-        internal virtual void UpdateLayout(bool secondCheck = true)
+        public virtual void UpdateLayout(bool secondCheck = true)
         {
             _layoutDirty = false;
 

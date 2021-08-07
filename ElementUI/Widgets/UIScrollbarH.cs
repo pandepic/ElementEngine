@@ -219,7 +219,7 @@ namespace ElementEngine.ElementUI
             Slider.X = (int)(_sliderMinX + (CurrentValue * _distancePerChange));
         }
 
-        internal override void UpdateLayout(bool secondCheck = true)
+        public override void UpdateLayout(bool secondCheck = true)
         {
             base.UpdateLayout(secondCheck);
             UpdateSizesPositions();

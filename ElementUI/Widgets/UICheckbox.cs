@@ -20,7 +20,7 @@ namespace ElementEngine.ElementUI
 
         public void Select(string name)
         {
-            foreach (var child  in Children)
+            foreach (var child in Children)
             {
                 if (child.Name == name)
                 {
@@ -40,7 +40,7 @@ namespace ElementEngine.ElementUI
                     checkChild.IsChecked = false;
             }
         }
-
+        
         public UICheckbox GetSelected()
         {
             foreach (var child in Children)

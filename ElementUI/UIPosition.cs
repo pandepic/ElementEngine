@@ -61,12 +61,11 @@ namespace ElementEngine.ElementUI
                 position.Y += (obj.Parent._size.Y / 2) - (obj._size.Y / 2);
 
             if (AnchorRight)
-                position.X = obj.Parent.PaddingBounds.Right - obj._size.X;
+                position.X = obj.Parent.PaddingBounds.Right - obj._size.X - obj._margins.Right;
             if (AnchorBottom)
-                position.Y = obj.Parent.PaddingBounds.Bottom - obj._size.Y;
+                position.Y = obj.Parent.PaddingBounds.Bottom - obj._size.Y - obj._margins.Bottom;
 
             position += obj._margins.TopLeft;
-            position -= obj._margins.BottomRight;
             position += _internalOffset;
 
             return position;
