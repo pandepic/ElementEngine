@@ -43,7 +43,7 @@ namespace ElementEngine.ElementUI
                 return GetRelativePosition(obj);
 
             var position = GetRelativePosition(obj);
-            var parentOrigin = obj.IgnoreParentPadding ? Vector2I.Zero : obj.Parent._childOrigin;
+            var parentOrigin = obj.IgnoreParentPadding ? obj.Parent._position : obj.Parent._childOrigin;
 
             if (IsAutoPositionX)
                 position.X += obj.Parent._position.X;

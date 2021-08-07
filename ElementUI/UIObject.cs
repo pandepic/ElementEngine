@@ -119,7 +119,7 @@ namespace ElementEngine.ElementUI
             {
                 var current = _uiPosition.Position ?? Vector2I.Zero;
 
-                if (current.X == value)
+                if (_uiPosition.Position.HasValue && current.X == value)
                     return;
 
                 current.X = value;
@@ -136,7 +136,7 @@ namespace ElementEngine.ElementUI
             {
                 var current = _uiPosition.Position ?? Vector2I.Zero;
 
-                if (current.Y == value)
+                if (_uiPosition.Position.HasValue && current.Y == value)
                     return;
 
                 current.Y = value;
@@ -710,6 +710,7 @@ namespace ElementEngine.ElementUI
         internal UISpacing _margins;
         internal UISpacing _padding;
 
+        internal Vector2I? _preMarginPosition = null;
         internal Vector2I _parentOffset => Parent == null ? Vector2I.Zero : IgnoreOverflow ? Parent._parentOffset : Parent._childOffset + Parent._parentOffset;
         internal bool _layoutDirty { get; set; } = false;
 
@@ -1012,6 +1013,18 @@ namespace ElementEngine.ElementUI
             _childOrigin = _position + _padding.TopLeft;
         }
 
+        internal bool CheckHandleObjectMargin(UIObject obj, UIObject compare)
+        {
+            if (obj == compare)
+                return false;
+            if (!obj._uiPosition.Position.HasValue)
+                return false;
+            if (!obj.HasMargin)
+                return false;
+
+            return true;
+        }
+
         internal virtual void HandleMargins()
         {
             UIObject firstChildWithMargin = null;
@@ -1025,32 +1038,29 @@ namespace ElementEngine.ElementUI
                 }
             }
 
+            foreach (var child in Children)
+            {
+                if (!CheckHandleObjectMargin(child, firstChildWithMargin))
+                    continue;
+
+                if (_preMarginPosition.HasValue)
+                    child._uiPosition.Position = _preMarginPosition;
+            }
+
             // vertical margin
             foreach (var child in Children)
             {
-                if (child == firstChildWithMargin)
-                    continue;
-                if (!child._uiPosition.Position.HasValue)
-                    continue;
-                if (child is UIContainer)
-                    continue;
-                if (!child.HasMargin)
+                if (!CheckHandleObjectMargin(child, firstChildWithMargin))
                     continue;
 
                 var sortedChildren = GlobalObjectPool<List<UIObject>>.Rent();
                 sortedChildren.Clear();
                 sortedChildren.AddRange(Children);
-                sortedChildren.Sort((obj1, obj2) => { return obj1.Position.Y.CompareTo(obj2.Position.Y); });
+                sortedChildren.Sort((obj1, obj2) => { return obj1.DrawPosition.Y.CompareTo(obj2.DrawPosition.Y); });
 
                 foreach (var sibling in sortedChildren)
                 {
-                    if (child == sibling)
-                        continue;
-                    if (!sibling.HasMargin)
-                        continue;
-                    if (sibling is UIContainer)
-                        continue;
-                    if (!child.MarginBounds.Intersects(sibling.MarginBounds))
+                    if (!CheckHandleObjectMargin(child, sibling))
                         continue;
 
                     if ((child.MarginTop > 0 || sibling.MarginBottom > 0) && !child._uiPosition.IsAutoPositionY)
@@ -1058,6 +1068,10 @@ namespace ElementEngine.ElementUI
                         if (child.MarginBounds.Top < sibling.MarginBounds.Bottom && child.MarginBounds.Bottom > sibling.MarginBounds.Top)
                         {
                             var offset = new Vector2I(0, sibling.MarginBounds.Bottom - child.MarginBounds.Top);
+
+                            if (!_preMarginPosition.HasValue)
+                                _preMarginPosition = child._uiPosition.Position;
+
                             child._uiPosition.Position += offset;
                             child.UpdateLayout();
                         }
@@ -1070,29 +1084,17 @@ namespace ElementEngine.ElementUI
             // horizontal margin
             foreach (var child in Children)
             {
-                if (child == firstChildWithMargin)
-                    continue;
-                if (!child._uiPosition.Position.HasValue)
-                    continue;
-                if (child is UIContainer)
-                    continue;
-                if (!child.HasMargin)
+                if (!CheckHandleObjectMargin(child, firstChildWithMargin))
                     continue;
 
                 var sortedChildren = GlobalObjectPool<List<UIObject>>.Rent();
                 sortedChildren.Clear();
                 sortedChildren.AddRange(Children);
-                sortedChildren.Sort((obj1, obj2) => { return obj1.Position.X.CompareTo(obj2.Position.X); });
+                sortedChildren.Sort((obj1, obj2) => { return obj1.DrawPosition.X.CompareTo(obj2.DrawPosition.X); });
 
                 foreach (var sibling in sortedChildren)
                 {
-                    if (child == sibling)
-                        continue;
-                    if (!sibling.HasMargin)
-                        continue;
-                    if (sibling is UIContainer)
-                        continue;
-                    if (!child.MarginBounds.Intersects(sibling.MarginBounds))
+                    if (!CheckHandleObjectMargin(child, sibling))
                         continue;
 
                     if ((child.MarginLeft > 0 || sibling.MarginRight > 0) && !child._uiPosition.IsAutoPositionX)
@@ -1100,6 +1102,10 @@ namespace ElementEngine.ElementUI
                         if (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left)
                         {
                             var offset = new Vector2I(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
+
+                            if (!_preMarginPosition.HasValue)
+                                _preMarginPosition = child._uiPosition.Position;
+
                             child._uiPosition.Position += offset;
                             child.UpdateLayout();
                         }

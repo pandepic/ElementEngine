@@ -169,7 +169,7 @@ namespace ElementEngine.ElementUI
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            Style.Background?.Draw(this, spriteBatch, _position, _size);
+            Style.Background?.Draw(this, spriteBatch, DrawPosition, _size);
             base.Draw(spriteBatch);
         }
 
