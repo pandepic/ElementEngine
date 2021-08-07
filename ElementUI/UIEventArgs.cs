@@ -32,4 +32,16 @@ namespace ElementEngine.ElementUI
             CurrentValue = current;
         }
     }
+
+    public struct UIOnSelectedTabChangedArgs
+    {
+        public UIButton PreviousTab;
+        public UIButton CurrentTab;
+
+        public UIOnSelectedTabChangedArgs(UIButton prev, UIButton current)
+        {
+            PreviousTab = prev;
+            CurrentTab = current;
+        }
+    }
 }

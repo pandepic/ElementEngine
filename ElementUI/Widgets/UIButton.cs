@@ -12,6 +12,7 @@ namespace ElementEngine.ElementUI
     {
         public string Name;
         public List<UIButton> Children = new List<UIButton>();
+        public event Action<UIOnSelectedTabChangedArgs> OnValueChanged;
 
         public UIButtonTabGroup(string name)
         {
@@ -32,6 +33,8 @@ namespace ElementEngine.ElementUI
 
         public void Select(UIButton child)
         {
+            var prevSelected = GetSelected();
+
             foreach (var checkChild in Children)
             {
                 if (checkChild == child)
@@ -39,6 +42,9 @@ namespace ElementEngine.ElementUI
                 else
                     checkChild.IsSelected = false;
             }
+
+            if (prevSelected != child)
+                OnValueChanged?.Invoke(new UIOnSelectedTabChangedArgs(prevSelected, child));
         }
 
         public UIButton GetSelected()
