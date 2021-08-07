@@ -118,15 +118,15 @@ namespace ElementEngine
 
         } // SetupWindow
 
-        public unsafe SDL_DisplayMode GetCurrentDisplayMode()
+        public unsafe SDL_DisplayMode GetCurrentDisplayMode(int displayIndex = 0)
         {
             var displayMode = new SDL_DisplayMode();
-            var result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &displayMode);
+            var result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
 
             if (result == -1)
             {
                 VeldridStartup.CreateWindow(new WindowCreateInfo());
-                result = Sdl2Native.SDL_GetCurrentDisplayMode(0, &displayMode);
+                result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
 
                 if (result == -1)
                 {

@@ -35,7 +35,9 @@ namespace ElementEngine.ElementUI
     public enum UIFontWeight
     {
         Normal,
+        Thin,
         Light,
+        Medium,
         Bold,
         Black,
     }

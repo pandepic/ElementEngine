@@ -298,14 +298,12 @@ namespace ElementEngine.ElementUI
             if (searchDirection == 1 && CursorIndex == Text.Length)
                 return true;
 
-            var found = false;
-
-            while (!found)
+            while (true)
             {
                 if (searchDirection == -1 && CursorIndex == 0)
-                    return true;
+                    break;
                 if (searchDirection == 1 && CursorIndex == Text.Length)
-                    return true;
+                    break;
 
                 CursorIndex += searchDirection;
                 var checkCursorPosition = GetCursorPosition();
@@ -313,11 +311,11 @@ namespace ElementEngine.ElementUI
                 if (searchDirection == 1 && checkCursorPosition.X > mousePosition.X)
                 {
                     CursorIndex -= 1;
-                    found = true;
+                    break;
                 }
 
                 if (searchDirection == -1 && checkCursorPosition.X < mousePosition.X)
-                    found = true;
+                    break;
             }
 
             return true;

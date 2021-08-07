@@ -51,15 +51,15 @@ namespace ElementEngine
 
         public static string GetString(string key, params (string, string)[] variables)
         {
-            var str = "";
+            string str;
 
             if (!CurrentLanguage.Strings.TryGetValue(key, out var strCurrent))
             {
                 if (DefaultLanguage == null)
-                    return $"MISSING LOCALISATION KEY: {CurrentLanguage.AssetName} - {key}";
+                    return $"MISSING KEY: {CurrentLanguage.AssetName} - {key}";
 
                 if (!DefaultLanguage.Strings.TryGetValue(key, out var strBase))
-                    return $"MISSING LOCALISATION KEY: {CurrentLanguage.AssetName} - {key}";
+                    return $"MISSING KEY: {CurrentLanguage.AssetName} - {key}";
                 else
                     str = strBase;
             }

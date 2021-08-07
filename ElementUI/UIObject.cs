@@ -718,6 +718,8 @@ namespace ElementEngine.ElementUI
             _padding = style.Padding ?? new UISpacing();
             ScrollSpeed = style.ScrollSpeed ?? ScrollSpeed;
             IgnoreOverflow = style.IgnoreOverflow ?? IgnoreOverflow;
+            IgnoreParentPadding = style.IgnoreParentPadding ?? IgnoreParentPadding;
+            FillType = style.FillType ?? FillType;
         }
 
         public void ApplyDefaultSize(UISprite sprite)
