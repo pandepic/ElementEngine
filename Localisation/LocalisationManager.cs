@@ -56,10 +56,10 @@ namespace ElementEngine
             if (!CurrentLanguage.Strings.TryGetValue(key, out var strCurrent))
             {
                 if (DefaultLanguage == null)
-                    return $"MISSING KEY: {CurrentLanguage.AssetName} - {key}";
+                    return $"MISSING KEY: {key}";
 
                 if (!DefaultLanguage.Strings.TryGetValue(key, out var strBase))
-                    return $"MISSING KEY: {CurrentLanguage.AssetName} - {key}";
+                    return $"MISSING KEY: {key}";
                 else
                     str = strBase;
             }
