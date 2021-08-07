@@ -139,6 +139,15 @@ namespace ElementEngine.ElementUI
             OverrideDefaultSize(Style.ButtonCollapsed.ImageNormal.Sprite.Size + new Vector2I(0, ListContainer.Height));
         }
 
+        public void SetSelectedValue(T value)
+        {
+            foreach (var item in Items)
+            {
+                if (item.Value.Equals(value))
+                    SelectedItem = item;
+            }
+        }
+
         public void Refresh()
         {
             ListContainer.ClearChildrenByType<UIButton>();
