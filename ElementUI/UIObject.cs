@@ -1264,8 +1264,13 @@ namespace ElementEngine.ElementUI
                     continue;
                 if (!child.IsActive)
                     continue;
+
                 if (!child._isScrollable)
-                    continue;
+                {
+                    var hasScrollableChildren = child.GetFirstChildScrollableContainsMouse(mousePosition);
+                    if (hasScrollableChildren == null)
+                        continue;
+                }
 
                 if (child.Bounds.Contains(mousePosition))
                     return child;
@@ -1356,7 +1361,10 @@ namespace ElementEngine.ElementUI
         internal virtual bool InternalHandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
             var child = GetFirstChildScrollableContainsMouse(mousePosition);
-            child?.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+            var childCaptured = child?.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+
+            if (childCaptured.HasValue && childCaptured.Value == true)
+                return true;
 
             if (child == null && _isScrollable)
             {
@@ -1364,9 +1372,11 @@ namespace ElementEngine.ElementUI
                     ScrollUp();
                 else if (mouseWheelDelta < 0)
                     ScrollDown();
+
+                return true;
             }
 
-            return child != null;
+            return false;
         }
 
         public virtual bool InternalHandleKeyPressed(Key key, GameTimer gameTimer)
