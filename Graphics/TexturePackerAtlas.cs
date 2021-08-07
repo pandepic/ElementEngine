@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ElementEngine.ElementUI;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -90,8 +91,21 @@ namespace ElementEngine.TexturePacker
             }
             else
             {
-                throw new ArgumentException("Sprite doesn't exist within the atlas.", "sprite");
+                throw new ArgumentException($"Sprite {sprite} doesn't exist within the atlas.", "sprite");
             }
         }
-    }
+
+        public UITexture GetUITexture(string sprite)
+        {
+            if (Sprites.TryGetValue(sprite, out var spriteData))
+            {
+                return new UITexture(Texture, spriteData.frame.Rect);
+            }
+            else
+            {
+                throw new ArgumentException($"Sprite {sprite} doesn't exist within the atlas.", "sprite");
+            }
+        }
+
+    } // TexturePackerAtlas
 }

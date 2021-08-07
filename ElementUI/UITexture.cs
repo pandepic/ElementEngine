@@ -46,7 +46,7 @@ namespace ElementEngine.ElementUI
             if (!targetSize.HasValue)
                 return new Vector2(1f);
 
-            return targetSize.Value.ToVector2() / Texture.SizeF;
+            return targetSize.Value.ToVector2() / SourceRect.SizeF;
         }
 
     } // UITexture
