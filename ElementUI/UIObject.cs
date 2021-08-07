@@ -679,6 +679,18 @@ namespace ElementEngine.ElementUI
             else
                 Enable();
         }
+
+        public void ShowEnable()
+        {
+            Show();
+            Enable();
+        }
+
+        public void HideDisable()
+        {
+            Hide();
+            Disable();
+        }
         #endregion
 
         internal int _childIndex;

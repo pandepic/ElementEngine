@@ -66,6 +66,7 @@ namespace ElementEngine.ElementUI
                 position.Y = obj.Parent.PaddingBounds.Bottom - obj._size.Y;
 
             position += obj._margins.TopLeft;
+            position -= obj._margins.BottomRight;
             position += _internalOffset;
 
             return position;
