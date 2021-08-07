@@ -789,6 +789,11 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public bool RemoveChild(UIObject obj)
+        {
+            return Children.Remove(obj);
+        }
+
         public bool RemoveChild<T>() where T : UIObject
         {
             for (var i = Children.Count - 1; i >= 0; i--)
