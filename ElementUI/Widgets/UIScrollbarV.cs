@@ -81,6 +81,15 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public float NormalizedValue
+        {
+            get => ((float)_currentValue - _minValue) / (_maxValue - (float)_minValue);
+            set
+            {
+                CurrentValue = (int)((((float)_maxValue - _minValue) * value) + _minValue);
+            }
+        }
+
         internal bool _buttonUpHeld = false;
         internal bool _buttonDownHeld = false;
 

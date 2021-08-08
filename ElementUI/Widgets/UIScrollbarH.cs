@@ -80,6 +80,15 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public float NormalizedValue
+        {
+            get => ((float)_currentValue - _minValue) / (_maxValue - (float)_minValue);
+            set
+            {
+                CurrentValue = (int)((((float)_maxValue - _minValue) * value) + _minValue);
+            }
+        }
+
         internal bool _buttonLeftHeld = false;
         internal bool _buttonRightHeld = false;
 
@@ -262,7 +271,7 @@ namespace ElementEngine.ElementUI
                 _slidingMouseOffset = mousePosition.ToVector2I() - Slider.Position;
                 IsSliding = true;
             }
-            else if (!ButtonLeft.IsPressed && !ButtonRight.IsPressed)
+            else if ((ButtonLeft == null || !ButtonLeft.IsPressed) && (ButtonRight == null || !ButtonRight.IsPressed))
             {
                 _slidingMouseOffset = new Vector2I(Slider.Width / 2, 0);
                 var currentMouseOffset = mousePosition.ToVector2I() - Slider.Position;
