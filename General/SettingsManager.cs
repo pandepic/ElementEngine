@@ -132,9 +132,9 @@ namespace ElementEngine
             return setting.ConvertTo<T>();
         } // GetSetting
 
-        public static string UpdateSetting(string section, string name, string value)
+        public static string UpdateSetting<T>(string section, string name, T value)
         {
-            return Sections[section].Settings[name].Value = value;
+            return Sections[section].Settings[name].Value = value.ToString();
         } // UpdateSetting
 
         public static List<Setting> GetSettings(string section)
