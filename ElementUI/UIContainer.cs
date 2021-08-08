@@ -15,6 +15,8 @@ namespace ElementEngine.ElementUI
         public bool IsDraggable => (Style.DraggableRect.HasValue || Style.IsFullDraggableRect) && !_uiPosition.IsAutoPosition;
         public bool IsDragging { get; protected set; }
 
+        public bool IgnoreMouseEvents = false;
+
         public readonly UIScrollbarV ScrollbarV;
         public readonly UIScrollbarH ScrollbarH;
 
@@ -210,7 +212,10 @@ namespace ElementEngine.ElementUI
                 return true;
             }
 
-            return false;
+            if (!IgnoreMouseEvents)
+                return true;
+            else
+                return false;
         }
 
         internal override bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
@@ -224,7 +229,10 @@ namespace ElementEngine.ElementUI
                 //return false;
             }
 
-            return false;
+            if (!IgnoreMouseEvents)
+                return true;
+            else
+                return false;
         }
 
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
@@ -244,7 +252,10 @@ namespace ElementEngine.ElementUI
                 return true;
             }
 
-            return false;
+            if (!IgnoreMouseEvents)
+                return true;
+            else
+                return false;
         }
 
         internal override void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
@@ -253,6 +264,26 @@ namespace ElementEngine.ElementUI
                 IsDragging = false;
 
             base.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
+        }
+
+        internal override bool InternalHandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        {
+            var captured = base.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
+
+            if (!captured && !IgnoreMouseEvents)
+                return true;
+            else
+                return captured;
+        }
+
+        internal override bool InternalHandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
+        {
+            var captured = base.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+
+            if (!captured && !IgnoreMouseEvents)
+                return true;
+            else
+                return captured;
         }
     } // UIContainer
 }

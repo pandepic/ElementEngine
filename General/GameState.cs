@@ -8,6 +8,9 @@ namespace ElementEngine
 {
     public class GameState : IDisposable, IKeyboardHandler, IMouseHandler, IGameControlHandler
     {
+        public int KeyboardPriority { get; set; } = 0;
+        public int MousePriority { get; set; } = 0;
+
         private List<IDisposable> _disposeList { get; set; } = new List<IDisposable>();
         internal bool _registered = false;
         internal bool _initialized = false;

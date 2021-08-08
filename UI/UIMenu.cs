@@ -27,6 +27,9 @@ namespace ElementEngine.UI
         public Dictionary<string, object> BoundObjects = new Dictionary<string, object>();
         public Dictionary<string, List<UIFrame>> FramesWithBoundObjects = new Dictionary<string, List<UIFrame>>();
 
+        public int KeyboardPriority { get; set; } = 0;
+        public int MousePriority { get; set; } = 0;
+
         public UIFrameList Frames { get; set; } = new UIFrameList();
         public bool Focused { get; private set; } = false;
 

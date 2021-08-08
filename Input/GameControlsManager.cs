@@ -43,6 +43,9 @@ namespace ElementEngine
 
     public class GameControlsManager : IKeyboardHandler, IMouseHandler
     {
+        public int KeyboardPriority { get; set; } = 0;
+        public int MousePriority { get; set; } = 0;
+
         public List<IGameControlHandler> Handlers = new List<IGameControlHandler>();
 
         public List<KeyboardGameControl> KeyboardControls = new List<KeyboardGameControl>();

@@ -13,6 +13,9 @@ namespace ElementEngine.ElementUI
         internal static int _nextObjectID = 0;
         internal const int NO_DRAW_ORDER = -1;
 
+        public int KeyboardPriority { get; set; } = 0;
+        public int MousePriority { get; set; } = 0;
+
         public int ObjectID = _nextObjectID++;
         public UIObject Parent;
         public UIScreen ParentScreen => this is UIScreen thisScreen ? thisScreen : (Parent == null ? null : (Parent is UIScreen screen ? screen : Parent.ParentScreen));

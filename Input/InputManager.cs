@@ -14,6 +14,8 @@ namespace ElementEngine
 
     public interface IKeyboardHandler
     {
+        public int KeyboardPriority { get; set; }
+
         public void HandleKeyPressed(Key key, GameTimer gameTimer) { }
         public void HandleKeyReleased(Key key, GameTimer gameTimer) { }
         public void HandleKeyDown(Key key, GameTimer gameTimer) { }
@@ -22,6 +24,8 @@ namespace ElementEngine
 
     public interface IMouseHandler
     {
+        public int MousePriority { get; set; }
+
         public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer) { }
         public void HandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
         public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
@@ -56,6 +60,17 @@ namespace ElementEngine
 
         private static GameControlsManager _gameControlsManager;
         private static readonly List<int> _removeList = new List<int>();
+
+        internal static bool _keyPressedBlocked = false;
+        internal static bool _keyReleasedBlocked = false;
+        internal static bool _keyDownBlocked = false;
+        internal static bool _textInputBlocked = false;
+
+        internal static bool _mouseMotionBlocked = false;
+        internal static bool _mouseButtonPressedBlocked = false;
+        internal static bool _mouseButtonReleasedBlocked = false;
+        internal static bool _mouseButtonDownBlocked = false;
+        internal static bool _mouseWheelBlocked = false;
 
         public static void LoadGameControls(string settingsSection = "Controls")
         {
@@ -98,6 +113,16 @@ namespace ElementEngine
                 _mouseHandlers.RemoveAt(_removeList[i]);
 
             #endregion
+
+            _keyPressedBlocked = false;
+            _keyReleasedBlocked = false;
+            _keyDownBlocked = false;
+            _textInputBlocked = false;
+            _mouseMotionBlocked = false;
+            _mouseButtonPressedBlocked = false;
+            _mouseButtonReleasedBlocked = false;
+            _mouseButtonDownBlocked = false;
+            _mouseWheelBlocked = false;
 
             PrevMousePosition = MousePosition;
             MousePosition = snapshot.MousePosition;
@@ -204,31 +229,56 @@ namespace ElementEngine
             HandleKeyDown(key, gameTimer);
 
             for (var i = 0; i < _keyboardHandlers.Count; i++)
+            {
+                if (_keyPressedBlocked)
+                    break;
+
                 _keyboardHandlers[i]?.HandleKeyPressed(key, gameTimer);
+            }
         }
 
         internal static void HandleKeyReleased(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
+            {
+                if (_keyReleasedBlocked)
+                    break;
+
                 _keyboardHandlers[i]?.HandleKeyReleased(key, gameTimer);
+            }
         }
 
         internal static void HandleKeyDown(Key key, GameTimer gameTimer)
         {
             for (var i = 0; i < _keyboardHandlers.Count; i++)
+            {
+                if (_keyDownBlocked)
+                    break;
+
                 _keyboardHandlers[i]?.HandleKeyDown(key, gameTimer);
+            }
         }
 
         internal static void HandleMouseMotion(GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
+            {
+                if (_mouseMotionBlocked)
+                    break;
+
                 _mouseHandlers[i]?.HandleMouseMotion(MousePosition, PrevMousePosition, gameTimer);
+            }
         }
 
         internal static void HandleMouseWheel(GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
+            {
+                if (_mouseWheelBlocked)
+                    break;
+
                 _mouseHandlers[i]?.HandleMouseWheel(MousePosition, MouseWheelDelta > 0 ? MouseWheelChangeType.WheelUp : MouseWheelChangeType.WheelDown, MouseWheelDelta, gameTimer);
+            }
         }
 
         internal static void HandleMouseButtonPressed(MouseButton button, GameTimer gameTimer)
@@ -236,19 +286,34 @@ namespace ElementEngine
             HandleMouseButtonDown(button, gameTimer);
 
             for (var i = 0; i < _mouseHandlers.Count; i++)
+            {
+                if (_mouseButtonPressedBlocked)
+                    break;
+
                 _mouseHandlers[i]?.HandleMouseButtonPressed(MousePosition, button, gameTimer);
+            }
         }
 
         internal static void HandleMouseButtonReleased(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
+            {
+                if (_mouseButtonReleasedBlocked)
+                    break;
+
                 _mouseHandlers[i]?.HandleMouseButtonReleased(MousePosition, button, gameTimer);
+            }
         }
 
         internal static void HandleMouseButtonDown(MouseButton button, GameTimer gameTimer)
         {
             for (var i = 0; i < _mouseHandlers.Count; i++)
+            {
+                if (_mouseButtonDownBlocked)
+                    break;
+
                 _mouseHandlers[i]?.HandleMouseButtonDown(MousePosition, button, gameTimer);
+            }
         }
 
         public static void AddKeyboardHandler(IKeyboardHandler handler)
@@ -257,6 +322,7 @@ namespace ElementEngine
                 return;
 
             _keyboardHandlers.Add(handler);
+            _keyboardHandlers.Sort((k1, k2) => k1.KeyboardPriority.CompareTo(k2.KeyboardPriority));
         }
 
         public static void AddMouseHandler(IMouseHandler handler)
@@ -265,6 +331,7 @@ namespace ElementEngine
                 return;
 
             _mouseHandlers.Add(handler);
+            _mouseHandlers.Sort((m1, m2) => m1.MousePriority.CompareTo(m2.MousePriority));
         }
 
         public static void AddGameControlHandler(IGameControlHandler handler)

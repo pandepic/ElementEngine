@@ -13,8 +13,18 @@ namespace ElementEngine.ElementUI
     {
         public UIObject FocusedObject;
 
-        public UIScreen(Vector2I? position = null, Vector2I? size = null, string name = "Screen") : base(name)
+        public bool BlockInputWhenConsumed = false;
+
+        public UIScreen(Vector2I? position = null, Vector2I? size = null, string name = "Screen", bool blockInputWhenConsumed = true) : base(name)
         {
+            BlockInputWhenConsumed = blockInputWhenConsumed;
+
+            if (BlockInputWhenConsumed)
+            {
+                KeyboardPriority = int.MinValue;
+                MousePriority = int.MinValue;
+            }
+
             _uiPosition.Position = position ?? Vector2I.Zero;
             _uiSize.Size = size ?? new Vector2I(ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight);
 
@@ -56,52 +66,95 @@ namespace ElementEngine.ElementUI
             base.Draw(spriteBatch);
         }
 
-        #region Input Handling
-        public bool CapturedMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
+        internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._mouseMotionBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        internal override bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._mouseButtonPressedBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        internal override bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._mouseButtonReleasedBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
+        internal override bool InternalHandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._mouseButtonDownBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
+        internal override bool InternalHandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._mouseWheelBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedKeyPressed(Key key, GameTimer gameTimer)
+        public override bool InternalHandleKeyPressed(Key key, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleKeyPressed(key, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._keyPressedBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedKeyReleased(Key key, GameTimer gameTimer)
+        public override bool InternalHandleKeyReleased(Key key, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleKeyReleased(key, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._keyReleasedBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedKeyDown(Key key, GameTimer gameTimer)
+        public override bool InternalHandleKeyDown(Key key, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleKeyDown(key, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._keyDownBlocked = true;
+
+            return captured;
         }
 
-        public bool CapturedTextInput(char key, GameTimer gameTimer)
+        public override bool InternalHandleTextInput(char key, GameTimer gameTimer)
         {
-            return false;
+            var captured = base.InternalHandleTextInput(key, gameTimer);
+
+            if (captured && BlockInputWhenConsumed)
+                InputManager._textInputBlocked = true;
+
+            return captured;
         }
-        #endregion
 
     } // UIScreen
 }
