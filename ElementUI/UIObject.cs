@@ -1028,9 +1028,10 @@ namespace ElementEngine.ElementUI
             return true;
         }
 
-        internal virtual void HandleMargins()
+        internal virtual bool HandleMargins()
         {
             UIObject firstChildWithMargin = null;
+            var marginsChanged = false;
 
             foreach (var child in Children)
             {
@@ -1076,7 +1077,8 @@ namespace ElementEngine.ElementUI
                                 _preMarginPosition = child._uiPosition.Position;
 
                             child._uiPosition.Position += offset;
-                            child.UpdateLayout();
+                            child.UpdatePosition();
+                            marginsChanged = true;
                         }
                     }
                 }
@@ -1110,13 +1112,20 @@ namespace ElementEngine.ElementUI
                                 _preMarginPosition = child._uiPosition.Position;
 
                             child._uiPosition.Position += offset;
-                            child.UpdateLayout();
+                            child.UpdatePosition();
+                            marginsChanged = true;
                         }
                     }
                 }
 
                 GlobalObjectPool<List<UIObject>>.Return(sortedChildren);
             }
+
+            if (marginsChanged)
+                UpdateSize();
+
+            return marginsChanged;
+
         } // HandleMargins
 
         public virtual void Update(GameTimer gameTimer)

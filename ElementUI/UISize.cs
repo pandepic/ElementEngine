@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace ElementEngine.ElementUI
 {
@@ -56,9 +57,9 @@ namespace ElementEngine.ElementUI
         public Vector2I GetSize(UIObject obj)
         {
             var size = Size ?? Vector2I.One;
-
             var width = 1;
             var height = 1;
+
             _fullChildBounds = new Rectangle();
 
             foreach (var child in obj.Children)

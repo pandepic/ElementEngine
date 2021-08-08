@@ -103,6 +103,11 @@ namespace ElementEngine.ElementUI
                 {
                     ScrollbarV.IsVisible = false;
                     ScrollbarV.IsActive = false;
+
+                    if (Name == "OptionsContainer_TabContainer")
+                    {
+                        var b = 0;
+                    }
                 }
                 else
                 {
@@ -119,6 +124,11 @@ namespace ElementEngine.ElementUI
 
                         ScrollbarV.IsVisible = true;
                         ScrollbarV.IsActive = true;
+
+                        if (Name == "OptionsContainer_TabContainer")
+                        {
+                            var b = 0;
+                        }
                     }
                 }
             }
