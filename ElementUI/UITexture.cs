@@ -26,13 +26,19 @@ namespace ElementEngine.ElementUI
             SourceRect = sourceRect ?? new Rectangle(Vector2I.Zero, texture.Size);
         }
 
-        public void Draw(SpriteBatch2D spriteBatch, Vector2 position, Vector2? scale = null, float rotation = 0f)
+        public void Draw(SpriteBatch2D spriteBatch, Vector2 position, Vector2? scale = null, float rotation = 0f, Vector2? sourceRectScale = null)
         {
-            Draw(spriteBatch, position, SourceRect, scale, rotation);
+            Draw(spriteBatch, position, SourceRect, scale, rotation, sourceRectScale);
         }
 
-        public void Draw(SpriteBatch2D spriteBatch, Vector2 position, Rectangle sourceRect, Vector2? scale = null, float rotation = 0f)
+        public void Draw(SpriteBatch2D spriteBatch, Vector2 position, Rectangle sourceRect, Vector2? scale = null, float rotation = 0f, Vector2? sourceRectScale = null)
         {
+            if (sourceRectScale.HasValue)
+            {
+                sourceRect.Width = (int)(sourceRect.Width * sourceRectScale.Value.X);
+                sourceRect.Height = (int)(sourceRect.Height * sourceRectScale.Value.Y);
+            }
+
             spriteBatch.DrawTexture2D(
                 texture: Texture,
                 position: position,

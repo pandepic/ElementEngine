@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Veldrid;
 
 namespace ElementEngine.ElementUI
@@ -15,6 +10,7 @@ namespace ElementEngine.ElementUI
         public event Action<UIOnValueChangedArgs<int>> OnValueChanged;
 
         public readonly UIImage Rail;
+        public readonly UIImage RailFill;
         public readonly UIButton Slider;
         public readonly UIButton ButtonUp;
         public readonly UIButton ButtonDown;
@@ -105,11 +101,18 @@ namespace ElementEngine.ElementUI
             Rail = new UIImage(name + "_Rail", Style.Rail);
             Rail.CenterX = true;
             Rail.CenterY = true;
+            AddChild(Rail);
+
+            if (Style.RailFill != null)
+            {
+                RailFill = new UIImage(name + "_RailFill", Style.RailFill);
+                RailFill.CenterX = true;
+                RailFill.CenterY = true;
+                AddChild(RailFill);
+            }
 
             Slider = new UIButton(name + "_Slider", Style.Slider);
             Slider.CenterX = true;
-
-            AddChild(Rail);
             AddChild(Slider);
 
             if (Style.ButtonUp != null && Style.ButtonDown != null)
@@ -220,6 +223,9 @@ namespace ElementEngine.ElementUI
             Slider.SetPosition(new Vector2I());
             Slider._uiPosition.Position = new Vector2I(0, Math.Clamp(Slider._uiPosition.Position.Value.Y, _sliderMinY, _sliderMaxY));
 
+            if (RailFill != null)
+                RailFill.Height = railHeight - Style.RailFillPadding * 2;
+
             UpdateSliderPositionFromCurrentValue();
 
         } // UpdateSizesPositions
@@ -227,6 +233,9 @@ namespace ElementEngine.ElementUI
         protected void UpdateSliderPositionFromCurrentValue()
         {
             Slider.Y = (int)(_sliderMinY + (CurrentValue * _distancePerChange));
+
+            if (RailFill != null)
+                RailFill.CropHeight = Slider.Y - RailFill.Y + (Slider.Height / 2);
         }
 
         public override void UpdateLayout(bool secondCheck = true)

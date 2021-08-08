@@ -11,6 +11,9 @@ namespace ElementEngine.ElementUI
     {
         public new UIImageStyle Style => (UIImageStyle)_style;
 
+        public int? CropWidth;
+        public int? CropHeight;
+
         public UIImage(string name, UIImageStyle style) : base(name)
         {
             ApplyStyle(style);
@@ -27,7 +30,19 @@ namespace ElementEngine.ElementUI
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
+            if (CropWidth.HasValue || CropHeight.HasValue)
+            {
+                var scissorRect = new Rectangle(DrawPosition, Vector2I.Zero);
+                scissorRect.Width = CropWidth ?? Width;
+                scissorRect.Height = CropHeight ?? Height;
+                spriteBatch.PushScissorRect(0, scissorRect, true);
+            }
+
             Style.Sprite.Draw(this, spriteBatch, DrawPosition, _size);
+
+            if (CropWidth.HasValue || CropHeight.HasValue)
+                spriteBatch.PopScissorRect(0);
+
             base.Draw(spriteBatch);
         }
 
