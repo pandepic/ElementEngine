@@ -9,6 +9,7 @@ namespace ElementEngine.ElementUI
     public class UIImageStyle : UIStyle
     {
         public UISprite Sprite;
+        public UIScaleType? ScaleType;
 
         public UIImageStyle(UISprite sprite)
         {

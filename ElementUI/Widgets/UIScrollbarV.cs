@@ -107,7 +107,7 @@ namespace ElementEngine.ElementUI
             {
                 RailFill = new UIImage(name + "_RailFill", Style.RailFill);
                 RailFill.CenterX = true;
-                RailFill.CenterY = true;
+                RailFill.Y = Style.RailFillPadding;
                 AddChild(RailFill);
             }
 
@@ -223,8 +223,8 @@ namespace ElementEngine.ElementUI
             Slider.SetPosition(new Vector2I());
             Slider._uiPosition.Position = new Vector2I(0, Math.Clamp(Slider._uiPosition.Position.Value.Y, _sliderMinY, _sliderMaxY));
 
-            if (RailFill != null)
-                RailFill.Height = railHeight - Style.RailFillPadding * 2;
+            if (RailFill != null && RailFill.ScaleType == UIScaleType.Crop)
+                RailFill.Height = railHeight - Style.RailFillPadding;
 
             UpdateSliderPositionFromCurrentValue();
 
@@ -235,7 +235,14 @@ namespace ElementEngine.ElementUI
             Slider.Y = (int)(_sliderMinY + (CurrentValue * _distancePerChange));
 
             if (RailFill != null)
-                RailFill.CropHeight = Slider.Y - RailFill.Y + (Slider.Height / 2);
+            {
+                var fillHeight = Slider.Y - RailFill.Y + (Slider.Height / 2);
+
+                if (RailFill.ScaleType == UIScaleType.Scale)
+                    RailFill.Height = fillHeight - Style.RailFillPadding;
+                else if (RailFill.ScaleType == UIScaleType.Crop)
+                    RailFill.CropHeight = fillHeight;
+            }
         }
 
         public override void UpdateLayout(bool secondCheck = true)

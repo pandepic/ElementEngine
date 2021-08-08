@@ -11,6 +11,7 @@ namespace ElementEngine.ElementUI
     {
         public new UIImageStyle Style => (UIImageStyle)_style;
 
+        public UIScaleType ScaleType = UIScaleType.Scale;
         public int? CropWidth;
         public int? CropHeight;
 
@@ -20,6 +21,7 @@ namespace ElementEngine.ElementUI
             ApplyDefaultSize(Style.Sprite);
 
             CanFocus = false;
+            ScaleType = Style.ScaleType ?? ScaleType;
         }
 
         public override void Update(GameTimer gameTimer)
