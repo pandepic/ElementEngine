@@ -30,19 +30,19 @@ namespace ElementEngine
         public static Dictionary<string, Cursor> Cursors { get; set; } = new Dictionary<string, Cursor>();
         public static Cursor CurrentCursor { get; set; }
 
-        public static void AddCursor(string name, string assetName, Vector2? offset = null)
+        public static void AddCursor<T>(T name, string assetName, Vector2? offset = null)
         {
             ElementGlobals.TryRegisterScreenSpaceDraw(Draw);
 
-            var newCursor = new Cursor(name, assetName, offset);
-            Cursors.Add(name, newCursor);
+            var newCursor = new Cursor(name.ToString(), assetName, offset);
+            Cursors.Add(newCursor.Name, newCursor);
             CurrentCursor = newCursor;
 
         } // AddCursor
 
-        public static void SetCursor(string name)
+        public static void SetCursor<T>(T name)
         {
-            CurrentCursor = Cursors[name];
+            CurrentCursor = Cursors[name.ToString()];
             ElementGlobals.Window.CursorVisible = false;
         }
 
