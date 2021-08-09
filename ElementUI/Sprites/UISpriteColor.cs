@@ -4,17 +4,24 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
     public class UISpriteColor : UISprite
     {
-        public Texture2D Texture;
+        public static Texture2D Texture;
+        public RgbaByte Color;
 
-        public UISpriteColor(Veldrid.RgbaByte color, Vector2I? size = null)
+        static UISpriteColor()
         {
+            Texture = new Texture2D(1, 1, RgbaByte.White);
+        }
+
+        public UISpriteColor(RgbaByte color, Vector2I? size = null)
+        {
+            Color = color;
             Size = size ?? Vector2I.One;
-            Texture = new Texture2D(1, 1, color);
         }
 
         public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0)
@@ -23,7 +30,8 @@ namespace ElementEngine.ElementUI
                 texture: Texture,
                 position: GetDrawPosition(parent, position, size ?? Size).ToVector2(),
                 scale: (size ?? Size).ToVector2(),
-                rotation: rotation);
+                rotation: rotation,
+                color: Color.ToRgbaFloat());
         }
     }
 }
