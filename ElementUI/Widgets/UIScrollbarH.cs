@@ -172,7 +172,7 @@ namespace ElementEngine.ElementUI
 
         protected void UpdateSizesPositions()
         {
-            if (!IsVisible)
+            if (!IsVisible || Width < 0)
                 return;
 
             var railWidth = Size.X;
@@ -249,6 +249,22 @@ namespace ElementEngine.ElementUI
         {
             base.UpdateLayout(secondCheck);
             UpdateSizesPositions();
+        }
+
+        public override void Draw(SpriteBatch2D spriteBatch)
+        {
+            if (Width < 0)
+                return;
+
+            base.Draw(spriteBatch);
+        }
+
+        public override void Update(GameTimer gameTimer)
+        {
+            if (Width < 0)
+                return;
+
+            base.Update(gameTimer);
         }
 
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)

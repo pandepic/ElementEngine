@@ -172,7 +172,7 @@ namespace ElementEngine.ElementUI
 
         protected void UpdateSizesPositions()
         {
-            if (!IsVisible)
+            if (!IsVisible || Height < 0)
                 return;
 
             var railHeight = Size.Y;
@@ -221,6 +221,7 @@ namespace ElementEngine.ElementUI
 
             Rail.Height = railHeight;
             Slider.SetPosition(new Vector2I());
+
             Slider._uiPosition.Position = new Vector2I(0, Math.Clamp(Slider._uiPosition.Position.Value.Y, _sliderMinY, _sliderMaxY));
 
             if (RailFill != null && RailFill.ScaleType == UIScaleType.Crop)
@@ -249,6 +250,22 @@ namespace ElementEngine.ElementUI
         {
             base.UpdateLayout(secondCheck);
             UpdateSizesPositions();
+        }
+
+        public override void Draw(SpriteBatch2D spriteBatch)
+        {
+            if (Height < 0)
+                return;
+
+            base.Draw(spriteBatch);
+        }
+
+        public override void Update(GameTimer gameTimer)
+        {
+            if (Height < 0)
+                return;
+
+            base.Update(gameTimer);
         }
 
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)

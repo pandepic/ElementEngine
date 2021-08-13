@@ -45,15 +45,8 @@ namespace ElementEngine.ElementUI
             var position = GetRelativePosition(obj);
             var parentOrigin = obj.IgnoreParentPadding ? obj.Parent._position : obj.Parent._childOrigin;
 
-            if (IsAutoPositionX)
-                position.X += obj.Parent._position.X;
-            else
-                position.X += parentOrigin.X;
-
-            if (IsAutoPositionY)
-                position.Y += obj.Parent._position.Y;
-            else
-                position.Y += parentOrigin.Y;
+            position.X += parentOrigin.X;
+            position.Y += parentOrigin.Y;
 
             if (CenterX)
                 position.X += (obj.Parent._size.X / 2) - (obj._size.X / 2);
@@ -61,9 +54,9 @@ namespace ElementEngine.ElementUI
                 position.Y += (obj.Parent._size.Y / 2) - (obj._size.Y / 2);
 
             if (AnchorRight)
-                position.X = obj.Parent.PaddingBounds.Right - obj._size.X - obj._margins.Right;
+                position.X = (obj.IgnoreParentPadding ? obj.Parent.Bounds.Right : obj.Parent.PaddingBounds.Right) - obj._size.X - obj._margins.Right;
             if (AnchorBottom)
-                position.Y = obj.Parent.PaddingBounds.Bottom - obj._size.Y - obj._margins.Bottom;
+                position.Y = (obj.IgnoreParentPadding ? obj.Parent.Bounds.Bottom : obj.Parent.PaddingBounds.Bottom) - obj._size.Y - obj._margins.Bottom;
 
             position += obj._margins.TopLeft;
             position += _internalOffset;
