@@ -29,6 +29,7 @@ namespace ElementEngine.ElementUI
         public bool IsFocused => ParentScreen.FocusedObject == this;
         public bool CanFocus = true;
         public bool IgnoreOverflow = false;
+        public bool RespectMargins = false;
 
         internal int _drawOrder = NO_DRAW_ORDER;
         public int DrawOrder
@@ -1022,7 +1023,7 @@ namespace ElementEngine.ElementUI
                 return false;
             if (!obj._uiPosition.Position.HasValue)
                 return false;
-            if (!obj.HasMargin)
+            if (!(obj.HasMargin || obj.RespectMargins))
                 return false;
 
             return true;
@@ -1068,7 +1069,8 @@ namespace ElementEngine.ElementUI
 
                     if ((child.MarginTop > 0 || sibling.MarginBottom > 0) && !child._uiPosition.IsAutoPositionY)
                     {
-                        if (child.MarginBounds.Top < sibling.MarginBounds.Bottom && child.MarginBounds.Bottom > sibling.MarginBounds.Top)
+                        if ((sibling == firstChildWithMargin || sibling._uiPosition.MarginOffset.HasValue)
+                            && (child.MarginBounds.Top < sibling.MarginBounds.Bottom && child.MarginBounds.Bottom > sibling.MarginBounds.Top))
                         {
                             var offset = new Vector2I(0, sibling.MarginBounds.Bottom - child.MarginBounds.Top);
 
@@ -1101,7 +1103,8 @@ namespace ElementEngine.ElementUI
 
                     if ((child.MarginLeft > 0 || sibling.MarginRight > 0) && !child._uiPosition.IsAutoPositionX)
                     {
-                        if (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left)
+                        if ((sibling == firstChildWithMargin || sibling._uiPosition.MarginOffset.HasValue)
+                            && (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left))
                         {
                             var offset = new Vector2I(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
                             child._uiPosition.MarginOffset += offset;
