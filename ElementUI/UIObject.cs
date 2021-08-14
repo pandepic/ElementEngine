@@ -1047,8 +1047,7 @@ namespace ElementEngine.ElementUI
                 if (!CheckHandleObjectMargin(child, firstChildWithMargin))
                     continue;
 
-                if (_preMarginPosition.HasValue)
-                    child._uiPosition.Position = _preMarginPosition;
+                child._uiPosition.MarginOffset = null;
             }
 
             // vertical margin
@@ -1064,7 +1063,7 @@ namespace ElementEngine.ElementUI
 
                 foreach (var sibling in sortedChildren)
                 {
-                    if (!CheckHandleObjectMargin(child, sibling))
+                    if (!CheckHandleObjectMargin(sibling, child))
                         continue;
 
                     if ((child.MarginTop > 0 || sibling.MarginBottom > 0) && !child._uiPosition.IsAutoPositionY)
@@ -1073,11 +1072,9 @@ namespace ElementEngine.ElementUI
                         {
                             var offset = new Vector2I(0, sibling.MarginBounds.Bottom - child.MarginBounds.Top);
 
-                            if (!_preMarginPosition.HasValue)
-                                _preMarginPosition = child._uiPosition.Position;
-
-                            child._uiPosition.Position += offset;
-                            child.UpdatePosition();
+                            child._uiPosition.MarginOffset = child._uiPosition.MarginOffset ?? Vector2I.Zero;
+                            child._uiPosition.MarginOffset += offset;
+                            child.UpdateLayout();
                             marginsChanged = true;
                         }
                     }
@@ -1099,7 +1096,7 @@ namespace ElementEngine.ElementUI
 
                 foreach (var sibling in sortedChildren)
                 {
-                    if (!CheckHandleObjectMargin(child, sibling))
+                    if (!CheckHandleObjectMargin(sibling, child))
                         continue;
 
                     if ((child.MarginLeft > 0 || sibling.MarginRight > 0) && !child._uiPosition.IsAutoPositionX)
@@ -1107,12 +1104,8 @@ namespace ElementEngine.ElementUI
                         if (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left)
                         {
                             var offset = new Vector2I(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
-
-                            if (!_preMarginPosition.HasValue)
-                                _preMarginPosition = child._uiPosition.Position;
-
-                            child._uiPosition.Position += offset;
-                            child.UpdatePosition();
+                            child._uiPosition.MarginOffset += offset;
+                            child.UpdateLayout();
                             marginsChanged = true;
                         }
                     }

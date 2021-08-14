@@ -88,6 +88,8 @@ namespace ElementEngine.ElementUI
         public readonly UIImage ImageDisabled;
         public readonly UIImage ImageSelected;
 
+        internal UIImage _prevImage;
+
         public UIButton(string name, UIButtonStyle style, UIButtonTabGroup tabGroup = null) : base(name)
         {
             ApplyStyle(style);
@@ -151,14 +153,17 @@ namespace ElementEngine.ElementUI
                     currentImage = ImageHover ?? currentImage;
             }
 
-            ImageNormal?.HideDisable();
-            ImagePressed?.HideDisable();
-            ImageHover?.HideDisable();
-            ImageDisabled?.HideDisable();
-            ImageSelected?.HideDisable();
+            if (_prevImage != currentImage)
+            {
+                ImageNormal?.HideDisable();
+                ImagePressed?.HideDisable();
+                ImageHover?.HideDisable();
+                ImageDisabled?.HideDisable();
+                ImageSelected?.HideDisable();
 
-            currentImage.ShowEnable();
-
+                currentImage.ShowEnable();
+                _prevImage = currentImage;
+            }
         } // UpdateCurrentImage
 
         public override void Update(GameTimer gameTimer)

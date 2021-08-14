@@ -10,6 +10,7 @@ namespace ElementEngine.ElementUI
     public struct UIPosition
     {
         public Vector2I? Position;
+        public Vector2I? MarginOffset;
         public bool CenterX, CenterY;
         public bool AnchorBottom;
         public bool AnchorRight;
@@ -34,7 +35,7 @@ namespace ElementEngine.ElementUI
 
         public Vector2I GetRelativePosition(UIObject obj)
         {
-            return (Position ?? Vector2I.Zero);
+            return (Position ?? Vector2I.Zero) + (MarginOffset ?? Vector2I.Zero);
         }
 
         public Vector2I GetPosition(UIObject obj)
