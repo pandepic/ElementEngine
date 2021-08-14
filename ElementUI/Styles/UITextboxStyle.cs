@@ -18,6 +18,21 @@ namespace ElementEngine.ElementUI
         public RgbaByte CursorColor;
         public RgbaByte SelectionColor;
 
+        public UITextboxStyle(UITextboxStyle copyFrom, bool baseCopy = false)
+        {
+            TextStyle = copyFrom.TextStyle;
+            BackgroundNormal = copyFrom.BackgroundNormal;
+            BackgroundDisabled = copyFrom.BackgroundDisabled;
+            CursorHeight = copyFrom.CursorHeight;
+            CursorWidth = copyFrom.CursorWidth;
+            OverflowType = copyFrom.OverflowType;
+            CursorColor = copyFrom.CursorColor;
+            SelectionColor = copyFrom.SelectionColor;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UITextboxStyle(
             UILabelStyle textStyle,
             UISprite backgroundNormal,

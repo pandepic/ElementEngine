@@ -17,6 +17,21 @@ namespace ElementEngine.ElementUI
         public UIScrollbarSliderType SliderType;
         public int RailFillPadding = 0;
 
+        public UIScrollbarStyleV(UIScrollbarStyleV copyFrom, bool baseCopy = false)
+        {
+            Rail = copyFrom.Rail;
+            RailFill = copyFrom.RailFill;
+            Slider = copyFrom.Slider;
+            ButtonUp = copyFrom.ButtonUp;
+            ButtonDown = copyFrom.ButtonDown;
+            ButtonType = copyFrom.ButtonType;
+            SliderType = copyFrom.SliderType;
+            RailFillPadding = copyFrom.RailFillPadding;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UIScrollbarStyleV(
             UIImageStyle rail,
             UIButtonStyle slider,

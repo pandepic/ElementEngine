@@ -172,7 +172,7 @@ namespace ElementEngine.ElementUI
 
         protected void UpdateSizesPositions()
         {
-            if (!IsVisible || Height < 0)
+            if (!IsVisible || Height <= 0)
                 return;
 
             var railHeight = Size.Y;
@@ -216,6 +216,9 @@ namespace ElementEngine.ElementUI
                     }
                     break;
             }
+
+            if (_sliderMinY > _sliderMaxY)
+                return;
 
             _distancePerChange = (float)Math.Abs(_sliderMaxY - _sliderMinY) / Math.Abs(_maxValue - _minValue);
 

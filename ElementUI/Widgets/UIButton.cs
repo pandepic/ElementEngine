@@ -68,7 +68,7 @@ namespace ElementEngine.ElementUI
 
         public event Action<UIOnClickArgs> OnClick;
         public event Action<UIOnClickArgs> OnMouseDown;
-        
+
         public bool IsPressed { get; protected set; }
         public bool IsHovered { get; protected set; }
 
@@ -87,8 +87,6 @@ namespace ElementEngine.ElementUI
         public readonly UIImage ImageHover;
         public readonly UIImage ImageDisabled;
         public readonly UIImage ImageSelected;
-
-        internal UIImage _prevCurrentImage = null;
 
         public UIButton(string name, UIButtonStyle style, UIButtonTabGroup tabGroup = null) : base(name)
         {
@@ -153,16 +151,13 @@ namespace ElementEngine.ElementUI
                     currentImage = ImageHover ?? currentImage;
             }
 
-            if (_prevCurrentImage != currentImage)
-            {
-                ImageNormal?.HideDisable();
-                ImagePressed?.HideDisable();
-                ImageHover?.HideDisable();
-                ImageDisabled?.HideDisable();
-                ImageSelected?.HideDisable();
+            ImageNormal?.HideDisable();
+            ImagePressed?.HideDisable();
+            ImageHover?.HideDisable();
+            ImageDisabled?.HideDisable();
+            ImageSelected?.HideDisable();
 
-                currentImage.ShowEnable();
-            }
+            currentImage.ShowEnable();
 
         } // UpdateCurrentImage
 

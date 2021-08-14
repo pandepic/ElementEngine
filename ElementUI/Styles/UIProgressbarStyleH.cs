@@ -12,6 +12,16 @@ namespace ElementEngine.ElementUI
         public UIImageStyle Fill;
         public int FillPadding = 0;
 
+        public UIProgressbarStyleH(UIProgressbarStyleH copyFrom, bool baseCopy = false)
+        {
+            Background = copyFrom.Background;
+            Fill = copyFrom.Fill;
+            FillPadding = copyFrom.FillPadding;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UIProgressbarStyleH(
             UIImageStyle background,
             UIImageStyle fill,

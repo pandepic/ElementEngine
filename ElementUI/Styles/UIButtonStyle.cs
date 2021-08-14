@@ -14,6 +14,18 @@ namespace ElementEngine.ElementUI
         public UIImageStyle ImageDisabled;
         public UIImageStyle ImageSelected;
 
+        public UIButtonStyle(UIButtonStyle copyFrom, bool baseCopy = false)
+        {
+            ImageNormal = copyFrom.ImageNormal;
+            ImagePressed = copyFrom.ImagePressed;
+            ImageHover = copyFrom.ImageHover;
+            ImageDisabled = copyFrom.ImageDisabled;
+            ImageSelected = copyFrom.ImageSelected;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UIButtonStyle(
             UIImageStyle spriteNormal,
             UIImageStyle spritePressed = null,

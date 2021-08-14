@@ -18,5 +18,18 @@ namespace ElementEngine.ElementUI
         public int? ScrollSpeed;
         public bool? IgnoreOverflow;
         public bool? IgnoreParentPadding;
+
+        public void BaseCopy(UIStyle copyFrom)
+        {
+            UIPosition = copyFrom.UIPosition;
+            UISize = copyFrom.UISize;
+            Margins = copyFrom.Margins;
+            Padding = copyFrom.Padding;
+            OverflowType = copyFrom.OverflowType;
+            FillType = copyFrom.FillType;
+            ScrollSpeed = copyFrom.ScrollSpeed;
+            IgnoreOverflow = copyFrom.IgnoreOverflow;
+            IgnoreParentPadding = copyFrom.IgnoreParentPadding;
+        }
     }
 }

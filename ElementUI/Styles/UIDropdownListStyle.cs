@@ -14,7 +14,20 @@ namespace ElementEngine.ElementUI
         public UILabelStyle SelectedLabelStyle;
         public UIButtonStyle ItemButtonStyle;
         public UILabelStyle ItemButtonLabelStyle;
-        
+
+        public UIDropdownListStyle(UIDropdownListStyle copyFrom, bool baseCopy = false)
+        {
+            ButtonCollapsed = copyFrom.ButtonCollapsed;
+            ButtonExpanded = copyFrom.ButtonExpanded;
+            ListContainer = copyFrom.ListContainer;
+            SelectedLabelStyle = copyFrom.SelectedLabelStyle;
+            ItemButtonStyle = copyFrom.ItemButtonStyle;
+            ItemButtonLabelStyle = copyFrom.ItemButtonLabelStyle;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UIDropdownListStyle(
             UIButtonStyle buttonCollapsed,
             UIButtonStyle buttonExpanded,

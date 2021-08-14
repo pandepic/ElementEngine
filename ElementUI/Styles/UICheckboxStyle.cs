@@ -20,6 +20,22 @@ namespace ElementEngine.ElementUI
         public UILabelStyle TextStyleHover;
         public int TextPadding;
 
+        public UICheckboxStyle(UICheckboxStyle copyFrom, bool baseCopy = false)
+        {
+            TextPadding = copyFrom.TextPadding;
+            TextStyleNormal = copyFrom.TextStyleNormal;
+            TextStyleHover = copyFrom.TextStyleHover;
+            SpriteUnchecked = copyFrom.SpriteUnchecked;
+            SpriteChecked = copyFrom.SpriteChecked;
+            SpritePressed = copyFrom.SpritePressed;
+            SpriteHover = copyFrom.SpriteHover;
+            SpriteDisabledUnchecked = copyFrom.SpriteDisabledUnchecked;
+            SpriteDisabledChecked = copyFrom.SpriteDisabledChecked;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UICheckboxStyle(
             UILabelStyle textStyleNormal,
             UISprite spriteUnchecked,

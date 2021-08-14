@@ -11,9 +11,19 @@ namespace ElementEngine.ElementUI
         public UISprite Sprite;
         public UIScaleType? ScaleType;
 
-        public UIImageStyle(UISprite sprite)
+        public UIImageStyle(UIImageStyle copyFrom, bool baseCopy = false)
+        {
+            Sprite = copyFrom.Sprite;
+            ScaleType = copyFrom.ScaleType;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
+        public UIImageStyle(UISprite sprite, UIScaleType? scaleType = null)
         {
             Sprite = sprite;
+            ScaleType = scaleType;
         }
 
     } // UIImageStyle

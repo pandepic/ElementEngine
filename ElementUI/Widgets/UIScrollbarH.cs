@@ -172,7 +172,7 @@ namespace ElementEngine.ElementUI
 
         protected void UpdateSizesPositions()
         {
-            if (!IsVisible || Width < 0)
+            if (!IsVisible || Width <= 0)
                 return;
 
             var railWidth = Size.X;
@@ -216,6 +216,9 @@ namespace ElementEngine.ElementUI
                     }
                     break;
             }
+
+            if (_sliderMinX > _sliderMaxX)
+                return;
 
             _distancePerChange = (float)Math.Abs(_sliderMaxX - _sliderMinX) / Math.Abs(_maxValue - _minValue);
 

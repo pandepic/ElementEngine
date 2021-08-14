@@ -17,6 +17,19 @@ namespace ElementEngine.ElementUI
         public UIFontStyle? FontStyle;
         public UIFontWeight? FontWeight;
 
+        public UILabelStyle(UILabelStyle copyFrom, bool baseCopy = false)
+        {
+            FontFamily = copyFrom.FontFamily;
+            Color = copyFrom.Color;
+            FontSize = copyFrom.FontSize;
+            Outline = copyFrom.Outline;
+            FontWeight = copyFrom.FontWeight;
+            FontStyle = copyFrom.FontStyle;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UILabelStyle(
             UIFontFamily fontFamily,
             RgbaByte color,

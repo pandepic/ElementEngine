@@ -16,6 +16,18 @@ namespace ElementEngine.ElementUI
         public UIScrollbarStyleV ScrollbarV;
         public UIScrollbarStyleH ScrollbarH;
 
+        public UIContainerStyle(UIContainerStyle copyFrom, bool baseCopy = false)
+        {
+            Background = copyFrom.Background;
+            DraggableRect = copyFrom.DraggableRect;
+            IsFullDraggableRect = copyFrom.IsFullDraggableRect;
+            ScrollbarV = copyFrom.ScrollbarV;
+            ScrollbarH = copyFrom.ScrollbarH;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UIContainerStyle(
             UISprite background,
             Rectangle? draggableRect = null,
