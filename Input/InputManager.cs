@@ -55,22 +55,21 @@ namespace ElementEngine
         public static Dictionary<Key, bool> KeysDown { get; set; } = new Dictionary<Key, bool>();
         public static Dictionary<MouseButton, MouseButtonDownState> MouseButtonsDown { get; set; } = new Dictionary<MouseButton, MouseButtonDownState>();
 
-        private readonly static List<IKeyboardHandler> _keyboardHandlers = new List<IKeyboardHandler>();
-        private readonly static List<IMouseHandler> _mouseHandlers = new List<IMouseHandler>();
+        private readonly static List<IKeyboardHandler> _keyboardHandlers = new();
+        private readonly static List<IMouseHandler> _mouseHandlers = new();
 
         private static GameControlsManager _gameControlsManager;
-        private static readonly List<int> _removeList = new List<int>();
+        
+        internal static bool _keyPressedBlocked;
+        internal static bool _keyReleasedBlocked;
+        internal static bool _keyDownBlocked;
+        internal static bool _textInputBlocked;
 
-        internal static bool _keyPressedBlocked = false;
-        internal static bool _keyReleasedBlocked = false;
-        internal static bool _keyDownBlocked = false;
-        internal static bool _textInputBlocked = false;
-
-        internal static bool _mouseMotionBlocked = false;
-        internal static bool _mouseButtonPressedBlocked = false;
-        internal static bool _mouseButtonReleasedBlocked = false;
-        internal static bool _mouseButtonDownBlocked = false;
-        internal static bool _mouseWheelBlocked = false;
+        internal static bool _mouseMotionBlocked;
+        internal static bool _mouseButtonPressedBlocked;
+        internal static bool _mouseButtonReleasedBlocked;
+        internal static bool _mouseButtonDownBlocked;
+        internal static bool _mouseWheelBlocked;
 
         public static void LoadGameControls(string settingsSection = "Controls")
         {
@@ -90,28 +89,19 @@ namespace ElementEngine
         public static void Update(InputSnapshot snapshot, GameTimer gameTimer)
         {
             #region Remove null handlers
-            _removeList.Clear();
-
-            for (var i = 0; i < _keyboardHandlers.Count; i++)
+            for (var i = _keyboardHandlers.Count - 1; i >= 0; i--)
             {
-                if (_keyboardHandlers[i] == null)
-                    _removeList.Add(i);
+                var keyboardHandler = _keyboardHandlers[i];
+                if (keyboardHandler == null)
+                    _keyboardHandlers.RemoveAt(i);
             }
 
-            for (var i = 0; i < _removeList.Count; i++)
-                _keyboardHandlers.RemoveAt(_removeList[i]);
-
-            _removeList.Clear();
-
-            for (var i = 0; i < _mouseHandlers.Count; i++)
+            for (var i = _mouseHandlers.Count - 1; i >= 0; i--)
             {
-                if (_mouseHandlers[i] == null)
-                    _removeList.Add(i);
+                var mouseHandler = _mouseHandlers[i];
+                if (mouseHandler == null)
+                    _mouseHandlers.RemoveAt(i);
             }
-
-            for (var i = 0; i < _removeList.Count; i++)
-                _mouseHandlers.RemoveAt(_removeList[i]);
-
             #endregion
 
             _keyPressedBlocked = false;
