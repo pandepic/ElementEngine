@@ -982,15 +982,20 @@ namespace ElementEngine.ElementUI
                 UpdateLayout();
         }
 
+        internal void UpdateSizePosition()
+        {
+            foreach (var child in Children)
+                child.UpdateSizePosition();
+
+            UpdateSize();
+            UpdatePosition();
+        }
+
         public virtual void UpdateLayout(bool secondCheck = true)
         {
             _layoutDirty = false;
 
-            foreach (var child in Children)
-                child.UpdateLayout();
-
-            UpdateSize();
-            UpdatePosition();
+            UpdateSizePosition();
 
             foreach (var child in Children)
                 child.UpdateLayout();
