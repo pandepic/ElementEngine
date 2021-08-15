@@ -1107,6 +1107,8 @@ namespace ElementEngine.ElementUI
                             && (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left))
                         {
                             var offset = new Vector2I(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
+
+                            child._uiPosition.MarginOffset = child._uiPosition.MarginOffset ?? Vector2I.Zero;
                             child._uiPosition.MarginOffset += offset;
                             child.UpdateLayout();
                             marginsChanged = true;
