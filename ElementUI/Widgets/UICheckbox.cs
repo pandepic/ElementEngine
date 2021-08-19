@@ -59,7 +59,6 @@ namespace ElementEngine.ElementUI
 
         public readonly UIRadioSelectionGroup RadioGroup;
         public bool IsPressed;
-        public bool IsHovered;
 
         public UIFontStyle FontStyle;
         public UIFontWeight FontWeight;
@@ -172,13 +171,11 @@ namespace ElementEngine.ElementUI
             if (base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer))
                 return true;
 
-            IsHovered = true;
             return true;
         }
 
         internal override void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
-            IsHovered = false;
             IsPressed = false;
 
             base.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);

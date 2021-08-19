@@ -20,7 +20,6 @@ namespace ElementEngine.ElementUI
         public readonly UIScrollbarV ScrollbarV;
         public readonly UIScrollbarH ScrollbarH;
 
-        internal bool _dirtyNextUpdate = false;
         internal Vector2 _prevDragMousePosition;
 
         public UIContainer(string name, UIContainerStyle style) : base(name)

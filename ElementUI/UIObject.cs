@@ -31,6 +31,8 @@ namespace ElementEngine.ElementUI
         public bool IgnoreOverflow = false;
         public bool RespectMargins = false;
 
+        public bool IsHovered { get; internal set; }
+
         internal int _drawOrder = NO_DRAW_ORDER;
         public int DrawOrder
         {
@@ -47,6 +49,11 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        #region Events
+        public event Action<OnHoverArgs> OnHoverEnter;
+        public event Action<OnHoverArgs> OnHoverExit;
+        #endregion
+        
         #region Position, Size & Bounds
         internal bool _ignoreParentPadding;
         public bool IgnoreParentPadding
@@ -1326,13 +1333,29 @@ namespace ElementEngine.ElementUI
             }
 
             if (childCaptured.HasValue && childCaptured.Value == true)
+            {
                 return true;
+            }
             else
+            {
+                if (!IsHovered)
+                {
+                    IsHovered = true;
+                    OnHoverEnter?.Invoke(new OnHoverArgs(this));
+                }
+
                 return false;
+            }
         }
 
         internal virtual void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
+            if (IsHovered)
+            {
+                IsHovered = false;
+                OnHoverExit?.Invoke(new OnHoverArgs(this));
+            }
+
             foreach (var childNoMotion in Children)
                 childNoMotion?.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
         }

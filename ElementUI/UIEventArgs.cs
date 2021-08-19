@@ -44,4 +44,14 @@ namespace ElementEngine.ElementUI
             CurrentTab = current;
         }
     }
+
+    public struct OnHoverArgs
+    {
+        public UIObject Object;
+        
+        public OnHoverArgs(UIObject obj)
+        {
+            Object = obj;
+        }
+    }
 }

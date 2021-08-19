@@ -70,7 +70,6 @@ namespace ElementEngine.ElementUI
         public event Action<UIOnClickArgs> OnMouseDown;
 
         public bool IsPressed { get; protected set; }
-        public bool IsHovered { get; protected set; }
 
         internal bool _isSelected;
         public bool IsSelected
@@ -185,13 +184,13 @@ namespace ElementEngine.ElementUI
             if (base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer))
                 return true;
 
-            IsHovered = true;
+            //IsHovered = true;
             return true;
         }
 
         internal override void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
-            IsHovered = false;
+            //IsHovered = false;
             IsPressed = false;
 
             base.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
