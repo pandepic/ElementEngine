@@ -48,9 +48,11 @@ namespace ElementEngine
         protected DeviceBuffer _transformBuffer;
         protected ResourceLayout _transformLayout;
         protected ResourceSet _transformSet;
+        
         protected DeviceBuffer _animationBuffer;
         protected ResourceLayout _animationLayout;
         protected ResourceSet _animationSet;
+
         protected ResourceLayout _textureLayoutData;
         protected ResourceLayout _textureLayoutAtlas;
         protected ResourceSet _textureSetAtlas;
@@ -86,6 +88,7 @@ namespace ElementEngine
 
         protected Dictionary<int, TileBatch2DAnimation> _animationLookup = new Dictionary<int, TileBatch2DAnimation>();
         protected TileBatch2DAnimation[] _animations;
+        protected Dictionary<int, Dictionary<byte, int>> _autoTileLookup = new Dictionary<int, Dictionary<byte, int>>();
         protected Vector4[] _animationOffsets;
         protected RgbaByte[] _dataArray;
         protected bool _currentLayerEnded = false;
@@ -132,13 +135,28 @@ namespace ElementEngine
         }
         #endregion
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, Texture2D targetTexture, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
+        public TileBatch2D(
+            int mapWidth, int mapHeight, int tileWidth, int tileHeight,
+            Texture2D atlasTexture,
+            Texture2D targetTexture,
+            TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
+            Dictionary<int, TileAnimation> tileAnimations = null)
             : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, targetTexture.SizeF, targetTexture.GetFramebuffer().OutputDescription, wrapMode, tileAnimations) { }
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
+        public TileBatch2D(
+            int mapWidth, int mapHeight, int tileWidth, int tileHeight,
+            Texture2D atlasTexture,
+            TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
+            Dictionary<int, TileAnimation> tileAnimations = null)
             : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, null, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, wrapMode, tileAnimations) { }
 
-        public unsafe TileBatch2D(int mapWidth, int mapHeight, int tileWidth, int tileHeight, Texture2D atlasTexture, Vector2? viewportSize, OutputDescription output, TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None, Dictionary<int, TileAnimation> tileAnimations = null)
+        public unsafe TileBatch2D(
+            int mapWidth, int mapHeight, int tileWidth, int tileHeight,
+            Texture2D atlasTexture,
+            Vector2? viewportSize,
+            OutputDescription output,
+            TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
+            Dictionary<int, TileAnimation> tileAnimations = null)
         {
             MapWidth = mapWidth;
             MapHeight = mapHeight;

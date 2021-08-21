@@ -6,6 +6,7 @@ namespace ElementEngine
 {
     public static class DefaultShaders
     {
+        #region SpriteBatch
         public static string DefaultSpriteVS = @"
             #version 450
 
@@ -45,7 +46,9 @@ namespace ElementEngine
                 fFragColor = texture(sampler2D(fTexture, fTextureSampler), fTexCoords) * fColor;
             }
         ";
+        #endregion
 
+        #region TileBatch
         public static string DefaultTileVS = @"
             #version 450
 
@@ -122,7 +125,9 @@ namespace ElementEngine
                 fFragColor = texture(sampler2D(fAtlasImage, fAtlasImageSampler), (spriteOffset + spriteCoord) * uInverseSpriteTextureSize);
             }
         ";
+        #endregion
 
+        #region PrimitiveBatch
         public static string DefaultPrimitiveVS = @"
             #version 450
 
@@ -156,6 +161,7 @@ namespace ElementEngine
                 fFragColor = fColor;
             }
         ";
+        #endregion
 
     } // DefaultShaders
 }
