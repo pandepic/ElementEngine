@@ -118,6 +118,7 @@ namespace ElementEngine.ElementUI
 
                         ScrollbarV.IsVisible = true;
                         ScrollbarV.IsActive = true;
+                        UpdateLayout();
                     }
                 }
             }
@@ -146,6 +147,7 @@ namespace ElementEngine.ElementUI
 
                         ScrollbarH.IsVisible = true;
                         ScrollbarH.IsActive = true;
+                        UpdateLayout();
                     }
                 }
             }
