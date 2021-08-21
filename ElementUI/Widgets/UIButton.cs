@@ -201,9 +201,6 @@ namespace ElementEngine.ElementUI
             if (base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer))
                 return true;
 
-            if (button != MouseButton.Left)
-                return false;
-
             IsPressed = true;
             return true;
         }
@@ -226,9 +223,6 @@ namespace ElementEngine.ElementUI
         {
             if (base.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer))
                 return true;
-
-            if (button != MouseButton.Left)
-                return false;
 
             if (IsPressed)
             {

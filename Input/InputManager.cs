@@ -80,16 +80,8 @@ namespace ElementEngine
 
         public static bool IsKeyDown(Key key)
         {
-            if (KeysDown.TryGetValue(key, out var down))
+            if (KeysDown.TryGetValue(key, out bool down))
                 return down;
-            else
-                return false;
-        }
-
-        public static bool IsMouseButtonDown(MouseButton button)
-        {
-            if (MouseButtonsDown.TryGetValue(button, out var state))
-                return state.Down;
             else
                 return false;
         }

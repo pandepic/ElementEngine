@@ -271,51 +271,37 @@ namespace ElementEngine.ElementUI
             base.Update(gameTimer);
         }
 
-        protected void HandleSliding(Vector2 mousePosition)
-        {
-            if (!IsSliding)
-                return;
-            
-            if (!InputManager.IsMouseButtonDown(MouseButton.Left))
-            {
-                IsSliding = false;
-                return;
-            }
-
-            var currentMouseOffset = mousePosition.ToVector2I() - Slider.Position;
-
-            if (currentMouseOffset.Y == _slidingMouseOffset.Y)
-                return;
-
-            var diff = Math.Abs(currentMouseOffset.Y - _slidingMouseOffset.Y);
-            if (diff < _distancePerStep)
-                return;
-
-            var direction = currentMouseOffset.Y > _slidingMouseOffset.Y ? 1 : -1;
-            CurrentValue += StepSize * (int)(diff / _distancePerStep) * direction;
-        }
-
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             var val = base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
-            HandleSliding(mousePosition);
+
+            if (IsSliding)
+            {
+                var currentMouseOffset = mousePosition.ToVector2I() - Slider.Position;
+
+                if (currentMouseOffset.Y == _slidingMouseOffset.Y)
+                    return val;
+
+                var diff = Math.Abs(currentMouseOffset.Y - _slidingMouseOffset.Y);
+                if (diff < _distancePerStep)
+                    return val;
+
+                var direction = currentMouseOffset.Y > _slidingMouseOffset.Y ? 1 : -1;
+                CurrentValue += StepSize * (int)(diff / _distancePerStep) * direction;
+            }
 
             return val;
         }
 
         internal override void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
-            //IsSliding = false;
-            HandleSliding(mousePosition);
+            IsSliding = false;
             base.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
         }
 
         internal override bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
             var val = base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
-
-            if (button != MouseButton.Left)
-                return val;
 
             if (Slider.IsPressed)
             {
