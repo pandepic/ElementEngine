@@ -305,7 +305,6 @@ namespace ElementEngine.ElementUI
 
         internal override void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
-            //IsSliding = false;
             HandleSliding(mousePosition);
             base.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
         }

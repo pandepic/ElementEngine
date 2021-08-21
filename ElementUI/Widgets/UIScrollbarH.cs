@@ -270,31 +270,41 @@ namespace ElementEngine.ElementUI
             base.Update(gameTimer);
         }
 
+        protected void HandleSliding(Vector2 mousePosition)
+        {
+            if (!IsSliding)
+                return;
+
+            if (!InputManager.IsMouseButtonDown(MouseButton.Left))
+            {
+                IsSliding = false;
+                return;
+            }
+
+            var currentMouseOffset = mousePosition.ToVector2I() - Slider.Position;
+
+            if (currentMouseOffset.X == _slidingMouseOffset.X)
+                return;
+
+            var diff = Math.Abs(currentMouseOffset.X - _slidingMouseOffset.X);
+            if (diff < _distancePerStep)
+                return;
+
+            var direction = currentMouseOffset.X > _slidingMouseOffset.X ? 1 : -1;
+            CurrentValue += StepSize * (int)(diff / _distancePerStep) * direction;
+        }
+
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             var val = base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
-
-            if (IsSliding)
-            {
-                var currentMouseOffset = mousePosition.ToVector2I() - Slider.Position;
-
-                if (currentMouseOffset.X == _slidingMouseOffset.X)
-                    return val;
-
-                var diff = Math.Abs(currentMouseOffset.X - _slidingMouseOffset.X);
-                if (diff < _distancePerStep)
-                    return val;
-
-                var direction = currentMouseOffset.X > _slidingMouseOffset.X ? 1 : -1;
-                CurrentValue += StepSize * (int)(diff / _distancePerStep) * direction;
-            }
+            HandleSliding(mousePosition);
 
             return val;
         }
 
         internal override void InternalHandleNoMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
-            IsSliding = false;
+            HandleSliding(mousePosition);
             base.InternalHandleNoMouseMotion(mousePosition, prevMousePosition, gameTimer);
         }
 
