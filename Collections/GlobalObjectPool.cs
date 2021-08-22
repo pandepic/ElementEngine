@@ -6,6 +6,19 @@ using System.Threading.Tasks;
 
 namespace ElementEngine
 {
+    public static class GlobalObjectPool
+    {
+        public static T Rent<T>() where T : new()
+        {
+            return GlobalObjectPool<T>.Rent();
+        }
+
+        public static void Return<T>(T obj) where T : new()
+        {
+            GlobalObjectPool<T>.Return(obj);
+        }
+    }
+
     public static class GlobalObjectPool<T> where T : new()
     {
         public static List<T> Buffer = new List<T>();
