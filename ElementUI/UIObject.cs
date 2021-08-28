@@ -1061,6 +1061,7 @@ namespace ElementEngine.ElementUI
                     continue;
 
                 child._uiPosition.MarginOffset = null;
+                child.UpdatePosition();
             }
 
             // vertical margin
