@@ -7,12 +7,20 @@ using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
+    public enum LabelDisplayMode
+    {
+        Normal,
+        Password,
+    }
+
     public class UILabelStyle : UIStyle
     {
         public UIFontFamily FontFamily;
         public RgbaByte Color;
         public int FontSize;
         public int Outline;
+        public int? WordWrapWidth;
+        public LabelDisplayMode LabelDisplayMode;
 
         public UIFontStyle? FontStyle;
         public UIFontWeight? FontWeight;
@@ -25,6 +33,8 @@ namespace ElementEngine.ElementUI
             Outline = copyFrom.Outline;
             FontWeight = copyFrom.FontWeight;
             FontStyle = copyFrom.FontStyle;
+            WordWrapWidth = copyFrom.WordWrapWidth;
+            LabelDisplayMode = copyFrom.LabelDisplayMode;
 
             if (baseCopy)
                 BaseCopy(copyFrom);
@@ -36,7 +46,9 @@ namespace ElementEngine.ElementUI
             int fontSize,
             int outline = 0,
             UIFontStyle? fontStyle = null,
-            UIFontWeight? fontWeight = null)
+            UIFontWeight? fontWeight = null,
+            int? wordWrapWidth = null,
+            LabelDisplayMode? labelDisplayMode = null)
         {
             FontFamily = fontFamily;
             Color = color;
@@ -44,6 +56,8 @@ namespace ElementEngine.ElementUI
             Outline = outline;
             FontWeight = fontWeight;
             FontStyle = fontStyle;
+            WordWrapWidth = wordWrapWidth;
+            LabelDisplayMode = labelDisplayMode ?? LabelDisplayMode;
         }
 
     } // UILabelStyle

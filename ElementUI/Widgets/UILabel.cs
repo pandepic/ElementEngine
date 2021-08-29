@@ -16,11 +16,17 @@ namespace ElementEngine.ElementUI
         public UIFontWeight FontWeight;
         public Vector2I TextSize { get; protected set; }
 
+        internal string _internalText = "";
         internal string _text = "";
         public string Text
         {
             get => _text;
             set => SetText(value);
+        }
+
+        public string InternalText
+        {
+            get => _internalText;
         }
 
         public SpriteFont CurrentFont => Style.FontFamily.GetFont(FontStyle, FontWeight);
@@ -38,14 +44,33 @@ namespace ElementEngine.ElementUI
 
         public void SetText(string text)
         {
+            _internalText = text;
             _text = text;
-            TextSize = CurrentFont.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
+
+            if (Style.LabelDisplayMode == LabelDisplayMode.Normal)
+            {
+                _text = text;
+            }
+            else if (Style.LabelDisplayMode == LabelDisplayMode.Password)
+            {
+                _text = "";
+
+                for (var i = 0; i < _internalText.Length; i++)
+                    _text += "*";
+            }
+
+            if (Style.WordWrapWidth.HasValue)
+            {
+                // todo
+            }
+
+            TextSize = CurrentFont.MeasureText(Text, Style.FontSize, Style.Outline).ToVector2I();
             Size = TextSize;
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(CurrentFont, _text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
+            spriteBatch.DrawText(CurrentFont, Text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
             base.Draw(spriteBatch);
         }
 
