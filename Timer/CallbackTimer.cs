@@ -38,6 +38,12 @@ namespace ElementEngine.Timer
             }
         }
 
+        public void Restart()
+        {
+            CurrentTime = 0;
+            Start();
+        }
+
         public void Start() => TimerStatus = TimerStatus.Running;
         public void Pause() => TimerStatus = TimerStatus.Paused;
         public void Stop() => TimerStatus = TimerStatus.Finished;
