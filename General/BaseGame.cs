@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ElementEngine.Timer;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -195,10 +196,12 @@ namespace ElementEngine
                     while (_totalFrameTime > _targetFrameTime)
                     {
                         _totalFrameTime -= _targetFrameTime;
-
+                        
                         GameTimer.SetFrameTime(_targetFrameTime);
+
                         Update(GameTimer);
                         CurrentGameState?.Update(GameTimer);
+                        TimerManager.Update(GameTimer);
                     }
 
                     var sleepTime = (_totalFrameTime - _targetFrameTime).TotalMilliseconds;
@@ -212,6 +215,7 @@ namespace ElementEngine
 
                     Update(GameTimer);
                     CurrentGameState?.Update(GameTimer);
+                    TimerManager.Update(GameTimer);
                 }
 
                 HandleDraw();
