@@ -20,13 +20,8 @@ namespace ElementEngine.ElementUI
         internal string _text = "";
         public string Text
         {
-            get => _text;
-            set => SetText(value);
-        }
-
-        public string InternalText
-        {
             get => _internalText;
+            set => SetText(value);
         }
 
         public SpriteFont CurrentFont => Style.FontFamily.GetFont(FontStyle, FontWeight);
@@ -45,7 +40,6 @@ namespace ElementEngine.ElementUI
         public void SetText(string text)
         {
             _internalText = text;
-            _text = text;
 
             if (Style.LabelDisplayMode == LabelDisplayMode.Normal)
             {
