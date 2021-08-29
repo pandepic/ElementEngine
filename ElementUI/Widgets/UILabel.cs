@@ -23,6 +23,11 @@ namespace ElementEngine.ElementUI
             get => _internalText;
             set => SetText(value);
         }
+        
+        public string DisplayText
+        {
+            get => _text;
+        }
 
         public SpriteFont CurrentFont => Style.FontFamily.GetFont(FontStyle, FontWeight);
 
@@ -58,13 +63,13 @@ namespace ElementEngine.ElementUI
                 // todo
             }
 
-            TextSize = CurrentFont.MeasureText(Text, Style.FontSize, Style.Outline).ToVector2I();
+            TextSize = CurrentFont.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();
             Size = TextSize;
         }
 
         public override void Draw(SpriteBatch2D spriteBatch)
         {
-            spriteBatch.DrawText(CurrentFont, Text, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
+            spriteBatch.DrawText(CurrentFont, DisplayText, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
             base.Draw(spriteBatch);
         }
 

@@ -96,7 +96,7 @@ namespace ElementEngine.ElementUI
             _cursorIndex = Math.Clamp(_cursorIndex, 0, Text.Length);
 
             return new Vector2I(
-                Text.Length == 0 ? 0 : (Label.CurrentFont.MeasureText(Text.Substring(0, CursorIndex), Label.Style.FontSize, Label.Style.Outline).ToVector2I().X),
+                Text.Length == 0 ? 0 : (Label.CurrentFont.MeasureText(Label.DisplayText.Substring(0, CursorIndex), Label.Style.FontSize, Label.Style.Outline).ToVector2I().X),
                 0) + measureLabel.Position;
         }
 
