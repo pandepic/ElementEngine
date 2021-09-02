@@ -233,6 +233,42 @@ namespace ElementEngine.ECS
                     var group = RegisteredGroups[i];
                     var matchesGroup = true;
 
+                    if (group.EntityLookup.Contains(entity.ID))
+                    {
+                        if (group.ExcludeTypes == null || group.ExcludeTypes.Length == 0)
+                            continue;
+
+                        foreach (var excludeType in group.ExcludeTypes)
+                        {
+                            if (excludeType == type)
+                            {
+                                group.RemoveEntity(entity);
+                                matchesGroup = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (group.ExcludeTypes != null && group.ExcludeTypes.Length > 0)
+                        {
+                            foreach (var excludeType in group.ExcludeTypes)
+                            {
+                                var excludeTypeHash = excludeType.GetHashCode();
+
+                                if (status.Components.Contains(excludeTypeHash))
+                                {
+                                    group.RemoveEntity(entity);
+                                    matchesGroup = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!matchesGroup)
+                        continue;
+
                     if (!group.Types.Contains(type))
                         continue;
 

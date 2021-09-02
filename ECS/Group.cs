@@ -12,6 +12,7 @@ namespace ElementEngine.ECS
     {
         public Registry Registry;
         public Type[] Types;
+        public Type[] ExcludeTypes;
         public int EntityCount = 0;
         public Entity[] EntityBuffer;
         public SparseSet EntityLookup;
