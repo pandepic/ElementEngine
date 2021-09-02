@@ -56,6 +56,17 @@ namespace ElementEngine.TexturePacker
     {
         public List<TexturePackerAtlasSprite> frames { get; set; }
         public TexturePackerAtlasMeta meta { get; set; }
+
+        public Rectangle GetSpriteRect(string sprite)
+        {
+            foreach (var frame in frames)
+            {
+                if (frame.filename == sprite)
+                    return frame.frame.Rect;
+            }
+
+            throw new Exception($"TexturePackerAtlasData doesn't contain frame {sprite}");
+        }
     }
 
     public class TexturePackerAtlas
