@@ -6,6 +6,9 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Veldrid;
+
+using Rectangle = ElementEngine.Rectangle;
 
 namespace ElementEngine
 {
@@ -50,6 +53,21 @@ namespace ElementEngine
         public static Rectangle ReadRectangle(this BinaryReader reader)
         {
             return new Rectangle(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this BinaryWriter writer, ref RgbaByte rgba)
+        {
+            writer.Write(rgba.R);
+            writer.Write(rgba.G);
+            writer.Write(rgba.B);
+            writer.Write(rgba.A);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RgbaByte ReadRgbaByte(this BinaryReader reader)
+        {
+            return new RgbaByte(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
         }
     } // Extensions
 }
