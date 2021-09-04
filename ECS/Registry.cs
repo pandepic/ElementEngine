@@ -106,6 +106,7 @@ namespace ElementEngine.ECS
                 status.GenerationID += 1;
                 status.IsAlive = true;
                 status.Components.Clear();
+                Entities[id] = status;
             }
             else
             {
