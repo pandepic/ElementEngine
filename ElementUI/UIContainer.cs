@@ -17,6 +17,7 @@ namespace ElementEngine.ElementUI
 
         public bool IgnoreMouseClicks = false;
         public bool IgnoreMouseEvents = false;
+        public bool IgnoreMouseWheelEvents = false;
 
         public readonly UIScrollbarV ScrollbarV;
         public readonly UIScrollbarH ScrollbarH;
@@ -119,7 +120,7 @@ namespace ElementEngine.ElementUI
 
                         ScrollbarV.IsVisible = true;
                         ScrollbarV.IsActive = true;
-                        UpdateLayout();
+                        UpdateLayout(true, false);
                     }
                 }
             }
@@ -148,12 +149,36 @@ namespace ElementEngine.ElementUI
 
                         ScrollbarH.IsVisible = true;
                         ScrollbarH.IsActive = true;
-                        UpdateLayout();
+                        UpdateLayout(true, false);
                     }
                 }
             }
         } // UpdateScrollbars
 
+        public void ScrollToLeft()
+        {
+            if (ScrollbarH == null)
+                return;
+
+            ScrollbarH.CurrentValue = ScrollbarH.MinValue;
+        }
+        
+        public void ScrollToRight()
+        {
+            if (ScrollbarH == null)
+                return;
+
+            ScrollbarH.CurrentValue = ScrollbarH.MaxValue;
+        }
+
+        public void ScrollToTop()
+        {
+            if (ScrollbarV == null)
+                return;
+
+            ScrollbarV.CurrentValue = ScrollbarV.MinValue;
+        }
+        
         public void ScrollToBottom()
         {
             if (ScrollbarV == null)
@@ -167,10 +192,17 @@ namespace ElementEngine.ElementUI
             UpdateScrollbars(true);
         }
 
-        public override void UpdateLayout(bool secondCheck = true)
+        public override void UpdateLayout(bool secondCheck = true, bool updateScrollbars = true)
         {
+            if (ScrollbarV != null)
+                ScrollbarV._drawOrder = int.MaxValue;
+            if (ScrollbarH != null)
+                ScrollbarH._drawOrder = int.MaxValue;
+
             base.UpdateLayout(secondCheck);
-            UpdateScrollbars(false);
+
+            if (updateScrollbars)
+                UpdateScrollbars(false);
         }
 
         public override void Update(GameTimer gameTimer)
@@ -290,7 +322,7 @@ namespace ElementEngine.ElementUI
         {
             var captured = base.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
 
-            if (!captured && !IgnoreMouseEvents)
+            if (!captured && !IgnoreMouseEvents && !IgnoreMouseWheelEvents)
                 return true;
             else
                 return captured;

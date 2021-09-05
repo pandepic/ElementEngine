@@ -60,7 +60,24 @@ namespace ElementEngine.ElementUI
 
             if (Style.WordWrapWidth.HasValue)
             {
-                // todo
+                var width = 0;
+                var words = _internalText.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+                _text = "";
+
+                foreach (var word in words)
+                {
+                    var textSize = CurrentFont.MeasureText(word, Style.FontSize, Style.Outline);
+
+                    if (width + textSize.X > Style.WordWrapWidth.Value)
+                    {
+                        width = 0;
+                        _text += "\n";
+                    }
+
+                    _text += word + " ";
+                    width += (int)textSize.X;
+                }
             }
 
             TextSize = CurrentFont.MeasureText(_text, Style.FontSize, Style.Outline).ToVector2I();

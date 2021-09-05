@@ -248,7 +248,7 @@ namespace ElementEngine.ElementUI
             }
         }
 
-        public override void UpdateLayout(bool secondCheck = true)
+        public override void UpdateLayout(bool secondCheck = true, bool updateScrollbars = true)
         {
             base.UpdateLayout(secondCheck);
             UpdateSizesPositions();

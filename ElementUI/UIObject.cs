@@ -786,7 +786,7 @@ namespace ElementEngine.ElementUI
         {
             if (Children.AddIfNotContains(child))
             {
-                child._drawOrder = int.MaxValue;
+                child._drawOrder = int.MaxValue - 1;
                 child.Parent = this;
                 SetLayoutDirty();
 
@@ -816,6 +816,8 @@ namespace ElementEngine.ElementUI
 
         public bool RemoveChild(UIObject obj)
         {
+            SetLayoutDirty();
+            ReverseChildren.Clear();
             return Children.Remove(obj);
         }
 
@@ -865,6 +867,7 @@ namespace ElementEngine.ElementUI
         public void ClearChildren()
         {
             Children.Clear();
+            ReverseChildren.Clear();
             SetLayoutDirty();
         }
 
@@ -999,7 +1002,7 @@ namespace ElementEngine.ElementUI
             UpdatePosition();
         }
 
-        public virtual void UpdateLayout(bool secondCheck = true)
+        public virtual void UpdateLayout(bool secondCheck = true, bool updateScrollbars = true)
         {
             _layoutDirty = false;
 
@@ -1090,7 +1093,7 @@ namespace ElementEngine.ElementUI
 
                             child._uiPosition.MarginOffset = child._uiPosition.MarginOffset ?? Vector2I.Zero;
                             child._uiPosition.MarginOffset += offset;
-                            child.UpdateLayout();
+                            child.UpdateLayout(false);
                             marginsChanged = true;
                         }
                     }
@@ -1124,7 +1127,7 @@ namespace ElementEngine.ElementUI
 
                             child._uiPosition.MarginOffset = child._uiPosition.MarginOffset ?? Vector2I.Zero;
                             child._uiPosition.MarginOffset += offset;
-                            child.UpdateLayout();
+                            child.UpdateLayout(false);
                             marginsChanged = true;
                         }
                     }
