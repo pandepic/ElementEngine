@@ -24,7 +24,7 @@ namespace ElementEngine.ElementUI
         public readonly List<UIObject> Children = new List<UIObject>();
         public readonly List<UIObject> ReverseChildren = new List<UIObject>();
         public string Name;
-        public int ScrollSpeed = 10;
+        public int ScrollSpeed = 15;
 
         public bool IsFocused => ParentScreen.FocusedObject == this;
         public bool CanFocus = true;
@@ -786,6 +786,7 @@ namespace ElementEngine.ElementUI
         {
             if (Children.AddIfNotContains(child))
             {
+                child._drawOrder = int.MaxValue;
                 child.Parent = this;
                 SetLayoutDirty();
 
@@ -903,11 +904,11 @@ namespace ElementEngine.ElementUI
                 if (c1.DrawOrder == c2.DrawOrder)
                     return c1._childIndex.CompareTo(c2._childIndex);
 
-                return c1.DrawOrder.CompareTo(c2.DrawOrder);
+                return c1._drawOrder.CompareTo(c2._drawOrder);
             });
 
             for (var i = 0; i < Children.Count; i++)
-                Children[i].DrawOrder = i;
+                Children[i]._drawOrder = i;
 
             ReverseChildren.Clear();
             ReverseChildren.AddRange(Children);

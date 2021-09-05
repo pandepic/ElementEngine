@@ -15,6 +15,7 @@ namespace ElementEngine.ElementUI
         public bool IsDraggable => (Style.DraggableRect.HasValue || Style.IsFullDraggableRect) && !_uiPosition.IsAutoPosition;
         public bool IsDragging { get; protected set; }
 
+        public bool IgnoreMouseClicks = false;
         public bool IgnoreMouseEvents = false;
 
         public readonly UIScrollbarV ScrollbarV;
@@ -98,7 +99,7 @@ namespace ElementEngine.ElementUI
 
             if (ScrollbarV != null)
             {
-                if (absY == 0 || _uiSize._fullChildBounds.Height <= PaddingBounds.Height)
+                if (absY == 0 || _uiSize._fullChildBounds.Height <= PaddingBounds.Height || PaddingBounds.Height <= 0)
                 {
                     ScrollbarV.IsVisible = false;
                     ScrollbarV.IsActive = false;
@@ -125,7 +126,7 @@ namespace ElementEngine.ElementUI
 
             if (ScrollbarH != null)
             {
-                if (absX == 0 || _uiSize._fullChildBounds.Width <= PaddingBounds.Width)
+                if (absX == 0 || _uiSize._fullChildBounds.Width <= PaddingBounds.Width || PaddingBounds.Width <= 0)
                 {
                     ScrollbarH.IsVisible = false;
                     ScrollbarH.IsActive = false;
@@ -152,6 +153,14 @@ namespace ElementEngine.ElementUI
                 }
             }
         } // UpdateScrollbars
+
+        public void ScrollToBottom()
+        {
+            if (ScrollbarV == null)
+                return;
+
+            ScrollbarV.CurrentValue = ScrollbarV.MaxValue;
+        }
 
         internal override void InternalOnScrollY()
         {
@@ -213,7 +222,7 @@ namespace ElementEngine.ElementUI
                 return true;
             }
 
-            if (!IgnoreMouseEvents)
+            if (!IgnoreMouseEvents && !IgnoreMouseClicks)
                 return true;
             else
                 return false;
@@ -230,7 +239,7 @@ namespace ElementEngine.ElementUI
                 //return false;
             }
 
-            if (!IgnoreMouseEvents)
+            if (!IgnoreMouseEvents && !IgnoreMouseClicks)
                 return true;
             else
                 return false;
@@ -253,7 +262,7 @@ namespace ElementEngine.ElementUI
                 return true;
             }
 
-            if (!IgnoreMouseEvents)
+            if (!IgnoreMouseEvents && !IgnoreMouseClicks)
                 return true;
             else
                 return false;
@@ -271,7 +280,7 @@ namespace ElementEngine.ElementUI
         {
             var captured = base.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
 
-            if (!captured && !IgnoreMouseEvents)
+            if (!captured && !IgnoreMouseEvents && !IgnoreMouseClicks)
                 return true;
             else
                 return captured;
