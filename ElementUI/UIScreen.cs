@@ -78,6 +78,8 @@ namespace ElementEngine.ElementUI
 
         internal override bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
+            FocusedObject = null;
+
             var captured = base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
 
             if (captured && BlockInputWhenConsumed)
