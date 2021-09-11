@@ -543,6 +543,9 @@ namespace ElementEngine
 
         public void DrawLayers(int start, int end, Vector2 position, float scale = 1f)
         {
+            if (_disposed)
+                return;
+
             if (Layers.Count <= 0)
                 return;
 
