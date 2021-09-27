@@ -419,7 +419,11 @@ namespace ElementEngine
                         byte x = (byte)(tileIndex % TileSheetTilesWidth);
                         byte y = (byte)(tileIndex / TileSheetTilesWidth);
 
-                        buffer[index] = new RgbaByte(x, y, 0, 255);
+                        byte animIndex = 0;
+                        if (_animationLookup.TryGetValue(tileIndex, out var animation))
+                            animIndex = (byte)animation.Index;
+
+                        buffer[index] = new RgbaByte(x, y, animIndex, 255);
                     }
                 }
             }

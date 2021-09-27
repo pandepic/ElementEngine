@@ -23,6 +23,9 @@ namespace ElementEngine.MachineLearning
             _keySize = keySize;
             _rng = rng ?? new FastRandom();
 
+            if (_keySize == 0)
+                _keySize = 3;
+
             GenerateTable();
         }
 
