@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -18,7 +18,8 @@
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="TextCopy" Version="4.2.0" />
     <PackageReference Include="Veldrid" Version="4.9.0-gbe8e5a15f4" />
-    <PackageReference Include="Veldrid.ImageSharp" Version="4.9.0-gbe8e5a15f4" />
+    <!--<PackageReference Include="Veldrid.ImageSharp" Version="4.9.0-gbe8e5a15f4" />-->
+	<PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
     <PackageReference Include="Veldrid.ImGui" Version="5.72.0-gbe8e5a15f4" />
     <PackageReference Include="Veldrid.RenderDoc" Version="1.0.1-gbe8e5a15f4" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />

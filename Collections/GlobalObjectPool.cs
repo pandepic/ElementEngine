@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,20 @@ namespace ElementEngine
 
         public static void Return(T obj)
         {
+            if (obj == null)
+                return;
+
+            switch (obj)
+            {
+                case IList list:
+                    list.Clear();
+                    break;
+
+                case IDictionary dictionary:
+                    dictionary.Clear();
+                    break;
+            }
+
             Buffer.Add(obj);
         }
 
