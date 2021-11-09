@@ -39,21 +39,17 @@ namespace ElementEngine
 
         public static int GetSeedFromString(string str)
         {
-            using (var mySHA256 = SHA256Managed.Create())
-            {
-                byte[] toHashBytes = Encoding.UTF8.GetBytes(str);
-                var hashValue = mySHA256.ComputeHash(toHashBytes);
-                var hashValueStr = "";
+            using var sha256 = SHA256.Create();
 
-                foreach (byte b in hashValue)
-                {
-                    hashValueStr += b.ToString("x2");
-                }
+            byte[] toHashBytes = Encoding.UTF8.GetBytes(str);
+            var hashValue = sha256.ComputeHash(toHashBytes);
+            var hashValueStr = "";
 
-                int hashInt = Convert.ToInt32(hashValueStr.Substring(0, 8), 16);
+            foreach (byte b in hashValue)
+                hashValueStr += b.ToString("x2");
 
-                return hashInt;
-            }
+            return Convert.ToInt32(hashValueStr.Substring(0, 8), 16);
+
         } // GetSeedFromString
 
         public static Vector2 GetPointOnBezierCurve(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)
