@@ -75,7 +75,7 @@ namespace ElementEngine
 
         public void UpdateObject(T obj)
         {
-            UpdateObjectCells(obj, false);
+            UpdateObjectCells(obj, true);
         }
 
         public void RemoveObject(T obj)
