@@ -11,6 +11,8 @@ namespace ElementEngine.ECS
 {
     public struct Entity
     {
+        public static Entity Empty => new Entity();
+
         public readonly int ID;
         public readonly short RegistryID;
         public int GenerationID;

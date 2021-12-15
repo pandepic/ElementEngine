@@ -143,6 +143,7 @@ namespace ElementEngine
             return Sparse[value];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(int value)
         {
             if (value < 0 || value > MaxValue)

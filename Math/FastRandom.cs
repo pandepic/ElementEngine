@@ -73,6 +73,18 @@ namespace SharpNeat.Utility
     /// </summary>
     public class FastRandom
     {
+        public double NextDouble(double min, double max)
+        {
+            return min + NextDouble() * (max - min);
+        }
+
+        public float NextFloat() => (float)NextDouble();
+
+        public float NextFloat(float min, float max)
+        {
+            return (float)(min + NextDouble() * (max - min));
+        }
+
         #region Static Fields
         /// <summary>
         /// A static RNG that is used to generate seed values when constructing new instances of FastRandom.
