@@ -11,10 +11,10 @@ namespace ElementEngine
         public class Language
         {
             public string AssetName;
-            public Dictionary<string, string> Strings = new Dictionary<string, string>();
+            public Dictionary<string, string> Strings = new();
         }
 
-        public static Dictionary<string, Language> Languages = new Dictionary<string, Language>();
+        public static Dictionary<string, Language> Languages = new();
         public static Language DefaultLanguage;
         public static Language CurrentLanguage;
 
@@ -31,7 +31,7 @@ namespace ElementEngine
         public static Language GetLanguage(string assetName)
         {
             if (string.IsNullOrEmpty(assetName))
-                throw new ArgumentException($"Invalid language asset {assetName}", "assetName");
+                throw new ArgumentException($"Invalid language asset {assetName}", nameof(assetName));
 
             if (Languages.TryGetValue(assetName, out var language))
                 return language;

@@ -3,14 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace ElementEngine
 {
     public static partial class Extensions
     {
-        private static readonly FastRandom _rng = new FastRandom();
-
         #region Get/Set array and list by x/y positions (useful in tile maps etc.)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetByXY<T>(this T[] array, int x, int y, int width)

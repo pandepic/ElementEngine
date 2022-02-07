@@ -246,7 +246,7 @@ namespace ElementEngine
             
             if (serializer == null)
                 serializer = new JsonSerializer();
-
+            
             var obj = serializer.Deserialize<T>(jsonTextReader);
 
             _assetCache.Add(assetName, obj);
