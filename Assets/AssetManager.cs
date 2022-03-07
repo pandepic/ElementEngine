@@ -35,6 +35,7 @@ namespace ElementEngine
     {
         public string Name;
         public string FilePath;
+        public DirectoryInfo Directory;
     }
 
     public static class AssetManager
@@ -110,7 +111,7 @@ namespace ElementEngine
                     var assetPath = asset.Attribute("FilePath").Value;
 
                     if (!_assetData.ContainsKey(assetName))
-                        _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, assetPath) });
+                        _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, assetPath), Directory = new FileInfo(Path.Combine(path, assetPath)).Directory });
                     else
                         _assetData[assetName].FilePath = Path.Combine(path, assetPath);
                 } // foreach asset
@@ -143,7 +144,7 @@ namespace ElementEngine
                         var assetName = (autoPrependDir && baseDirProcessed ? dir.Name + "/" : "") + file.Name;
 
                         if (!_assetData.ContainsKey(assetName))
-                            _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, Path.GetRelativePath(path, file.FullName)) });
+                            _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, Path.GetRelativePath(path, file.FullName)), Directory = dir });
                     }
 
                     baseDirProcessed = true;
@@ -151,13 +152,13 @@ namespace ElementEngine
             } // if autoFind
         } // LoadAssetsFile
 
-        public static List<string> GetAssetsByExtension(string extension)
+        public static List<string> GetAssetsByExtension(string extension, string pathFilter = null)
         {
             var assets = new List<string>();
 
             foreach (var (name, asset) in _assetData)
             {
-                if (asset.FilePath.ToUpper().EndsWith(extension.ToUpper()))
+                if ((pathFilter == null || asset.FilePath.Contains(pathFilter)) && asset.FilePath.ToUpper().EndsWith(extension.ToUpper()))
                     assets.Add(name);
             }
 
@@ -208,9 +209,27 @@ namespace ElementEngine
             _removeList.Clear();
         }
 
+        public static List<Asset> GetAllAssets(string pathContains)
+        {
+            var assets = new List<Asset>();
+
+            foreach (var (name, asset) in _assetData)
+            {
+                if (asset.FilePath.Contains(pathContains))
+                    assets.Add(asset);
+            }
+
+            return assets;
+        }
+
         public static T GetAsset<T>(string assetName)
         {
             return (T)_assetCache[assetName];
+        }
+
+        public static Asset GetAssetInfo(string assetName)
+        {
+            return _assetData[assetName];
         }
 
         public static string GetAssetPath(string assetName)

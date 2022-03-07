@@ -21,33 +21,38 @@ namespace ElementEngine.UI
         private static IntPtr _selectedTextureBGPtr;
         private static bool _selectedTextureBGLoaded = false;
 
-        private static List<string> GetAssetsByExtension(List<string> extensions)
+        private static void CheckSelectedTextureLoaded()
+        {
+            if (!_selectedTextureBGLoaded)
+            {
+                _selectedTextureBGPtr = IMGUIManager.AddTexture(_selectedTextureBG);
+                _selectedTextureBGLoaded = true;
+            }
+        }
+
+        private static List<string> GetAssetsByExtension(List<string> extensions, string pathFilter = null)
         {
             _tempStringList.Clear();
 
             foreach (var extension in extensions)
             {
-                var assets = AssetManager.GetAssetsByExtension(extension);
+                var assets = AssetManager.GetAssetsByExtension(extension, pathFilter);
                 _tempStringList.AddIfNotContains(assets);
             }
 
             return _tempStringList;
         }
 
-        public static string TextureBrowser(string name, Vector2 previewSize)
+        public static string TextureBrowser(string name, Vector2 previewSize, int texturesPerRow = 10, string pathFilter = null)
         {
             string selectedTexture = null;
             var open = true;
-            var textureAssets = GetAssetsByExtension(_textureExtensions);
-            var texturesPerRow = 10;
+            var textureAssets = GetAssetsByExtension(_textureExtensions, pathFilter);
 
-            if (!_selectedTextureBGLoaded)
-            {
-                _selectedTextureBGPtr = IMGUIManager.AddTexture(_selectedTextureBG);
-                _selectedTextureBGLoaded = true;
-            }
+            CheckSelectedTextureLoaded();
 
-            if (ImGui.BeginPopupModal(name, ref open, ImGuiWindowFlags.AlwaysAutoResize))
+            ImGui.SetNextWindowSizeConstraints(new Vector2(1, 1), new Vector2(800, 800));
+            if (ImGui.BeginPopupModal(name, ref open, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.HorizontalScrollbar))
             {
                 if (!_selectedAssets.TryGetValue(name, out var selectedTextures))
                 {
@@ -59,14 +64,17 @@ namespace ElementEngine.UI
 
                 foreach (var asset in textureAssets)
                 {
+                    var texture = AssetManager.LoadTexture2D(asset);
+
                     if (!_cachedTexturePtrs.TryGetValue(asset, out var texturePtr))
                     {
-                        var texture = AssetManager.LoadTexture2D(asset);
                         texturePtr = IMGUIManager.AddTexture(texture);
                         _cachedTexturePtrs.Add(asset, texturePtr);
                     }
 
-                    ImGui.Image(texturePtr, previewSize);
+                    var renderSize = previewSize == Vector2.Zero ? texture.SizeF : previewSize;
+
+                    ImGui.Image(texturePtr, renderSize);
                     
                     if (ImGui.IsItemClicked())
                     {
@@ -85,7 +93,7 @@ namespace ElementEngine.UI
                     if (selectedTextures.Contains(asset))
                     {
                         var imagePos = ImGui.GetItemRectMin();
-                        ImGui.GetWindowDrawList().AddImage(_selectedTextureBGPtr, imagePos, imagePos + previewSize);
+                        ImGui.GetWindowDrawList().AddImage(_selectedTextureBGPtr, imagePos, imagePos + renderSize);
                     }
                     
                     textures += 1;

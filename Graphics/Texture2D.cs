@@ -66,6 +66,9 @@ namespace ElementEngine
             Setup(name);
         }
 
+        public Texture2D(Vector2I size, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
+            : this(size.X, size.Y, name, format, usage) { }
+
         public Texture2D(int width, int height, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
             : this((uint)width, (uint)height, name, format, usage) { }
 

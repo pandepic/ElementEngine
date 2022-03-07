@@ -8,6 +8,7 @@ namespace ElementEngine
     {
         protected TimeSpan _frameTime;
         public TimeSpan FrameTime { get => _frameTime; }
+        public float TimeWarpFactor = 1f;
 
         public float DeltaS { get => (float)FrameTime.TotalSeconds; }
         public float DeltaMS { get => (float)FrameTime.TotalMilliseconds; }
@@ -19,7 +20,7 @@ namespace ElementEngine
 
         internal void SetFrameTime(TimeSpan frameTime)
         {
-            _frameTime = frameTime;
+            _frameTime = frameTime * TimeWarpFactor;
         }
     }
 }

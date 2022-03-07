@@ -7,6 +7,54 @@ using Veldrid;
 
 namespace ElementEngine.UI
 {
+    public class IMGUITexture : IDisposable
+    {
+        public static Dictionary<string, IMGUITexture> Cache = new();
+
+        public IntPtr IntPtr;
+        public Texture2D Texture;
+
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    Texture?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
+
+        public IMGUITexture(Texture2D texture)
+        {
+            Texture = texture;
+            IntPtr = IMGUIManager.AddTexture(texture);
+        }
+
+        public static IMGUITexture GetFromAsset(string asset)
+        {
+            if (!Cache.TryGetValue(asset, out var texture))
+            {
+                texture = new IMGUITexture(AssetManager.LoadTexture2D(asset));
+                Cache.Add(asset, texture);
+            }
+
+            return texture;
+        }
+    }
+    
     public static class IMGUIManager
     {
         public static ImGuiRenderer Renderer { get; set; }

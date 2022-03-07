@@ -74,8 +74,8 @@ namespace ElementEngine
         protected static Vector2[] _transformBufferData = new Vector2[6];
 
         // Map data
-        public int MapWidth { get; set; }
-        public int MapHeight { get; set; }
+        public int MapWidth { get; set; } // in tiles
+        public int MapHeight { get; set; } // in tiles
         public int TileSheetTilesWidth { get; set; }
         public int TileSheetTilesHeight { get; set; }
         public Vector2 TileSize { get; set; }

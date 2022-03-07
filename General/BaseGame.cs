@@ -27,7 +27,7 @@ namespace ElementEngine
         protected long _currentTicks, _prevTicks;
         protected TimeSpan _targetFrameTime = TimeSpan.Zero;
         protected TimeSpan _totalFrameTime = TimeSpan.Zero;
-
+        
         // Window
         public bool Focused { get => ElementGlobals.Window.Focused; }
         public string GameTitle { get; set; }
@@ -59,6 +59,7 @@ namespace ElementEngine
                 if (disposing)
                 {
                     ElementGlobals.Unload();
+                    Unload();
                 }
 
                 _disposed = true;
@@ -249,8 +250,8 @@ namespace ElementEngine
             ElementGlobals.ResetViewport();
             CommandList.ClearColorTarget(0, ClearColor);
 
-            Draw(GameTimer);
             CurrentGameState?.Draw(GameTimer);
+            Draw(GameTimer);
 
             if (ElementGlobals.ScreenSpaceSpriteBatch2D != null && ElementGlobals.ScreenSpaceDrawList.Count > 0)
             {
@@ -266,6 +267,7 @@ namespace ElementEngine
         }
 
         public virtual void Load() { }
+        public virtual void Unload() { }
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(GameTimer gameTimer) { }
         public virtual void Exit() { }

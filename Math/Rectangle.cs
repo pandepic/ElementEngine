@@ -8,10 +8,10 @@ namespace ElementEngine
 {
     public struct Rectangle
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int X;
+        public int Y;
+        public int Width;
+        public int Height;
 
         [JsonIgnore]
         public bool IsZero => X == 0 && Y == 0 && Width == 0 && Height == 0;
