@@ -88,7 +88,7 @@ namespace ElementEngine.TexturePacker
             TextureAsset = textureAsset;
             DataAsset = dataAsset;
 
-            Texture = AssetManager.LoadTexture2D(TextureAsset);
+            Texture = AssetManager.Instance.LoadTexture2D(TextureAsset);
 
             foreach (var frame in Data.frames)
                 Sprites.TryAdd(frame.filename, frame);

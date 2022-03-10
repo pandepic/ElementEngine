@@ -19,7 +19,7 @@ namespace ElementEngine.Ogmo
             Level = level;
 
             if (tilesTexture == null)
-                tilesTexture = AssetManager.LoadTexture2D(level.Data.values["Tilesheet"]);
+                tilesTexture = AssetManager.Instance.LoadTexture2D(level.Data.values["Tilesheet"]);
 
             var firstLayer = level.Data.layers[0];
             _tileBatch = new TileBatch2D(firstLayer.gridCellsX, firstLayer.gridCellsY, firstLayer.gridCellWidth, firstLayer.gridCellHeight, tilesTexture);

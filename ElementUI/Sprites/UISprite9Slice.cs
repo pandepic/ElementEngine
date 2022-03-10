@@ -18,15 +18,15 @@ namespace ElementEngine.ElementUI
             string assetNameMiddleLeft, string assetNameMiddleRight, string assetNameMiddleCenter,
             string assetNameBottomLeft, string assetNameBottomRight, string assetNameBottomCenter)
             : this(
-                  new UITexture(AssetManager.LoadTexture2D(assetNameTopLeft)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameTopRight)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameTopCenter)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameMiddleLeft)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameMiddleRight)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameMiddleCenter)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameBottomLeft)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameBottomRight)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameBottomCenter)))
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameTopLeft)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameTopRight)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameTopCenter)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameMiddleLeft)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameMiddleRight)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameMiddleCenter)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameBottomLeft)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameBottomRight)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameBottomCenter)))
         {
         }
 

@@ -112,7 +112,7 @@ namespace ElementEngine.UI
                 }
             }
 
-            _font = AssetManager.LoadSpriteFont(GetXMLElement("FontName").Value);
+            _font = AssetManager.Instance.LoadSpriteFont(GetXMLElement("FontName").Value);
             FontSize = int.Parse(GetXMLElement("FontSize").Value);
             _text = GetXMLElement("Text").Value;
             Colour = new RgbaByte().FromHex(GetXMLElement("Color").Value);

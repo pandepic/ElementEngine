@@ -208,7 +208,7 @@ namespace ElementEngine.UI
 
         protected void Init()
         {
-            Sprite = new Sprite(AssetManager.LoadTexture2D(XMLElement.Value, PremultiplyType));
+            Sprite = new Sprite(AssetManager.Instance.LoadTexture2D(XMLElement.Value, PremultiplyType));
 
             var fillType = GetFillType();
 
@@ -295,7 +295,7 @@ namespace ElementEngine.UI
                 frameSize = new Vector2I(int.Parse(frameSizeSplit[0]), int.Parse(frameSizeSplit[1]));
             }
 
-            Sprite = new AnimatedSprite(AssetManager.LoadTexture2D(XMLElement.Value, PremultiplyType), frameSize);
+            Sprite = new AnimatedSprite(AssetManager.Instance.LoadTexture2D(XMLElement.Value, PremultiplyType), frameSize);
 
             var attAnimationFrames = XMLElement.Attribute("Frames");
             var attAnimationDuration = XMLElement.Attribute("DurationPerFrame");
@@ -356,9 +356,9 @@ namespace ElementEngine.UI
                 var assetCenter = XMLElement.Element("Center").Value;
                 var assetRight = XMLElement.Element("Right").Value;
 
-                TextureLeft = AssetManager.LoadTexture2D(assetLeft, PremultiplyType);
-                TextureCenter = AssetManager.LoadTexture2D(assetCenter, PremultiplyType);
-                TextureRight = AssetManager.LoadTexture2D(assetRight, PremultiplyType);
+                TextureLeft = AssetManager.Instance.LoadTexture2D(assetLeft, PremultiplyType);
+                TextureCenter = AssetManager.Instance.LoadTexture2D(assetCenter, PremultiplyType);
+                TextureRight = AssetManager.Instance.LoadTexture2D(assetRight, PremultiplyType);
 
                 SetWidth(width);
             }
@@ -373,9 +373,9 @@ namespace ElementEngine.UI
                 var assetCenter = XMLElement.Element("Center").Value;
                 var assetBottom = XMLElement.Element("Bottom").Value;
 
-                TextureTop = AssetManager.LoadTexture2D(assetTop, PremultiplyType);
-                TextureCenter = AssetManager.LoadTexture2D(assetCenter, PremultiplyType);
-                TextureBottom = AssetManager.LoadTexture2D(assetBottom, PremultiplyType);
+                TextureTop = AssetManager.Instance.LoadTexture2D(assetTop, PremultiplyType);
+                TextureCenter = AssetManager.Instance.LoadTexture2D(assetCenter, PremultiplyType);
+                TextureBottom = AssetManager.Instance.LoadTexture2D(assetBottom, PremultiplyType);
 
                 SetHeight(height);
             }
@@ -454,17 +454,17 @@ namespace ElementEngine.UI
             if (attHeight != null)
                 height = int.Parse(attHeight.Value);
 
-            TopTextureLeft = AssetManager.LoadTexture2D(XMLElement.Element("TopLeft").Value, PremultiplyType);
-            TopTextureCenter = AssetManager.LoadTexture2D(XMLElement.Element("TopCenter").Value, PremultiplyType);
-            TopTextureRight = AssetManager.LoadTexture2D(XMLElement.Element("TopRight").Value, PremultiplyType);
+            TopTextureLeft = AssetManager.Instance.LoadTexture2D(XMLElement.Element("TopLeft").Value, PremultiplyType);
+            TopTextureCenter = AssetManager.Instance.LoadTexture2D(XMLElement.Element("TopCenter").Value, PremultiplyType);
+            TopTextureRight = AssetManager.Instance.LoadTexture2D(XMLElement.Element("TopRight").Value, PremultiplyType);
 
-            MiddleTextureLeft = AssetManager.LoadTexture2D(XMLElement.Element("MiddleLeft").Value, PremultiplyType);
-            MiddleTextureCenter = AssetManager.LoadTexture2D(XMLElement.Element("MiddleCenter").Value, PremultiplyType);
-            MiddleTextureRight = AssetManager.LoadTexture2D(XMLElement.Element("MiddleRight").Value, PremultiplyType);
+            MiddleTextureLeft = AssetManager.Instance.LoadTexture2D(XMLElement.Element("MiddleLeft").Value, PremultiplyType);
+            MiddleTextureCenter = AssetManager.Instance.LoadTexture2D(XMLElement.Element("MiddleCenter").Value, PremultiplyType);
+            MiddleTextureRight = AssetManager.Instance.LoadTexture2D(XMLElement.Element("MiddleRight").Value, PremultiplyType);
 
-            BottomTextureLeft = AssetManager.LoadTexture2D(XMLElement.Element("BottomLeft").Value, PremultiplyType);
-            BottomTextureCenter = AssetManager.LoadTexture2D(XMLElement.Element("BottomCenter").Value, PremultiplyType);
-            BottomTextureRight = AssetManager.LoadTexture2D(XMLElement.Element("BottomRight").Value, PremultiplyType);
+            BottomTextureLeft = AssetManager.Instance.LoadTexture2D(XMLElement.Element("BottomLeft").Value, PremultiplyType);
+            BottomTextureCenter = AssetManager.Instance.LoadTexture2D(XMLElement.Element("BottomCenter").Value, PremultiplyType);
+            BottomTextureRight = AssetManager.Instance.LoadTexture2D(XMLElement.Element("BottomRight").Value, PremultiplyType);
 
             SetSize(width, height);
         }

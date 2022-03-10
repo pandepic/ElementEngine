@@ -47,7 +47,7 @@ namespace ElementEngine.UI
         {
             if (!Cache.TryGetValue(asset, out var texture))
             {
-                texture = new IMGUITexture(AssetManager.LoadTexture2D(asset));
+                texture = new IMGUITexture(AssetManager.Instance.LoadTexture2D(asset));
                 Cache.Add(asset, texture);
             }
 

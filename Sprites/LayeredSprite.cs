@@ -69,7 +69,7 @@ namespace ElementEngine
 
             foreach (var l in _layers)
             {
-                layerTextures.Add(AssetManager.LoadTexture2D(l));
+                layerTextures.Add(AssetManager.Instance.LoadTexture2D(l));
             }
 
             if (layerTextures.Count <= 0)

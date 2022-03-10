@@ -15,7 +15,7 @@ namespace ElementEngine
             var stopWatch = Stopwatch.StartNew();
             var loadedCount = 0;
 
-            using (var fs = AssetManager.GetAssetStream(assetName))
+            using (var fs = AssetManager.Instance.GetAssetStream(assetName))
             {
                 var animationsDoc = XDocument.Load(fs);
 

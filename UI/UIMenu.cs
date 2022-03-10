@@ -83,7 +83,7 @@ namespace ElementEngine.UI
 
         public void Load(string assetName, string templatesName = "")
         {
-            using var fs = AssetManager.GetAssetStream(assetName);
+            using var fs = AssetManager.Instance.GetAssetStream(assetName);
 
             using var streamReader = new StreamReader(fs);
             var xml = streamReader.ReadToEnd();
@@ -95,7 +95,7 @@ namespace ElementEngine.UI
             {
                 var importAsset = match.Value.Replace("@Import=\"", "").Replace("\"", "");
                 
-                using var importFS = AssetManager.GetAssetStream(importAsset);
+                using var importFS = AssetManager.Instance.GetAssetStream(importAsset);
                 using var importSR = new StreamReader(importFS);
                 var importString = importSR.ReadToEnd();
 
@@ -109,7 +109,7 @@ namespace ElementEngine.UI
 
             if (!string.IsNullOrWhiteSpace(templatesName))
             {
-                using var fsTemplates = AssetManager.GetAssetStream(templatesName);
+                using var fsTemplates = AssetManager.Instance.GetAssetStream(templatesName);
 
                 templatesRoot = XDocument.Load(fsTemplates).Element("Templates");
 

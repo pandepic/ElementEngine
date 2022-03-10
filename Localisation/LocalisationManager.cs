@@ -36,7 +36,7 @@ namespace ElementEngine
             if (Languages.TryGetValue(assetName, out var language))
                 return language;
             
-            var strings = AssetManager.LoadJSON<Dictionary<string, string>>(assetName);
+            var strings = AssetManager.Instance.LoadJSON<Dictionary<string, string>>(assetName);
 
             language = new Language()
             {

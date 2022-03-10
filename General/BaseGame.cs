@@ -142,7 +142,7 @@ namespace ElementEngine
 
         public void SetupAssets(string modsPath = "Mods")
         {
-            AssetManager.Load(modsPath);
+            AssetManager.Instance.Load(modsPath);
         }
 
         public void CreateGraphicsResources()
@@ -221,6 +221,9 @@ namespace ElementEngine
 
                 HandleDraw();
 
+                CurrentGameState?.EndOfFrame(GameTimer);
+                EndOfFrame(GameTimer);
+
                 if (TitleShowFPS)
                 {
                     _fpsCounter += GameTimer.FrameTime;
@@ -239,6 +242,8 @@ namespace ElementEngine
                 SoundManager.Update();
             }
 
+            CurrentGameState?.Unload();
+            AssetManager.Instance.Clear();
             Exit();
 
         } // Run
@@ -270,6 +275,7 @@ namespace ElementEngine
         public virtual void Unload() { }
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(GameTimer gameTimer) { }
+        public virtual void EndOfFrame(GameTimer gameTimer) { }
         public virtual void Exit() { }
 
         public virtual void OnWindowResized(Rectangle windowRect)

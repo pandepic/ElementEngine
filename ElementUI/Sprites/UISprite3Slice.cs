@@ -14,9 +14,9 @@ namespace ElementEngine.ElementUI
         public UITexture Center;
 
         public UISprite3SliceHorizontal(string assetNameLeft, string assetNameRight, string assetNameCenter, Vector2I? size = null)
-            : this(new UITexture(AssetManager.LoadTexture2D(assetNameLeft)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameRight)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameCenter)),
+            : this(new UITexture(AssetManager.Instance.LoadTexture2D(assetNameLeft)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameRight)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameCenter)),
                   size)
         {
         }
@@ -45,9 +45,9 @@ namespace ElementEngine.ElementUI
         public UITexture Center;
 
         public UISprite3SliceVertical(string assetNameTop, string assetNameBottom, string assetNameCenter, Vector2I? size = null)
-            : this(new UITexture(AssetManager.LoadTexture2D(assetNameTop)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameBottom)),
-                  new UITexture(AssetManager.LoadTexture2D(assetNameCenter)),
+            : this(new UITexture(AssetManager.Instance.LoadTexture2D(assetNameTop)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameBottom)),
+                  new UITexture(AssetManager.Instance.LoadTexture2D(assetNameCenter)),
                   size)
         {
         }

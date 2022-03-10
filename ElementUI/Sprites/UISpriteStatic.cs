@@ -12,7 +12,7 @@ namespace ElementEngine.ElementUI
         public UITexture Texture;
 
         public UISpriteStatic(string assetName)
-            : this(new UITexture(AssetManager.LoadTexture2D(assetName)))
+            : this(new UITexture(AssetManager.Instance.LoadTexture2D(assetName)))
         {
         }
 

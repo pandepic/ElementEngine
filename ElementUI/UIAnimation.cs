@@ -21,7 +21,7 @@ namespace ElementEngine.ElementUI
         public float SecondsPerFrame => TotalSeconds / TotalFrames;
 
         public UIAnimation(string assetName, Vector2I frameSize, int startFrame, int endFrame, float totalTimeSeconds, bool loop)
-            : this(new UITexture(AssetManager.LoadTexture2D(assetName)), frameSize, startFrame, endFrame, totalTimeSeconds, loop)
+            : this(new UITexture(AssetManager.Instance.LoadTexture2D(assetName)), frameSize, startFrame, endFrame, totalTimeSeconds, loop)
         {
         }
 

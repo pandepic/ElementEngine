@@ -14,7 +14,7 @@
             TileSet = tileSet;
 
             if (tilesTexture == null)
-                tilesTexture = AssetManager.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value);
+                tilesTexture = AssetManager.Instance.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value);
 
             _tileBatch = new TileBatch2D(Map.MapSize.X, Map.MapSize.Y, Map.TileSize.X, Map.TileSize.Y, tilesTexture, TileBatch2DWrapMode.None, TileSet?.TileAnimations);
 

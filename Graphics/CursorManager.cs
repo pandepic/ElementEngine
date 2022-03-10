@@ -14,7 +14,7 @@ namespace ElementEngine
         public Cursor(string name, string assetName, Vector2? offset = null)
         {
             Name = name;
-            Sprite = new Sprite(AssetManager.LoadTexture2D(assetName));
+            Sprite = new Sprite(AssetManager.Instance.LoadTexture2D(assetName));
 
             if (offset.HasValue)
                 Offset = offset.Value;

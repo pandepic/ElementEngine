@@ -21,7 +21,7 @@ namespace ElementEngine.Tiled
             BelowLayers = Map.GetLayersByCustomProperty("Below", "true");
             AboveLayers = Map.GetLayersByCustomProperty("Below", "false");
 
-            Tilesheet = AssetManager.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value);
+            Tilesheet = AssetManager.Instance.LoadTexture2D(Map.GetCustomProperty("Tilesheet").Value);
         }
 
         public void Draw(SpriteBatch2D spriteBatch, bool below, Camera2D camera = null, Vector2? offset = null)

@@ -69,5 +69,33 @@ namespace ElementEngine
         {
             return new RgbaByte(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this BinaryWriter writer, ref RgbaFloat rgba)
+        {
+            writer.Write(rgba.R);
+            writer.Write(rgba.G);
+            writer.Write(rgba.B);
+            writer.Write(rgba.A);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static RgbaFloat ReadRgbaFloat(this BinaryReader reader)
+        {
+            return new RgbaFloat(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write<T>(this BinaryWriter writer, T enumVal) where T : struct, IConvertible
+        {
+            writer.Write(Unsafe.As<T, int>(ref enumVal));
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T ReadEnum<T>(this BinaryReader reader) where T : struct, IConvertible
+        {
+            var intVal = reader.ReadInt32();
+            return Unsafe.As<int, T>(ref intVal);
+        }
     } // Extensions
 }

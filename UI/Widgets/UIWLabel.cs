@@ -25,7 +25,7 @@ namespace ElementEngine.UI
 
         public override void Load(UIFrame parent, XElement el)
         {
-            Font = AssetManager.LoadSpriteFont(GetXMLElement("FontName").Value);
+            Font = AssetManager.Instance.LoadSpriteFont(GetXMLElement("FontName").Value);
             FontSize = int.Parse(GetXMLElement("FontSize").Value);
             Color = new RgbaByte().FromHex(GetXMLElement("Color").Value);
 

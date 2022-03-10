@@ -16,7 +16,7 @@ namespace ElementEngine.ElementUI
         public int Height => SourceRect.Height;
 
         public UITexture(string assetName, Rectangle? sourceRect = null)
-            : this(AssetManager.LoadTexture2D(assetName), sourceRect)
+            : this(AssetManager.Instance.LoadTexture2D(assetName), sourceRect)
         {
         }
 

@@ -33,12 +33,12 @@ namespace ElementEngine
 
         public static void LoadFromAsset(string assetName)
         {
-            LoadFromPath(AssetManager.GetAssetPath(assetName));
+            LoadFromPath(AssetManager.Instance.GetAssetPath(assetName));
         }
 
         public static void LoadFromPath(string filePath)
         {
-            using var fs = AssetManager.GetFileStream(filePath);
+            using var fs = AssetManager.Instance.GetFileStream(filePath);
             LoadFromStream(fs);
         }
 

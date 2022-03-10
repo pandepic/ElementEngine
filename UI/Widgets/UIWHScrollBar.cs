@@ -140,7 +140,7 @@ namespace ElementEngine.UI
                 XElement labelPosition = GetXMLElement("Label", "Position");
                 XElement labelColor = GetXMLElement("Label", "Color");
 
-                Font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
+                Font = AssetManager.Instance.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
                 FontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
                 LabelTextColor = new RgbaByte().FromHex(labelColor.Value);
 

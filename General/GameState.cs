@@ -97,6 +97,7 @@ namespace ElementEngine
 
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(GameTimer gameTimer) { }
+        public virtual void EndOfFrame(GameTimer gameTimer) { }
 
         public virtual void OnWindowResized(Rectangle windowRect) { }
 

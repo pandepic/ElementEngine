@@ -18,7 +18,7 @@ namespace ElementEngine.ElementUI
 
         public void AddFont(UIFontStyle style, UIFontWeight weight, string assetName)
         {
-            AddFont(style, weight, AssetManager.LoadSpriteFont(assetName));
+            AddFont(style, weight, AssetManager.Instance.LoadSpriteFont(assetName));
         }
 
         public void AddFont(UIFontStyle style, UIFontWeight weight, SpriteFont font)

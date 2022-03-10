@@ -62,7 +62,7 @@ namespace ElementEngine.UI
             XElement elLabelPosition = GetXMLElement("Label", "Position");
             XElement elLabelColor = GetXMLElement("Label", "Color");
 
-            Font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
+            Font = AssetManager.Instance.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
             FontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
 
             var elFontOutline = GetXMLElement("Label", "FontOutline");

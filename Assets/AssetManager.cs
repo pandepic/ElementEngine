@@ -38,14 +38,20 @@ namespace ElementEngine
         public DirectoryInfo Directory;
     }
 
-    public static class AssetManager
+    public class AssetManager
     {
-        private static readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
-        private static readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
-        private static readonly List<string> _removeList = new List<string>();
+        public static AssetManager Instance = new();
 
-        public static void Load(string modsPath, LoadAssetsMode? mode = null)
+        private readonly Dictionary<string, Asset> _assetData = new Dictionary<string, Asset>();
+        private readonly Dictionary<string, object> _assetCache = new Dictionary<string, object>();
+        private readonly List<string> _removeList = new List<string>();
+
+        public string ModsPath { get; private set; }
+
+        public void Load(string modsPath, LoadAssetsMode? mode = null)
         {
+            ModsPath = modsPath;
+
             var stopWatch = Stopwatch.StartNew();
 
             var modsFilePath = Path.Combine(modsPath, "Mods.xml");
@@ -70,7 +76,7 @@ namespace ElementEngine
             Logging.Information("[{component}] {count} mod assets loaded from {path} in {time:0.00} ms.", "AssetManager", _assetData.Count, modsPath, stopWatch.Elapsed.TotalMilliseconds);
         } // Load
         
-        private static void LoadAssetsFile(string path = null, LoadAssetsMode? mode = null)
+        private void LoadAssetsFile(string path = null, LoadAssetsMode? mode = null)
         {
             var assetsFilePath = Path.Combine(path, "Assets.xml");
             var autoFind = false;
@@ -152,7 +158,7 @@ namespace ElementEngine
             } // if autoFind
         } // LoadAssetsFile
 
-        public static List<string> GetAssetsByExtension(string extension, string pathFilter = null)
+        public List<string> GetAssetsByExtension(string extension, string pathFilter = null)
         {
             var assets = new List<string>();
 
@@ -165,17 +171,17 @@ namespace ElementEngine
             return assets;
         }
 
-        public static bool Contains(string assetName)
+        public bool Contains(string assetName)
         {
             return _assetData.ContainsKey(assetName);
         }
 
-        public static bool IsLoaded(string assetName)
+        public bool IsLoaded(string assetName)
         {
             return _assetCache.ContainsKey(assetName);
         }
 
-        public static void Clear()
+        public void Clear()
         {
             foreach (var kvp in _assetCache)
             {
@@ -186,16 +192,18 @@ namespace ElementEngine
             _assetCache.Clear();
         }
 
-        public static void Unload(string assetName)
+        public void Unload(string assetName)
         {
-            var asset = _assetCache[assetName];
+            if (!_assetCache.TryGetValue(assetName, out var asset))
+                return;
+
             _assetCache.Remove(assetName);
 
             if (asset is IDisposable disposable)
                 disposable?.Dispose();
         }
 
-        public static void Unload<T>()
+        public void Unload<T>()
         {
             foreach (var kvp in _assetCache)
             {
@@ -209,7 +217,7 @@ namespace ElementEngine
             _removeList.Clear();
         }
 
-        public static List<Asset> GetAllAssets(string pathContains)
+        public List<Asset> GetAllAssets(string pathContains)
         {
             var assets = new List<Asset>();
 
@@ -222,38 +230,38 @@ namespace ElementEngine
             return assets;
         }
 
-        public static T GetAsset<T>(string assetName)
+        public T GetAsset<T>(string assetName)
         {
             return (T)_assetCache[assetName];
         }
 
-        public static Asset GetAssetInfo(string assetName)
+        public Asset GetAssetInfo(string assetName)
         {
             return _assetData[assetName];
         }
 
-        public static string GetAssetPath(string assetName)
+        public string GetAssetPath(string assetName)
         {
             return _assetData[assetName].FilePath;
         }
 
-        public static FileStream GetAssetStream(string assetName, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read)
+        public FileStream GetAssetStream(string assetName, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read)
         {
             return new FileStream(GetAssetPath(assetName), mode, access);
         }
 
-        public static FileStream GetFileStream(string path, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read)
+        public FileStream GetFileStream(string path, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read)
         {
             return new FileStream(path, mode, access);
         }
 
-        private static void LogLoaded(string type, string assetName, Stopwatch stopWatch)
+        private void LogLoaded(string type, string assetName, Stopwatch stopWatch)
         {
             stopWatch.Stop();
             Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
 
-        public static T LoadJSON<T>(string assetName, JsonSerializer serializer = null)
+        public T LoadJSON<T>(string assetName, JsonSerializer serializer = null)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (T)_assetCache[assetName];
@@ -274,7 +282,7 @@ namespace ElementEngine
             return obj;
         }
 
-        public static Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None)
+        public Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -293,13 +301,13 @@ namespace ElementEngine
 
         } // LoadTexture2D
 
-        public static Texture2D LoadTexture2DFromPath(string path, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
+        public Texture2D LoadTexture2DFromPath(string path, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
         {
             using var fs = File.OpenRead(path);
             return LoadTexture2DFromStream(fs, premultiply, name, log);
         }
 
-        public static Texture2D LoadTexture2DFromStream(FileStream fs, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
+        public Texture2D LoadTexture2DFromStream(FileStream fs, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
         {
             var stopWatch = Stopwatch.StartNew();
 
@@ -313,7 +321,7 @@ namespace ElementEngine
             return newTexture;
         }
 
-        public static SpriteFont LoadSpriteFont(string assetName)
+        public SpriteFont LoadSpriteFont(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -332,7 +340,7 @@ namespace ElementEngine
 
         } // LoadSpriteFont
 
-        public static TiledMap LoadTiledMap(string assetName)
+        public TiledMap LoadTiledMap(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -351,7 +359,7 @@ namespace ElementEngine
 
         } // LoadTiledMap
 
-        public static TiledTileset LoadTiledTileset(string assetName)
+        public TiledTileset LoadTiledTileset(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -370,7 +378,7 @@ namespace ElementEngine
 
         } // LoadTiledTileset
 
-        public static OgmoLevel LoadOgmoLevel(string assetName)
+        public OgmoLevel LoadOgmoLevel(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -392,7 +400,7 @@ namespace ElementEngine
         /// <summary>
         /// Try to auto detect the audio format and load from the correct source type
         /// </summary>
-        public static AudioSource LoadAudioSourceByExtension(string assetName)
+        public AudioSource LoadAudioSourceByExtension(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -408,7 +416,7 @@ namespace ElementEngine
             };
         } // LoadAudioSourceByExtension
 
-        public static AudioSource LoadAudioSourceWAV(string assetName)
+        public AudioSource LoadAudioSourceWAV(string assetName)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (AudioSource)_assetCache[assetName];
@@ -430,7 +438,7 @@ namespace ElementEngine
 
         } // LoadAudioSourceWAV
 
-        public static AudioSource LoadAudioSourceOggVorbis(string assetName)
+        public AudioSource LoadAudioSourceOggVorbis(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -454,7 +462,7 @@ namespace ElementEngine
 
         } // LoadAudioSourceOggVorbis
 
-        public static EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
+        public EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
@@ -472,7 +480,7 @@ namespace ElementEngine
             return newWorld;
         }
 
-        public static TexturePackerAtlas LoadTexturePackerAtlas(string textureAsset, string dataAsset)
+        public TexturePackerAtlas LoadTexturePackerAtlas(string textureAsset, string dataAsset)
         {
             if (!_assetData.ContainsKey(dataAsset))
                 return null;

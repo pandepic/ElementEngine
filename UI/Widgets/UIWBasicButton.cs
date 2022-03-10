@@ -76,7 +76,7 @@ namespace ElementEngine.UI
             XElement buttonLabelPosition = GetXMLElement("Label", "Position");
             XElement buttonLabelColor = GetXMLElement("Label", "Color");
 
-            var font = AssetManager.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
+            var font = AssetManager.Instance.LoadSpriteFont(GetXMLElement("Label", "FontName").Value);
             var fontSize = int.Parse(GetXMLElement("Label", "FontSize").Value);
 
             var elFontOutline = GetXMLElement("Label", "FontOutline");

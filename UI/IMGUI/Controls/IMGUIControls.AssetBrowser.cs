@@ -36,7 +36,7 @@ namespace ElementEngine.UI
 
             foreach (var extension in extensions)
             {
-                var assets = AssetManager.GetAssetsByExtension(extension, pathFilter);
+                var assets = AssetManager.Instance.GetAssetsByExtension(extension, pathFilter);
                 _tempStringList.AddIfNotContains(assets);
             }
 
@@ -64,7 +64,7 @@ namespace ElementEngine.UI
 
                 foreach (var asset in textureAssets)
                 {
-                    var texture = AssetManager.LoadTexture2D(asset);
+                    var texture = AssetManager.Instance.LoadTexture2D(asset);
 
                     if (!_cachedTexturePtrs.TryGetValue(asset, out var texturePtr))
                     {
@@ -124,7 +124,7 @@ namespace ElementEngine.UI
 
             if (!_cachedTexturePtrs.TryGetValue(atlas.TextureAsset, out var texturePtr))
             {
-                var texture = AssetManager.LoadTexture2D(atlas.TextureAsset);
+                var texture = AssetManager.Instance.LoadTexture2D(atlas.TextureAsset);
                 texturePtr = IMGUIManager.AddTexture(texture);
                 _cachedTexturePtrs.Add(atlas.TextureAsset, texturePtr);
             }

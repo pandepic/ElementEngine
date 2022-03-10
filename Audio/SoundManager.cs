@@ -167,13 +167,13 @@ namespace ElementEngine
             switch (sourceType)
             {
                 case AudioSourceType.Auto:
-                    return Play(AssetManager.LoadAudioSourceByExtension(assetName), type, loop, allowDuplicates);
+                    return Play(AssetManager.Instance.LoadAudioSourceByExtension(assetName), type, loop, allowDuplicates);
 
                 case AudioSourceType.Ogg:
-                    return Play(AssetManager.LoadAudioSourceOggVorbis(assetName), type, loop, allowDuplicates);
+                    return Play(AssetManager.Instance.LoadAudioSourceOggVorbis(assetName), type, loop, allowDuplicates);
 
                 case AudioSourceType.WAV:
-                    return Play(AssetManager.LoadAudioSourceWAV(assetName), type, loop, allowDuplicates);
+                    return Play(AssetManager.Instance.LoadAudioSourceWAV(assetName), type, loop, allowDuplicates);
             }
 
             return null;
