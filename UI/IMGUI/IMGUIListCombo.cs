@@ -10,6 +10,8 @@ namespace ElementEngine.UI
         public string Label;
         public List<T> List;
 
+        public bool IsEmpty => List.Count == 0;
+
         protected string[] _data;
         protected int _selectedIndex = 0;
 

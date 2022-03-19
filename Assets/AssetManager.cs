@@ -117,7 +117,7 @@ namespace ElementEngine
                     var assetPath = asset.Attribute("FilePath").Value;
 
                     if (!_assetData.ContainsKey(assetName))
-                        _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, assetPath), Directory = new FileInfo(Path.Combine(path, assetPath)).Directory });
+                        AddAsset(assetName, Path.Combine(path, assetPath));
                     else
                         _assetData[assetName].FilePath = Path.Combine(path, assetPath);
                 } // foreach asset
@@ -150,13 +150,27 @@ namespace ElementEngine
                         var assetName = (autoPrependDir && baseDirProcessed ? dir.Name + "/" : "") + file.Name;
 
                         if (!_assetData.ContainsKey(assetName))
-                            _assetData.Add(assetName, new Asset() { Name = assetName, FilePath = Path.Combine(path, Path.GetRelativePath(path, file.FullName)), Directory = dir });
+                            AddAsset(assetName, Path.Combine(path, Path.GetRelativePath(path, file.FullName)), dir);
                     }
 
                     baseDirProcessed = true;
                 }
             } // if autoFind
         } // LoadAssetsFile
+
+        public void AddAsset(string name, string filePath, DirectoryInfo dir = null)
+        {
+            var fileInfo = new FileInfo(filePath);
+
+            _assetData.Add(
+                name,
+                new Asset()
+                {
+                    Name = name,
+                    FilePath = filePath,
+                    Directory = dir ?? fileInfo.Directory
+                });
+        }
 
         public List<string> GetAssetsByExtension(string extension, string pathFilter = null)
         {
@@ -237,7 +251,10 @@ namespace ElementEngine
 
         public Asset GetAssetInfo(string assetName)
         {
-            return _assetData[assetName];
+            if (!_assetData.TryGetValue(assetName, out var asset))
+                throw new Exception($"{assetName} was not found in this asset manager.");
+
+            return asset;
         }
 
         public string GetAssetPath(string assetName)

@@ -56,6 +56,12 @@ namespace ElementEngine
         }
 
         [JsonIgnore]
+        public Vector2 BottomLeftF
+        {
+            get => new Vector2(Left, Bottom);
+        }
+
+        [JsonIgnore]
         public Vector2I BottomRight
         {
             get => new Vector2I(Right, Bottom);
@@ -70,6 +76,18 @@ namespace ElementEngine
                 Right = (int)value.X;
                 Bottom = (int)value.Y;
             }
+        }
+
+        [JsonIgnore]
+        public Vector2I BottomCenter
+        {
+            get => new Vector2I(Center.X, Bottom);
+        }
+
+        [JsonIgnore]
+        public Vector2 BottomCenterF
+        {
+            get => new Vector2(CenterF.X, BottomF);
         }
 
         [JsonIgnore]
@@ -134,6 +152,16 @@ namespace ElementEngine
             set
             {
                 Height = value - Y;
+            }
+        }
+
+        [JsonIgnore]
+        public float BottomF
+        {
+            get => Y + Height;
+            set
+            {
+                Height = (int)(value - Y);
             }
         }
 
