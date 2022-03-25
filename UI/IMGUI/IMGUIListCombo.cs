@@ -14,15 +14,19 @@ namespace ElementEngine.UI
 
         protected string[] _data;
         protected int _selectedIndex = 0;
+        protected bool _emptyOption;
 
         public int SelectedIndex { get => _selectedIndex; protected set => _selectedIndex = value; }
-        public T SelectedValue => List[_selectedIndex];
+        public T SelectedValue => _emptyOption ? (SelectedIndex == 0 ? default : List[_selectedIndex - 1]) : List[_selectedIndex];
         public string SelectedName => _data[_selectedIndex];
 
-        public IMGUIListCombo(string label, List<T> list)
+        public IMGUIListCombo(string label, List<T> list, bool emptyOption = false)
         {
+            _emptyOption = emptyOption;
+
             Label = label;
             List = list;
+
             RefreshData();
         }
 
@@ -31,10 +35,13 @@ namespace ElementEngine.UI
             if (List == null)
                 return;
 
-            _data = new string[List.Count];
+            _data = new string[List.Count + (_emptyOption ? 1 : 0)];
+
+            if (_emptyOption)
+                _data[0] = "";
 
             for (var i = 0; i < List.Count; i++)
-                _data[i] = List[i].ToString();
+                _data[i + (_emptyOption ? 1 : 0)] = List[i].ToString();
 
             if (_selectedIndex >= _data.Length)
                 _selectedIndex = _data.Length - 1;
@@ -81,15 +88,19 @@ namespace ElementEngine.UI
 
         protected string[] _data;
         protected int _selectedIndex = 0;
+        protected bool _emptyOption;
 
         public int SelectedIndex { get => _selectedIndex; protected set => _selectedIndex = value; }
-        public T SelectedValue => Data[_selectedIndex];
+        public T SelectedValue => _emptyOption ? (SelectedIndex == 0 ? default : Data[_selectedIndex - 1]) : Data[_selectedIndex];
         public string SelectedName => _data[_selectedIndex];
 
-        public IMGUIArrayCombo(string label, T[] data)
+        public IMGUIArrayCombo(string label, T[] data, bool emptyOption = false)
         {
+            _emptyOption = emptyOption;
+
             Label = label;
             Data = data;
+            
             RefreshData();
         }
 
@@ -98,10 +109,13 @@ namespace ElementEngine.UI
             if (Data == null)
                 return;
 
-            _data = new string[Data.Length];
+            _data = new string[Data.Length + (_emptyOption ? 1 : 0)];
+
+            if (_emptyOption)
+                _data[0] = "";
 
             for (var i = 0; i < Data.Length; i++)
-                _data[i] = Data[i].ToString();
+                _data[i + (_emptyOption ? 1 : 0)] = Data[i].ToString();
 
             if (_selectedIndex >= _data.Length)
                 _selectedIndex = _data.Length - 1;

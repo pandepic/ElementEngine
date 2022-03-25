@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
@@ -57,6 +58,8 @@ namespace ElementEngine
         protected ResourceLayout _textureLayoutAtlas;
         protected ResourceSet _textureSetAtlas;
         protected Shader[] _shaders;
+
+        protected static Dictionary<string, Shader[]> _cachedShaders = new();
 
         // Shared static resources
         protected static Sampler _sampler = ElementGlobals.GraphicsDevice.PointSampler;
@@ -158,6 +161,8 @@ namespace ElementEngine
             TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
             Dictionary<int, TileAnimation> tileAnimations = null)
         {
+            var sw = Stopwatch.StartNew();
+
             MapWidth = mapWidth;
             MapHeight = mapHeight;
             
@@ -223,16 +228,26 @@ namespace ElementEngine
             if (wrapMode == TileBatch2DWrapMode.Vertical || wrapMode == TileBatch2DWrapMode.Both)
                 wrapY = true;
 
-            // shaders
-            var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileVS), "main");
-            var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment,
-                Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS
-                .Replace("{ANIM_COUNT}", _animationOffsets.Length.ToString())
-                .Replace("{WRAP_X}", wrapX ? "true" : "false")
-                .Replace("{WRAP_Y}", wrapY ? "true" : "false")
-                ), "main");
+            var shaderKey = $"{_animationOffsets.Length}_{wrapX}_{wrapY}";
 
-            _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
+            if (_cachedShaders.TryGetValue(shaderKey, out var shaders))
+            {
+                _shaders = shaders;
+            }
+            else
+            {
+                // shaders
+                var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileVS), "main");
+                var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment,
+                    Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS
+                    .Replace("{ANIM_COUNT}", _animationOffsets.Length.ToString())
+                    .Replace("{WRAP_X}", wrapX ? "true" : "false")
+                    .Replace("{WRAP_Y}", wrapY ? "true" : "false")
+                    ), "main");
+
+                _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
+                _cachedShaders.Add(shaderKey, _shaders);
+            }
 
             // transform uniforms
             _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector2) * _transformBufferData.Length), BufferUsage.UniformBuffer));
