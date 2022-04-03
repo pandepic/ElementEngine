@@ -53,12 +53,22 @@ namespace ElementEngine
         public Vector2I BottomLeft
         {
             get => new Vector2I(Left, Bottom);
+            set
+            {
+                Bottom = value.Y;
+                X = value.X;
+            }
         }
 
         [JsonIgnore]
         public Vector2 BottomLeftF
         {
             get => new Vector2(Left, Bottom);
+            set
+            {
+                Bottom = (int)value.Y;
+                X = (int)value.X;
+            }
         }
 
         [JsonIgnore]
@@ -82,12 +92,22 @@ namespace ElementEngine
         public Vector2I BottomCenter
         {
             get => new Vector2I(Center.X, Bottom);
+            set
+            {
+                Bottom = value.Y;
+                X = value.X - (Width / 2);
+            }
         }
 
         [JsonIgnore]
         public Vector2 BottomCenterF
         {
             get => new Vector2(CenterF.X, BottomF);
+            set
+            {
+                Bottom = (int)value.Y;
+                X = (int)value.X - (Width / 2);
+            }
         }
 
         [JsonIgnore]

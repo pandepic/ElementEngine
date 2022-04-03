@@ -277,8 +277,8 @@ namespace ElementEngine
             stopWatch.Stop();
             Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
-
-        public T LoadJSON<T>(string assetName, JsonSerializer serializer = null)
+        
+        public T LoadJSON<T>(string assetName, JsonSerializer serializer = null, List<JsonConverter> converters = null)
         {
             if (_assetCache.ContainsKey(assetName))
                 return (T)_assetCache[assetName];
@@ -290,7 +290,13 @@ namespace ElementEngine
             
             if (serializer == null)
                 serializer = new JsonSerializer();
-            
+
+            if (converters != null)
+            {
+                foreach (var converter in converters)
+                    serializer.Converters.Add(converter);
+            }
+
             var obj = serializer.Deserialize<T>(jsonTextReader);
 
             _assetCache.Add(assetName, obj);
