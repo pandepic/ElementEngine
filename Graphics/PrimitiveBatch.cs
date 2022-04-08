@@ -163,6 +163,12 @@ namespace ElementEngine
             }
         }
 
+        public void DrawLine(Vector2I start, Vector2I end, RgbaFloat color, int lineSize)
+        {
+            var rotation = MathF.Atan2(end.Y - start.Y, end.X - start.X).ToDegrees();
+            DrawFilledRect(new Rectangle(start.X, start.Y, (int)Vector2.Distance(start.ToVector2(), end.ToVector2()), lineSize), color, Vector2.Zero, rotation);
+        }
+
         public void DrawOutlinedRect(Rectangle rect, RgbaFloat color, RgbaFloat lineColor, int lineSize, Vector2? origin = null, float rotation = 0f)
         {
             DrawFilledRect(rect, color, origin, rotation);
