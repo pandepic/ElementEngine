@@ -373,6 +373,10 @@ namespace ElementEngine.ECS
         }
 
         #region Register group
+        public GroupBuilder BuildGroup()
+        {
+            return new GroupBuilder(this);
+        }
 
         public Group RegisterGroup(params Type[] componentTypes)
         {
@@ -415,7 +419,6 @@ namespace ElementEngine.ECS
         {
             return RegisterGroup(typeof(T), typeof(U), typeof(V));
         }
-
         #endregion
 
         #region Create view
