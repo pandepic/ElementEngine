@@ -53,6 +53,7 @@ namespace ElementEngine
     public enum AStarPathResultType
     {
         Success,
+        Failed,
         NoPathFound,
         StartBlocked,
         EndBlocked,
@@ -61,7 +62,6 @@ namespace ElementEngine
 
     public class AStarPathfinder
     {
-        protected List<AStarPathResult> _sharedResultList = new List<AStarPathResult>();
         protected List<AStarNode> _openList = new List<AStarNode>();
 
         public AStarGraph Graph { get; protected set; }
@@ -77,9 +77,9 @@ namespace ElementEngine
             Graph = graph;
         }
 
-        public AStarPathResultType GetPath(Vector2I start, Vector2I end, out List<AStarPathResult> path, bool useSharedResult = true, bool addStart = false)
+        public AStarPathResultType GetPath(Vector2I start, Vector2I end, out List<AStarPathResult> path, bool addStart = false)
         {
-            var result = AStarPathResultType.Success;
+            var result = AStarPathResultType.Failed;
             path = null;
 
             if (start == end)
@@ -142,15 +142,8 @@ namespace ElementEngine
 
                 if (pathFound)
                 {
-                    if (useSharedResult)
-                    {
-                        _sharedResultList.Clear();
-                        path = _sharedResultList;
-                    }
-                    else
-                    {
-                        path = new List<AStarPathResult>();
-                    }
+                    path = GlobalObjectPool<List<AStarPathResult>>.Rent();
+                    path.Clear();
 
                     tempNode._parent = currentNode;
                     bool resultEnd = true;
@@ -173,6 +166,8 @@ namespace ElementEngine
                         var newResultNode = new AStarPathResult(tempNode, true, false);
                         path.Add(newResultNode);
                     }
+
+                    result = AStarPathResultType.Success;
                 } // path found
 
             } // while path not found

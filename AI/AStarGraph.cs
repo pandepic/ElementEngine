@@ -21,7 +21,7 @@ namespace ElementEngine
 
         public virtual bool IsNodeBlocked(AStarNode node, Vector2I end, AStarNode parent = null)
         {
-            if (node.MovementCost < 0f)
+            if (node.MovementCost >= 0f)
                 return false;
             else
                 return true;

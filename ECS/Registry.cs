@@ -24,7 +24,7 @@ namespace ElementEngine.ECS
             Components = new HashSet<int>();
         }
     } // EntityStatus
-    
+
     public delegate void ECSEvent<T>(Entity entity, ref T component);
 
     internal static class ComponentManager<T> where T : struct
@@ -138,7 +138,7 @@ namespace ElementEngine.ECS
             ref var status = ref Entities[entity.ID];
             return status.IsAlive && status.GenerationID == entity.GenerationID;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetEntityGeneration(Entity entity)
         {
@@ -228,9 +228,10 @@ namespace ElementEngine.ECS
                 ref var status = ref Entities[entity.ID];
                 status.Components.Add(typeHash);
 
+                var type = typeof(T);
+
                 for (var i = 0; i < RegisteredGroups.Count; i++)
                 {
-                    var type = typeof(T);
                     var group = RegisteredGroups[i];
                     var matchesGroup = true;
 
@@ -346,6 +347,41 @@ namespace ElementEngine.ECS
                         var group = typeGroups[i];
                         group.RemoveEntity(entity);
                     }
+                }
+
+                for (var i = 0; i < RegisteredGroups.Count; i++)
+                {
+                    var group = RegisteredGroups[i];
+                    var matchesGroup = true;
+
+                    if (group.ExcludeTypes == null || group.ExcludeTypes.Length == 0)
+                        continue;
+
+                    foreach (var groupType in group.Types)
+                    {
+                        if (!status.Components.Contains(groupType.GetHashCode()))
+                        {
+                            matchesGroup = false;
+                            break;
+                        }
+                    }
+
+                    if (matchesGroup)
+                    {
+                        foreach (var excludeType in group.ExcludeTypes)
+                        {
+                            if (status.Components.Contains(excludeType.GetHashCode()))
+                            {
+                                matchesGroup = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!matchesGroup)
+                        group.RemoveEntity(entity);
+                    else
+                        group.AddEntity(entity);
                 }
 
                 return true;

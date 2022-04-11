@@ -12,7 +12,7 @@ namespace ElementEngine
 
     public class AStarGridGraph : AStarGraph
     {
-        protected static Vector2I[] _surroundingCoords4Edges = new Vector2I[]
+        protected static readonly Vector2I[] _surroundingCoords4Edges = new Vector2I[]
         {
             new Vector2I(0, -1),     // top middle
             new Vector2I(-1, 0),     // left
@@ -20,7 +20,7 @@ namespace ElementEngine
             new Vector2I(0, 1),      // bottom middle
         };
 
-        protected static Vector2I[] _surroundingCoords8Edges = new Vector2I[]
+        protected static readonly Vector2I[] _surroundingCoords8Edges = new Vector2I[]
         {
             new Vector2I(-1, 0),     // left
             new Vector2I(-1, -1),    // top left

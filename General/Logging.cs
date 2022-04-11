@@ -24,6 +24,12 @@ namespace ElementEngine
         }
 
         [Conditional("DEBUG")]
+        public static void DebugBreak()
+        {
+            Debugger.Break();
+        }
+
+        [Conditional("DEBUG")]
         public static void Debug(string messageTemplate)
         {
             _logger.Information(messageTemplate);
