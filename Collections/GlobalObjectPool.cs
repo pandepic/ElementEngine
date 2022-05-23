@@ -16,6 +16,9 @@ namespace ElementEngine
 
         public static void Return<T>(T obj) where T : new()
         {
+            if (obj == null)
+                return;
+
             GlobalObjectPool<T>.Return(obj);
         }
     }

@@ -142,8 +142,7 @@ namespace ElementEngine
 
                 if (pathFound)
                 {
-                    path = GlobalObjectPool<List<AStarPathResult>>.Rent();
-                    path.Clear();
+                    path = new();
 
                     tempNode._parent = currentNode;
                     bool resultEnd = true;
