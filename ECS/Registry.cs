@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,13 +16,15 @@ namespace ElementEngine.ECS
         public bool IsAlive;
         public int GenerationID;
         public HashSet<int> Components;
+        public HashSet<Type> ComponentTypes;
 
         public EntityStatus(int id)
         {
             ID = id;
             IsAlive = true;
             GenerationID = 0;
-            Components = new HashSet<int>();
+            Components = new();
+            ComponentTypes = new();
         }
     } // EntityStatus
 
@@ -40,11 +43,17 @@ namespace ElementEngine.ECS
         public Type Type;
     }
 
+    internal struct CheckGroupsOnEntityComponentAddedItem
+    {
+        public Entity Entity;
+        public Type Type;
+    }
+
     public class Registry
     {
-        internal static Registry[] _registries = new Registry[10];
-        internal const int _defaultMaxComponents = 100;
-        internal static short _nextRegistryID = 0;
+        [JsonIgnore] internal static Registry[] _registries = new Registry[10];
+        [JsonIgnore] internal const int _defaultMaxComponents = 100;
+        [JsonIgnore] internal static short _nextRegistryID = 0;
 
         internal Queue<Entity> _removeEntities = new Queue<Entity>();
         internal Queue<RemoveComponent> _removeComponents = new Queue<RemoveComponent>();
@@ -58,6 +67,9 @@ namespace ElementEngine.ECS
         public List<Group> RegisteredGroups = new List<Group>();
         public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
+        
+        [JsonIgnore] internal Dictionary<Type, Action<Entity>> CheckGroupsOnEntityComponentAddedMethods = new();
+        [JsonIgnore] internal List<CheckGroupsOnEntityComponentAddedItem> CheckGroupsOnEntityComponentAddedItems = new();
 
         public Dictionary<int, List<Group>> GroupComponentMap = new Dictionary<int, List<Group>>();
 
@@ -190,6 +202,13 @@ namespace ElementEngine.ECS
 
             while (_removeComponents.TryDequeue(out var removeComponent))
                 TryRemoveComponentImmediate(removeComponent.ComponentStore, removeComponent.Entity, removeComponent.Type);
+
+            foreach (var item in CheckGroupsOnEntityComponentAddedItems)
+            {
+                CheckGroupsOnEntityComponentAddedMethods[item.Type](item.Entity);
+            }
+
+            CheckGroupsOnEntityComponentAddedItems.Clear();
         }
 
         public void Clear()
@@ -227,72 +246,19 @@ namespace ElementEngine.ECS
                 // didn't have this component type yet, add new data
                 ref var status = ref Entities[entity.ID];
                 status.Components.Add(typeHash);
+                status.ComponentTypes.Add(typeof(T));
 
-                var type = typeof(T);
-
-                for (var i = 0; i < RegisteredGroups.Count; i++)
+                if (!CheckGroupsOnEntityComponentAddedMethods.TryGetValue(typeof(T), out var method))
                 {
-                    var group = RegisteredGroups[i];
-                    var matchesGroup = true;
-
-                    if (group.EntityLookup.Contains(entity.ID))
-                    {
-                        if (group.ExcludeTypes == null || group.ExcludeTypes.Length == 0)
-                            continue;
-
-                        foreach (var excludeType in group.ExcludeTypes)
-                        {
-                            if (excludeType == type)
-                            {
-                                group.RemoveEntity(entity);
-                                matchesGroup = false;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (group.ExcludeTypes != null && group.ExcludeTypes.Length > 0)
-                        {
-                            foreach (var excludeType in group.ExcludeTypes)
-                            {
-                                var excludeTypeHash = excludeType.GetHashCode();
-
-                                if (status.Components.Contains(excludeTypeHash))
-                                {
-                                    group.RemoveEntity(entity);
-                                    matchesGroup = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (!matchesGroup)
-                        continue;
-
-                    if (!group.Types.Contains(type))
-                        continue;
-
-                    foreach (var groupType in group.Types)
-                    {
-                        var groupTypeHash = groupType.GetHashCode();
-
-                        if (ComponentStores.ContainsKey(groupTypeHash))
-                        {
-                            var store = ComponentStores[groupTypeHash];
-                            if (!store.Contains(entity.ID))
-                                matchesGroup = false;
-                        }
-                        else
-                        {
-                            matchesGroup = false;
-                        }
-                    }
-
-                    if (matchesGroup)
-                        group.AddEntity(entity);
+                    method = CheckGroupsOnEntityComponentAdded<T>;
+                    CheckGroupsOnEntityComponentAddedMethods.Add(typeof(T), method);
                 }
+
+                CheckGroupsOnEntityComponentAddedItems.Add(new()
+                {
+                    Entity = entity,
+                    Type = typeof(T),
+                });
 
                 var onFirstAdded = ComponentManager<T>.OnFirstAddedPool[RegistryID];
 
@@ -310,6 +276,76 @@ namespace ElementEngine.ECS
             }
 
         } // TryAddComponent
+
+        public void CheckGroupsOnEntityComponentAdded<T>(Entity entity) where T : struct
+        {
+            var status = entity.Status;
+            var type = typeof(T);
+
+            for (var i = 0; i < RegisteredGroups.Count; i++)
+            {
+                var group = RegisteredGroups[i];
+                var matchesGroup = true;
+
+                if (group.EntityLookup.Contains(entity.ID))
+                {
+                    if (group.ExcludeTypes == null || group.ExcludeTypes.Length == 0)
+                        continue;
+
+                    foreach (var excludeType in group.ExcludeTypes)
+                    {
+                        if (excludeType == type)
+                        {
+                            group.RemoveEntity(entity);
+                            matchesGroup = false;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    if (group.ExcludeTypes != null && group.ExcludeTypes.Length > 0)
+                    {
+                        foreach (var excludeType in group.ExcludeTypes)
+                        {
+                            var excludeTypeHash = excludeType.GetHashCode();
+
+                            if (status.Components.Contains(excludeTypeHash))
+                            {
+                                group.RemoveEntity(entity);
+                                matchesGroup = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!matchesGroup)
+                    continue;
+
+                if (!group.Types.Contains(type))
+                    continue;
+
+                foreach (var groupType in group.Types)
+                {
+                    var groupTypeHash = groupType.GetHashCode();
+
+                    if (ComponentStores.ContainsKey(groupTypeHash))
+                    {
+                        var store = ComponentStores[groupTypeHash];
+                        if (!store.Contains(entity.ID))
+                            matchesGroup = false;
+                    }
+                    else
+                    {
+                        matchesGroup = false;
+                    }
+                }
+
+                if (matchesGroup)
+                    group.AddEntity(entity);
+            }
+        }
 
         public void RemoveComponent<T>(Entity entity) where T : struct
         {
@@ -339,6 +375,7 @@ namespace ElementEngine.ECS
 
                 ref var status = ref Entities[entity.ID];
                 status.Components.Remove(typeHash);
+                status.ComponentTypes.Remove(type);
 
                 if (GroupComponentMap.TryGetValue(typeHash, out var typeGroups))
                 {

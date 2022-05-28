@@ -19,6 +19,7 @@ namespace ElementEngine.ECS
 
         [JsonIgnore] public Registry Registry => Registry._registries[RegistryID];
         [JsonIgnore] public bool IsAlive => Registry.IsEntityAlive(this);
+        [JsonIgnore] public EntityStatus Status => Registry.Entities[ID];
 
         public Entity(int id, Registry registry)
         {

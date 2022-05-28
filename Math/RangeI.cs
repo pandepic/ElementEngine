@@ -28,7 +28,7 @@ namespace ElementEngine
             if (rng == null)
                 rng = _rng;
 
-            return rng.Next(Min, Max);
+            return rng.Next(Min, Max + 1);
         }
 
         public RangeF ToRangeF() => new RangeF(Min, Max);
