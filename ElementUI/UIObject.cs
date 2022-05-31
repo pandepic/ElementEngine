@@ -1273,11 +1273,6 @@ namespace ElementEngine.ElementUI
 
         internal virtual bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-            if (Name == "SettingsLayout_Audio")
-            {
-                var b = 0;
-            }
-
             var child = GetFirstChildContainsMouse(mousePosition);
             var childCaptured = child?.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
 
