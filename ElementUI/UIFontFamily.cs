@@ -9,7 +9,7 @@ namespace ElementEngine.ElementUI
     public class UIFontFamily
     {
         public readonly string Name;
-        public readonly Dictionary<(UIFontStyle, UIFontWeight), SpriteFont> SpriteFonts = new Dictionary<(UIFontStyle, UIFontWeight), SpriteFont>();
+        public readonly Dictionary<(UIFontStyle Style, UIFontWeight Weight), SpriteFont> SpriteFonts = new();
 
         public UIFontFamily(string name)
         {

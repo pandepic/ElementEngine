@@ -369,6 +369,9 @@ namespace ElementEngine.ECS
 
         public bool TryRemoveComponentImmediate(IComponentStore store, Entity entity, Type type)
         {
+            if (store == null)
+                return false;
+
             if (store.TryRemove(entity.ID))
             {
                 var typeHash = type.GetHashCode();

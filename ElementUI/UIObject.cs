@@ -10,8 +10,9 @@ namespace ElementEngine.ElementUI
 {
     public class UIObject : IMouseHandler, IKeyboardHandler
     {
+        public const int NO_DRAW_ORDER = -1;
+
         internal static int _nextObjectID = 0;
-        internal const int NO_DRAW_ORDER = -1;
 
         public int KeyboardPriority { get; set; } = 0;
         public int MousePriority { get; set; } = 0;
@@ -21,8 +22,8 @@ namespace ElementEngine.ElementUI
         public UIScreen ParentScreen => this is UIScreen thisScreen ? thisScreen : (Parent == null ? null : (Parent is UIScreen screen ? screen : Parent.ParentScreen));
 
         public UIStyle Style => _style;
-        public readonly List<UIObject> Children = new List<UIObject>();
-        public readonly List<UIObject> ReverseChildren = new List<UIObject>();
+        public readonly List<UIObject> Children = new();
+        public readonly List<UIObject> ReverseChildren = new();
         public string Name;
         public int ScrollSpeed = 15;
 
@@ -658,11 +659,13 @@ namespace ElementEngine.ElementUI
         public virtual void Show()
         {
             _isVisible = true;
+            SetLayoutDirty();
         }
 
         public virtual void Hide()
         {
             _isVisible = false;
+            SetLayoutDirty();
         }
 
         public void ToggleVisible()
@@ -1012,7 +1015,6 @@ namespace ElementEngine.ElementUI
                 child.UpdateLayout();
 
             SortChildren();
-            HandleMargins();
             ClampScroll();
 
             if (_layoutDirty && secondCheck)
@@ -1032,116 +1034,6 @@ namespace ElementEngine.ElementUI
             _position = _uiPosition.GetPosition(this);
             _childOrigin = _position + _padding.TopLeft;
         }
-
-        internal bool CheckHandleObjectMargin(UIObject obj, UIObject compare)
-        {
-            if (obj == compare)
-                return false;
-            if (!obj._uiPosition.Position.HasValue)
-                return false;
-            if (!(obj.HasMargin || obj.RespectMargins))
-                return false;
-
-            return true;
-        }
-
-        internal virtual bool HandleMargins()
-        {
-            UIObject firstChildWithMargin = null;
-            var marginsChanged = false;
-
-            foreach (var child in Children)
-            {
-                if (child.HasMargin)
-                {
-                    firstChildWithMargin = child;
-                    break;
-                }
-            }
-
-            foreach (var child in Children)
-            {
-                if (!CheckHandleObjectMargin(child, firstChildWithMargin))
-                    continue;
-
-                child._uiPosition.MarginOffset = null;
-                child.UpdatePosition();
-            }
-
-            // vertical margin
-            foreach (var child in Children)
-            {
-                if (!CheckHandleObjectMargin(child, firstChildWithMargin))
-                    continue;
-
-                var sortedChildren = GlobalObjectPool<List<UIObject>>.Rent();
-                sortedChildren.Clear();
-                sortedChildren.AddRange(Children);
-                sortedChildren.Sort((obj1, obj2) => { return obj1.DrawPosition.Y.CompareTo(obj2.DrawPosition.Y); });
-
-                foreach (var sibling in sortedChildren)
-                {
-                    if (!CheckHandleObjectMargin(sibling, child))
-                        continue;
-
-                    if ((child.MarginTop > 0 || sibling.MarginBottom > 0) && !child._uiPosition.IsAutoPositionY)
-                    {
-                        if ((sibling == firstChildWithMargin || sibling._uiPosition.MarginOffset.HasValue)
-                            && (child.MarginBounds.Top < sibling.MarginBounds.Bottom && child.MarginBounds.Bottom > sibling.MarginBounds.Top))
-                        {
-                            var offset = new Vector2I(0, sibling.MarginBounds.Bottom - child.MarginBounds.Top);
-
-                            child._uiPosition.MarginOffset = child._uiPosition.MarginOffset ?? Vector2I.Zero;
-                            child._uiPosition.MarginOffset += offset;
-                            child.UpdateLayout(false);
-                            marginsChanged = true;
-                        }
-                    }
-                }
-
-                GlobalObjectPool<List<UIObject>>.Return(sortedChildren);
-            }
-
-            // horizontal margin
-            foreach (var child in Children)
-            {
-                if (!CheckHandleObjectMargin(child, firstChildWithMargin))
-                    continue;
-
-                var sortedChildren = GlobalObjectPool<List<UIObject>>.Rent();
-                sortedChildren.Clear();
-                sortedChildren.AddRange(Children);
-                sortedChildren.Sort((obj1, obj2) => { return obj1.DrawPosition.X.CompareTo(obj2.DrawPosition.X); });
-
-                foreach (var sibling in sortedChildren)
-                {
-                    if (!CheckHandleObjectMargin(sibling, child))
-                        continue;
-
-                    if ((child.MarginLeft > 0 || sibling.MarginRight > 0) && !child._uiPosition.IsAutoPositionX)
-                    {
-                        if ((sibling == firstChildWithMargin || sibling._uiPosition.MarginOffset.HasValue)
-                            && (child.MarginBounds.Left < sibling.MarginBounds.Right && child.MarginBounds.Right > sibling.MarginBounds.Left))
-                        {
-                            var offset = new Vector2I(sibling.MarginBounds.Right - child.MarginBounds.Left, 0);
-
-                            child._uiPosition.MarginOffset = child._uiPosition.MarginOffset ?? Vector2I.Zero;
-                            child._uiPosition.MarginOffset += offset;
-                            child.UpdateLayout(false);
-                            marginsChanged = true;
-                        }
-                    }
-                }
-
-                GlobalObjectPool<List<UIObject>>.Return(sortedChildren);
-            }
-
-            if (marginsChanged)
-                UpdateSize();
-
-            return marginsChanged;
-
-        } // HandleMargins
 
         public virtual void Update(GameTimer gameTimer)
         {
@@ -1381,6 +1273,11 @@ namespace ElementEngine.ElementUI
 
         internal virtual bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
+            if (Name == "SettingsLayout_Audio")
+            {
+                var b = 0;
+            }
+
             var child = GetFirstChildContainsMouse(mousePosition);
             var childCaptured = child?.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
 
