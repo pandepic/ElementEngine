@@ -34,9 +34,11 @@ namespace ElementEngine
 
     public class SpriteBatch2D : IDisposable, IFontStashRenderer
     {
+        private static SimpleShader _defaultSimpleShader;
+
         public Sdl2Window Window => ElementGlobals.Window;
         public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
-        public CommandList CommandList => ElementGlobals.CommandList;
+        public CommandList CommandList;
 
         public readonly bool InvertY;
 
@@ -122,6 +124,8 @@ namespace ElementEngine
 
         public unsafe SpriteBatch2D(int width, int height, OutputDescription output, SimplePipeline simplePipeline = null, Shader[] shaders = null, bool invertY = false)
         {
+            CommandList = ElementGlobals.CommandList;
+
             _textureSets = new Dictionary<string, ResourceSet>();
 
             var factory = GraphicsDevice.ResourceFactory;
@@ -202,8 +206,11 @@ namespace ElementEngine
 
         public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, OutputDescription? output = null, SimpleShader shader = null)
         {
+            if (_defaultSimpleShader == null)
+                _defaultSimpleShader = new SimpleShader(graphicsDevice, DefaultShaders.DefaultSpriteVS, DefaultShaders.DefaultSpriteFS, Vertex2DPositionTexCoordsColor.VertexLayout);
+
             if (shader == null)
-                shader = new SimpleShader(graphicsDevice, DefaultShaders.DefaultSpriteVS, DefaultShaders.DefaultSpriteFS, Vertex2DPositionTexCoordsColor.VertexLayout);
+                shader = _defaultSimpleShader;
 
             if (!output.HasValue)
                 output = ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
@@ -640,7 +647,7 @@ namespace ElementEngine
                     resourceSetIndex += 1;
                 }
             }
-
+            
             CommandList.DrawIndexed((uint)(_currentBatchCount * IndicesPerQuad));
             _currentBatchCount = 0;
         }

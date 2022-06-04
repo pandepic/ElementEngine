@@ -12,8 +12,12 @@ namespace ElementEngine.ElementUI
         public int CellPaddingTop;
         public int CellPaddingBottom;
 
-        public UILayoutVertical(string name) : base(name)
+        public UILayoutVertical(string name, UILayoutVerticalStyle style) : base(name)
         {
+            ApplyStyle(style);
+
+            CellPaddingTop = style.CellPaddingTop;
+            CellPaddingBottom = style.CellPaddingBottom;
         }
 
         public override void UpdateLayout(bool secondCheck = true, bool updateScrollbars = true)

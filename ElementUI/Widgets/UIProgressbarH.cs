@@ -60,7 +60,11 @@ namespace ElementEngine.ElementUI
         public UIProgressbarH(string name, UIProgressbarStyleH style, int minValue, int maxValue, int currentValue = 0) : base(name)
         {
             ApplyStyle(style);
-            ApplyDefaultSize(Style.Background.Sprite);
+
+            if (Style.Background.Sprite.Size.X == 1 && Style.Fill.Sprite.Size.X > 1)
+                ApplyDefaultSize(Style.Fill.Sprite);
+            else
+                ApplyDefaultSize(Style.Background.Sprite);
 
             _minValue = minValue;
             _maxValue = maxValue;

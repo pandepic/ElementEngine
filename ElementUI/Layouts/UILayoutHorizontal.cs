@@ -12,8 +12,12 @@ namespace ElementEngine.ElementUI
         public int CellPaddingLeft;
         public int CellPaddingRight;
 
-        public UILayoutHorizontal(string name) : base(name)
+        public UILayoutHorizontal(string name, UILayoutHorizontalStyle style) : base(name)
         {
+            ApplyStyle(style);
+
+            CellPaddingLeft = style.CellPaddingLeft;
+            CellPaddingRight = style.CellPaddingRight;
         }
 
         public override void UpdateLayout(bool secondCheck = true, bool updateScrollbars = true)

@@ -11,8 +11,12 @@ namespace ElementEngine.ElementUI
         public UISpacing CellPadding;
         public int? MaxColumns;
 
-        public UILayoutGrid(string name) : base(name)
+        public UILayoutGrid(string name, UILayoutGridStyle style) : base(name)
         {
+            ApplyStyle(style);
+
+            CellPadding = style.CellPadding;
+            MaxColumns = style.MaxColumns;
         }
 
         public override void UpdateLayout(bool secondCheck = true, bool updateScrollbars = true)

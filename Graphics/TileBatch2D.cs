@@ -161,8 +161,6 @@ namespace ElementEngine
             TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
             Dictionary<int, TileAnimation> tileAnimations = null)
         {
-            var sw = Stopwatch.StartNew();
-
             MapWidth = mapWidth;
             MapHeight = mapHeight;
             
