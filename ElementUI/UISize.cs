@@ -90,9 +90,9 @@ namespace ElementEngine.ElementUI
             var parentSize = GetRespectedParentSize(obj);
 
             if (ParentWidth)
-                size.X = parentSize.X;
+                size.X = parentSize.X - (obj.MarginLeft + obj.MarginRight);
             if (ParentHeight)
-                size.Y = parentSize.Y;
+                size.Y = parentSize.Y - (obj.MarginTop + obj.MarginBottom);
 
             if (ParentWidthRatio.HasValue)
                 size.X = (int)(parentSize.X * ParentWidthRatio.Value);

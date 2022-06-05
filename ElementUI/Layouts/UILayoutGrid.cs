@@ -34,7 +34,7 @@ namespace ElementEngine.ElementUI
 
             foreach (var child in Children)
             {
-                if ((currentPos + new Vector2I(CellPadding.Left + CellPadding.Right + child.Width, 0)).X > Width || (MaxColumns.HasValue && currentRowColumns >= MaxColumns.Value))
+                if ((!AutoWidth && (currentPos + new Vector2I(CellPadding.Left + CellPadding.Right + child.Width, 0)).X > Width) || (MaxColumns.HasValue && currentRowColumns >= MaxColumns.Value))
                 {
                     currentPos.Y += CellPadding.Top;
                     currentPos.Y += currentRowHeight;
@@ -47,11 +47,10 @@ namespace ElementEngine.ElementUI
                     currentRowHeight = child.Height + child.MarginBottom + CellPadding.Bottom;
 
                 currentPos.X += CellPadding.Left;
-                currentPos.Y += CellPadding.Top;
 
                 child.SetPosition(currentPos);
 
-                currentPos.X += CellPadding.Right;
+                currentPos.X += CellPadding.Right + child.Width;
 
                 currentRowColumns += 1;
             }
