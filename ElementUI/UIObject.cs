@@ -787,6 +787,9 @@ namespace ElementEngine.ElementUI
         #region Children
         public bool AddChild(UIObject child)
         {
+            if (child == null)
+                return false;
+
             if (Children.AddIfNotContains(child))
             {
                 child._drawOrder = int.MaxValue - 1;
@@ -819,6 +822,9 @@ namespace ElementEngine.ElementUI
 
         public bool RemoveChild(UIObject obj)
         {
+            if (obj == null)
+                return false;
+
             SetLayoutDirty();
             ReverseChildren.Clear();
             return Children.Remove(obj);
