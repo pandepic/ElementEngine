@@ -10,6 +10,8 @@ namespace ElementEngine
 
     public enum EasingType
     {
+        Linear,
+
         EaseInSine,
         EaseOutSine,
         EaseInOutSine,
@@ -57,6 +59,8 @@ namespace ElementEngine
         {
             return easingType switch
             {
+                EasingType.Linear => Linear(x),
+
                 EasingType.EaseInSine => EaseInSine(x),
                 EasingType.EaseOutSine => EaseOutSine(x),
                 EasingType.EaseInOutSine => EaseInOutSine(x),
@@ -99,6 +103,11 @@ namespace ElementEngine
 
                 _ => throw new NotImplementedException(),
             };
+        }
+
+        public static float Linear(float x)
+        {
+            return x;
         }
 
         public static float EaseInSine(float x)
