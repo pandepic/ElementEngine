@@ -94,13 +94,13 @@ namespace ElementEngine
             var startNode = Graph.GetNode(start, start, end);
             var endNode = Graph.GetNode(end, start, end);
 
-            if (Graph.IsNodeBlocked(startNode, end))
+            if (startNode == null || Graph.IsNodeBlocked(startNode, end))
             {
                 if (!SetPathResult(AStarPathResultType.StartBlocked, ref result))
                     return result;
             }
 
-            if (Graph.IsNodeBlocked(endNode, end))
+            if (endNode == null || Graph.IsNodeBlocked(endNode, end))
             {
                 if (!SetPathResult(AStarPathResultType.EndBlocked, ref result))
                     return result;

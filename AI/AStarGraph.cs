@@ -21,6 +21,9 @@ namespace ElementEngine
 
         public virtual bool IsNodeBlocked(AStarNode node, Vector2I end, AStarNode parent = null)
         {
+            if (node == null)
+                return true;
+
             if (node.MovementCost >= 0f)
                 return false;
             else
@@ -29,6 +32,9 @@ namespace ElementEngine
 
         public virtual void CalculateNode(AStarNode node, Vector2I end)
         {
+            if (node == null)
+                return;
+
             if (node._parent == null)
                 node._g = 0f;
             else
@@ -40,11 +46,17 @@ namespace ElementEngine
 
         public virtual float GetNodeHeuristic(AStarNode node, Vector2I end)
         {
+            if (node == null)
+                return 0f;
+
             return node.Position.GetDistance(end);
         }
 
         public virtual bool CheckEndNode(AStarNode node, Vector2I end)
         {
+            if (node == null)
+                return false;
+
             return node.Position == end;
         }
 
