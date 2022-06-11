@@ -18,7 +18,7 @@ namespace ElementEngine
             _frameTime = TimeSpan.Zero;
         }
 
-        internal void SetFrameTime(TimeSpan frameTime)
+        public void SetFrameTime(TimeSpan frameTime)
         {
             _frameTime = frameTime * TimeWarpFactor;
         }
