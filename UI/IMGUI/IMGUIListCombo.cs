@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ElementEngine.UI
@@ -19,6 +20,9 @@ namespace ElementEngine.UI
         public int SelectedIndex { get => _selectedIndex; protected set => _selectedIndex = value; }
         public T SelectedValue => _emptyOption ? (SelectedIndex == 0 ? default : List[_selectedIndex - 1]) : List[_selectedIndex];
         public string SelectedName => _data[_selectedIndex];
+
+        public bool ShowFilter;
+        public string Filter = "";
 
         public IMGUIListCombo(string label, List<T> list, bool emptyOption = false)
         {
@@ -52,7 +56,18 @@ namespace ElementEngine.UI
 
         public void Draw()
         {
-            ImGui.Combo(Label, ref _selectedIndex, _data, _data.Length);
+            var data = _data;
+
+            if (ShowFilter && !string.IsNullOrEmpty(Filter))
+                data = data.Where(d => d.ToUpper().Contains(Filter.ToUpper())).ToArray();
+
+            if (ShowFilter)
+                ImGui.InputText($"Filter##{Label}_Filter", ref Filter, 200);
+
+            if (_selectedIndex >= data.Length)
+                _selectedIndex = 0;
+
+            ImGui.Combo(Label, ref _selectedIndex, data, data.Length);
         }
 
         public bool TrySetIndex(int index)
@@ -94,6 +109,9 @@ namespace ElementEngine.UI
         public T SelectedValue => _emptyOption ? (SelectedIndex == 0 ? default : Data[_selectedIndex - 1]) : Data[_selectedIndex];
         public string SelectedName => _data[_selectedIndex];
 
+        public bool ShowFilter;
+        public string Filter = "";
+
         public IMGUIArrayCombo(string label, T[] data, bool emptyOption = false)
         {
             _emptyOption = emptyOption;
@@ -126,7 +144,18 @@ namespace ElementEngine.UI
 
         public void Draw()
         {
-            ImGui.Combo(Label, ref _selectedIndex, _data, _data.Length);
+            var data = _data;
+
+            if (ShowFilter && !string.IsNullOrEmpty(Filter))
+                data = data.Where(d => d.ToUpper().Contains(Filter.ToUpper())).ToArray();
+
+            if (ShowFilter)
+                ImGui.InputText($"Filter##{Label}_Filter", ref Filter, 200);
+
+            if (_selectedIndex >= data.Length)
+                _selectedIndex = 0;
+
+            ImGui.Combo(Label, ref _selectedIndex, data, data.Length);
         }
 
         public bool TrySetIndex(int index)

@@ -78,6 +78,17 @@ namespace ElementEngine
             AddMouseHandler(_gameControlsManager);
         }
 
+        public static Key GetGameControlKey(string name)
+        {
+            foreach (var control in _gameControlsManager.KeyboardControls)
+            {
+                if (control.Name == name)
+                    return control.ControlKeys[0][0];
+            }
+
+            throw new Exception($"Game control not found: {name}");
+        }
+
         public static bool IsKeyDown(Key key)
         {
             if (KeysDown.TryGetValue(key, out var down))

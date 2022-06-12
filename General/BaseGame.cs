@@ -231,7 +231,9 @@ namespace ElementEngine
 
                     if (_fpsCounter >= TimeSpan.FromSeconds(1))
                     {
-                        Window.Title = $"{GameTitle} {_frameCounter}fps";
+                        var fps = _frameCounter * GameTimer.TimeWarpFactor;
+
+                        Window.Title = $"{GameTitle} {(int)fps}fps";
                         _fpsCounter -= TimeSpan.FromSeconds(1);
                         _frameCounter = 0;
                     }

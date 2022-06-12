@@ -658,12 +658,18 @@ namespace ElementEngine.ElementUI
 
         public virtual void Show()
         {
+            if (_isVisible == true)
+                return;
+
             _isVisible = true;
             SetLayoutDirty();
         }
 
         public virtual void Hide()
         {
+            if (_isVisible == false)
+                return;
+
             _isVisible = false;
             SetLayoutDirty();
         }
