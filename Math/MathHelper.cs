@@ -143,5 +143,15 @@ namespace ElementEngine
             v2 = t;
         }
 
+        public static float Normalize(int val, int min, int max)
+        {
+            return Normalize((float)val, (float)min, (float)max);
+        }
+
+        public static float Normalize(float val, float min, float max)
+        {
+            return (val - min) / (max - min);
+        }
+
     } // MathHelper
 }

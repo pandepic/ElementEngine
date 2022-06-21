@@ -9,12 +9,12 @@ namespace ElementEngine.ElementUI
 {
     public class UISpriteAnimated : UISprite
     {
-        public UIAnimation Animation;
+        public UITextureAnimation Animation;
         public int CurrentFrame = 0;
         public float CurrentFrameTime = 0f;
         public bool IsPlaying = false;
 
-        public UISpriteAnimated(UIAnimation animation, bool autoPlay)
+        public UISpriteAnimated(UITextureAnimation animation, bool autoPlay)
         {
             Animation = animation;
             Size = Animation.FrameSize;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ElementUI
 {
-    public struct UIAnimation
+    public struct UITextureAnimation
     {
         public UITexture Texture;
         public Vector2I FrameSize;
@@ -20,12 +20,12 @@ namespace ElementEngine.ElementUI
         public float TotalSeconds;
         public float SecondsPerFrame => TotalSeconds / TotalFrames;
 
-        public UIAnimation(string assetName, Vector2I frameSize, int startFrame, int endFrame, float totalTimeSeconds, bool loop)
+        public UITextureAnimation(string assetName, Vector2I frameSize, int startFrame, int endFrame, float totalTimeSeconds, bool loop)
             : this(new UITexture(AssetManager.Instance.LoadTexture2D(assetName)), frameSize, startFrame, endFrame, totalTimeSeconds, loop)
         {
         }
 
-        public UIAnimation(UITexture texture, Vector2I frameSize, int startFrame, int endFrame, float totalTimeSeconds, bool loop)
+        public UITextureAnimation(UITexture texture, Vector2I frameSize, int startFrame, int endFrame, float totalTimeSeconds, bool loop)
         {
             Texture = texture;
             FrameSize = frameSize;
