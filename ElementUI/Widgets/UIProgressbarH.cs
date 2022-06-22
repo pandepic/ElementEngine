@@ -13,14 +13,19 @@ namespace ElementEngine.ElementUI
         public readonly UIImage Background;
         public readonly UIImage Fill;
 
+        public UIProgressbarHAnimation ValueChangedAnimation;
+
         internal int _minValue;
         public int MinValue
         {
             get => _minValue;
             set
             {
+                if (_minValue == value)
+                    return;
+
                 _minValue = value;
-                UpdateBar();
+                UpdateBar(true);
             }
         }
 
@@ -30,8 +35,11 @@ namespace ElementEngine.ElementUI
             get => _maxValue;
             set
             {
+                if (_maxValue == value)
+                    return;
+
                 _maxValue = value;
-                UpdateBar();
+                UpdateBar(true);
             }
         }
 
@@ -66,6 +74,12 @@ namespace ElementEngine.ElementUI
             else
                 ApplyDefaultSize(Style.Background.Sprite);
 
+            if (style.ValueChangedAnimation != null)
+            {
+                ValueChangedAnimation = style.ValueChangedAnimation.Copy();
+                ValueChangedAnimation.Object = this;
+            }
+
             _minValue = minValue;
             _maxValue = maxValue;
             _currentValue = currentValue;
@@ -79,10 +93,16 @@ namespace ElementEngine.ElementUI
             AddChild(Fill);
 
             UpdateLayout();
-            UpdateBar();
+            UpdateBar(true);
         }
 
-        protected void UpdateBar()
+        public void SetValueNoAnimation(int value)
+        {
+            _currentValue = value;
+            UpdateBar(true);
+        }
+
+        protected void UpdateBar(bool skipAnimation = false)
         {
             var baseFillWidth = Width - (Style.FillPadding * 2);
             _widthPerValue = baseFillWidth / (float)Math.Abs(_maxValue - _minValue);
@@ -90,12 +110,45 @@ namespace ElementEngine.ElementUI
             Background.Width = Width;
             Fill.Width = baseFillWidth;
 
-            var fillWidth = CurrentValue * _widthPerValue;
+            var fillWidth = GetFillWidthAtValue(CurrentValue);
 
+            if (!skipAnimation && ValueChangedAnimation != null)
+            {
+                var currentFillWidth = GetFillWidth();
+                ValueChangedAnimation.Start(currentFillWidth, fillWidth);
+            }
+            else
+            {
+                SetFillWidth(fillWidth);
+            }
+        }
+
+        public void SetFillWidth(int width)
+        {
             if (Fill.ScaleType == UIScaleType.Scale)
-                Fill.Width = (int)fillWidth;
+                Fill.Width = width;
             else if (Fill.ScaleType == UIScaleType.Crop)
-                Fill.CropWidth = (int)fillWidth;
+                Fill.CropWidth = width;
+        }
+
+        public int GetFillWidthAtValue(int value)
+        {
+            var fillWidth = value * _widthPerValue;
+
+            if (fillWidth < 0)
+                return 0;
+
+            return (int)fillWidth;
+        }
+
+        public int GetFillWidth()
+        {
+            if (Fill.ScaleType == UIScaleType.Scale)
+                return Fill.Width;
+            else if (Fill.ScaleType == UIScaleType.Crop)
+                return Fill.CropWidth ?? 0;
+
+            return 0;
         }
 
     } // UIProgressbarH

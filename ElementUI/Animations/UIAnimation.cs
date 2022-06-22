@@ -6,93 +6,125 @@ using System.Threading.Tasks;
 
 namespace ElementEngine.ElementUI
 {
-    public enum UIAnimationType
+    public abstract class UIAnimation
     {
-        ProgressbarHValue,
-    }
+        public UIObject Object;
 
-    public delegate void UIAnimationEvent(ref UIAnimation animation);
+        public Action<UIAnimation> OnComplete;
+        public Action<UIAnimation> OnUpdate;
 
-    public struct UIAnimation
-    {
-        public UIObject UIObject;
-        public UIAnimationType UIAnimationType;
-        public EasingType EasingType;
-        public float Duration; // in seconds
-        public int TargetValue;
-        public int ChangeDirection;
+        public bool IsRunning;
         public bool IsComplete;
 
-        public UIAnimationEvent OnComplete;
-        public UIAnimationEvent OnTick;
+        public float RunningTime;
+        public float Duration;
 
-        private float SecondsPerTick;
-        private float ToNextTick;
-        public int TicksRemaining;
+        public UIAnimation() { }
+
+        public UIAnimation(UIObject obj)
+        {
+            Object = obj;
+        }
+
+        protected virtual void BaseCopy(UIAnimation animation)
+        {
+            animation.Object = Object;
+            animation.OnComplete = OnComplete;
+            animation.OnUpdate = OnUpdate;
+            animation.Duration = Duration;
+        }
 
         public void Start()
         {
-            switch (UIAnimationType)
-            {
-                case UIAnimationType.ProgressbarHValue:
-                    {
-                        var progressBarH = UIObject as UIProgressbarH;
+            RunningTime = 0;
+            IsComplete = false;
+            IsRunning = true;
 
-                        if (TargetValue == progressBarH.CurrentValue)
-                        {
-                            IsComplete = true;
-                            break;
-                        }
+            Object.UIAnimations.AddIfNotContains(this);
 
-                        ChangeDirection = TargetValue > progressBarH.CurrentValue ? 1 : -1;
-                        TicksRemaining = Math.Abs(TargetValue - progressBarH.CurrentValue);
-                        SecondsPerTick = Duration / TicksRemaining;
-                    }
-                    break;
-            }
-
-            if (IsComplete)
-                OnComplete?.Invoke(ref this);
+            InternalStart();
         }
+
+        protected virtual void InternalStart() { }
 
         public void Update(GameTimer gameTimer)
         {
-            if (IsComplete)
-                return;
-
-            ToNextTick += gameTimer.DeltaS;
-
-            while (ToNextTick >= SecondsPerTick)
+            if (Duration > 0)
             {
-                ToNextTick -= SecondsPerTick;
-                TicksRemaining -= 1;
+                RunningTime += gameTimer.DeltaS;
 
-                Tick();
-
-                if (TicksRemaining <= 0)
-                    break;
+                InternalUpdate(gameTimer);
+                OnUpdate?.Invoke(this);
             }
 
-            if (TicksRemaining <= 0)
+            if (RunningTime >= Duration)
+            {
                 IsComplete = true;
-
-            if (IsComplete)
-                OnComplete?.Invoke(ref this);
+                InternalComplete();
+                OnComplete?.Invoke(this);
+            }
         }
 
-        private void Tick()
-        {
-            switch (UIAnimationType)
-            {
-                case UIAnimationType.ProgressbarHValue:
-                    {
-                        var progressBar = UIObject as UIProgressbarH;
-                        progressBar.CurrentValue += ChangeDirection;
-                    }
-                    break;
-            }
+        protected virtual void InternalUpdate(GameTimer gameTimer) { }
+        protected virtual void InternalComplete() { }
+    }
 
-            OnTick?.Invoke(ref this);
+    public class UIProgressbarHAnimation : UIAnimation
+    {
+        public UIProgressbarH ProgressbarH => Object as UIProgressbarH;
+
+        public EasingType EasingType;
+        public float TimePerValueChange;
+        public float MaxDuration;
+
+        public int StartWidth;
+        public int TargetWidth;
+        public int ChangeDirection;
+        public int TotalChangeAmount;
+
+        public UIProgressbarHAnimation() { }
+
+        public UIProgressbarHAnimation(UIObject obj) : base(obj)
+        {
+        }
+
+        public UIProgressbarHAnimation Copy()
+        {
+            var copy = new UIProgressbarHAnimation()
+            {
+                EasingType = EasingType,
+                TimePerValueChange = TimePerValueChange,
+                MaxDuration = MaxDuration,
+            };
+
+            BaseCopy(copy);
+            return copy;
+        }
+
+        public void Start(int startWidth, int targetWidth)
+        {
+            StartWidth = startWidth;
+            TargetWidth = targetWidth;
+
+            ChangeDirection = TargetWidth > StartWidth ? 1 : -1;
+            TotalChangeAmount = Math.Abs(TargetWidth - StartWidth);
+
+            if (TimePerValueChange > 0)
+                Duration = TimePerValueChange * TotalChangeAmount;
+
+            if (MaxDuration > 0 && Duration > MaxDuration)
+                Duration = MaxDuration;
+
+            Start();
+        }
+
+        protected override void InternalUpdate(GameTimer gameTimer)
+        {
+            var easingTime = MathHelper.Normalize(RunningTime, 0, Duration);
+            var easingValue = Easings.Ease(easingTime, EasingType);
+
+            var fillWidth = (float)StartWidth + ((TotalChangeAmount * easingValue) * (float)ChangeDirection);
+            ProgressbarH.SetFillWidth((int)fillWidth);
         }
     }
 }

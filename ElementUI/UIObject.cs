@@ -27,19 +27,8 @@ namespace ElementEngine.ElementUI
         public string Name;
         public int ScrollSpeed = 15;
 
-        #region UI Animations
-
-        public FastList<UIAnimation> UIAnimations = new();
-
-        public void AddUIAnimation(UIAnimation animation)
-        {
-            animation.UIObject = this;
-            animation.Start();
-            UIAnimations.Add(animation);
-        }
+        public List<UIAnimation> UIAnimations = new();
         
-        #endregion
-
         public bool IsFocused => ParentScreen.FocusedObject == this;
         public bool CanFocus = true;
         public bool IgnoreOverflow = false;
@@ -1070,7 +1059,7 @@ namespace ElementEngine.ElementUI
 
             for (var i = UIAnimations.Count - 1; i >= 0; i--)
             {
-                ref var animation = ref UIAnimations[i];
+                var animation = UIAnimations[i];
                 animation.Update(gameTimer);
 
                 if (animation.IsComplete)
