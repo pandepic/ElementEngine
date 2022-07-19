@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ElementEngine.ECS;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -96,6 +97,17 @@ namespace ElementEngine
         {
             var intVal = reader.ReadInt32();
             return Unsafe.As<int, T>(ref intVal);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Entity ReadEntity(this BinaryReader reader, Registry registry)
+        {
+            var intVal = reader.ReadInt32();
+
+            if (intVal == 0)
+                return new();
+
+            return registry.CreateEntity(intVal);
         }
     } // Extensions
 }
