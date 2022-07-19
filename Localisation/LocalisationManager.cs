@@ -18,6 +18,10 @@ namespace ElementEngine
         public static Language DefaultLanguage;
         public static Language CurrentLanguage;
 
+#if DEBUG
+        public static HashSet<string> MissingKeys = new();
+#endif
+
         public static void SetDefaultLanguage(string assetName)
         {
             DefaultLanguage = GetLanguage(assetName);
@@ -26,6 +30,10 @@ namespace ElementEngine
         public static void SetLanguage(string assetName)
         {
             CurrentLanguage = GetLanguage(assetName);
+
+#if DEBUG
+            MissingKeys.Clear();
+#endif
         }
 
         public static Language GetLanguage(string assetName)
@@ -51,17 +59,30 @@ namespace ElementEngine
 
         public static string GetString(string key, params (string, string)[] variables)
         {
-            string str;
+            string str = "";
 
             if (!CurrentLanguage.Strings.TryGetValue(key, out var strCurrent))
             {
-                if (DefaultLanguage == null)
-                    return $"MISSING KEY: {key}";
+                var keyMissing = false;
 
-                if (!DefaultLanguage.Strings.TryGetValue(key, out var strBase))
-                    return $"MISSING KEY: {key}";
+                if (DefaultLanguage == null)
+                    keyMissing = true;
                 else
-                    str = strBase;
+                {
+                    if (!DefaultLanguage.Strings.TryGetValue(key, out var strBase))
+                        keyMissing = true;
+                    else
+                        str = strBase;
+                }
+
+                if (keyMissing)
+                {
+#if DEBUG
+                    if (MissingKeys.Add(key))
+                        Logging.Debug($"MISSING KEY: {key}");
+#endif
+                    return $"MISSING KEY: {key}";
+                }
             }
             else
             {
