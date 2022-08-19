@@ -124,7 +124,7 @@ namespace ElementEngine
         {
             var displayMode = new SDL_DisplayMode();
             var result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
-
+            
             if (result == -1)
             {
                 VeldridStartup.CreateWindow(new WindowCreateInfo());

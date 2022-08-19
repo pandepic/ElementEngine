@@ -22,8 +22,8 @@ namespace ElementEngine
 		public static List<Vector2I> GetLinePoints(Vector2I start, Vector2I end)
 		{
 			_sharedResultList.Clear();
-
-			bool isSteep = Math.Abs(end.Y - start.Y) > Math.Abs(end.X - start.X);
+            
+			var isSteep = Math.Abs(end.Y - start.Y) > Math.Abs(end.X - start.X);
 
 			if (isSteep)
 			{
@@ -37,13 +37,13 @@ namespace ElementEngine
 				SwapInts(ref start.Y, ref end.Y);
 			}
 
-			int diffX = (end.X - start.X);
-			int diffY = Math.Abs(end.Y - start.Y);
-			int error = (diffX / 2);
-			int yStep = (start.Y < end.Y ? 1 : -1);
-			int y = start.Y;
-
-			for (int x = start.X; x <= end.X; ++x)
+			var diffX = (end.X - start.X);
+			var diffY = Math.Abs(end.Y - start.Y);
+			var error = (diffX / 2);
+			var yStep = (start.Y < end.Y ? 1 : -1);
+			var y = start.Y;
+            
+			for (var x = start.X; x <= end.X; ++x)
 			{
 				if (isSteep)
 					_sharedResultList.Add(new Vector2I(y, x));

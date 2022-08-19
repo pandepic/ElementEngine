@@ -1,15 +1,9 @@
-﻿using ElementEngine.ECS;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using ElementEngine.ECS;
 using Veldrid;
-
-using Rectangle = ElementEngine.Rectangle;
 
 namespace ElementEngine
 {
@@ -91,7 +85,7 @@ namespace ElementEngine
         {
             writer.Write(Unsafe.As<T, int>(ref enumVal));
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ReadEnum<T>(this BinaryReader reader) where T : struct, IConvertible
         {

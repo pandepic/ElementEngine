@@ -231,12 +231,15 @@ namespace ElementEngine
             _removeList.Clear();
         }
 
-        public List<Asset> GetAllAssets(string pathContains)
+        public List<Asset> GetAllAssets(string pathContains, string pathDoesntContain = null)
         {
             var assets = new List<Asset>();
 
             foreach (var (name, asset) in _assetData)
             {
+                if (!string.IsNullOrEmpty(pathDoesntContain) && asset.FilePath.Contains(pathDoesntContain))
+                    continue;
+
                 if (asset.FilePath.Contains(pathContains))
                     assets.Add(asset);
             }
