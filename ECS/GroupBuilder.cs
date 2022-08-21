@@ -10,8 +10,8 @@ namespace ElementEngine.ECS
     {
         private readonly Registry _registry;
 
-        private List<Type> _includedTypes = new();
-        private List<Type> _excludedTypes = new();
+        private HashSet<Type> _includedTypes = new();
+        private HashSet<Type> _excludedTypes = new();
 
         public GroupBuilder(Registry registry)
         {
@@ -25,7 +25,7 @@ namespace ElementEngine.ECS
 
         public GroupBuilder Include(Type t)
         {
-            _includedTypes.AddIfNotContains(t);
+            _includedTypes.Add(t);
             return this;
         }
 
@@ -36,7 +36,7 @@ namespace ElementEngine.ECS
 
         public GroupBuilder Exclude(Type t)
         {
-            _excludedTypes.AddIfNotContains(t);
+            _excludedTypes.Add(t);
             return this;
         }
 
