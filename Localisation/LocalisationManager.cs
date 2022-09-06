@@ -10,7 +10,7 @@ namespace ElementEngine
     {
         public class Language
         {
-            public string AssetName;
+            public string Name;
             public Dictionary<string, string> Strings = new();
         }
 
@@ -22,38 +22,50 @@ namespace ElementEngine
         public static HashSet<string> MissingKeys = new();
 #endif
 
-        public static void SetDefaultLanguage(string assetName)
+        public static void SetDefaultLanguage(string languageName)
         {
-            DefaultLanguage = GetLanguage(assetName);
+            if (!Languages.TryGetValue(languageName, out var language))
+                throw new ArgumentException($"Language not loaded {languageName}", nameof(languageName));
+
+            DefaultLanguage = language;
         }
 
-        public static void SetLanguage(string assetName)
+        public static void SetLanguage(string languageName)
         {
-            CurrentLanguage = GetLanguage(assetName);
+            if (!Languages.TryGetValue(languageName, out var language))
+                throw new ArgumentException($"Language not loaded {languageName}", nameof(languageName));
+
+            CurrentLanguage = Languages[languageName];
 
 #if DEBUG
             MissingKeys.Clear();
 #endif
         }
 
-        public static Language GetLanguage(string assetName)
+        public static Language LoadLanguage(string languageName, string assetName)
         {
             if (string.IsNullOrEmpty(assetName))
                 throw new ArgumentException($"Invalid language asset {assetName}", nameof(assetName));
 
-            if (Languages.TryGetValue(assetName, out var language))
-                return language;
-            
+            if (!Languages.TryGetValue(languageName, out var language))
+            {
+                language = new Language()
+                {
+                    Name = languageName,
+                    Strings = new(),
+                };
+
+                Languages.Add(languageName, language);
+            }
+
             var strings = AssetManager.Instance.LoadJSON<Dictionary<string, string>>(assetName);
 
-            language = new Language()
+            foreach (var str in strings)
             {
-                AssetName = assetName,
-                Strings = strings,
-            };
+                if (!language.Strings.ContainsKey(str.Key))
+                    language.Strings.Add(str.Key, str.Value);
+            }
 
-            Languages.Add(assetName, language);
-            
             return language;
         }
 
