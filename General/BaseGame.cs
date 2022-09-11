@@ -127,7 +127,7 @@ namespace ElementEngine
             
             if (result == -1)
             {
-                VeldridStartup.CreateWindow(new WindowCreateInfo());
+                VeldridStartup.CreateWindow(new WindowCreateInfo() { WindowInitialState = WindowState.Hidden }).Close();
                 result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
 
                 if (result == -1)
