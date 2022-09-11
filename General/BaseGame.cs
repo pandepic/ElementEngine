@@ -121,19 +121,15 @@ namespace ElementEngine
 
         public unsafe SDL_DisplayMode GetCurrentDisplayMode(int displayIndex = 0)
         {
+            Sdl2Native.SDL_Init(SDLInitFlags.Video);
+
             var displayMode = new SDL_DisplayMode();
             var result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
 
             if (result == -1)
             {
-                VeldridStartup.CreateWindow(new WindowCreateInfo() { WindowInitialState = WindowState.Hidden }).Close();
-                result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
-
-                if (result == -1)
-                {
-                    var error = StringHelper.GetString(Sdl2Native.SDL_GetError());
-                    throw new Exception($"GetCurrentDisplayMode SDL error: {error}");
-                }
+                var error = StringHelper.GetString(Sdl2Native.SDL_GetError());
+                throw new Exception($"GetCurrentDisplayMode SDL error: {error}");
             }
 
             return displayMode;
