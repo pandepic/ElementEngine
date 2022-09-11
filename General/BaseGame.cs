@@ -27,7 +27,7 @@ namespace ElementEngine
         protected long _currentTicks, _prevTicks;
         protected TimeSpan _targetFrameTime = TimeSpan.Zero;
         protected TimeSpan _totalFrameTime = TimeSpan.Zero;
-        
+
         // Window
         public bool Focused { get => ElementGlobals.Window.Focused; }
         public string GameTitle { get; set; }
@@ -70,7 +70,7 @@ namespace ElementEngine
         public BaseGame()
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            
+
             Logging.Load();
             Load();
         }
@@ -99,12 +99,11 @@ namespace ElementEngine
 
         public void SetupWindow(WindowCreateInfo windowInfo, GraphicsBackend? graphicsBackend = null, bool vsync = false)
         {
-            ElementGlobals.Window = VeldridStartup.CreateWindow(ref windowInfo);
-            ElementGlobals.GraphicsDevice = VeldridStartup.CreateGraphicsDevice(Window, new GraphicsDeviceOptions()
+            VeldridStartup.CreateWindowAndGraphicsDevice(windowInfo, new GraphicsDeviceOptions()
             {
                 SyncToVerticalBlank = vsync,
                 PreferStandardClipSpaceYDirection = true,
-            }, graphicsBackend ?? VeldridStartup.GetPlatformDefaultBackend());
+            }, graphicsBackend ?? VeldridStartup.GetPlatformDefaultBackend(), out ElementGlobals.Window, out ElementGlobals.GraphicsDevice);
 
             CreateGraphicsResources();
 
@@ -124,7 +123,7 @@ namespace ElementEngine
         {
             var displayMode = new SDL_DisplayMode();
             var result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
-            
+
             if (result == -1)
             {
                 VeldridStartup.CreateWindow(new WindowCreateInfo() { WindowInitialState = WindowState.Hidden }).Close();
@@ -197,7 +196,7 @@ namespace ElementEngine
                     while (_totalFrameTime > _targetFrameTime)
                     {
                         _totalFrameTime -= _targetFrameTime;
-                        
+
                         GameTimer.SetFrameTime(_targetFrameTime);
 
                         Update(GameTimer);
@@ -285,7 +284,7 @@ namespace ElementEngine
             ElementGlobals.GraphicsDevice.ResizeMainWindow((uint)windowRect.Width, (uint)windowRect.Height);
             ElementGlobals.Viewport = new Viewport(0f, 0f, windowRect.Width, windowRect.Height, 0f, 1f);
             ElementGlobals.ScreenSpaceSpriteBatch2D?.SetViewSize(ElementGlobals.TargetResolutionSizeF);
-            
+
             CurrentGameState.OnWindowResized(windowRect);
         }
 
@@ -325,7 +324,7 @@ namespace ElementEngine
 
             if (!EngineServiceMessageSubscriptions.ContainsKey(messageType))
                 return false;
-            
+
             return EngineServiceMessageSubscriptions[messageType].Remove(service);
         } // UnsubscribeEngineServiceMessages
 
