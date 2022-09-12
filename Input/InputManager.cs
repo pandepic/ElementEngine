@@ -205,28 +205,36 @@ namespace ElementEngine
             }
         }
 
+        private static void HandleTriggerEvent(GameController controller, GameControllerButtonType buttonType, short value)
+        {
+            var pressed = value != 0;
+            var prevPressed = controller.IsButtonPressed(buttonType);
+
+            controller._buttonsPressed[buttonType] = pressed;
+            controller.ButtonEvents.Add(new(buttonType, controller.IsButtonPressed(buttonType), prevPressed));
+        }
+
         internal static void ProcessGameControllerEvents(ref SDL_Event ev)
         {
             switch (ev.type)
             {
-                case SDL_EventType.ControllerDeviceRemoved:
-                    {
-                        var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
-                    }
-                    break;
-
-                case SDL_EventType.ControllerDeviceAdded:
-                    {
-                        var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
-                    }
-                    break;
-
                 case SDL_EventType.ControllerAxisMotion:
                     {
                         var axisEvent = Unsafe.As<SDL_Event, SDL_ControllerAxisEvent>(ref ev);
 
                         if (GameControllers.TryGetValue(axisEvent.which, out var controller))
                         {
+                            if (axisEvent.axis == SDL_GameControllerAxis.TriggerLeft)
+                            {
+                                HandleTriggerEvent(controller, GameControllerButtonType.LeftTrigger, axisEvent.value);
+                                return;
+                            }
+                            else if (axisEvent.axis == SDL_GameControllerAxis.TriggerRight)
+                            {
+                                HandleTriggerEvent(controller, GameControllerButtonType.RightTrigger, axisEvent.value);
+                                return;
+                            }
+
                             var normalizedValue = GameController.NormalizeAxis(axisEvent.value);
 
                             controller._axisValues[axisEvent.axis] = normalizedValue;
@@ -258,12 +266,15 @@ namespace ElementEngine
                     }
                     break;
 
-                case SDL_EventType.JoyAxisMotion:
+                case SDL_EventType.ControllerDeviceRemoved:
                     {
-                        var axisEvent = Unsafe.As<SDL_Event, SDL2.SDL_JoyAxisEvent>(ref ev);
-                        
-                        // if xbox then axis 2 is left trigger and axis 5 is right trigger
-                        // negative value is not pressed, positive value is pressed
+                        var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
+                    }
+                    break;
+
+                case SDL_EventType.ControllerDeviceAdded:
+                    {
+                        var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
                     }
                     break;
             }
