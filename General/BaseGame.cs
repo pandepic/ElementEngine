@@ -1,8 +1,10 @@
-﻿using ElementEngine.Timer;
+﻿using ElementEngine.Input;
+using ElementEngine.Timer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Veldrid;
 using Veldrid.Sdl2;
@@ -34,6 +36,8 @@ namespace ElementEngine
         public bool TitleShowFPS { get; set; } = true;
         protected TimeSpan _fpsCounter = TimeSpan.Zero;
         protected int _frameCounter = 0;
+
+        public PlatformType PlatformType = PlatformType.Unknown;
 
         // Game state
         public GameState CurrentGameState { get; set; } = null;
@@ -80,7 +84,7 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public void SetupWindow(Rectangle windowRect, string windowTitle, GraphicsBackend? graphicsBackend = null, bool vsync = false, WindowState? windowState = null)
+        public unsafe void SetupWindow(Rectangle windowRect, string windowTitle, GraphicsBackend? graphicsBackend = null, bool vsync = false, WindowState? windowState = null)
         {
             windowState ??= WindowState.Normal;
 
@@ -95,6 +99,9 @@ namespace ElementEngine
             };
 
             SetupWindow(windowInfo, graphicsBackend, vsync);
+
+            var platformName = Marshal.PtrToStringUTF8((IntPtr)SDL2.SDL_GetPlatform());
+            PlatformType = PlatformMapping.GetPlatformTypeBySDLName(platformName);
         }
 
         public void SetupWindow(WindowCreateInfo windowInfo, GraphicsBackend? graphicsBackend = null, bool vsync = false)
@@ -119,6 +126,14 @@ namespace ElementEngine
             };
 
         } // SetupWindow
+
+        public void EnableGameControllers()
+        {
+            Sdl2Native.SDL_Init(SDLInitFlags.GameController);
+
+            GameControllerMapping.ApplyMappings(PlatformType);
+            InputManager.LoadGameControllers();
+        }
 
         public unsafe SDL_DisplayMode GetCurrentDisplayMode(int displayIndex = 0)
         {

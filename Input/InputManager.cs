@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Veldrid;
+using Veldrid.Sdl2;
 
 namespace ElementEngine
 {
@@ -52,8 +54,12 @@ namespace ElementEngine
         public static Vector2 MousePosition { get; set; }
         public static float MouseWheelDelta { get; set; }
 
-        public static Dictionary<Key, bool> KeysDown { get; set; } = new Dictionary<Key, bool>();
-        public static Dictionary<MouseButton, MouseButtonDownState> MouseButtonsDown { get; set; } = new Dictionary<MouseButton, MouseButtonDownState>();
+        public static Dictionary<Key, bool> KeysDown { get; set; } = new();
+        public static Dictionary<MouseButton, MouseButtonDownState> MouseButtonsDown { get; set; } = new();
+
+        public static Dictionary<int, GameController> GameControllers = new(); // <controller index, controller>
+        public static int DefaultControllerIndex = -1;
+        public static float DefaultControllerDeadzone = 0.2f;
 
         private readonly static List<IKeyboardHandler> _keyboardHandlers = new();
         private readonly static List<IMouseHandler> _mouseHandlers = new();
@@ -70,6 +76,59 @@ namespace ElementEngine
         internal static bool _mouseButtonReleasedBlocked;
         internal static bool _mouseButtonDownBlocked;
         internal static bool _mouseWheelBlocked;
+
+        internal static void LoadGameControllers()
+        {
+            GameControllers.Clear();
+
+            var joystickCount = Sdl2Native.SDL_NumJoysticks();
+
+            for (var i = 0; i < joystickCount; i++)
+            {
+                if (!Sdl2Native.SDL_IsGameController(i))
+                    continue;
+
+                GameControllers.Add(i, new GameController(i, DefaultControllerDeadzone));
+
+                if (DefaultControllerIndex == -1)
+                    DefaultControllerIndex = i;
+            }
+
+            Sdl2Events.Subscribe(ProcessGameControllerEvents);
+        }
+
+        internal static void ProcessGameControllerEvents(ref SDL_Event ev)
+        {
+            switch (ev.type)
+            {
+                case SDL_EventType.ControllerAxisMotion:
+                    {
+                        SDL_ControllerAxisEvent axisEvent = Unsafe.As<SDL_Event, SDL_ControllerAxisEvent>(ref ev);
+
+                        if (GameControllers.TryGetValue(axisEvent.which, out var controller))
+                            controller._axisValues[axisEvent.axis] = GameController.NormalizeAxis(axisEvent.value);
+                    }
+                    break;
+
+                case SDL_EventType.ControllerButtonDown:
+                case SDL_EventType.ControllerButtonUp:
+                    {
+                        SDL_ControllerButtonEvent buttonEvent = Unsafe.As<SDL_Event, SDL_ControllerButtonEvent>(ref ev);
+
+                        if (GameControllers.TryGetValue(buttonEvent.which, out var controller))
+                            controller._buttonsPressed[buttonEvent.button] = buttonEvent.state == 1;
+                    }
+                    break;
+            }
+        }
+
+        public static GameController GetDefaultGameController()
+        {
+            if (GameControllers.TryGetValue(DefaultControllerIndex, out var controller))
+                return controller;
+
+            return null;
+        }
 
         public static void LoadGameControls(string settingsSection = "Controls")
         {
