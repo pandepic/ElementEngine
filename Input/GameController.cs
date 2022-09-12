@@ -33,6 +33,8 @@ namespace ElementEngine
             Controller = Sdl2Native.SDL_GameControllerOpen(controllerIndex);
             ControllerName = Marshal.PtrToStringUTF8((IntPtr)Sdl2Native.SDL_GameControllerName(Controller));
             Deadzone = deadzone;
+
+            Logging.Information("Game controller detected [Index:{index}] [Name:{name}].", ControllerIndex, ControllerName);
         }
 
         public float GetAxis(SDL_GameControllerAxis axis)

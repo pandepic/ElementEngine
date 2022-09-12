@@ -1808,6 +1808,8 @@ namespace ElementEngine.Input
             if (!Map.TryGetValue(platformType, out var mappings))
                 return;
 
+            Logging.Information("Applying controller mappings for platform {platform}.", platformType);
+
             foreach (var mapping in mappings)
                 SDL2.SDL_GameControllerAddMapping(mapping);
         }

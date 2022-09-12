@@ -132,6 +132,8 @@ namespace ElementEngine
 
             GameControllerMapping.ApplyMappings(PlatformType);
             InputManager.LoadGameControllers();
+
+            Logging.Information("Controller input enabled.");
         }
 
         public unsafe SDL_DisplayMode GetCurrentDisplayMode(int displayIndex = 0)
