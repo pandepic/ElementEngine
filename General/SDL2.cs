@@ -10,6 +10,43 @@ namespace ElementEngine
 {
     internal unsafe static class SDL2
     {
+        #region Structs
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SDL_JoyAxisEvent
+        {
+            /// <summary>
+            /// SDL_JOYAXISMOTION
+            /// </summary>
+            public uint type;
+
+            /// <summary>
+            /// timestamp of the event
+            /// </summary>
+            public uint timestamp;
+
+            /// <summary>
+            /// the instance id of the joystick that reported the event
+            /// </summary>
+            public int which;
+
+            /// <summary>
+            /// the index of the axis that changed
+            /// </summary>
+            public byte axis;
+
+            private byte padding1;
+            private byte padding2;
+            private byte padding3;
+
+            /// <summary>
+            /// the current position of the axis (range: -32768 to 32767)
+            /// </summary>
+            public short value;
+
+            private ushort padding4;
+        }
+        #endregion
+
         internal static byte* StringArgToBytes(string arg)
         {
             int maxBytes = Encoding.UTF8.GetMaxByteCount(arg.Length);

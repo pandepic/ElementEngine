@@ -6,10 +6,11 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public class GameState : IDisposable, IKeyboardHandler, IMouseHandler, IGameControlHandler
+    public class GameState : IDisposable, IKeyboardHandler, IMouseHandler, IGameControllerHandler, IGameControlHandler
     {
         public int KeyboardPriority { get; set; } = 0;
         public int MousePriority { get; set; } = 0;
+        public int GameControllerPriority { get; set; } = 0;
 
         private List<IDisposable> _disposeList { get; set; } = new List<IDisposable>();
         internal bool _registered = false;
@@ -59,7 +60,9 @@ namespace ElementEngine
 
             InputManager.AddKeyboardHandler(this);
             InputManager.AddMouseHandler(this);
+            InputManager.AddGameControllerHandler(this);
             InputManager.AddGameControlHandler(this);
+
             _registered = true;
         }
 
@@ -70,7 +73,9 @@ namespace ElementEngine
 
             InputManager.RemoveKeyboardHandler(this);
             InputManager.RemoveMouseHandler(this);
+            InputManager.RemoveGameControllerHandler(this);
             InputManager.RemoveGameControlHandler(this);
+
             _registered = false;
         }
 
@@ -111,5 +116,7 @@ namespace ElementEngine
         public virtual void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
         public virtual void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer) { }
         public virtual void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer) { }
+        public virtual void HandleControllerGameControl(GameController controller, string controlName, GameControlState state, GameTimer gameTimer) { }
+        public virtual void HandleControllerAxisMotion(GameController controller, string controlName, GameControllerAxisMotionType motionType, float value, GameTimer gameTimer) { }
     }
 }

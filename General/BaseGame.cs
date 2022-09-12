@@ -43,10 +43,6 @@ namespace ElementEngine
         public GameState CurrentGameState { get; set; } = null;
         protected bool _quit = false;
 
-        // Engine resources
-        public List<IEngineService> EngineServices { get; set; } = new List<IEngineService>();
-        public Dictionary<int, List<IEngineService>> EngineServiceMessageSubscriptions { get; set; } = new Dictionary<int, List<IEngineService>>();
-
         #region IDisposable
         protected bool _disposed = false;
 
@@ -132,6 +128,8 @@ namespace ElementEngine
 
             GameControllerMapping.ApplyMappings(PlatformType);
             InputManager.LoadGameControllers();
+
+            Sdl2Events.Subscribe(InputManager.ProcessGameControllerEvents);
 
             Logging.Information("Controller input enabled.");
         }
@@ -300,56 +298,6 @@ namespace ElementEngine
 
             CurrentGameState.OnWindowResized(windowRect);
         }
-
-        public void AddEngineService<T>(T service) where T : IEngineService
-        {
-            if (EngineServices.Contains(service))
-                throw new ArgumentException("This service type has already been added.", "service");
-
-            EngineServices.Add(service);
-            service.Parent = this;
-
-        } // AddEngineService
-
-        public bool SubscribeEngineServiceMessages(int messageType, IEngineService service)
-        {
-            if (!EngineServices.Contains(service))
-                throw new ArgumentException("Service has not been added.", "T");
-
-            if (!EngineServiceMessageSubscriptions.ContainsKey(messageType))
-                EngineServiceMessageSubscriptions.Add(messageType, new List<IEngineService>());
-
-            if (!EngineServiceMessageSubscriptions[messageType].Contains(service))
-            {
-                EngineServiceMessageSubscriptions[messageType].Add(service);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        } // SubscribeEngineServiceMessages
-
-        public bool UnsubscribeEngineServiceMessages(int messageType, IEngineService service)
-        {
-            if (!EngineServices.Contains(service))
-                throw new ArgumentException("Service has not been added.", "T");
-
-            if (!EngineServiceMessageSubscriptions.ContainsKey(messageType))
-                return false;
-
-            return EngineServiceMessageSubscriptions[messageType].Remove(service);
-        } // UnsubscribeEngineServiceMessages
-
-        public void SendServiceMessage(IServiceMessage message)
-        {
-            if (!EngineServiceMessageSubscriptions.ContainsKey(message.MessageType))
-                return;
-
-            foreach (var service in EngineServiceMessageSubscriptions[message.MessageType])
-                service.HandleMessage(message);
-
-        } // SendEngineServiceMessage
 
     } // BaseGame
 }
