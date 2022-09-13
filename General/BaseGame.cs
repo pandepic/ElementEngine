@@ -257,6 +257,8 @@ namespace ElementEngine
 
             CurrentGameState?.Unload();
             AssetManager.Instance.Clear();
+            InputManager.Dispose();
+
             Exit();
 
         } // Run

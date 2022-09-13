@@ -73,8 +73,10 @@ namespace ElementEngine
         public static Dictionary<MouseButton, MouseButtonDownState> MouseButtonsDown { get; set; } = new();
 
         public static Dictionary<int, GameController> GameControllers = new(); // <controller index, controller>
-        public static int DefaultControllerIndex = -1;
+        public static GameController DefaultGameController { get; private set; }
         public static float DefaultControllerDeadzone = 0.2f;
+        public static event Action<GameController> OnGameControllerAdded;
+        public static event Action<GameController> OnGameControllerRemoved;
 
         private readonly static List<IKeyboardHandler> _keyboardHandlers = new();
         private readonly static List<IMouseHandler> _mouseHandlers = new();
@@ -184,6 +186,12 @@ namespace ElementEngine
             return true;
         }
 
+        internal static void Dispose()
+        {
+            foreach (var (_, controller) in GameControllers)
+                controller?.Dispose();
+        }
+
         internal static void LoadGameControllers()
         {
             foreach (var (_, controller) in GameControllers)
@@ -194,15 +202,53 @@ namespace ElementEngine
             var joystickCount = Sdl2Native.SDL_NumJoysticks();
 
             for (var i = 0; i < joystickCount; i++)
-            {
-                if (!Sdl2Native.SDL_IsGameController(i))
-                    continue;
+                TryAddGameController(i);
+        }
 
-                GameControllers.Add(i, new GameController(i, DefaultControllerDeadzone));
+        internal static bool TryAddGameController(int index)
+        {
+            if (!Sdl2Native.SDL_IsGameController(index))
+                return false;
+            if (GameControllers.ContainsKey(index))
+                return false;
 
-                if (DefaultControllerIndex == -1)
-                    DefaultControllerIndex = i;
-            }
+            var controller = new GameController(index, DefaultControllerDeadzone);
+
+            if (DefaultGameController == null)
+                DefaultGameController = controller;
+
+            GameControllers.Add(index, controller);
+            OnGameControllerAdded?.Invoke(controller);
+
+            Logging.Information("Game controller detected [Index:{index}] [Name:{name}].", controller.ControllerIndex, controller.ControllerName);
+
+            return true;
+        }
+
+        internal static bool TryRemoveGameController(int index)
+        {
+            if (!GameControllers.TryGetValue(index, out var controller))
+                return false;
+
+            controller.Dispose();
+
+            if (DefaultGameController == controller)
+                DefaultGameController = null;
+
+            GameControllers.Remove(index);
+            OnGameControllerRemoved?.Invoke(controller);
+
+            Logging.Information("Game controller removed [Index:{index}] [Name:{name}].", controller.ControllerIndex, controller.ControllerName);
+
+            return true;
+        }
+
+        public static void SetGameControllerDeadzones(float value)
+        {
+            foreach (var (_, controller) in GameControllers)
+                controller.Deadzone = value;
+
+            DefaultControllerDeadzone = value;
         }
 
         private static void HandleTriggerEvent(GameController controller, GameControllerButtonType buttonType, short value)
@@ -269,23 +315,17 @@ namespace ElementEngine
                 case SDL_EventType.ControllerDeviceRemoved:
                     {
                         var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
+                        TryRemoveGameController(deviceEvent.which);
                     }
                     break;
 
                 case SDL_EventType.ControllerDeviceAdded:
                     {
                         var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
+                        TryAddGameController(deviceEvent.which);
                     }
                     break;
             }
-        }
-
-        public static GameController GetDefaultGameController()
-        {
-            if (GameControllers.TryGetValue(DefaultControllerIndex, out var controller))
-                return controller;
-
-            return null;
         }
 
         public static void LoadGameControls(string settingsSection = "Controls")
