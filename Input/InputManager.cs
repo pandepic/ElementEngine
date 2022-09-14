@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using ElementEngine.UI;
 using Veldrid;
 using Veldrid.Sdl2;
 
@@ -392,84 +393,93 @@ namespace ElementEngine
             _mouseButtonDownBlocked = false;
             _mouseWheelBlocked = false;
 
-            PrevMousePosition = MousePosition;
-            MousePosition = snapshot.MousePosition;
-
-            if (MousePosition != PrevMousePosition)
-                HandleMouseMotion(gameTimer);
-
-            MouseWheelDelta = snapshot.WheelDelta;
-
-            if (MouseWheelDelta != 0)
-                HandleMouseWheel(gameTimer);
-
-            for (var i = 0; i < snapshot.KeyCharPresses.Count; i++)
+            if (!IMGUIManager.WantCaptureMouse())
             {
-                for (var h = 0; h < _keyboardHandlers.Count; h++)
-                    _keyboardHandlers[h]?.HandleTextInput(snapshot.KeyCharPresses[i], gameTimer);
+                PrevMousePosition = MousePosition;
+                MousePosition = snapshot.MousePosition;
+
+                if (MousePosition != PrevMousePosition)
+                    HandleMouseMotion(gameTimer);
+
+                MouseWheelDelta = snapshot.WheelDelta;
+
+                if (MouseWheelDelta != 0)
+                    HandleMouseWheel(gameTimer);
             }
 
-            for (var i = 0; i < snapshot.KeyEvents.Count; i++)
+            if (!IMGUIManager.WantCaptureKeyboard())
             {
-                var keyEvent = snapshot.KeyEvents[i];
-
-                if (KeysDown.ContainsKey(keyEvent.Key))
+                for (var i = 0; i < snapshot.KeyCharPresses.Count; i++)
                 {
-                    if (KeysDown[keyEvent.Key] != keyEvent.Down)
+                    for (var h = 0; h < _keyboardHandlers.Count; h++)
+                        _keyboardHandlers[h]?.HandleTextInput(snapshot.KeyCharPresses[i], gameTimer);
+                }
+
+                for (var i = 0; i < snapshot.KeyEvents.Count; i++)
+                {
+                    var keyEvent = snapshot.KeyEvents[i];
+
+                    if (KeysDown.ContainsKey(keyEvent.Key))
                     {
-                        KeysDown[keyEvent.Key] = keyEvent.Down;
+                        if (KeysDown[keyEvent.Key] != keyEvent.Down)
+                        {
+                            KeysDown[keyEvent.Key] = keyEvent.Down;
+
+                            if (keyEvent.Down)
+                                HandleKeyPressed(keyEvent.Key, gameTimer);
+                            else
+                                HandleKeyReleased(keyEvent.Key, gameTimer);
+                        }
+                        else if (keyEvent.Down)
+                        {
+                            HandleKeyDown(keyEvent.Key, gameTimer);
+                        }
+                    }
+                    else
+                    {
+                        KeysDown.Add(keyEvent.Key, keyEvent.Down);
 
                         if (keyEvent.Down)
                             HandleKeyPressed(keyEvent.Key, gameTimer);
                         else
                             HandleKeyReleased(keyEvent.Key, gameTimer);
                     }
-                    else if (keyEvent.Down)
-                    {
-                        HandleKeyDown(keyEvent.Key, gameTimer);
-                    }
                 }
-                else
-                {
-                    KeysDown.Add(keyEvent.Key, keyEvent.Down);
+            }
 
-                    if (keyEvent.Down)
-                        HandleKeyPressed(keyEvent.Key, gameTimer);
-                    else
-                        HandleKeyReleased(keyEvent.Key, gameTimer);
-                }
-            } // KeyEvents
-
-            for (var i = 0; i < snapshot.MouseEvents.Count; i++)
+            if (!IMGUIManager.WantCaptureMouse())
             {
-                var mouseEvent = snapshot.MouseEvents[i];
-
-                if (MouseButtonsDown.ContainsKey(mouseEvent.MouseButton))
+                for (var i = 0; i < snapshot.MouseEvents.Count; i++)
                 {
-                    if (MouseButtonsDown[mouseEvent.MouseButton].Down != mouseEvent.Down)
+                    var mouseEvent = snapshot.MouseEvents[i];
+
+                    if (MouseButtonsDown.ContainsKey(mouseEvent.MouseButton))
                     {
-                        MouseButtonsDown[mouseEvent.MouseButton].Down = mouseEvent.Down;
+                        if (MouseButtonsDown[mouseEvent.MouseButton].Down != mouseEvent.Down)
+                        {
+                            MouseButtonsDown[mouseEvent.MouseButton].Down = mouseEvent.Down;
+
+                            if (mouseEvent.Down)
+                                HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
+                            else
+                                HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
+                        }
+                        else if (mouseEvent.Down)
+                        {
+                            HandleMouseButtonDown(mouseEvent.MouseButton, gameTimer);
+                        }
+                    }
+                    else
+                    {
+                        MouseButtonsDown.Add(mouseEvent.MouseButton, new MouseButtonDownState() { Down = mouseEvent.Down });
 
                         if (mouseEvent.Down)
                             HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
                         else
                             HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
                     }
-                    else if (mouseEvent.Down)
-                    {
-                        HandleMouseButtonDown(mouseEvent.MouseButton, gameTimer);
-                    }
                 }
-                else
-                {
-                    MouseButtonsDown.Add(mouseEvent.MouseButton, new MouseButtonDownState() { Down = mouseEvent.Down });
-
-                    if (mouseEvent.Down)
-                        HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
-                    else
-                        HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
-                }
-            } // MouseEvents
+            }
 
             foreach (var (_, controller) in GameControllers)
             {
@@ -496,7 +506,7 @@ namespace ElementEngine
                 controller.AxisMotionEvents.Clear();
             }
 
-            if (MouseButtonDownAutoRepeat)
+            if (!IMGUIManager.WantCaptureMouse() && MouseButtonDownAutoRepeat)
             {
                 foreach (var (button, mouseDown) in MouseButtonsDown)
                 {

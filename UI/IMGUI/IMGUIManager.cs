@@ -57,6 +57,8 @@ namespace ElementEngine.UI
     
     public static class IMGUIManager
     {
+        public static bool IsEnabled { get; private set; }
+
         public static ImGuiRenderer Renderer { get; set; }
         private static List<ImGuiCol> _pushedStyleColors = new List<ImGuiCol>();
 
@@ -67,6 +69,8 @@ namespace ElementEngine.UI
             Renderer = new ImGuiRenderer(ElementGlobals.GraphicsDevice,
                 ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
                 ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight);
+
+            IsEnabled = true;
         }
 
         public static void WindowResized(int width, int height)
@@ -189,6 +193,22 @@ namespace ElementEngine.UI
         public static Vector2 ItemClickedRelativePosition()
         {
             return ImGui.GetMousePos() - ImGui.GetWindowPos() - ItemRelativePosition();
+        }
+
+        public static bool WantCaptureKeyboard()
+        {
+            if (!IsEnabled)
+                return false;
+
+            return ImGui.GetIO().WantCaptureKeyboard;
+        }
+
+        public static bool WantCaptureMouse()
+        {
+            if (!IsEnabled)
+                return false;
+
+            return ImGui.GetIO().WantCaptureMouse;
         }
 
     } // IMGUIManager
