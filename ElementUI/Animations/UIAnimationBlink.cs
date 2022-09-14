@@ -44,7 +44,7 @@ namespace ElementEngine.ElementUI
             if (_blinkTimer >= (Object.IsHidden ? BlinkTime : TimePerBlink))
             {
                 _blinkTimer -= (Object.IsHidden ? BlinkTime : TimePerBlink);
-                Object.IsVisible = !Object.IsVisible;
+                Object.IsHidden = !Object.IsHidden;
             }
         }
 
