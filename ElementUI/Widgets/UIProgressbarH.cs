@@ -13,7 +13,7 @@ namespace ElementEngine.ElementUI
         public readonly UIImage Background;
         public readonly UIImage Fill;
 
-        public UIProgressbarHAnimation ValueChangedAnimation;
+        public UIAnimationProgressbarH ValueChangedAnimation;
 
         internal int _minValue;
         public int MinValue

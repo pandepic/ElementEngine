@@ -48,22 +48,18 @@ namespace ElementEngine.ElementUI
             InputManager.RemoveMouseHandler(this);
         }
 
-        public override void Update(GameTimer gameTimer)
+        protected override void InternalUpdate(GameTimer gameTimer)
         {
             CheckLayout();
 
             if (!IsActive)
                 return;
-
-            base.Update(gameTimer);
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch)
+        protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
             if (!IsVisible)
                 return;
-
-            base.Draw(spriteBatch);
         }
 
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)

@@ -24,13 +24,12 @@ namespace ElementEngine.ElementUI
             ScaleType = Style.ScaleType ?? ScaleType;
         }
 
-        public override void Update(GameTimer gameTimer)
+        protected override void InternalUpdate(GameTimer gameTimer)
         {
             Style.Sprite.Update(gameTimer);
-            base.Update(gameTimer);
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch)
+        protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
             if (CropWidth.HasValue || CropHeight.HasValue)
             {
@@ -44,8 +43,6 @@ namespace ElementEngine.ElementUI
 
             if (CropWidth.HasValue || CropHeight.HasValue)
                 spriteBatch.PopScissorRect(0);
-
-            base.Draw(spriteBatch);
         }
 
     } // UIImage

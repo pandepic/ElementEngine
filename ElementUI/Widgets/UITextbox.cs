@@ -100,20 +100,16 @@ namespace ElementEngine.ElementUI
                 0) + measureLabel.Position;
         }
 
-        public override void Update(GameTimer gameTimer)
+        protected override void InternalUpdate(GameTimer gameTimer)
         {
             Style.BackgroundNormal?.Update(gameTimer);
             Style.BackgroundDisabled?.Update(gameTimer);
-
-            base.Update(gameTimer);
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch)
+        protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
             var sprite = IsActive ? Style.BackgroundNormal : Style.BackgroundDisabled;
             sprite?.Draw(this, spriteBatch, DrawPosition, _size);
-
-            base.Draw(spriteBatch);
         }
 
         protected int GetBeginSelectionIndex() => Math.Min(CursorIndex, _selectionIndexStart);

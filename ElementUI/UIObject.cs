@@ -658,6 +658,15 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public bool IsHidden
+        {
+            get => _isHidden;
+            set
+            {
+                _isHidden = value;
+            }
+        }
+
         public virtual void Show()
         {
             if (_isVisible == true)
@@ -719,6 +728,7 @@ namespace ElementEngine.ElementUI
 
         internal bool _isActive = true;
         internal bool _isVisible = true;
+        internal bool _isHidden = false;
         internal bool _useScissorRect => _style == null ? false : (_style.OverflowType == OverflowType.Hide || _style.OverflowType == OverflowType.Scroll);
         internal bool _isScrollable => _style == null ? false : _style.OverflowType == OverflowType.Scroll;
 
@@ -1049,8 +1059,12 @@ namespace ElementEngine.ElementUI
             _childOrigin = _position + _padding.TopLeft;
         }
 
-        public virtual void Update(GameTimer gameTimer)
+        protected virtual void InternalUpdate(GameTimer gameTimer) { }
+
+        public void Update(GameTimer gameTimer)
         {
+            InternalUpdate(gameTimer);
+
             foreach (var child in Children)
             {
                 if (child.IsActive)
@@ -1081,9 +1095,13 @@ namespace ElementEngine.ElementUI
 
         protected virtual void InnerPreDraw(SpriteBatch2D spriteBatch) { }
         protected virtual void InnerPostDraw(SpriteBatch2D spriteBatch) { }
+        protected virtual void InnerDraw(SpriteBatch2D spriteBatch) { }
 
-        public virtual void Draw(SpriteBatch2D spriteBatch)
+        public void Draw(SpriteBatch2D spriteBatch)
         {
+            if (!_isHidden)
+                InnerDraw(spriteBatch);
+
             if (_useScissorRect)
                 spriteBatch.PushScissorRect(0, PaddingBounds, true);
 

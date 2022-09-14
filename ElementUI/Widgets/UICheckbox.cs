@@ -120,7 +120,7 @@ namespace ElementEngine.ElementUI
                 Math.Max(_textSize.Y, Style.SpriteUnchecked.Size.Y));
         }
 
-        public override void Update(GameTimer gameTimer)
+        protected override void InternalUpdate(GameTimer gameTimer)
         {
             Style.SpriteUnchecked?.Update(gameTimer);
             Style.SpriteChecked?.Update(gameTimer);
@@ -128,11 +128,9 @@ namespace ElementEngine.ElementUI
             Style.SpriteHover?.Update(gameTimer);
             Style.SpriteDisabledUnchecked?.Update(gameTimer);
             Style.SpriteDisabledChecked?.Update(gameTimer);
-
-            base.Update(gameTimer);
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch)
+        protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
             var sprite = IsChecked ? Style.SpriteChecked : Style.SpriteUnchecked;
             var textColor = TextStyle.Color;
@@ -162,8 +160,6 @@ namespace ElementEngine.ElementUI
 
             sprite?.Draw(this, spriteBatch, DrawPosition, null);
             TextStyle.FontFamily.GetFont(FontStyle, FontWeight).DrawText(spriteBatch, _text, textPosition.ToVector2(), textColor, TextStyle.FontSize, TextStyle.Outline);
-
-            base.Draw(spriteBatch);
         }
 
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)

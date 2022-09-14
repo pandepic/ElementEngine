@@ -84,10 +84,9 @@ namespace ElementEngine.ElementUI
             Size = TextSize;
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch)
+        protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
             spriteBatch.DrawText(CurrentFont, DisplayText, DrawPosition.ToVector2(), Style.Color, Style.FontSize, Style.Outline);
-            base.Draw(spriteBatch);
         }
 
         internal override bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)

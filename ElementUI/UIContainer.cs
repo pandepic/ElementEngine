@@ -205,16 +205,14 @@ namespace ElementEngine.ElementUI
                 UpdateScrollbars(false);
         }
 
-        public override void Update(GameTimer gameTimer)
+        protected override void InternalUpdate(GameTimer gameTimer)
         {
             Style.Background?.Update(gameTimer);
-            base.Update(gameTimer);
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch)
+        protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
             Style.Background?.Draw(this, spriteBatch, DrawPosition, _size);
-            base.Draw(spriteBatch);
         }
 
         internal override bool InternalHandleMouseButtonPressed(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)

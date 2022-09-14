@@ -12,7 +12,7 @@ namespace ElementEngine.ElementUI
         public UIImageStyle Fill;
         public int FillPadding = 0;
 
-        public UIProgressbarHAnimation ValueChangedAnimation;
+        public UIAnimationProgressbarH ValueChangedAnimation;
 
         public UIProgressbarStyleH(UIProgressbarStyleH copyFrom, bool baseCopy = false)
         {

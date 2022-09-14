@@ -254,20 +254,16 @@ namespace ElementEngine.ElementUI
             UpdateSizesPositions();
         }
 
-        public override void Draw(SpriteBatch2D spriteBatch)
+        protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
             if (Width < 0)
                 return;
-
-            base.Draw(spriteBatch);
         }
 
-        public override void Update(GameTimer gameTimer)
+        protected override void InternalUpdate(GameTimer gameTimer)
         {
             if (Width < 0)
                 return;
-
-            base.Update(gameTimer);
         }
 
         protected void HandleSliding(Vector2 mousePosition)

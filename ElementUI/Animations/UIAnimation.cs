@@ -19,6 +19,10 @@ namespace ElementEngine.ElementUI
         public float RunningTime;
         public float Duration;
 
+        protected virtual void InternalStart() { }
+        protected virtual void InternalUpdate(GameTimer gameTimer) { }
+        protected virtual void InternalComplete() { }
+
         public UIAnimation() { }
 
         public UIAnimation(UIObject obj)
@@ -45,8 +49,6 @@ namespace ElementEngine.ElementUI
             InternalStart();
         }
 
-        protected virtual void InternalStart() { }
-
         public void Update(GameTimer gameTimer)
         {
             if (Duration > 0)
@@ -63,68 +65,6 @@ namespace ElementEngine.ElementUI
                 InternalComplete();
                 OnComplete?.Invoke(this);
             }
-        }
-
-        protected virtual void InternalUpdate(GameTimer gameTimer) { }
-        protected virtual void InternalComplete() { }
-    }
-
-    public class UIProgressbarHAnimation : UIAnimation
-    {
-        public UIProgressbarH ProgressbarH => Object as UIProgressbarH;
-
-        public EasingType EasingType;
-        public float TimePerValueChange;
-        public float MaxDuration;
-
-        public int StartWidth;
-        public int TargetWidth;
-        public int ChangeDirection;
-        public int TotalChangeAmount;
-
-        public UIProgressbarHAnimation() { }
-
-        public UIProgressbarHAnimation(UIObject obj) : base(obj)
-        {
-        }
-
-        public UIProgressbarHAnimation Copy()
-        {
-            var copy = new UIProgressbarHAnimation()
-            {
-                EasingType = EasingType,
-                TimePerValueChange = TimePerValueChange,
-                MaxDuration = MaxDuration,
-            };
-
-            BaseCopy(copy);
-            return copy;
-        }
-
-        public void Start(int startWidth, int targetWidth)
-        {
-            StartWidth = startWidth;
-            TargetWidth = targetWidth;
-
-            ChangeDirection = TargetWidth > StartWidth ? 1 : -1;
-            TotalChangeAmount = Math.Abs(TargetWidth - StartWidth);
-
-            if (TimePerValueChange > 0)
-                Duration = TimePerValueChange * TotalChangeAmount;
-
-            if (MaxDuration > 0 && Duration > MaxDuration)
-                Duration = MaxDuration;
-
-            Start();
-        }
-
-        protected override void InternalUpdate(GameTimer gameTimer)
-        {
-            var easingTime = MathHelper.Normalize(RunningTime, 0, Duration);
-            var easingValue = Easings.Ease(easingTime, EasingType);
-
-            var fillWidth = (float)StartWidth + ((TotalChangeAmount * easingValue) * (float)ChangeDirection);
-            ProgressbarH.SetFillWidth((int)fillWidth);
         }
     }
 }
