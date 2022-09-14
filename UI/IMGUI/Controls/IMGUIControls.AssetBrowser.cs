@@ -43,7 +43,7 @@ namespace ElementEngine.UI
             return _tempStringList;
         }
 
-        public static string TextureBrowser(string name, Vector2 previewSize, int texturesPerRow = 10, string pathFilter = null)
+        public static string TextureBrowser(string name, Vector2? previewSize = null, int texturesPerRow = 10, string pathFilter = null, Vector2? previewScale = null)
         {
             string selectedTexture = null;
             var open = true;
@@ -72,7 +72,10 @@ namespace ElementEngine.UI
                         _cachedTexturePtrs.Add(asset, texturePtr);
                     }
 
-                    var renderSize = previewSize == Vector2.Zero ? texture.SizeF : previewSize;
+                    var renderSize = previewSize.HasValue ? previewSize.Value : texture.SizeF;
+
+                    if (previewScale.HasValue)
+                        renderSize *= previewScale.Value;
 
                     ImGui.Image(texturePtr, renderSize);
                     
