@@ -25,6 +25,9 @@ namespace ElementEngine.ElementUI
         {
             var copy = new UIAnimationBlink()
             {
+                TimePerBlink = TimePerBlink,
+                BlinkTime = BlinkTime,
+                Blinks = Blinks,
             };
 
             BaseCopy(copy);

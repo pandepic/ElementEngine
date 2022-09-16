@@ -10,10 +10,10 @@ namespace ElementEngine.ElementUI
         public float TimePerValueChange;
         public float MaxDuration;
 
-        public int StartWidth;
-        public int TargetWidth;
-        public int ChangeDirection;
-        public int TotalChangeAmount;
+        private int _startWidth;
+        private int _targetWidth;
+        private int _changeDirection;
+        private int _totalChangeAmount;
 
         public UIAnimationProgressbarH() { }
 
@@ -36,14 +36,14 @@ namespace ElementEngine.ElementUI
 
         public void Start(int startWidth, int targetWidth)
         {
-            StartWidth = startWidth;
-            TargetWidth = targetWidth;
+            _startWidth = startWidth;
+            _targetWidth = targetWidth;
 
-            ChangeDirection = TargetWidth > StartWidth ? 1 : -1;
-            TotalChangeAmount = Math.Abs(TargetWidth - StartWidth);
+            _changeDirection = _targetWidth > _startWidth ? 1 : -1;
+            _totalChangeAmount = Math.Abs(_targetWidth - _startWidth);
 
             if (TimePerValueChange > 0)
-                Duration = TimePerValueChange * TotalChangeAmount;
+                Duration = TimePerValueChange * _totalChangeAmount;
 
             if (MaxDuration > 0 && Duration > MaxDuration)
                 Duration = MaxDuration;
@@ -56,7 +56,7 @@ namespace ElementEngine.ElementUI
             var easingTime = MathHelper.Normalize(RunningTime, 0, Duration);
             var easingValue = Easings.Ease(easingTime, EasingType);
 
-            var fillWidth = (float)StartWidth + ((TotalChangeAmount * easingValue) * (float)ChangeDirection);
+            var fillWidth = (float)_startWidth + ((_totalChangeAmount * easingValue) * (float)_changeDirection);
             ProgressbarH.SetFillWidth((int)fillWidth);
         }
     }
