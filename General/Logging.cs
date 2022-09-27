@@ -23,6 +23,11 @@ namespace ElementEngine
                 .CreateLogger();
         }
 
+        public static void Dispose()
+        {
+            _logger?.Dispose();
+        }
+
         [Conditional("DEBUG")]
         public static void DebugBreak()
         {
