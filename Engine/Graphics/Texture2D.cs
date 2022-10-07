@@ -104,7 +104,7 @@ namespace ElementEngine
             TextureName = name;
             AssetName = name;
 
-        } // SetName
+        }
 
         public unsafe void SetData<T>(
             ReadOnlySpan<T> data, Rectangle? area = null, TexturePremultiplyType premultiplyType = TexturePremultiplyType.None)
@@ -199,7 +199,7 @@ namespace ElementEngine
 
             return data;
 
-        } // GetData
+        }
 
         public Span<T> GetData<T>() where T : unmanaged
         {
@@ -232,13 +232,13 @@ namespace ElementEngine
             }
 
             SetData(data);
-        } // ApplyPremultiply
+        }
 
         public void SaveAsPng(string filePath)
         {
             using var fs = new FileStream(filePath, FileMode.OpenOrCreate);
             SaveAsPng(fs);
-        } // SaveAsPng
+        }
 
         public void SaveAsPng(FileStream fs)
         {
@@ -250,7 +250,7 @@ namespace ElementEngine
             var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
 
-        } // SaveAsPng
+        }
 
         #region Render target methods
         public Framebuffer GetFramebuffer()
@@ -268,7 +268,7 @@ namespace ElementEngine
 
             return _framebuffer;
 
-        } // GetFramebuffer
+        }
 
         public void BeginRenderTarget(CommandList commandList = null)
         {
@@ -278,7 +278,7 @@ namespace ElementEngine
             commandList.SetFramebuffer(GetFramebuffer());
             commandList.SetViewport(0, new Viewport(0, 0, Width, Height, 0f, 1f));
 
-        } // BeginRenderTarget
+        }
 
         public void EndRenderTarget(CommandList commandList = null)
         {
@@ -296,15 +296,19 @@ namespace ElementEngine
 
             commandList.ClearColorTarget(0, color);
 
-        } // RenderTargetClear
+        }
 
-        public SpriteBatch2D GetRenderTargetSpriteBatch2D()
+        public SpriteBatch2D GetRenderTargetSpriteBatch2D(CommandList commandList = null)
         {
+            if (commandList == null)
+                commandList = ElementGlobals.CommandList;
+
             if (_renderTargetSpriteBatch2D == null)
                 _renderTargetSpriteBatch2D = new SpriteBatch2D(this, null, true);
 
+            _renderTargetSpriteBatch2D.CommandList = commandList;
             return _renderTargetSpriteBatch2D;
-        } // GetRenderTargetSpriteBatch2D
+        }
         #endregion
 
     } // Texture2D

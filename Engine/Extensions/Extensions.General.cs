@@ -1,12 +1,11 @@
-﻿using SharpNeat.Utility;
-using System;
+﻿using System;
 using System.ComponentModel;
 
 namespace ElementEngine
 {
     public static partial class Extensions
     {
-        private static readonly FastRandom _rng = new FastRandom();
+        private static readonly Random _rng = new Random();
 
         public static T ConvertTo<T>(this object value)
         {

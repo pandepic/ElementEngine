@@ -257,7 +257,7 @@ namespace ElementEngine
             var pressed = value != 0;
             var prevPressed = controller.IsButtonPressed(buttonType);
 
-            controller._buttonsPressed[buttonType] = pressed;
+            controller.ButtonsPressed[buttonType] = pressed;
             controller.ButtonEvents.Add(new(buttonType, controller.IsButtonPressed(buttonType), prevPressed));
         }
 
@@ -284,7 +284,7 @@ namespace ElementEngine
 
                             var normalizedValue = GameController.NormalizeAxis(axisEvent.value);
 
-                            controller._axisValues[axisEvent.axis] = normalizedValue;
+                            controller.AxisValues[axisEvent.axis] = normalizedValue;
 
                             var eventValue = normalizedValue;
 
@@ -307,7 +307,7 @@ namespace ElementEngine
                             var buttonType = FromSDLControllerButton(buttonEvent.button);
                             var prevPressed = controller.IsButtonPressed(buttonType);
 
-                            controller._buttonsPressed[buttonType] = buttonEvent.state == 1;
+                            controller.ButtonsPressed[buttonType] = buttonEvent.state == 1;
                             controller.ButtonEvents.Add(new(buttonType, controller.IsButtonPressed(buttonType), prevPressed));
                         }
                     }

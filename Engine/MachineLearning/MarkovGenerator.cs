@@ -1,5 +1,4 @@
-﻿using SharpNeat.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,15 +12,15 @@ namespace ElementEngine.MachineLearning
         private List<string> _data { get; set; }
         private Dictionary<string, Dictionary<string, int>> _table = new Dictionary<string, Dictionary<string, int>>();
         private List<string> _startingStates = new List<string>();
-        private FastRandom _rng;
+        private Random _rng;
 
         private List<string> _tempStringList = new List<string>();
 
-        public MarkovGenerator(List<string> data, int keySize, FastRandom rng = null)
+        public MarkovGenerator(List<string> data, int keySize, Random rng = null)
         {
             _data = data;
             _keySize = keySize;
-            _rng = rng ?? new FastRandom();
+            _rng = rng ?? new Random();
 
             if (_keySize == 0)
                 _keySize = 3;

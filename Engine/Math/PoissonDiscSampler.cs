@@ -1,5 +1,4 @@
-﻿using SharpNeat.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -26,7 +25,7 @@ namespace ElementEngine
     /// Released in the public domain
     public class PoissonDiscSampler
     {
-        private FastRandom _rng = new FastRandom();
+        private Random _rng = new Random();
         private const int k = 30;  // Maximum number of attempts before marking a sample as inactive.
 
         private readonly Rectangle rect;

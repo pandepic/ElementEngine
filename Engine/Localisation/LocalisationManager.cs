@@ -69,10 +69,8 @@ namespace ElementEngine
             return language;
         }
 
-        public static string GetString(string key, params (string, string)[] variables)
+        public static string GetString(string key)
         {
-            string str = "";
-
             if (!CurrentLanguage.Strings.TryGetValue(key, out var strCurrent))
             {
                 var keyMissing = false;
@@ -84,7 +82,7 @@ namespace ElementEngine
                     if (!DefaultLanguage.Strings.TryGetValue(key, out var strBase))
                         keyMissing = true;
                     else
-                        str = strBase;
+                        return strBase;
                 }
 
                 if (keyMissing)
@@ -98,8 +96,15 @@ namespace ElementEngine
             }
             else
             {
-                str = strCurrent;
+                return strCurrent;
             }
+
+            return null;
+        }
+
+        public static string GetString(string key, params (string, string)[] variables)
+        {
+            var str = GetString(key);
 
             if (variables != null)
             {

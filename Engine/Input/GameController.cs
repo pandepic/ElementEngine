@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Veldrid.Sdl2;
 
 namespace ElementEngine
@@ -44,8 +41,8 @@ namespace ElementEngine
         public string ControllerName;
         public float Deadzone;
 
-        internal readonly Dictionary<SDL_GameControllerAxis, float> _axisValues = new();
-        internal readonly Dictionary<GameControllerButtonType, bool> _buttonsPressed = new();
+        internal readonly Dictionary<SDL_GameControllerAxis, float> AxisValues = new();
+        internal readonly Dictionary<GameControllerButtonType, bool> ButtonsPressed = new();
         internal readonly List<GameControllerButtonEvent> ButtonEvents = new();
         internal readonly List<AxisMotionEvent> AxisMotionEvents = new();
 
@@ -64,19 +61,19 @@ namespace ElementEngine
 
         public float GetAxis(SDL_GameControllerAxis axis)
         {
-            _axisValues.TryGetValue(axis, out var value);
+            AxisValues.TryGetValue(axis, out var value);
             return value;
         }
 
         public bool IsSDLButtonPressed(SDL_GameControllerButton button)
         {
-            _buttonsPressed.TryGetValue(InputManager.FromSDLControllerButton(button), out bool pressed);
+            ButtonsPressed.TryGetValue(InputManager.FromSDLControllerButton(button), out bool pressed);
             return pressed;
         }
 
         public bool IsButtonPressed(GameControllerButtonType button)
         {
-            _buttonsPressed.TryGetValue(button, out bool pressed);
+            ButtonsPressed.TryGetValue(button, out bool pressed);
             return pressed;
         }
 

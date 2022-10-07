@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SharpNeat.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,30 +7,30 @@ using System.Threading.Tasks;
 
 namespace ElementEngine
 {
-    public struct RangeI
+    public struct RangeF
     {
-        [JsonIgnore] private static FastRandom _rng = new FastRandom();
+        [JsonIgnore] private static Random _rng = new Random();
 
-        public int Min;
-        public int Max;
+        public float Min;
+        public float Max;
 
-        [JsonIgnore] public int Size => Max - Min;
+        [JsonIgnore] public float Size => Max - Min;
 
-        public RangeI(int min, int max)
+        public RangeF(float min, float max)
         {
             Min = min;
             Max = max;
         }
 
-        public int GetRandomValue(FastRandom rng = null)
+        public float GetRandomValue(Random rng = null)
         {
             if (rng == null)
                 rng = _rng;
 
-            return rng.Next(Min, Max + 1);
+            return rng.NextFloat(Min, Max);
         }
 
-        public RangeF ToRangeF() => new RangeF(Min, Max);
+        public RangeI ToRangeF() => new RangeI((int)Min, (int)Max);
 
         public override string ToString()
         {
@@ -41,12 +40,12 @@ namespace ElementEngine
         public static RangeF FromString(string str)
         {
             var split = str.Trim().Replace(" ", "").Split(',', StringSplitOptions.RemoveEmptyEntries);
-            return new RangeF(int.Parse(split[0]), int.Parse(split[1]));
+            return new RangeF(float.Parse(split[0]), float.Parse(split[1]));
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is RangeI range)
+            if (obj is RangeF range)
                 return range == this;
             else
                 return false;
@@ -57,7 +56,7 @@ namespace ElementEngine
             return HashCode.Combine(Min, Max);
         }
 
-        public static bool operator ==(RangeI r1, RangeI r2) => r1.Min == r2.Min && r1.Max == r2.Max;
-        public static bool operator !=(RangeI r1, RangeI r2) => !(r1 == r2);
+        public static bool operator ==(RangeF r1, RangeF r2) => r1.Min == r2.Min && r1.Max == r2.Max;
+        public static bool operator !=(RangeF r1, RangeF r2) => !(r1 == r2);
     }
 }

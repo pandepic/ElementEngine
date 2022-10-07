@@ -1,5 +1,4 @@
-﻿using SharpNeat.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -90,7 +89,7 @@ namespace ElementEngine
             }
         } // AddIncrement
 
-        public static T GetRandomItem<T>(this List<T> list, FastRandom rng = null)
+        public static T GetRandomItem<T>(this List<T> list, Random rng = null)
         {
             if (rng == null)
                 rng = _rng;
@@ -98,7 +97,7 @@ namespace ElementEngine
             return list[rng.Next(0, list.Count)];
         } // GetRandomItem
 
-        public static void Shuffle<T>(this List<T> list, FastRandom rng = null)
+        public static void Shuffle<T>(this List<T> list, Random rng = null)
         {
             if (rng == null)
                 rng = _rng;
@@ -129,7 +128,7 @@ namespace ElementEngine
             return list1.All(list2.Contains);
         }
 
-        public static K GetRandomItem<T, K>(this Dictionary<T, K> dictionary, FastRandom rng = null)
+        public static K GetRandomItem<T, K>(this Dictionary<T, K> dictionary, Random rng = null)
         {
             if (rng == null)
                 rng = _rng;

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Settings>
+	<Section Name="Window">
+		<Setting Name="Width" Value="1280" />
+		<Setting Name="Height" Value="720" />
+		<Setting Name="BorderlessFullscreen" Value="false" />
+		<Setting Name="Vsync" Value="true" />
+	</Section>
+	<Section Name="Sound">
+		<Setting Name="MasterVolume" Value="0.5" />
+		<Setting Name="MusicVolume" Value="0.5" />
+		<Setting Name="SFXVolume" Value="0.5" />
+		<Setting Name="UIVolume" Value="0.5" />
+	</Section>
+	<Section Name="UI">
+		<Setting Name="Language" Value="English" />
+	</Section>
+	<Section Name="Controls">
+		<Setting Name="MoveUp" Value="W,Up" Type="Keyboard" />
+		<Setting Name="MoveDown" Value="S,Down" Type="Keyboard" />
+		<Setting Name="MoveLeft" Value="A,Left" Type="Keyboard" />
+		<Setting Name="MoveRight" Value="D,Right" Type="Keyboard" />
+		
+		<Setting Name="ControllerMove" Value="LeftAxis" Type="GameController" />
+		<Setting Name="ControllerInteract" Value="A" Type="GameController" />
+		
+		<Setting Name="MouseInteract" Value="Right" Type="Mouse" />
+	</Section>
+</Settings>
