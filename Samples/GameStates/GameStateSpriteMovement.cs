@@ -18,6 +18,7 @@ namespace Samples
         public SystemManager UpdateSystems;
         public SystemManager DrawSystems;
         public Entity BallEntity;
+        public int MoveSpeed = 75;
 
         internal GameStateSpriteMovement()
         {
@@ -66,10 +67,11 @@ namespace Samples
             SpriteBatch.End();
 
             ref var ballTransform = ref BallEntity.GetComponent<Transform>();
-
+            
             ImGui.Begin("Ball Debug", ImGuiWindowFlags.AlwaysAutoResize);
             ImGui.InputFloat("X", ref ballTransform.Position.X);
             ImGui.InputFloat("Y", ref ballTransform.Position.Y);
+            ImGui.InputInt("Move Speed", ref MoveSpeed);
             ImGui.End();
         }
 
@@ -82,7 +84,7 @@ namespace Samples
                         BallEntity.TryAddComponent(new MoveTo()
                         {
                             Target = InputManager.MousePosition,
-                            Velocity = new Vector2(50),
+                            Velocity = new Vector2(MoveSpeed),
                         });
                     }
                     break;
