@@ -23,8 +23,8 @@ namespace ElementEngine
         public RgbaFloat ClearColor { get; set; } = RgbaFloat.Black;
 
         // Timing
-        public GameTimer GameTimer { get; set; }
-        public bool IsFixedTimeStep { get; set; } = false;
+        public GameTimer GameTimer;
+        public bool IsFixedTimeStep = false;
         protected Stopwatch _stopWatch;
         protected long _currentTicks, _prevTicks;
         protected TimeSpan _targetFrameTime = TimeSpan.Zero;
@@ -32,8 +32,8 @@ namespace ElementEngine
 
         // Window
         public bool Focused { get => ElementGlobals.Window.Focused; }
-        public string GameTitle { get; set; }
-        public bool TitleShowFPS { get; set; } = true;
+        public string GameTitle;
+        public bool TitleShowFPS = true;
         protected TimeSpan _fpsCounter = TimeSpan.Zero;
         protected int _frameCounter = 0;
 
