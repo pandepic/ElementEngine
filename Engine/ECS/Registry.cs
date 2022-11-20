@@ -7,26 +7,29 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Vortice.Direct3D;
 
 namespace ElementEngine.ECS
 {
     public struct EntityStatus
     {
         public int ID;
+        public string Name;
         public bool IsAlive;
         public int GenerationID;
         public HashSet<int> Components;
         public HashSet<Type> ComponentTypes;
 
-        public EntityStatus(int id)
+        public EntityStatus(int id, string name = "")
         {
             ID = id;
+            Name = name;
             IsAlive = true;
             GenerationID = 0;
             Components = new();
             ComponentTypes = new();
         }
-    } // EntityStatus
+    }
 
     public delegate void ECSEvent<T>(Entity entity, ref T component);
 
@@ -52,13 +55,16 @@ namespace ElementEngine.ECS
     public class Registry
     {
         [JsonIgnore] internal static Registry[] _registries = new Registry[10];
+        [JsonIgnore] internal Dictionary<Type, Action<Entity>> _checkGroupsOnEntityComponentAddedMethods = new();
+        [JsonIgnore] internal List<CheckGroupsOnEntityComponentAddedItem> _checkGroupsOnEntityComponentAddedItems = new();
         [JsonIgnore] internal const int _defaultMaxComponents = 100;
         [JsonIgnore] internal static short _nextRegistryID = 0;
 
         internal Queue<Entity> _removeEntities = new Queue<Entity>();
         internal Queue<RemoveComponent> _removeComponents = new Queue<RemoveComponent>();
+        internal int _nextEntityID = 0;
 
-        protected int _nextEntityID = 0;
+        internal ViewBuilder _viewBuilder;
 
         public readonly short RegistryID;
 
@@ -67,9 +73,6 @@ namespace ElementEngine.ECS
         public List<Group> RegisteredGroups = new List<Group>();
         public SparseSet<EntityStatus> Entities = new SparseSet<EntityStatus>(1000);
         public SparseSet DeadEntities = new SparseSet(1000);
-        
-        [JsonIgnore] internal Dictionary<Type, Action<Entity>> CheckGroupsOnEntityComponentAddedMethods = new();
-        [JsonIgnore] internal List<CheckGroupsOnEntityComponentAddedItem> CheckGroupsOnEntityComponentAddedItems = new();
 
         public Dictionary<int, List<Group>> GroupComponentMap = new Dictionary<int, List<Group>>();
 
@@ -81,6 +84,7 @@ namespace ElementEngine.ECS
                 Array.Resize(ref _registries, _registries.Length * 2);
 
             _registries[RegistryID] = this;
+            _viewBuilder = new(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -89,7 +93,7 @@ namespace ElementEngine.ECS
             return ComponentManager<T>.Pool[RegistryID];
         }
 
-        public Entity CreateEntity()
+        public Entity CreateEntity(string name = "")
         {
             if (DeadEntities.Size > 0)
             {
@@ -103,7 +107,7 @@ namespace ElementEngine.ECS
             }
         } // CreateEntity
 
-        public Entity CreateEntity(int id)
+        public Entity CreateEntity(int id, string name = "")
         {
             if (id == 0)
                 return CreateEntity();
@@ -122,11 +126,26 @@ namespace ElementEngine.ECS
             }
             else
             {
-                Entities.TryAdd(new EntityStatus(id), id);
+                Entities.TryAdd(new EntityStatus(id, name), id);
             }
 
             return new Entity(id, this);
         } // CreateEntity
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string GetEntityName(int id)
+        {
+            return GetEntityName(GetEntity(id));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string GetEntityName(Entity entity)
+        {
+            if (!entity.IsAlive)
+                return null;
+
+            return Entities[entity.ID].Name;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Entity GetEntity(int id)
@@ -203,12 +222,12 @@ namespace ElementEngine.ECS
             while (_removeComponents.TryDequeue(out var removeComponent))
                 TryRemoveComponentImmediate(removeComponent.ComponentStore, removeComponent.Entity, removeComponent.Type);
 
-            foreach (var item in CheckGroupsOnEntityComponentAddedItems)
+            foreach (var item in _checkGroupsOnEntityComponentAddedItems)
             {
-                CheckGroupsOnEntityComponentAddedMethods[item.Type](item.Entity);
+                _checkGroupsOnEntityComponentAddedMethods[item.Type](item.Entity);
             }
 
-            CheckGroupsOnEntityComponentAddedItems.Clear();
+            _checkGroupsOnEntityComponentAddedItems.Clear();
         }
 
         public void Clear()
@@ -248,13 +267,13 @@ namespace ElementEngine.ECS
                 status.Components.Add(typeHash);
                 status.ComponentTypes.Add(typeof(T));
 
-                if (!CheckGroupsOnEntityComponentAddedMethods.TryGetValue(typeof(T), out var method))
+                if (!_checkGroupsOnEntityComponentAddedMethods.TryGetValue(typeof(T), out var method))
                 {
                     method = CheckGroupsOnEntityComponentAdded<T>;
-                    CheckGroupsOnEntityComponentAddedMethods.Add(typeof(T), method);
+                    _checkGroupsOnEntityComponentAddedMethods.Add(typeof(T), method);
                 }
 
-                CheckGroupsOnEntityComponentAddedItems.Add(new()
+                _checkGroupsOnEntityComponentAddedItems.Add(new()
                 {
                     Entity = entity,
                     Type = typeof(T),
@@ -499,14 +518,76 @@ namespace ElementEngine.ECS
 
         #region Create view
 
-        public View<T> View<T>() where T : struct
-            => new View<T>(this);
+        public ViewBuilder BuildView()
+        {
+            _viewBuilder.Clear();
+            return _viewBuilder;
+        }
 
-        public View<T, U> View<T, U>() where T : struct where U : struct
-            => new View<T, U>(this);
+        public List<Entity> GetView(HashSet<Type> includeComponents, HashSet<Type> excludeComponents)
+        {
+            if (includeComponents == null || includeComponents.Count == 0)
+                return null;
 
-        public View<T, U, V> View<T, U, V>() where T : struct where U : struct where V : struct
-            => new View<T, U, V>(this);
+            Type firstType = null;
+            IComponentStore firstStore = null;
+
+            foreach (var type in includeComponents)
+            {
+                var store = ComponentStores[type.GetHashCode()];
+
+                if (firstType == null || store.GetSize() < firstStore.GetSize())
+                {
+                    firstType = type;
+                    firstStore = store;
+                }
+            }
+
+            var entities = GlobalObjectPool<List<Entity>>.Rent();
+            includeComponents.Remove(firstType);
+
+            for (var i = 0; i < firstStore.GetSize(); i++)
+            {
+                var entityID = firstStore.GetDense()[i];
+
+                var addToView = true;
+
+                foreach (var includeType in includeComponents)
+                {
+                    var store = ComponentStores[includeType.GetHashCode()];
+
+                    if (!store.Contains(entityID))
+                    {
+                        addToView = false;
+                        break;
+                    }
+                }
+
+                if (!addToView && excludeComponents != null && excludeComponents.Count > 0)
+                {
+                    excludeComponents.Remove(firstType);
+
+                    foreach (var excludeType in excludeComponents)
+                    {
+                        var store = ComponentStores[excludeType.GetHashCode()];
+
+                        if (store.Contains(entityID))
+                        {
+                            addToView = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (addToView)
+                {
+                    var entity = CreateEntity(entityID);
+                    entities.Add(entity);
+                }
+            }
+
+            return entities;
+        }
 
         #endregion
 
