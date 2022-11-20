@@ -543,13 +543,14 @@ namespace ElementEngine.ECS
                 }
             }
 
-            var entities = GlobalObjectPool<List<Entity>>.Rent();
             includeComponents.Remove(firstType);
+
+            var entities = GlobalObjectPool<List<Entity>>.Rent();
+            entities.Clear();
 
             for (var i = 0; i < firstStore.GetSize(); i++)
             {
                 var entityID = firstStore.GetDense()[i];
-
                 var addToView = true;
 
                 foreach (var includeType in includeComponents)
@@ -563,7 +564,7 @@ namespace ElementEngine.ECS
                     }
                 }
 
-                if (!addToView && excludeComponents != null && excludeComponents.Count > 0)
+                if (addToView && excludeComponents != null && excludeComponents.Count > 0)
                 {
                     excludeComponents.Remove(firstType);
 
