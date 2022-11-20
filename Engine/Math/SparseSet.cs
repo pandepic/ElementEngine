@@ -256,6 +256,21 @@ namespace ElementEngine
         public T[] Data;
         protected int _nextID = 0;
 
+        public ReadOnlySpan<T> GetSpan()
+        {
+            return new ReadOnlySpan<T>(Data, 0, Size);
+        }
+
+        public ReadOnlySpan<T> GetSpan(int start)
+        {
+            return new ReadOnlySpan<T>(Data, start, Size - start);
+        }
+
+        public ReadOnlySpan<T> GetSpan(int start, int length)
+        {
+            return new ReadOnlySpan<T>(Data, start, length);
+        }
+
         public SparseSet(int maxObjects) : base(maxObjects, true)
         {
             Data = new T[_arraySize];
