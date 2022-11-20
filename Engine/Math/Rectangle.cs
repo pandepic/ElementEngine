@@ -75,6 +75,11 @@ namespace ElementEngine
         public Vector2I BottomRight
         {
             get => new Vector2I(Right, Bottom);
+            set
+            {
+                Right = value.X;
+                Bottom = value.Y;
+            }
         }
 
         [JsonIgnore]
