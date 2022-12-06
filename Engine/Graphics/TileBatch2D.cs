@@ -368,6 +368,9 @@ namespace ElementEngine
             _currentLayerEnded = false;
         }
 
+        public void UpdateTileAtPosition(Vector2I position, int tileIndex, int layer)
+            => UpdateTileAtPosition(position.X, position.Y, tileIndex, layer);
+
         public void UpdateTileAtPosition(int posx, int posy, int tileIndex, int layer)
         {
             byte x = (byte)(tileIndex % TileSheetTilesWidth);

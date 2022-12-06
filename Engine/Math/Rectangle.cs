@@ -16,6 +16,7 @@ namespace ElementEngine
         [JsonIgnore]
         public bool IsZero => X == 0 && Y == 0 && Width == 0 && Height == 0;
 
+        [JsonIgnore]
         public static Rectangle Empty = new Rectangle(0, 0, 0, 0);
 
         [JsonIgnore]
@@ -47,6 +48,22 @@ namespace ElementEngine
         public Vector2I TopRight
         {
             get => new Vector2I(Right, Top);
+            set
+            {
+                Right = value.X;
+                Y = value.Y;
+            }
+        }
+
+        [JsonIgnore]
+        public Vector2 TopRightF
+        {
+            get => new Vector2(Right, Top);
+            set
+            {
+                Right = (int)value.X;
+                Y = (int)value.Y;
+            }
         }
 
         [JsonIgnore]
@@ -192,6 +209,7 @@ namespace ElementEngine
 
         [JsonIgnore]
         public Vector2I Center => new Vector2I(X + Width / 2, Y + Height / 2);
+
         [JsonIgnore]
         public Vector2 CenterF => new Vector2(X + Width / 2f, Y + Height / 2f);
 

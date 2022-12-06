@@ -564,7 +564,10 @@ namespace ElementEngine.ECS
                     }
                 }
 
-                if (addToView && excludeComponents != null && excludeComponents.Count > 0)
+                if (!addToView)
+                    continue;
+
+                if (excludeComponents != null && excludeComponents.Count > 0)
                 {
                     excludeComponents.Remove(firstType);
 
