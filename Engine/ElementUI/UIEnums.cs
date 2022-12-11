@@ -60,4 +60,14 @@ namespace ElementEngine.ElementUI
         Scale,
         Crop,
     }
+
+    public enum TooltipPositionType
+    {
+        Auto,
+        Top,
+        Bottom,
+        Left,
+        Right,
+        Center,
+    }
 }

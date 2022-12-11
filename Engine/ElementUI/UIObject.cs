@@ -21,6 +21,9 @@ namespace ElementEngine.ElementUI
         public UIObject Parent;
         public UIScreen ParentScreen => this is UIScreen thisScreen ? thisScreen : (Parent == null ? null : (Parent is UIScreen screen ? screen : Parent.ParentScreen));
 
+        public UITooltipContent? Tooltip;
+        internal bool _isTooltip;
+
         public UIStyle Style => _style;
         public readonly List<UIObject> Children = new();
         public readonly List<UIObject> ReverseChildren = new();
@@ -683,6 +686,7 @@ namespace ElementEngine.ElementUI
 
             _isVisible = false;
             SetLayoutDirty();
+            HideTooltip();
         }
 
         public void ToggleVisible()
@@ -701,6 +705,7 @@ namespace ElementEngine.ElementUI
         public virtual void Disable()
         {
             _isActive = false;
+            HideTooltip();
         }
 
         public void ToggleActive()
@@ -980,7 +985,7 @@ namespace ElementEngine.ElementUI
 
         internal void ClampScroll()
         {
-            if (_uiSize._fullChildBounds.IsZero)
+            if (_uiSize._fullChildBounds.IsZero || this is UIScreen)
             {
                 _childOffset = Vector2I.Zero;
                 return;
@@ -1123,6 +1128,28 @@ namespace ElementEngine.ElementUI
 
             if (_useScissorRect)
                 spriteBatch.PopScissorRect(0);
+        }
+
+        internal void ShowTooltip()
+        {
+            if (this is UIScreen)
+                return;
+
+            var parentScreen = ParentScreen;
+
+            if (Tooltip.HasValue && parentScreen != null)
+                parentScreen.ShowTooltip(this, Tooltip.Value);
+        }
+
+        internal void HideTooltip()
+        {
+            if (this is UIScreen)
+                return;
+
+            var parentScreen = ParentScreen;
+
+            if (Tooltip.HasValue && parentScreen != null)
+                parentScreen.HideTooltip(this);
         }
 
         #region Input Handling (Interface Passthrough)
@@ -1280,6 +1307,7 @@ namespace ElementEngine.ElementUI
                 {
                     IsHovered = true;
                     OnHoverEnter?.Invoke(new OnHoverArgs(this));
+                    ShowTooltip();
                 }
 
                 return false;
@@ -1292,6 +1320,7 @@ namespace ElementEngine.ElementUI
             {
                 IsHovered = false;
                 OnHoverExit?.Invoke(new OnHoverArgs(this));
+                HideTooltip();
             }
 
             foreach (var childNoMotion in Children)

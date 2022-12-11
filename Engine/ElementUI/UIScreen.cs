@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using Veldrid;
 
 namespace ElementEngine.ElementUI
@@ -12,8 +7,14 @@ namespace ElementEngine.ElementUI
     public class UIScreen : UIObject
     {
         public UIObject FocusedObject;
+        public UITooltipStyle TooltipStyle;
 
         public bool BlockInputWhenConsumed = false;
+
+        internal UIContainer TooltipContainer;
+        internal UIObject TooltipTarget;
+
+        protected bool _removeTooltip;
 
         public UIScreen(Vector2I? position = null, Vector2I? size = null, string name = "Screen", bool blockInputWhenConsumed = true) : base(name)
         {
@@ -50,6 +51,14 @@ namespace ElementEngine.ElementUI
 
         protected override void InternalUpdate(GameTimer gameTimer)
         {
+            if (_removeTooltip)
+            {
+                RemoveChild(TooltipContainer);
+                TooltipContainer = null;
+                TooltipTarget = null;
+                _removeTooltip = false;
+            }
+
             CheckLayout();
 
             if (!IsActive)
@@ -62,6 +71,107 @@ namespace ElementEngine.ElementUI
                 return;
         }
 
+        internal void ShowTooltip(UIObject parent, UITooltipContent content)
+        {
+            if (TooltipStyle == null)
+                return;
+            if (TooltipContainer != null && TooltipTarget == parent)
+                return;
+
+            if (TooltipContainer != null)
+                RemoveChild(TooltipContainer);
+
+            TooltipContainer = new("TooltipContainer", TooltipStyle.ContainerStyle);
+            TooltipContainer.DrawOrder = int.MaxValue;
+            TooltipContainer._isTooltip = true;
+            TooltipContainer.Disable();
+
+            var label = new UILabel("TooltipLabel", TooltipStyle.LabelStyle, content.Content);
+            TooltipContainer.AddChild(label);
+
+            TooltipTarget = parent;
+            SetTooltipPosition(content.PositionType);
+
+            AddChild(TooltipContainer);
+        }
+
+        protected bool SetTooltipPosition(TooltipPositionType positionType)
+        {
+            var parentPos = TooltipTarget.DrawPosition;
+
+            TooltipContainer.UpdateLayout();
+
+            switch (positionType)
+            {
+                case TooltipPositionType.Auto:
+                    {
+                        if (SetTooltipPosition(TooltipPositionType.Top))
+                            return true;
+                        if (SetTooltipPosition(TooltipPositionType.Right))
+                            return true;
+                        if (SetTooltipPosition(TooltipPositionType.Bottom))
+                            return true;
+                        if (SetTooltipPosition(TooltipPositionType.Left))
+                            return true;
+
+                        return SetTooltipPosition(TooltipPositionType.Center);
+                    }
+
+                case TooltipPositionType.Top:
+                    {
+                        TooltipContainer.X = parentPos.X + TooltipStyle.Offset.X;
+                        TooltipContainer.Y = parentPos.Y - TooltipContainer.Height - TooltipStyle.Offset.Y;
+                    }
+                    break;
+
+                case TooltipPositionType.Bottom:
+                    {
+                        TooltipContainer.X = parentPos.X + TooltipStyle.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + TooltipTarget.Height + TooltipStyle.Offset.Y;
+                    }
+                    break;
+
+                case TooltipPositionType.Left:
+                    {
+                        TooltipContainer.X = parentPos.X - TooltipContainer.Width - TooltipStyle.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + TooltipStyle.Offset.Y;
+                    }
+                    break;
+
+                case TooltipPositionType.Right:
+                    {
+                        TooltipContainer.X = parentPos.X + TooltipTarget.Width + TooltipStyle.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + TooltipStyle.Offset.Y;
+                    }
+                    break;
+
+                case TooltipPositionType.Center:
+                    {
+                        TooltipContainer.X = parentPos.X + (TooltipTarget.Width / 2) + TooltipStyle.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + (TooltipTarget.Height / 2) + TooltipStyle.Offset.Y;
+                    }
+                    break;
+            }
+
+            TooltipContainer.UpdateLayout();
+
+            if (!Bounds.Contains(TooltipContainer.Bounds))
+                return false;
+
+            return true;
+        }
+
+        internal void HideTooltip(UIObject parent)
+        {
+            if (TooltipContainer == null)
+                return;
+            if (TooltipTarget != parent)
+                return;
+
+            _removeTooltip = true;
+        }
+
+        #region Input Handling
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
             var captured = base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
@@ -153,6 +263,7 @@ namespace ElementEngine.ElementUI
 
             return captured;
         }
+        #endregion
 
     } // UIScreen
 }
