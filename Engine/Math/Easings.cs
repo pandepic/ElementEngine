@@ -55,6 +55,12 @@ namespace ElementEngine
 
     public static class Easings
     {
+        public static float Ease(float min, float max, float val, EasingType easingType)
+        {
+            var x = MathHelper.Normalize(val, min, max);
+            return Ease(x, easingType);
+        }
+
         public static float Ease(float x, EasingType easingType)
         {
             return easingType switch

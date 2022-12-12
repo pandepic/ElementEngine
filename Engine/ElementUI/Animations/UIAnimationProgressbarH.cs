@@ -53,9 +53,7 @@ namespace ElementEngine.ElementUI
 
         protected override void InternalUpdate(GameTimer gameTimer)
         {
-            var easingTime = MathHelper.Normalize(RunningTime, 0, Duration);
-            var easingValue = Easings.Ease(easingTime, EasingType);
-
+            var easingValue = Easings.Ease(0, Duration, RunningTime, EasingType);
             var fillWidth = (float)_startWidth + ((_totalChangeAmount * easingValue) * (float)_changeDirection);
             ProgressbarH.SetFillWidth((int)fillWidth);
         }
