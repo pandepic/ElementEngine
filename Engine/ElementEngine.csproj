@@ -3,10 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
-	<RestoreAdditionalProjectSources>
-		https://www.myget.org/F/mellinoe/api/v3/index.json;
-	</RestoreAdditionalProjectSources>
   </PropertyGroup>
 
   <ItemGroup>
