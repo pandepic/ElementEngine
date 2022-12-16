@@ -8,7 +8,7 @@ using Veldrid;
 
 namespace ElementEngine
 {
-    public static class SpriteFontHelper
+    public static class SpriteFontUtil
     {
         public static void DrawCenteredText(SpriteBatch2D spriteBatch, SpriteFont font, string text, Rectangle centerOn, RgbaByte color, int size, int outlineSize = 0)
         {
