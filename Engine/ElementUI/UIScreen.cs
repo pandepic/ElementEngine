@@ -1,5 +1,4 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Veldrid;
 
 namespace ElementEngine.ElementUI
@@ -7,7 +6,6 @@ namespace ElementEngine.ElementUI
     public class UIScreen : UIObject
     {
         public UIObject FocusedObject;
-        public UITooltipStyle TooltipStyle;
 
         public bool BlockInputWhenConsumed = false;
 
@@ -73,29 +71,27 @@ namespace ElementEngine.ElementUI
 
         internal void ShowTooltip(UIObject parent, UITooltipContent content)
         {
-            if (TooltipStyle == null)
-                return;
             if (TooltipContainer != null && TooltipTarget == parent)
                 return;
 
             if (TooltipContainer != null)
                 RemoveChild(TooltipContainer);
 
-            TooltipContainer = new("TooltipContainer", TooltipStyle.ContainerStyle);
+            TooltipContainer = new("TooltipContainer", content.Style.ContainerStyle);
             TooltipContainer.DrawOrder = int.MaxValue;
             TooltipContainer._isTooltip = true;
             TooltipContainer.Disable();
 
-            var label = new UILabel("TooltipLabel", TooltipStyle.LabelStyle, content.Content);
+            var label = new UILabel("TooltipLabel", content.Style.LabelStyle, content.Content);
             TooltipContainer.AddChild(label);
 
             TooltipTarget = parent;
-            SetTooltipPosition(content.PositionType);
+            SetTooltipPosition(content.PositionType, content.Style);
 
             AddChild(TooltipContainer);
         }
 
-        protected bool SetTooltipPosition(TooltipPositionType positionType)
+        protected bool SetTooltipPosition(TooltipPositionType positionType, UITooltipStyle style)
         {
             var parentPos = TooltipTarget.DrawPosition;
 
@@ -105,50 +101,50 @@ namespace ElementEngine.ElementUI
             {
                 case TooltipPositionType.Auto:
                     {
-                        if (SetTooltipPosition(TooltipPositionType.Top))
+                        if (SetTooltipPosition(TooltipPositionType.Top, style))
                             return true;
-                        if (SetTooltipPosition(TooltipPositionType.Right))
+                        if (SetTooltipPosition(TooltipPositionType.Right, style))
                             return true;
-                        if (SetTooltipPosition(TooltipPositionType.Bottom))
+                        if (SetTooltipPosition(TooltipPositionType.Bottom, style))
                             return true;
-                        if (SetTooltipPosition(TooltipPositionType.Left))
+                        if (SetTooltipPosition(TooltipPositionType.Left, style))
                             return true;
 
-                        return SetTooltipPosition(TooltipPositionType.Center);
+                        return SetTooltipPosition(TooltipPositionType.Center, style);
                     }
 
                 case TooltipPositionType.Top:
                     {
-                        TooltipContainer.X = parentPos.X + TooltipStyle.Offset.X;
-                        TooltipContainer.Y = parentPos.Y - TooltipContainer.Height - TooltipStyle.Offset.Y;
+                        TooltipContainer.X = parentPos.X + style.Offset.X;
+                        TooltipContainer.Y = parentPos.Y - TooltipContainer.Height - style.Offset.Y;
                     }
                     break;
 
                 case TooltipPositionType.Bottom:
                     {
-                        TooltipContainer.X = parentPos.X + TooltipStyle.Offset.X;
-                        TooltipContainer.Y = parentPos.Y + TooltipTarget.Height + TooltipStyle.Offset.Y;
+                        TooltipContainer.X = parentPos.X + style.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + TooltipTarget.Height + style.Offset.Y;
                     }
                     break;
 
                 case TooltipPositionType.Left:
                     {
-                        TooltipContainer.X = parentPos.X - TooltipContainer.Width - TooltipStyle.Offset.X;
-                        TooltipContainer.Y = parentPos.Y + TooltipStyle.Offset.Y;
+                        TooltipContainer.X = parentPos.X - TooltipContainer.Width - style.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + style.Offset.Y;
                     }
                     break;
 
                 case TooltipPositionType.Right:
                     {
-                        TooltipContainer.X = parentPos.X + TooltipTarget.Width + TooltipStyle.Offset.X;
-                        TooltipContainer.Y = parentPos.Y + TooltipStyle.Offset.Y;
+                        TooltipContainer.X = parentPos.X + TooltipTarget.Width + style.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + style.Offset.Y;
                     }
                     break;
 
                 case TooltipPositionType.Center:
                     {
-                        TooltipContainer.X = parentPos.X + (TooltipTarget.Width / 2) + TooltipStyle.Offset.X;
-                        TooltipContainer.Y = parentPos.Y + (TooltipTarget.Height / 2) + TooltipStyle.Offset.Y;
+                        TooltipContainer.X = parentPos.X + (TooltipTarget.Width / 2) + style.Offset.X;
+                        TooltipContainer.Y = parentPos.Y + (TooltipTarget.Height / 2) + style.Offset.Y;
                     }
                     break;
             }

@@ -10,5 +10,6 @@ namespace ElementEngine.ElementUI
     {
         public string Content;
         public TooltipPositionType PositionType;
+        public UITooltipStyle Style;
     }
 }
