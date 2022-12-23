@@ -10,7 +10,7 @@ using ElementEngine.Timer;
 
 namespace ElementEngine
 {
-    public class BaseGameHeadless
+    public class BaseGameHeadless : IDisposable
     {
         protected bool _quit = false;
 
@@ -21,6 +21,29 @@ namespace ElementEngine
         protected long _currentTicks, _prevTicks;
         protected TimeSpan _targetFrameTime = TimeSpan.Zero;
         protected TimeSpan _totalFrameTime = TimeSpan.Zero;
+
+        #region IDisposable
+        protected bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    Unload();
+                }
+
+                _disposed = true;
+            }
+        }
+        #endregion
 
         public BaseGameHeadless()
         {
@@ -36,6 +59,7 @@ namespace ElementEngine
         }
 
         public virtual void Load() { }
+        public virtual void Unload() { }
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void EndOfFrame(GameTimer gameTimer) { }
         public virtual void Exit() { }
