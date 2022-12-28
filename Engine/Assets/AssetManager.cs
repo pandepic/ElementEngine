@@ -304,7 +304,8 @@ namespace ElementEngine
 
             var stopWatch = Stopwatch.StartNew();
 
-            using var streamReader = new StreamReader(GetAssetStream(assetName));
+            using var fileStream = GetAssetStream(assetName);
+            using var streamReader = new StreamReader(fileStream);
             using var jsonTextReader = new JsonTextReader(streamReader);
             
             if (serializer == null)
