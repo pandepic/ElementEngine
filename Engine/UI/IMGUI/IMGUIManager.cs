@@ -53,6 +53,17 @@ namespace ElementEngine.UI
 
             return texture;
         }
+
+        public static IMGUITexture GetFromTexture2D(Texture2D texture)
+        {
+            if (!Cache.TryGetValue(texture.AssetName, out var imguiTexture))
+            {
+                imguiTexture = new IMGUITexture(texture);
+                Cache.Add(texture.AssetName, imguiTexture);
+            }
+
+            return imguiTexture;
+        }
     }
     
     public static class IMGUIManager
