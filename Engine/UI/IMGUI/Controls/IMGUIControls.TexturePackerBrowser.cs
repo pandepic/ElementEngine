@@ -26,7 +26,8 @@ namespace ElementEngine.UI
                 _selectedTextureBGLoaded = true;
             }
 
-            if (ImGui.BeginPopupModal(name, ref open, ImGuiWindowFlags.AlwaysAutoResize))
+            ImGui.SetNextWindowSizeConstraints(new Vector2(1, 1), new Vector2(800, 800));
+            if (ImGui.BeginPopupModal(name, ref open, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.HorizontalScrollbar))
             {
                 if (!_selectedAssets.TryGetValue(name, out var selectedTextures))
                 {
