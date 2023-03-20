@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Serilog.Core;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
@@ -67,11 +68,21 @@ namespace ElementEngine
         }
         #endregion
 
-        public BaseGame()
+        public BaseGame() : this(null) { }
+
+        public BaseGame(Logger logger)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            Logging.Load();
+            if (logger is null)
+            {
+                Logging.Load();
+            }
+            else
+            {
+                Logging.Load(logger);
+            }
+            
             Load();
         }
 
