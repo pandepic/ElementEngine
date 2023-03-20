@@ -48,6 +48,8 @@ namespace ElementEngine
 
         public void Dispose()
         {
+            Logging.Dispose();
+
             Dispose(true);
             GC.SuppressFinalize(this);
         }

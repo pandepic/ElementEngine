@@ -31,6 +31,7 @@ namespace ElementEngine
         public static void Dispose()
         {
             Logger?.Dispose();
+            Logger = null;
         }
 
         [Conditional("DEBUG")]
