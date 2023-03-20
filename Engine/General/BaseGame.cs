@@ -70,8 +70,6 @@ namespace ElementEngine
         public BaseGame()
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
-            Logging.Load();
             Load();
         }
 

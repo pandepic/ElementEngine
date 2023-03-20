@@ -48,8 +48,6 @@ namespace ElementEngine
         public BaseGameHeadless()
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
-            Logging.Load();
             Load();
         }
 
