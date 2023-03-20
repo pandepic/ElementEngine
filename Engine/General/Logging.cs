@@ -14,13 +14,22 @@ namespace ElementEngine
         {
             File.Delete("log.txt");
 
-            _logger = new LoggerConfiguration()
+            var logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .WriteTo.Console()
                 .WriteTo.File("log.txt",
                     LogEventLevel.Verbose,
                     "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
+            
+            Load(logger);
+        }
+
+        public static void Load(Logger logger)
+        {
+            Dispose();
+
+            _logger = logger;
         }
 
         public static void Dispose()
