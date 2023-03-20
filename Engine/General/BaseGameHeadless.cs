@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ElementEngine.Timer;
+using Serilog.Core;
 
 namespace ElementEngine
 {
@@ -45,11 +46,21 @@ namespace ElementEngine
         }
         #endregion
 
-        public BaseGameHeadless()
+        public BaseGameHeadless() : this(null) { }
+
+        public BaseGameHeadless(Logger logger)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            Logging.Load();
+            if (logger is null)
+            {
+                Logging.Load();
+            }
+            else
+            {
+                Logging.Load(logger);
+            }
+            
             Load();
         }
 
