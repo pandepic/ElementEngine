@@ -36,6 +36,26 @@ namespace ElementEngine.ElementUI
             var ddl = new UIDropdownList<E>(name, style, items);
             return ddl;
         }
+
+        public static List<UIDropdownListItem<E>> ItemsFromEnum<E>() where E : Enum
+        {
+            var items = new List<UIDropdownListItem<E>>();
+
+            foreach (E enumVal in Enum.GetValues(typeof(E)))
+                items.Add(new UIDropdownListItem<E>(Enum.GetName(typeof(E), enumVal), enumVal));
+
+            return items;
+        }
+
+        public static List<UIDropdownListItem<T>> ItemsFrom<T>(ICollection<T> list)
+        {
+            var items = new List<UIDropdownListItem<T>>();
+
+            foreach (var e in list)
+                items.Add(new(e));
+
+            return items;
+        }
     }
 
     public class UIDropdownList<T> : UIObject

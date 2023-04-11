@@ -14,7 +14,7 @@ namespace ElementEngine
         public string Value { get; set; }
 
         public Dictionary<string, string> OtherAttributes { get; set; }
-    } // Setting
+    }
 
     public class SettingsSection
     {
@@ -25,7 +25,7 @@ namespace ElementEngine
         {
             Settings = new Dictionary<string, Setting>();
         }
-    } // SettingsSection
+    }
 
     public static class SettingsManager
     {
@@ -130,12 +130,17 @@ namespace ElementEngine
             var setting = Sections[section].Settings[name].Value;
 
             return setting.ConvertTo<T>();
-        } // GetSetting
+        }
+
+        public static string GetSetting(string section, string name)
+        {
+            return Sections[section].Settings[name].Value;
+        }
 
         public static string UpdateSetting<T>(string section, string name, T value)
         {
             return Sections[section].Settings[name].Value = value.ToString();
-        } // UpdateSetting
+        }
 
         public static List<Setting> GetSettings(string section)
         {
@@ -145,7 +150,6 @@ namespace ElementEngine
                 settings.Add(kvp.Value);
 
             return settings;
-        } // GetSettings
-
-    } // SettingsManager
+        }
+    }
 }
