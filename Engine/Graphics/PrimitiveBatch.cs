@@ -180,19 +180,22 @@ namespace ElementEngine
             if (!origin.HasValue)
                 origin = new Vector2(0f, 0f);
 
-            var topRect = new Rectangle(rect.X, rect.Y, rect.Width, lineSize);
-            var bottomRect = new Rectangle(rect.X, rect.Y + (rect.Height - lineSize), rect.Width, lineSize);
-            var leftRect = new Rectangle(rect.X, rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2));
-            var rightRect = new Rectangle(rect.X + (rect.Width - lineSize), rect.Y + lineSize, lineSize, (rect.Height - lineSize * 2));
+            rotation = rotation.ToRadians();
 
-            // top
-            DrawFilledRect(topRect, color, origin, rotation);
-            // bottom
-            DrawFilledRect(bottomRect, color, origin, rotation);
-            // left
-            DrawFilledRect(leftRect, color, origin, rotation);
-            // right
-            DrawFilledRect(rightRect, color, origin, rotation);
+            var topLeft = new Vector2(rect.X, rect.Y) - origin.Value;
+            var topRight = new Vector2(rect.X + rect.Width, rect.Y) - origin.Value;
+            var bottomLeft = new Vector2(rect.X, rect.Y + rect.Height) - origin.Value;
+            var bottomRight = new Vector2(rect.X + rect.Width, rect.Y + rect.Height) - origin.Value;
+
+            topLeft = MathHelper.RotatePointAroundOrigin(topLeft, rect.LocationF, rotation);
+            topRight = MathHelper.RotatePointAroundOrigin(topRight, rect.LocationF, rotation);
+            bottomLeft = MathHelper.RotatePointAroundOrigin(bottomLeft, rect.LocationF, rotation);
+            bottomRight = MathHelper.RotatePointAroundOrigin(bottomRight, rect.LocationF, rotation);
+
+            DrawLine(topLeft.ToVector2I(), topRight.ToVector2I(), color, lineSize);
+            DrawLine(topRight.ToVector2I(), bottomRight.ToVector2I(), color, lineSize);
+            DrawLine(bottomRight.ToVector2I(), bottomLeft.ToVector2I(), color, lineSize);
+            DrawLine(bottomLeft.ToVector2I(), topLeft.ToVector2I(), color, lineSize);
         }
 
         public void DrawFilledRect(Rectangle rect, RgbaFloat color, Vector2? origin = null, float rotation = 0f)

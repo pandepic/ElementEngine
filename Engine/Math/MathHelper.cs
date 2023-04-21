@@ -153,5 +153,21 @@ namespace ElementEngine
             return (val - min) / (max - min);
         }
 
+        public static Vector2I RotatePointAroundOrigin(Vector2I point, Vector2I origin, float rotation)
+            => RotatePointAroundOrigin(point.ToVector2(), origin.ToVector2(), rotation).ToVector2I();
+
+        public static Vector2 RotatePointAroundOrigin(Vector2 point, Vector2 origin, float rotation)
+        {
+            var offset = point - origin;
+
+            var cosTheta = (float)Math.Cos(rotation);
+            var sinTheta = (float)Math.Sin(rotation);
+
+            var rotatedOffset = new Vector2(offset.X * cosTheta - offset.Y * sinTheta, offset.X * sinTheta + offset.Y * cosTheta);
+            var rotatedPoint = origin + rotatedOffset;
+
+            return rotatedPoint;
+        }
+
     } // MathHelper
 }
