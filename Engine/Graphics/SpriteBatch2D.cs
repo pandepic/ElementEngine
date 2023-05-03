@@ -119,17 +119,16 @@ namespace ElementEngine
         #endregion
 
         public SpriteBatch2D() : this(ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight) { }
-        public SpriteBatch2D(int width, int height, Shader[] shaders = null, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, shaders: shaders, invertY: invertY) { }
-        public SpriteBatch2D(Texture2D target, Shader[] shaders = null, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, shaders: shaders, invertY: invertY) { }
+        public SpriteBatch2D(int width, int height, SimplePipeline simplePipeline = null, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, simplePipeline: simplePipeline, invertY: invertY) { }
+        public SpriteBatch2D(Texture2D target, SimplePipeline simplePipeline = null, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, simplePipeline: simplePipeline, invertY: invertY) { }
 
-        public unsafe SpriteBatch2D(int width, int height, OutputDescription output, SimplePipeline simplePipeline = null, Shader[] shaders = null, bool invertY = false)
+        public unsafe SpriteBatch2D(int width, int height, OutputDescription output, SimplePipeline simplePipeline = null, bool invertY = false)
         {
             CommandList = ElementGlobals.CommandList;
 
             _textureSets = new Dictionary<string, ResourceSet>();
 
             var factory = GraphicsDevice.ResourceFactory;
-            LoadStaticResources(factory);
 
             InvertY = invertY;
             SetViewSize(new Vector2(width, height));
@@ -227,27 +226,6 @@ namespace ElementEngine
             pipeline.AddPipelineTexture(texture);
 
             return pipeline;
-        }
-
-        public static void LoadStaticResources(ResourceFactory factory)
-        {
-            if (_staticResLoaded)
-                return;
-
-            var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteVS), "main");
-            var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultSpriteFS), "main");
-
-            _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
-            _staticResLoaded = true;
-        }
-
-        public static void CleanupStaticResources()
-        {
-            if (!_staticResLoaded)
-                return;
-
-            for (var i = 0; i < _shaders.Length; i++)
-                _shaders[i]?.Dispose();
         }
 
         public Rectangle? GetCurrentScissorRect(uint index)

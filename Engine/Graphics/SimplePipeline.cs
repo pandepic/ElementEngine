@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using Veldrid;
 using Veldrid.SPIRV;
 
@@ -46,8 +48,10 @@ namespace ElementEngine
             var dataSize = size * sizeof(T);
             // make sure the size is in multiples of 16
             var bufferSize = (dataSize / 16 + (dataSize % 16 > 0 ? 1 : 0)) * 16;
-
+            
             Buffer = GraphicsDevice.ResourceFactory.CreateBuffer(new BufferDescription((uint)bufferSize, BufferUsage.UniformBuffer));
+            Buffer.Name = Name;
+
             ResourceLayout = GraphicsDevice.ResourceFactory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription(Name, ResourceKind.UniformBuffer, Stages)));
             ResourceSet = GraphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(ResourceLayout, Buffer));
         }

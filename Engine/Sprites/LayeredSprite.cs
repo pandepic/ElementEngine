@@ -75,6 +75,7 @@ namespace ElementEngine
             if (layerTextures.Count <= 0)
                 return;
 
+            Texture?.Dispose();
             Texture = new Texture2D(layerTextures[0].Width, layerTextures[0].Height);
 
             Texture.BeginRenderTarget();

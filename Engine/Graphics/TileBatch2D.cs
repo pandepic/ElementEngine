@@ -143,15 +143,31 @@ namespace ElementEngine
             Texture2D atlasTexture,
             Texture2D targetTexture,
             TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
-            Dictionary<int, TileAnimation> tileAnimations = null)
-            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, targetTexture.SizeF, targetTexture.GetFramebuffer().OutputDescription, wrapMode, tileAnimations) { }
+            Dictionary<int, TileAnimation> tileAnimations = null,
+            bool invertY = false)
+            : this(mapWidth, mapHeight,
+                  tileWidth, tileHeight,
+                  atlasTexture,
+                  targetTexture.SizeF,
+                  targetTexture.GetFramebuffer().OutputDescription,
+                  wrapMode,
+                  tileAnimations,
+                  invertY) { }
 
         public TileBatch2D(
             int mapWidth, int mapHeight, int tileWidth, int tileHeight,
             Texture2D atlasTexture,
             TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
-            Dictionary<int, TileAnimation> tileAnimations = null)
-            : this(mapWidth, mapHeight, tileWidth, tileHeight, atlasTexture, null, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, wrapMode, tileAnimations) { }
+            Dictionary<int, TileAnimation> tileAnimations = null,
+            bool invertY = false)
+            : this(mapWidth, mapHeight,
+                  tileWidth, tileHeight,
+                  atlasTexture,
+                  null,
+                  ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+                  wrapMode,
+                  tileAnimations,
+                  invertY) { }
 
         public unsafe TileBatch2D(
             int mapWidth, int mapHeight, int tileWidth, int tileHeight,
@@ -159,7 +175,8 @@ namespace ElementEngine
             Vector2? viewportSize,
             OutputDescription output,
             TileBatch2DWrapMode wrapMode = TileBatch2DWrapMode.None,
-            Dictionary<int, TileAnimation> tileAnimations = null)
+            Dictionary<int, TileAnimation> tileAnimations = null,
+            bool invertY = false)
         {
             MapWidth = mapWidth;
             MapHeight = mapHeight;
@@ -243,7 +260,7 @@ namespace ElementEngine
                     .Replace("{WRAP_Y}", wrapY ? "true" : "false")
                     ), "main");
 
-                _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
+                _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: invertY));
                 _cachedShaders.Add(shaderKey, _shaders);
             }
 

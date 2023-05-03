@@ -66,8 +66,6 @@ namespace ElementEngine
             if (!_loaded)
                 return;
 
-            SpriteBatch2D.CleanupStaticResources();
-
             CommandList?.Dispose();
             CommandList = null;
 

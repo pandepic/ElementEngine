@@ -114,7 +114,7 @@ namespace ElementEngine
                         if (_animationLoopCount != LOOP_FOREVER)
                             _animationLoopCount--;
 
-                        SetFrame((int)CurrentAnimation.Frames[CurrentFrameIndex]);
+                        SetFrame(CurrentAnimation.Frames[CurrentFrameIndex]);
                     }
                     else if (_animationLoopCount <= 0)
                     {
@@ -123,7 +123,7 @@ namespace ElementEngine
                 }
                 else
                 {
-                    SetFrame((int)CurrentAnimation.Frames[CurrentFrameIndex]);
+                    SetFrame(CurrentAnimation.Frames[CurrentFrameIndex]);
                 }
             }
         } // Update
