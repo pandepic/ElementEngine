@@ -50,7 +50,7 @@ namespace ElementEngine
 
             return Convert.ToInt32(hashValueStr.Substring(0, 8), 16);
 
-        } // GetSeedFromString
+        }
 
         public static Vector2 GetPointOnBezierCurve(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)
         {
@@ -67,7 +67,7 @@ namespace ElementEngine
                 (t3) * p3;
 
             return result;
-        } // GetPointOnBezierCurve
+        }
 
         public static Vector2 GetPointOnBezierCurve(Vector2 p0, Vector2 p1, Vector2 p2, float t)
         {
@@ -81,7 +81,7 @@ namespace ElementEngine
                 (t2) * p2;
 
             return result;
-        } // GetPointOnBezierCurve
+        }
 
         public static float Clamp(float value, float min, float max)
         {
@@ -159,9 +159,7 @@ namespace ElementEngine
         public static Vector2 RotatePointAroundOrigin(Vector2 point, Vector2 origin, float rotation)
         {
             var offset = point - origin;
-
-            var cosTheta = (float)Math.Cos(rotation);
-            var sinTheta = (float)Math.Sin(rotation);
+            var (sinTheta, cosTheta) = MathF.SinCos(rotation);
 
             var rotatedOffset = new Vector2(offset.X * cosTheta - offset.Y * sinTheta, offset.X * sinTheta + offset.Y * cosTheta);
             var rotatedPoint = origin + rotatedOffset;

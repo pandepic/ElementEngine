@@ -49,7 +49,7 @@ namespace ElementEngine
         protected DeviceBuffer _transformBuffer;
         protected ResourceLayout _transformLayout;
         protected ResourceSet _transformSet;
-        
+
         protected DeviceBuffer _animationBuffer;
         protected ResourceLayout _animationLayout;
         protected ResourceSet _animationSet;
@@ -256,8 +256,8 @@ namespace ElementEngine
                 var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment,
                     Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS
                     .Replace("{ANIM_COUNT}", _animationOffsets.Length.ToString())
-                    .Replace("{WRAP_X}", wrapX ? "true" : "false")
-                    .Replace("{WRAP_Y}", wrapY ? "true" : "false")
+                    .Replace("{WRAP_X}", wrapX ? "": "if (fTexCoord.x < 0 || fTexCoord.x > 1) { discard; }")
+                    .Replace("{WRAP_Y}", wrapY ? "": "if (fTexCoord.y < 0 || fTexCoord.y > 1) { discard; }")
                     ), "main");
 
                 _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: invertY));
@@ -266,6 +266,7 @@ namespace ElementEngine
 
             // transform uniforms
             _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector2) * _transformBufferData.Length), BufferUsage.UniformBuffer));
+            _transformBuffer.Name = "TransformBuffer";
             GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _transformBufferData);
 
             _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("TransformBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)));
@@ -273,6 +274,7 @@ namespace ElementEngine
 
             // animation uniforms
             _animationBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector4) * _animationOffsets.Length), BufferUsage.UniformBuffer));
+            _animationBuffer.Name = "AnimationBuffer";
             GraphicsDevice.UpdateBuffer(_animationBuffer, 0, _animationOffsets);
 
             _animationLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("AnimationBuffer", ResourceKind.UniformBuffer, ShaderStages.Fragment)));

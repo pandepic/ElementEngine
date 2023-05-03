@@ -172,8 +172,14 @@ namespace ElementEngine
         public readonly BlendStateDescription BlendState;
         public readonly OutputDescription Output;
 
+        #region IDisposable
+        protected bool _isDisposed = false;
+
         public void Dispose()
         {
+            if (_isDisposed)
+                return;
+
             Pipeline?.Dispose();
             Shader?.Dispose();
 
@@ -182,7 +188,10 @@ namespace ElementEngine
 
             foreach (var texture in PipelineTextures)
                 texture?.Dispose();
+
+            _isDisposed = true;
         }
+        #endregion
 
         public SimplePipeline(GraphicsDevice graphicsDevice, SimpleShader shader, OutputDescription output, BlendStateDescription blendState, FaceCullMode cullMode)
         {

@@ -85,36 +85,22 @@ namespace ElementEngine
         protected Dictionary<uint, Stack<Rectangle?>> _scissorStack = new Dictionary<uint, Stack<Rectangle?>>();
 
         #region IDisposable
-        protected bool _disposed = false;
+        protected bool _isDisposed = false;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            if (_isDisposed)
+                return;
 
-        protected void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    //_pipeline?.Dispose();
-                    _vertexBuffer?.Dispose();
-                    _indexBuffer?.Dispose();
-                    //_transformBuffer?.Dispose();
-                    //_transformLayout?.Dispose();
-                    //_transformSet?.Dispose();
-                    //_textureLayout?.Dispose();
+            _vertexBuffer?.Dispose();
+            _indexBuffer?.Dispose();
 
-                    _simplePipeline?.Dispose();
+            _simplePipeline?.Dispose();
 
-                    foreach (var set in _textureSets)
-                        set.Value?.Dispose();
-                }
+            foreach (var set in _textureSets)
+                set.Value?.Dispose();
 
-                _disposed = true;
-            }
+            _isDisposed = true;
         }
         #endregion
 
@@ -132,7 +118,7 @@ namespace ElementEngine
 
             InvertY = invertY;
             SetViewSize(new Vector2(width, height));
-            
+
             if (simplePipeline == null)
                 simplePipeline = GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, output, null);
 
@@ -185,17 +171,17 @@ namespace ElementEngine
 
         } // SpriteBatch2D
 
-        ~SpriteBatch2D()
-        {
-            Dispose(false);
-        }
-
         public void SetViewSize(Vector2 size)
         {
             _projection = Matrix4x4.CreateOrthographicOffCenter(0f, size.X, size.Y, 0f, 0f, 1f);
 
             if (InvertY && !GraphicsDevice.IsUvOriginTopLeft)
                 _projection = Matrix4x4.CreateOrthographicOffCenter(0f, size.X, 0f, size.Y, 0f, 1f);
+        }
+
+        public static SimplePipeline GetDefaultSimplePipeline(SimpleShader shader)
+        {
+            return GetDefaultSimplePipeline(shader.GraphicsDevice, shader.GraphicsDevice.SwapchainFramebuffer.OutputDescription, shader);
         }
 
         public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, Texture2D target, SimpleShader shader = null)
@@ -488,7 +474,7 @@ namespace ElementEngine
             AddQuad(texture, topLeft, topRight, bottomLeft, bottomRight);
 
         } // DrawTexture2D
-        
+
         public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, Rectangle? sourceRect = null, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
@@ -504,7 +490,7 @@ namespace ElementEngine
             var source = sourceRect.Value;
             var flipX = (flip == SpriteFlipType.Horizontal || flip == SpriteFlipType.Both);
             var flipY = (flip == SpriteFlipType.Vertical || flip == SpriteFlipType.Both);
-            
+
             AddQuad(
                 texture,
                 new Vertex2DPositionTexCoordsColor() // top left
@@ -588,7 +574,7 @@ namespace ElementEngine
             CommandList.SetVertexBuffer(0, _vertexBuffer);
             CommandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
             CommandList.SetPipeline(_pipeline);
-            
+
             CommandList.SetGraphicsResourceSet(resourceSetIndex, _transformSet);
             resourceSetIndex += 1;
 
@@ -625,7 +611,7 @@ namespace ElementEngine
                     resourceSetIndex += 1;
                 }
             }
-            
+
             CommandList.DrawIndexed((uint)(_currentBatchCount * IndicesPerQuad));
             _currentBatchCount = 0;
         }
