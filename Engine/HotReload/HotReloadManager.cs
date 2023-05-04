@@ -4,7 +4,7 @@ using System.IO;
 
 namespace ElementEngine
 {
-    public class FileHotReloadManager
+    public class FileHotReloadManager : IDisposable
     {
         public class HotReloadFile
         {
@@ -14,6 +14,21 @@ namespace ElementEngine
         }
 
         public List<HotReloadFile> Files = new();
+
+        private bool _isDisposed = false;
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+                return;
+
+            foreach (var f in Files)
+                f.Watcher.Dispose();
+
+            Files.Clear();
+
+            _isDisposed = true;
+        }
 
         public void WatchAsset(string assetName, Action onChanged, AssetManager assetManager = null)
         {
