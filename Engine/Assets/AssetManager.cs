@@ -263,6 +263,11 @@ namespace ElementEngine
             return assets;
         }
 
+        public Asset GetAsset(string assetName)
+        {
+            return _assetData[assetName];
+        }
+
         public T GetAsset<T>(string assetName)
         {
             return (T)_assetCache[assetName];
