@@ -96,7 +96,7 @@ namespace ElementEngine
             _indexBuffer?.Dispose();
 
             _simplePipeline?.Dispose();
-
+            
             foreach (var set in _textureSets)
                 set.Value?.Dispose();
 

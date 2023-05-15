@@ -243,7 +243,7 @@ namespace ElementEngine
             if (wrapMode == TileBatch2DWrapMode.Vertical || wrapMode == TileBatch2DWrapMode.Both)
                 wrapY = true;
 
-            var shaderKey = $"{_animationOffsets.Length}_{wrapX}_{wrapY}";
+            var shaderKey = $"{_animationOffsets.Length}_{wrapX}_{wrapY}_{invertY}";
 
             if (_cachedShaders.TryGetValue(shaderKey, out var shaders))
             {
