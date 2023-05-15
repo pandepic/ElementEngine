@@ -67,5 +67,5 @@ namespace ElementEngine
                 dest.Write(bytes, 0, count);
             }
         }
-    } // Compression
+    }
 }

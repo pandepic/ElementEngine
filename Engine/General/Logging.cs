@@ -35,8 +35,11 @@ namespace ElementEngine
         }
 
         [Conditional("DEBUG")]
-        public static void DebugBreak()
+        public static void DebugBreak(string message = null)
         {
+            if (!string.IsNullOrEmpty(message))
+                Debug(message);
+
             Debugger.Break();
         }
 

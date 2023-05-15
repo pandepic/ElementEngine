@@ -19,20 +19,11 @@ namespace ElementEngine.UI
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!_disposed)
+            if (Texture != null)
             {
-                if (disposing)
-                {
-                    Texture?.Dispose();
-                }
-
-                _disposed = true;
+                IMGUIManager.RemoveTexture(Texture);
+                Texture.Dispose();
+                Texture = null;
             }
         }
         #endregion

@@ -11,14 +11,27 @@ namespace ElementEngine.UI
         public string Label;
 
         protected int _selectedIndex;
+        protected bool _emptyOption;
+
         public int SelectedIndex { get => _selectedIndex; protected set => _selectedIndex = value; }
         public T SelectedValue => (T)Enum.Parse(typeof(T), TypeNames[_selectedIndex]);
         public string SelectedName => TypeNames[_selectedIndex];
+        public bool IsEmptyOption => _emptyOption ? _selectedIndex == 0 : false;
 
-        public IMGUIEnumCombo(string label)
+        public IMGUIEnumCombo(string label, bool emptyOption = false)
         {
+            _emptyOption = emptyOption;
+
             Label = label;
             TypeNames = Enum.GetNames(typeof(T));
+
+            if (_emptyOption)
+            {
+                var newNames = new string[TypeNames.Length + 1];
+                newNames[0] = "";
+                TypeNames.CopyTo(newNames, 1);
+                TypeNames = newNames;
+            }
         }
 
         public void Draw()
@@ -51,5 +64,5 @@ namespace ElementEngine.UI
             return false;
         }
 
-    } // IMGUIEnumCombo
+    }
 }

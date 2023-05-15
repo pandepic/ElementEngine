@@ -10,8 +10,9 @@ namespace ElementEngine.UI
         private static List<string> _textureExtensions = new List<string>() { "png", "jpg", "jpeg" };
         private static List<string> _tempStringList = new List<string>();
 
-        private static Dictionary<string, IntPtr> _cachedTexturePtrs = new Dictionary<string, IntPtr>();
-        private static Dictionary<string, List<string>> _selectedAssets = new Dictionary<string, List<string>>();
+        private static Dictionary<string, IntPtr> _cachedTexturePtrs = new();
+        private static Dictionary<string, List<string>> _selectedAssets = new();
+        private static Dictionary<string, string> _nameFilters = new();
 
         private static Texture2D _selectedTextureBG = new Texture2D(1, 1, new Veldrid.RgbaByte(255, 0, 0, 80));
         private static IntPtr _selectedTextureBGPtr;
@@ -56,10 +57,23 @@ namespace ElementEngine.UI
                     selectedTextures = _selectedAssets[name];
                 }
 
+                if (!_nameFilters.TryGetValue(name, out var nameFilter))
+                {
+                    nameFilter = "";
+                    _nameFilters.Add(name, nameFilter);
+                }
+
+                ImGui.InputText("Name Filter", ref nameFilter, 200);
+                _nameFilters[name] = nameFilter;
+                ImGui.NewLine();
+
                 var textures = 0;
 
                 foreach (var asset in textureAssets)
                 {
+                    if (!string.IsNullOrEmpty(nameFilter) && !asset.ToUpper().Contains(nameFilter.ToUpper()))
+                        continue;
+
                     var texture = AssetManager.Instance.LoadTexture2D(asset);
 
                     if (!_cachedTexturePtrs.TryGetValue(asset, out var texturePtr))
