@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
+﻿using System.Numerics;
 
 namespace ElementEngine
 {
@@ -20,7 +17,7 @@ namespace ElementEngine
                 CheckBoundingBox();
             }
         }
-        
+
         protected Rectangle _view = Rectangle.Empty;
         public Rectangle View
         {
@@ -124,6 +121,11 @@ namespace ElementEngine
                     Matrix4x4.CreateTranslation(new Vector3(Origin.ToVector2I().ToVector2(), z));
         }
 
+        public void Center(Rectangle rect)
+        {
+            Center(rect.Center.ToVector2());
+        }
+
         public void Center(Vector2I position)
         {
             Center(position.ToVector2());
@@ -161,8 +163,7 @@ namespace ElementEngine
 
             _view.X = (int)_position.X;
             _view.Y = (int)_position.Y;
-
-        } // CheckBoundingBox
+        }
 
         public Vector2 ScreenToWorld(Vector2 position)
         {
@@ -197,6 +198,5 @@ namespace ElementEngine
         {
             return _view.ToString();
         }
-
-    } // Camera2D
+    }
 }

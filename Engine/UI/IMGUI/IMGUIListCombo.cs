@@ -12,6 +12,7 @@ namespace ElementEngine.UI
         public List<T> List;
 
         public bool IsEmpty => List.Count == 0;
+        public bool IsEmptyOption => _emptyOption ? SelectedIndex == 0 : false;
 
         protected string[] _data;
         protected int _selectedIndex = 0;
