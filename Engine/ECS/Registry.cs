@@ -517,14 +517,13 @@ namespace ElementEngine.ECS
         #endregion
 
         #region Create view
-
         public ViewBuilder BuildView()
         {
             _viewBuilder.Clear();
             return _viewBuilder;
         }
 
-        public List<Entity> GetView(HashSet<Type> includeComponents, HashSet<Type> excludeComponents)
+        public List<Entity> GetView(HashSet<Type> includeComponents, HashSet<Type> excludeComponents, List<Entity> entities)
         {
             if (includeComponents == null || includeComponents.Count == 0)
                 return null;
@@ -545,7 +544,6 @@ namespace ElementEngine.ECS
 
             includeComponents.Remove(firstType);
 
-            var entities = GlobalObjectPool<List<Entity>>.Rent();
             entities.Clear();
 
             for (var i = 0; i < firstStore.GetSize(); i++)
@@ -592,8 +590,6 @@ namespace ElementEngine.ECS
 
             return entities;
         }
-
         #endregion
-
-    } // Registry
+    }
 }

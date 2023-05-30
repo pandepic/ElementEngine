@@ -127,8 +127,6 @@ namespace ElementEngine
                         }
                     }
                 }
-
-                GlobalObjectPool.Return(entityView);
             }
 
             ImGui.End();

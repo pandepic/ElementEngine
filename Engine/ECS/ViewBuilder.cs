@@ -14,6 +14,8 @@ namespace ElementEngine.ECS
         private HashSet<Type> _includedTypes = new();
         private HashSet<Type> _excludedTypes = new();
 
+        internal List<Entity> Entities = new();
+
         public ViewBuilder(Registry registry)
         {
             _registry = registry;
@@ -23,6 +25,7 @@ namespace ElementEngine.ECS
         {
             _includedTypes.Clear();
             _excludedTypes.Clear();
+            Entities.Clear();
         }
 
         public ViewBuilder Include<T>() where T : struct
@@ -49,7 +52,7 @@ namespace ElementEngine.ECS
 
         public List<Entity> Build()
         {
-            return _registry.GetView(_includedTypes, _excludedTypes);
+            return _registry.GetView(_includedTypes, _excludedTypes, Entities);
         }
     }
 }

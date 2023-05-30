@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ElementEngine.ElementUI
+﻿namespace ElementEngine.ElementUI
 {
+    // TODO : auto handle column widths properly
     public class UILayoutGrid : UIObject
     {
         public UISpacing CellPadding;
@@ -34,7 +29,8 @@ namespace ElementEngine.ElementUI
 
             foreach (var child in Children)
             {
-                if ((!AutoWidth && (currentPos + new Vector2I(CellPadding.Left + CellPadding.Right + child.Width, 0)).X > Width) || (MaxColumns.HasValue && currentRowColumns >= MaxColumns.Value))
+                if ((!AutoWidth && (currentPos + new Vector2I(CellPadding.Left + CellPadding.Right + child.Width, 0)).X > Width)
+                    || (MaxColumns.HasValue && currentRowColumns >= MaxColumns.Value))
                 {
                     currentPos.Y += CellPadding.Top;
                     currentPos.Y += currentRowHeight;

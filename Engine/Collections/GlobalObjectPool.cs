@@ -18,6 +18,8 @@ namespace ElementEngine
         {
             if (obj == null)
                 return;
+            if (GlobalObjectPool<T>.Buffer.Contains(obj))
+                return;
 
             GlobalObjectPool<T>.Return(obj);
         }

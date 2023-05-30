@@ -97,6 +97,12 @@ namespace ElementEngine
             return list[rng.Next(0, list.Count)];
         }
 
+        public static T GetRandomItem<T>(this T[] array, Random rng = null)
+        {
+            rng ??= _rng;
+            return array[rng.Next(0, array.Length)];
+        }
+
         public static void Shuffle<T>(this List<T> list, Random rng = null)
         {
             rng ??= _rng;
