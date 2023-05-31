@@ -38,6 +38,10 @@ namespace ElementEngine
 
     public class TileBatch2D : IDisposable
     {
+        public const byte EMPTY_TILE_X = 255;
+        public const byte EMPTY_TILE_Y = 255;
+        public const int EMPTY_TILE_INDEX = -1;
+
         public Sdl2Window Window => ElementGlobals.Window;
         public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
         public CommandList CommandList => ElementGlobals.CommandList;
@@ -350,7 +354,7 @@ namespace ElementEngine
                 for (var x = 0; x < MapWidth; x++)
                 {
                     var index = x + MapWidth * y;
-                    _dataArray[index] = new RgbaByte(255, 255, 0, 255);
+                    _dataArray[index] = new RgbaByte(EMPTY_TILE_X, EMPTY_TILE_Y, 0, 255);
                 }
             }
         } // ClearDataArray
@@ -361,10 +365,20 @@ namespace ElementEngine
             SetTileAtIndex(index, x, y, animIndex);
         }
 
-        public void SetTileAtPosition(int posx, int posy, int tileIndex)
+        public (byte X, byte Y) TileIndexToXY(int tileIndex)
         {
+            if (tileIndex == EMPTY_TILE_INDEX)
+                return (EMPTY_TILE_X, EMPTY_TILE_Y);
+
             byte x = (byte)(tileIndex % TileSheetTilesWidth);
             byte y = (byte)(tileIndex / TileSheetTilesWidth);
+
+            return (x, y);
+        }
+
+        public void SetTileAtPosition(int posx, int posy, int tileIndex)
+        {
+            var (x, y) = TileIndexToXY(tileIndex);
 
             byte animIndex = 0;
             if (_animationLookup.TryGetValue(tileIndex, out var animation))
@@ -375,8 +389,7 @@ namespace ElementEngine
 
         public void SetTileAtIndex(int index, int tileIndex)
         {
-            byte x = (byte)(tileIndex % TileSheetTilesWidth);
-            byte y = (byte)(tileIndex / TileSheetTilesWidth);
+            var (x, y) = TileIndexToXY(tileIndex);
 
             SetTileAtIndex(index, x, y);
         }
@@ -392,8 +405,7 @@ namespace ElementEngine
 
         public void UpdateTileAtPosition(int posx, int posy, int tileIndex, int layer)
         {
-            byte x = (byte)(tileIndex % TileSheetTilesWidth);
-            byte y = (byte)(tileIndex / TileSheetTilesWidth);
+            var (x, y) = TileIndexToXY(tileIndex);
 
             byte animIndex = 0;
             if (_animationLookup.TryGetValue(tileIndex, out var animation))
@@ -404,8 +416,8 @@ namespace ElementEngine
 
         public void UpdateTileAtIndex(int index, int tileIndex, int layer)
         {
-            byte x = (byte)(tileIndex % TileSheetTilesWidth);
-            byte y = (byte)(tileIndex / TileSheetTilesWidth);
+            var (x, y) = TileIndexToXY(tileIndex);
+
             int posx = index % MapWidth;
             int posy = index / MapWidth;
 
@@ -420,7 +432,7 @@ namespace ElementEngine
 
         public void ClearTileAtPosition(int posx, int posy, int layer)
         {
-            _updateTileBuffer[0] = new RgbaByte(255, 255, 0, 255);
+            _updateTileBuffer[0] = new RgbaByte(EMPTY_TILE_X, EMPTY_TILE_Y, 0, 255);
             Layers[layer].DataTexture.SetData(_updateTileBuffer, new Rectangle(posx, posy, 1, 1));
         }
 
@@ -429,7 +441,7 @@ namespace ElementEngine
             var buffer = new RgbaByte[area.Width * area.Height];
 
             for (var i = 0; i < buffer.Length; i++)
-                buffer[i] = new RgbaByte(255, 255, 0, 255);
+                buffer[i] = new RgbaByte(EMPTY_TILE_X, EMPTY_TILE_Y, 0, 255);
 
             Layers[layer].DataTexture.SetData(buffer, area);
         }
@@ -447,12 +459,11 @@ namespace ElementEngine
 
                     if (tileIndex < 0)
                     {
-                        buffer[index] = new RgbaByte(255, 255, 0, 255);
+                        buffer[index] = new RgbaByte(EMPTY_TILE_X, EMPTY_TILE_Y, 0, 255);
                     }
                     else
                     {
-                        byte x = (byte)(tileIndex % TileSheetTilesWidth);
-                        byte y = (byte)(tileIndex / TileSheetTilesWidth);
+                        var (x, y) = TileIndexToXY(tileIndex);
 
                         byte animIndex = 0;
                         if (_animationLookup.TryGetValue(tileIndex, out var animation))
