@@ -10,9 +10,25 @@ namespace ElementEngine
     {
         public ObjectPool<AStarNode> NodePool = new ObjectPool<AStarNode>(1000, true);
         public bool IsLazyLoaded { get; protected set; }
+        public float DiagonalPenalty = 1f;
 
         public abstract AStarNode GetNode(Vector2I position, Vector2I start, Vector2I end);
         public abstract void AddNodeEdges(AStarNode node, Vector2I start, Vector2I end);
+
+        public virtual float GetNodePenalty(AStarNode node)
+        {
+            if (DiagonalPenalty == 0f)
+                return 0f;
+
+            if (node._parent != null)
+            {
+                var offset = node._parent.Position - node.Position;
+                if (offset.X != 0 && offset.Y != 0)
+                    return DiagonalPenalty;
+            }
+
+            return 0f;
+        }
 
         public virtual void Reset()
         {
@@ -40,6 +56,7 @@ namespace ElementEngine
             else
                 node._g = node._parent._g + 1f + node.MovementCost;
 
+            node._g += GetNodePenalty(node);
             node._h = GetNodeHeuristic(node, end);
             node._f = node._g + node._h;
         }
