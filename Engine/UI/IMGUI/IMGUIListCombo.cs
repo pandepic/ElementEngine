@@ -8,7 +8,7 @@ namespace ElementEngine.UI
     {
         public string Label;
 
-        private List<T> _sourceData;
+        protected List<T> _sourceData;
         public List<T> SourceData
         {
             get => _sourceData;
@@ -17,11 +17,11 @@ namespace ElementEngine.UI
 
         private List<T> _filteredData = new List<T>();
 
-        private bool _emptyOption;
-        public bool EmptyOption
+        private bool _hasEmptyOption;
+        public bool HasEmptyOption
         {
-            get => _emptyOption;
-            set { _emptyOption = value; Reload(); }
+            get => _hasEmptyOption;
+            set { _hasEmptyOption = value; Reload(); }
         }
 
         private bool _showFilter;
@@ -45,14 +45,14 @@ namespace ElementEngine.UI
         public int SelectedIndex { get => _comboIndex; }
         public string SelectedName { get => SelectedValue?.ToString() ?? null; }
 
-        public bool IsEmpty => !_emptyOption ? false : _comboIndex == 0;
+        public bool IsEmpty => !_hasEmptyOption ? false : _comboIndex == 0;
 
         public IMGUIListCombo(string label, List<T> list, bool emptyOption = false, bool showFilter = false)
         {
             Label = label;
             SourceData = list;
 
-            _emptyOption = emptyOption;
+            _hasEmptyOption = emptyOption;
             _showFilter = showFilter;
 
             Reload();
@@ -68,12 +68,13 @@ namespace ElementEngine.UI
             return _filteredData[_comboIndex];
         }
 
-        private void Reload()
+        protected void Reload()
         {
             T prevSelected = GetSelectedValue();
 
             _filteredData.Clear();
-            _filteredData.AddRange(SourceData);
+            if (SourceData != null)
+                _filteredData.AddRange(SourceData);
 
             if (_showFilter && !string.IsNullOrEmpty(_filter))
             {
@@ -84,14 +85,20 @@ namespace ElementEngine.UI
                 }
             }
 
-            if (_emptyOption)
+            if (_hasEmptyOption)
                 _filteredData.Insert(0, default);
 
             if (_comboData == null || _comboData.Length < _filteredData.Count)
                 _comboData = new string[_filteredData.Count];
 
-            for (var i = 0; i < _filteredData.Count; i++)
-                _comboData[i] = _filteredData[i]?.ToString() ?? "";
+            if (_comboData.Length > 0)
+            {
+                for (var i = 0; i < _filteredData.Count; i++)
+                    _comboData[i] = _filteredData[i]?.ToString() ?? "";
+
+                if (_hasEmptyOption)
+                    _comboData[0] = "";
+            }
 
             if (prevSelected != null)
             {
