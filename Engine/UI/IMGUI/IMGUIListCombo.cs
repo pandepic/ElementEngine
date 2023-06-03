@@ -3,97 +3,133 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ElementEngine.UI
 {
     public class IMGUIListCombo<T>
     {
         public string Label;
-        public List<T> List;
 
-        public bool IsEmpty => List.Count == 0;
-        public bool IsEmptyOption => _emptyOption ? SelectedIndex == 0 : false;
-
-        protected string[] _data;
-        protected int _selectedIndex = 0;
-        protected bool _emptyOption;
-
-        public int SelectedIndex { get => _selectedIndex; protected set => _selectedIndex = value; }
-        public T SelectedValue => _emptyOption ? (SelectedIndex == 0 ? default : List[_selectedIndex - 1]) : List[_selectedIndex];
-        public string SelectedName => _data[_selectedIndex];
-
-        public bool ShowFilter;
-        public string Filter = "";
-
-        public IMGUIListCombo(string label, List<T> list, bool emptyOption = false)
+        private List<T> _sourceData;
+        public List<T> SourceData
         {
-            _emptyOption = emptyOption;
-
-            Label = label;
-            List = list;
-
-            RefreshData();
+            get => _sourceData;
+            set { _sourceData = value; Reload(); }
         }
 
-        public void RefreshData()
-        {
-            if (List == null)
-                return;
+        private List<T> _filteredData = new List<T>();
 
-            _data = new string[List.Count + (_emptyOption ? 1 : 0)];
+        private bool _emptyOption;
+        public bool EmptyOption
+        {
+            get => _emptyOption;
+            set { _emptyOption = value; Reload(); }
+}
+
+        private bool _showFilter;
+        public bool ShowFilter
+        {
+            get => _showFilter;
+            set { _showFilter = value; Reload(); }
+}
+
+        private string _filter = "";
+        public string Filter
+        {
+            get => _filter;
+            set { _filter = value; Reload(); }
+        }
+
+        public string[] _comboData;
+        public int _comboIndex;
+
+        public T SelectedValue => GetSelectedValue();
+
+        public bool IsEmpty => !_emptyOption ? false : _comboIndex == 0;
+
+        public IMGUIListCombo(string label, List<T> list, bool emptyOption = false, bool showFilter = false)
+        {
+            Label = label;
+            SourceData = list;
+
+            _emptyOption = emptyOption;
+            _showFilter = showFilter;
+
+            Reload();
+        }
+
+        private T GetSelectedValue()
+        {
+            if (_comboData == null || _comboIndex < 0 || _comboIndex >= _comboData.Length)
+                return default;
+            if (IsEmpty)
+                return default;
+
+            return _filteredData[_comboIndex];
+        }
+
+        private void Reload()
+        {
+            T prevSelected = GetSelectedValue();
+
+            _filteredData.Clear();
+            _filteredData.AddRange(SourceData);
+
+            if (_showFilter && !string.IsNullOrEmpty(_filter))
+            {
+                for (var i = _filteredData.Count - 1; i >= 0; i--)
+                {
+                    if (!_filteredData[i].ToString().Contains(_filter, StringComparison.InvariantCultureIgnoreCase))
+                        _filteredData.RemoveAt(i);
+                }
+            }
 
             if (_emptyOption)
-                _data[0] = "";
+                _filteredData.Insert(0, default);
 
-            for (var i = 0; i < List.Count; i++)
-                _data[i + (_emptyOption ? 1 : 0)] = List[i].ToString();
+            _comboData = new string[_filteredData.Count];
 
-            if (_selectedIndex >= _data.Length)
-                _selectedIndex = _data.Length - 1;
+            for (var i = 0; i < _filteredData.Count; i++)
+                _comboData[i] = _filteredData[i]?.ToString() ?? "";
 
-            if (_selectedIndex < 0)
-                _selectedIndex = 0;
+            if (prevSelected != null)
+            {
+                _comboIndex = _filteredData.IndexOf(prevSelected);
+
+                if (_comboIndex < 0)
+                    _comboIndex = 0;
+            }
         }
 
         public void Draw()
         {
-            var data = _data;
+            if (_showFilter)
+            {
+                if (ImGui.InputText($"Filter##{Label}_Filter", ref _filter, 200))
+                    Reload();
+            }
 
-            if (ShowFilter && !string.IsNullOrEmpty(Filter))
-                data = data.Where(d => d.ToUpper().Contains(Filter.ToUpper())).ToArray();
-
-            if (ShowFilter)
-                ImGui.InputText($"Filter##{Label}_Filter", ref Filter, 200);
-
-            if (_selectedIndex >= data.Length)
-                _selectedIndex = 0;
-
-            ImGui.Combo(Label, ref _selectedIndex, data, data.Length);
+            ImGui.Combo(Label, ref _comboIndex, _comboData, _comboData.Length);
         }
 
         public bool TrySetIndex(int index)
         {
-            if (index < 0 || index >= _data.Length)
+            if (index < 0 || index >= _comboData.Length)
                 return false;
 
-            _selectedIndex = index;
+            _comboIndex = index;
             return true;
         }
 
         public bool TrySetValue(T value)
         {
-            return TrySetValue(value.ToString());
+            return TrySetIndex(_filteredData.IndexOf(value));
         }
 
         public bool TrySetValue(string value)
         {
-            for (var i = 0; i < _data.Length; i++)
-            {
-                if (_data[i] == value)
-                    return TrySetIndex(i);
-            }
-
-            return false;
+            return TrySetIndex(Array.IndexOf(_comboData, value));
         }
     }
 }

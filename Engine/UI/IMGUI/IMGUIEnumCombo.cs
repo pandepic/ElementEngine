@@ -16,7 +16,7 @@ namespace ElementEngine.UI
         public int SelectedIndex { get => _selectedIndex; protected set => _selectedIndex = value; }
         public T SelectedValue => (T)Enum.Parse(typeof(T), TypeNames[_selectedIndex]);
         public string SelectedName => TypeNames[_selectedIndex];
-        public bool IsEmptyOption => _emptyOption ? _selectedIndex == 0 : false;
+        public bool IsEmpty => _emptyOption ? _selectedIndex == 0 : false;
 
         public IMGUIEnumCombo(string label, bool emptyOption = false)
         {
