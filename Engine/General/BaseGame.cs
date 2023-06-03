@@ -61,6 +61,8 @@ namespace ElementEngine
                 if (disposing)
                 {
                     ElementGlobals.Unload();
+                    TileBatch2D.DisposeCache();
+
                     Unload();
                 }
 

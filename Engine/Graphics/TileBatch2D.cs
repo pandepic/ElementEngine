@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Text;
 using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.SPIRV;
-using Vulkan;
 
 namespace ElementEngine
 {
@@ -128,16 +124,19 @@ namespace ElementEngine
                     _textureLayoutData?.Dispose();
                     _textureLayoutAtlas?.Dispose();
 
-                    if (_shaders != null)
-                    {
-                        for (var i = 0; i < _shaders.Length; i++)
-                            _shaders[i]?.Dispose();
-                    }
-
                     ClearLayers();
                 }
 
                 _disposed = true;
+            }
+        }
+
+        public static void DisposeCache()
+        {
+            foreach (var (_, shaders) in _cachedShaders)
+            {
+                foreach (var shader in shaders)
+                    shader.Dispose();
             }
         }
         #endregion
@@ -156,7 +155,8 @@ namespace ElementEngine
                   targetTexture.GetFramebuffer().OutputDescription,
                   wrapMode,
                   tileAnimations,
-                  invertY) { }
+                  invertY)
+        { }
 
         public TileBatch2D(
             int mapWidth, int mapHeight, int tileWidth, int tileHeight,
@@ -171,7 +171,8 @@ namespace ElementEngine
                   ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
                   wrapMode,
                   tileAnimations,
-                  invertY) { }
+                  invertY)
+        { }
 
         public unsafe TileBatch2D(
             int mapWidth, int mapHeight, int tileWidth, int tileHeight,
@@ -184,13 +185,13 @@ namespace ElementEngine
         {
             MapWidth = mapWidth;
             MapHeight = mapHeight;
-            
+
             ViewportSize = viewportSize ?? new Vector2(Window.Width, Window.Height);
             ScaledViewportSize = ViewportSize;
 
             TileSize = new Vector2(tileWidth, tileHeight);
             InverseTileSize = new Vector2(1f / tileWidth, 1f / tileHeight);
-            
+
             AtlasTexture = atlasTexture;
 
             TileSheetTilesWidth = AtlasTexture.Width / tileWidth;
@@ -260,8 +261,8 @@ namespace ElementEngine
                 var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment,
                     Encoding.UTF8.GetBytes(DefaultShaders.DefaultTileFS
                     .Replace("{ANIM_COUNT}", _animationOffsets.Length.ToString())
-                    .Replace("{WRAP_X}", wrapX ? "": "if (fTexCoord.x < 0 || fTexCoord.x > 1) { discard; }")
-                    .Replace("{WRAP_Y}", wrapY ? "": "if (fTexCoord.y < 0 || fTexCoord.y > 1) { discard; }")
+                    .Replace("{WRAP_X}", wrapX ? "" : "if (fTexCoord.x < 0 || fTexCoord.x > 1) { discard; }")
+                    .Replace("{WRAP_Y}", wrapY ? "" : "if (fTexCoord.y < 0 || fTexCoord.y > 1) { discard; }")
                     ), "main");
 
                 _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: invertY));

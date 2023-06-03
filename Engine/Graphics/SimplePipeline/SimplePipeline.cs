@@ -18,6 +18,8 @@ namespace ElementEngine
         public readonly BlendStateDescription BlendState;
         public readonly OutputDescription Output;
 
+        public bool CanDisposeShader = true;
+
         #region IDisposable
         protected bool _isDisposed = false;
 
@@ -27,7 +29,9 @@ namespace ElementEngine
                 return;
 
             Pipeline?.Dispose();
-            Shader?.Dispose();
+
+            if (CanDisposeShader)
+                Shader?.Dispose();
 
             foreach (var buffer in UniformBuffers)
                 buffer?.Dispose();

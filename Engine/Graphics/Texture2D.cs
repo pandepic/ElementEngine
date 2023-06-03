@@ -249,7 +249,6 @@ namespace ElementEngine
 
             var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
-
         }
 
         #region Render target methods
@@ -267,7 +266,6 @@ namespace ElementEngine
             }
 
             return _framebuffer;
-
         }
 
         public void BeginRenderTarget(CommandList commandList = null)
@@ -277,7 +275,6 @@ namespace ElementEngine
 
             commandList.SetFramebuffer(GetFramebuffer());
             commandList.SetViewport(0, new Viewport(0, 0, Width, Height, 0f, 1f));
-
         }
 
         public void EndRenderTarget(CommandList commandList = null)
@@ -295,7 +292,6 @@ namespace ElementEngine
                 commandList = ElementGlobals.CommandList;
 
             commandList.ClearColorTarget(0, color);
-
         }
 
         public SpriteBatch2D GetRenderTargetSpriteBatch2D(CommandList commandList = null)
@@ -310,6 +306,5 @@ namespace ElementEngine
             return _renderTargetSpriteBatch2D;
         }
         #endregion
-
-    } // Texture2D
+    }
 }

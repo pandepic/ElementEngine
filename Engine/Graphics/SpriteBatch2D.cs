@@ -96,7 +96,7 @@ namespace ElementEngine
             _indexBuffer?.Dispose();
 
             _simplePipeline?.Dispose();
-            
+
             foreach (var set in _textureSets)
                 set.Value?.Dispose();
 
@@ -168,8 +168,7 @@ namespace ElementEngine
 
             _indexBuffer = factory.CreateBuffer(new BufferDescription((uint)(indices.Length * sizeof(ushort)), BufferUsage.IndexBuffer));
             GraphicsDevice.UpdateBuffer(_indexBuffer, 0, ref indices[0], (uint)(indices.Length * sizeof(ushort)));
-
-        } // SpriteBatch2D
+        }
 
         public void SetViewSize(Vector2 size)
         {
@@ -201,6 +200,9 @@ namespace ElementEngine
                 output = ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
 
             var pipeline = new SimplePipeline(graphicsDevice, shader, output.Value, BlendStateDescription.SingleAlphaBlend, FaceCullMode.None);
+
+            if (shader == _defaultSimpleShader)
+                pipeline.CanDisposeShader = false;
 
             var viewProjectionBuffer = new SimpleUniformBuffer<Matrix4x4>(graphicsDevice, "ProjectionViewBuffer", 2, ShaderStages.Vertex | ShaderStages.Fragment);
             viewProjectionBuffer.SetValue(0, Matrix4x4.Identity);
