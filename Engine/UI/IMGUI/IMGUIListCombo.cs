@@ -1,9 +1,6 @@
-﻿using ImGuiNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using ImGuiNET;
 
 namespace ElementEngine.UI
 {
@@ -25,14 +22,14 @@ namespace ElementEngine.UI
         {
             get => _emptyOption;
             set { _emptyOption = value; Reload(); }
-}
+        }
 
         private bool _showFilter;
         public bool ShowFilter
         {
             get => _showFilter;
             set { _showFilter = value; Reload(); }
-}
+        }
 
         private string _filter = "";
         public string Filter
@@ -45,6 +42,8 @@ namespace ElementEngine.UI
         public int _comboIndex;
 
         public T SelectedValue => GetSelectedValue();
+        public int SelectedIndex { get => _comboIndex; }
+        public string SelectedName { get => SelectedValue?.ToString() ?? null; }
 
         public bool IsEmpty => !_emptyOption ? false : _comboIndex == 0;
 
@@ -61,7 +60,7 @@ namespace ElementEngine.UI
 
         private T GetSelectedValue()
         {
-            if (_comboData == null || _comboIndex < 0 || _comboIndex >= _comboData.Length)
+            if (_comboData == null || _comboIndex < 0 || _comboIndex >= _filteredData.Count)
                 return default;
             if (IsEmpty)
                 return default;
@@ -88,7 +87,8 @@ namespace ElementEngine.UI
             if (_emptyOption)
                 _filteredData.Insert(0, default);
 
-            _comboData = new string[_filteredData.Count];
+            if (_comboData == null || _comboData.Length < _filteredData.Count)
+                _comboData = new string[_filteredData.Count];
 
             for (var i = 0; i < _filteredData.Count; i++)
                 _comboData[i] = _filteredData[i]?.ToString() ?? "";
@@ -110,12 +110,12 @@ namespace ElementEngine.UI
                     Reload();
             }
 
-            ImGui.Combo(Label, ref _comboIndex, _comboData, _comboData.Length);
+            ImGui.Combo(Label, ref _comboIndex, _comboData, _filteredData.Count);
         }
 
         public bool TrySetIndex(int index)
         {
-            if (index < 0 || index >= _comboData.Length)
+            if (index < 0 || index >= _filteredData.Count)
                 return false;
 
             _comboIndex = index;
