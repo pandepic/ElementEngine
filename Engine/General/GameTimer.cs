@@ -6,21 +6,36 @@ namespace ElementEngine
 {
     public class GameTimer
     {
-        protected TimeSpan _frameTime;
-        public TimeSpan FrameTime { get => _frameTime; }
+        /// <summary>
+        /// Raw time ignoring time warp factor.
+        /// </summary>
+        public TimeSpan RawFrameTime;
+
+        public TimeSpan FrameTime;
         public float TimeWarpFactor = 1f;
 
         public float DeltaS { get => (float)FrameTime.TotalSeconds; }
         public float DeltaMS { get => (float)FrameTime.TotalMilliseconds; }
 
+        /// <summary>
+        /// Raw time ignoring time warp factor.
+        /// </summary>
+        public float RawDeltaS { get => (float)RawFrameTime.TotalSeconds; }
+
+        /// <summary>
+        /// Raw time ignoring time warp factor.
+        /// </summary>
+        public float RawDeltaMS { get => (float)RawFrameTime.TotalMilliseconds; }
+
         public GameTimer()
         {
-            _frameTime = TimeSpan.Zero;
+            FrameTime = TimeSpan.Zero;
         }
 
         public void SetFrameTime(TimeSpan frameTime)
         {
-            _frameTime = frameTime * TimeWarpFactor;
+            RawFrameTime = frameTime;
+            FrameTime = frameTime * TimeWarpFactor;
         }
     }
 }

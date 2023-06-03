@@ -85,7 +85,7 @@ namespace ElementEngine.UI
             if (InputManager.PrevSnapshot == null)
                 return;
 
-            Renderer.Update(gameTimer.DeltaS, InputManager.PrevSnapshot);
+            Renderer.Update(gameTimer.RawDeltaS, InputManager.PrevSnapshot);
 
             foreach (var (_, modal) in Modals)
             {
