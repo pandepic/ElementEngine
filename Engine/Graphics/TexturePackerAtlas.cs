@@ -78,8 +78,11 @@ namespace ElementEngine.TexturePacker
 
         public Dictionary<string, TexturePackerAtlasSprite> Sprites = new Dictionary<string, TexturePackerAtlasSprite>();
 
-        public TexturePackerAtlas(FileStream fs, string textureAsset, string dataAsset)
+        public TexturePackerAtlas(FileStream fs, string textureAsset, string dataAsset, AssetManager assetManager = null)
         {
+            if (assetManager == null)
+                assetManager = AssetManager.Instance;
+
             var serializer = new JsonSerializer();
             using var sr = new StreamReader(fs);
             using var jsonTextReader = new JsonTextReader(sr);
@@ -88,7 +91,7 @@ namespace ElementEngine.TexturePacker
             TextureAsset = textureAsset;
             DataAsset = dataAsset;
 
-            Texture = AssetManager.Instance.LoadTexture2D(TextureAsset);
+            Texture = assetManager.LoadTexture2D(TextureAsset);
 
             foreach (var frame in Data.frames)
                 Sprites.TryAdd(frame.filename, frame);
@@ -117,6 +120,5 @@ namespace ElementEngine.TexturePacker
                 throw new ArgumentException($"Sprite {sprite} doesn't exist within the atlas.", "sprite");
             }
         }
-
-    } // TexturePackerAtlas
+    }
 }

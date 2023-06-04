@@ -57,6 +57,11 @@ namespace ElementEngine
                 _disposed = true;
             }
         }
+
+        ~Texture2D()
+        {
+            Dispose(false);
+        }
         #endregion
 
         public Texture2D(Texture texture, string name = null)
@@ -88,11 +93,6 @@ namespace ElementEngine
         {
             var data = color.ToBuffer((int)(width * height));
             GraphicsDevice.UpdateTexture(_texture, data, 0, 0, 0, width, height, 1, 0, 0);
-        }
-
-        ~Texture2D()
-        {
-            Dispose(false);
         }
 
         private void Setup(string name = null)

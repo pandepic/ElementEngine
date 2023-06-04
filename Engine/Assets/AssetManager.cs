@@ -10,6 +10,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -48,9 +49,13 @@ namespace ElementEngine
 
         public string ModsPath { get; private set; }
 
-        public void Load(string modsPath, LoadAssetsMode? mode = null)
+        protected bool _useCache;
+        public bool UseCache { get => _useCache; }
+
+        public void Load(string modsPath, LoadAssetsMode? mode = null, bool useCache = true)
         {
             ModsPath = modsPath;
+            _useCache = useCache;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -301,11 +306,40 @@ namespace ElementEngine
             stopWatch.Stop();
             Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
+
+        public bool TryGetFromCache<T>(string assetName, out T asset)
+        {
+            asset = default;
+
+            if (!UseCache)
+                return false;
+            if (!_assetCache.TryGetValue(assetName, out var assetObj))
+                return false;
+
+            if (assetObj is T t)
+            {
+                asset = t;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryAddToCache<T>(string assetName, T asset)
+        {
+            if (!UseCache)
+                return false;
+            if (_assetCache.ContainsKey(assetName))
+                return false;
+
+            _assetCache.Add(assetName, asset);
+            return true;
+        }
         
         public T LoadJSON<T>(string assetName, JsonSerializer serializer = null, List<JsonConverter> converters = null)
         {
-            if (_assetCache.ContainsKey(assetName))
-                return (T)_assetCache[assetName];
+            if (TryGetFromCache<T>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -324,9 +358,9 @@ namespace ElementEngine
 
             var obj = serializer.Deserialize<T>(jsonTextReader);
 
-            _assetCache.Add(assetName, obj);
-
+            TryAddToCache(assetName, obj);
             LogLoaded("JSON (" + typeof(T).ToString() + ")", assetName, stopWatch);
+
             return obj;
         }
 
@@ -334,20 +368,19 @@ namespace ElementEngine
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
-            if (_assetCache.ContainsKey(assetName))
-                return (Texture2D)_assetCache[assetName];
+            if (TryGetFromCache<Texture2D>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
             var newTexture = LoadTexture2DFromStream(fs, premultiply, assetName, false);
 
-            _assetCache.Add(assetName, newTexture);
-
+            TryAddToCache(assetName, newTexture);
             LogLoaded("Texture2D", assetName, stopWatch);
-            return newTexture;
 
-        } // LoadTexture2D
+            return newTexture;
+        }
 
         public Texture2D LoadTexture2DFromPath(string path, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
         {
@@ -373,77 +406,73 @@ namespace ElementEngine
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
-            if (_assetCache.ContainsKey(assetName))
-                return (SpriteFont)_assetCache[assetName];
+            if (TryGetFromCache<SpriteFont>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
             var newFont = new SpriteFont(fs);
 
-            _assetCache.Add(assetName, newFont);
+            TryAddToCache(assetName, newFont);
             LogLoaded("SpriteFont", assetName, stopWatch);
 
             return newFont;
-
-        } // LoadSpriteFont
+        }
 
         public TiledMap LoadTiledMap(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
-            if (_assetCache.ContainsKey(assetName))
-                return (TiledMap)_assetCache[assetName];
+            if (TryGetFromCache<TiledMap>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
             var newMap = new TiledMap(fs);
 
-            _assetCache.Add(assetName, newMap);
+            TryAddToCache(assetName, newMap);
             LogLoaded("TiledMap", assetName, stopWatch);
 
             return newMap;
-
-        } // LoadTiledMap
+        }
 
         public TiledTileset LoadTiledTileset(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
-            if (_assetCache.ContainsKey(assetName))
-                return (TiledTileset)_assetCache[assetName];
+            if (TryGetFromCache<TiledTileset>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
             var newSet = new TiledTileset(fs);
 
-            _assetCache.Add(assetName, newSet);
+            TryAddToCache(assetName, newSet);
             LogLoaded("TiledTileset", assetName, stopWatch);
 
             return newSet;
-
-        } // LoadTiledTileset
+        }
 
         public OgmoLevel LoadOgmoLevel(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
-            if (_assetCache.ContainsKey(assetName))
-                return (OgmoLevel)_assetCache[assetName];
+            if (TryGetFromCache<OgmoLevel>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
             var newLevel = new OgmoLevel(fs);
 
-            _assetCache.Add(assetName, newLevel);
+            TryAddToCache(assetName, newLevel);
             LogLoaded("OgmoLevel", assetName, stopWatch);
 
             return newLevel;
-
-        } // LoadOgmoLevel
+        }
 
         /// <summary>
         /// Try to auto detect the audio format and load from the correct source type
@@ -452,6 +481,8 @@ namespace ElementEngine
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
+            if (TryGetFromCache<AudioSource>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var path = GetAssetPath(assetName);
             var extension = Path.GetExtension(path);
@@ -462,12 +493,14 @@ namespace ElementEngine
                 ".OGG" => LoadAudioSourceOggVorbis(assetName),
                 _ => throw new Exception("Couldn't load audio source from unknown or unsupported audio format " + assetName),
             };
-        } // LoadAudioSourceByExtension
+        }
 
         public AudioSource LoadAudioSourceWAV(string assetName)
         {
-            if (_assetCache.ContainsKey(assetName))
-                return (AudioSource)_assetCache[assetName];
+            if (!_assetData.ContainsKey(assetName))
+                return null;
+            if (TryGetFromCache<AudioSource>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -479,19 +512,18 @@ namespace ElementEngine
                 AssetName = assetName
             };
 
-            _assetCache.Add(assetName, newSource);
+            TryAddToCache(assetName, newSource);
             LogLoaded("AudioSource", assetName, stopWatch);
 
             return newSource;
-
-        } // LoadAudioSourceWAV
+        }
 
         public AudioSource LoadAudioSourceOggVorbis(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
-            if (_assetCache.ContainsKey(assetName))
-                return (AudioSource)_assetCache[assetName];
+            if (TryGetFromCache<AudioSource>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -503,26 +535,25 @@ namespace ElementEngine
                 AssetName = assetName
             };
 
-            _assetCache.Add(assetName, newSource);
+            TryAddToCache(assetName, newSource);
             LogLoaded("AudioSource", assetName, stopWatch);
 
             return newSource;
-
-        } // LoadAudioSourceOggVorbis
+        }
 
         public EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
         {
             if (!_assetData.ContainsKey(assetName))
                 return null;
-            if (_assetCache.ContainsKey(assetName))
-                return (EndlessTilesWorld)_assetCache[assetName];
+            if (TryGetFromCache<EndlessTilesWorld>(assetName, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
             var newWorld = new EndlessTilesWorld(fs);
 
-            _assetCache.Add(assetName, newWorld);
+            TryAddToCache(assetName, newWorld);
             LogLoaded("EndlessTilesWorld", assetName, stopWatch);
 
             return newWorld;
@@ -532,19 +563,18 @@ namespace ElementEngine
         {
             if (!_assetData.ContainsKey(dataAsset))
                 return null;
-            if (_assetCache.ContainsKey(dataAsset))
-                return (TexturePackerAtlas)_assetCache[dataAsset];
+            if (TryGetFromCache<TexturePackerAtlas>(dataAsset, out var cachedAsset))
+                return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(dataAsset);
-            var newAtlas = new TexturePackerAtlas(fs, textureAsset, dataAsset);
+            var newAtlas = new TexturePackerAtlas(fs, textureAsset, dataAsset, this);
 
-            _assetCache.Add(dataAsset, newAtlas);
+            TryAddToCache(dataAsset, newAtlas);
             LogLoaded("TexturePackerAtlas", dataAsset, stopWatch);
 
             return newAtlas;
         }
-
-    } // AssetManager
+    }
 }
