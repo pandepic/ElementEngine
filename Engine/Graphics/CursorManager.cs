@@ -57,7 +57,9 @@ namespace ElementEngine
             if (CurrentCursor == null)
                 return;
 
-            ElementGlobals.ScreenSpaceSpriteBatch2D.DrawSprite(CurrentCursor.Sprite, InputManager.MousePosition + CurrentCursor.Offset);
+            CurrentCursor.Sprite.Draw(
+                ElementGlobals.ScreenSpaceSpriteBatch2D,
+                InputManager.MousePosition + CurrentCursor.Offset);
         }
     } // CursorManager
 }

@@ -31,7 +31,7 @@ namespace ElementEngine.ElementUI
                 position: GetDrawPosition(parent, position, size ?? Size).ToVector2(),
                 scale: (size ?? Size).ToVector2(),
                 rotation: rotation,
-                color: Color.ToRgbaFloat());
+                color: Color);
         }
     }
 }

@@ -9,12 +9,12 @@ namespace ElementEngine
     {
         public Vector2 Position;
         public Vector2 TexCoords;
-        public RgbaFloat Color;
+        public RgbaByte Color;
 
         public static VertexLayoutDescription VertexLayout = new VertexLayoutDescription(
             new VertexElementDescription("vPosition", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
             new VertexElementDescription("vTexCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
-            new VertexElementDescription("vColor", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4)
+            new VertexElementDescription("vColor", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Byte4_Norm)
         );
     }
 

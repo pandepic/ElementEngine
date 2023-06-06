@@ -137,10 +137,18 @@ namespace ElementEngine.ElementUI
                     var selectionStartX = CursorIndex > _selectionIndexStart ? cursorPosition.X - selectedTextSize.X : cursorPosition.X;
                     var selectionEndX = CursorIndex > _selectionIndexStart ? cursorPosition.X : cursorPosition.X + selectedTextSize.X;
 
-                    spriteBatch.DrawTexture2D(_selectionTexture, new Rectangle(0, 0, selectionEndX - selectionStartX, cursorHeight) + new Vector2I(selectionStartX, cursorPosition.Y), color: Style.SelectionColor.ToRgbaFloat());
+                    spriteBatch.DrawTexture2D(
+                        _selectionTexture,
+                        new Rectangle(0, 0, selectionEndX - selectionStartX, cursorHeight)
+                            + new Vector2I(selectionStartX, cursorPosition.Y),
+                        color: Style.SelectionColor);
                 }
 
-                spriteBatch.DrawTexture2D(_cursorTexture, new Rectangle(0, 0, Style.CursorWidth, cursorHeight) + cursorPosition, color: Style.CursorColor.ToRgbaFloat());
+                spriteBatch.DrawTexture2D(
+                    _cursorTexture,
+                    new Rectangle(0, 0, Style.CursorWidth, cursorHeight)
+                        + cursorPosition,
+                    color: Style.CursorColor);
             }
         }
 

@@ -9,7 +9,7 @@ namespace ElementEngine
     public class Sprite : IDisposable
     {
         public Texture2D Texture { get; set; }
-        public RgbaFloat Color { get; set; } = RgbaFloat.White;
+        public RgbaByte Color { get; set; } = RgbaByte.White;
         public SpriteFlipType Flip { get; set; } = SpriteFlipType.None;
         public Rectangle SourceRect;
         public Vector2 Scale = Vector2.One;

@@ -202,14 +202,7 @@ namespace ElementEngine
             if (shader == _defaultSimpleShader)
                 pipeline.CanDisposeShader = false;
 
-            var viewProjectionBuffer = new SimpleUniformBuffer<Matrix4x4>(graphicsDevice, "ProjectionViewBuffer", 2, ShaderStages.Vertex | ShaderStages.Fragment);
-            viewProjectionBuffer.SetValue(0, Matrix4x4.Identity);
-            viewProjectionBuffer.SetValue(1, Matrix4x4.Identity);
-            viewProjectionBuffer.UpdateBuffer();
-            pipeline.AddUniformBuffer(viewProjectionBuffer);
-
-            var texture = new SimplePipelineTexture2D(graphicsDevice, "fTexture", SamplerType.Point);
-            pipeline.AddPipelineTexture(texture);
+            pipeline.SetupForSpritebatch(SamplerType.Point);
 
             return pipeline;
         }
@@ -319,23 +312,45 @@ namespace ElementEngine
             _batchFlushCount = 0;
         }
 
-        public void DrawText(SpriteFont font, string text, Vector2 position, RgbaByte color, int size, int outlineSize = 0)
+        public void DrawText(
+            SpriteFont font,
+            string text,
+            Vector2 position,
+            RgbaByte color,
+            int size,
+            int outlineSize = 0)
         {
             font.DrawText(this, text, position, color, size, outlineSize);
         }
 
-        void IFontStashRenderer.Draw(ITexture2D texture, System.Drawing.Rectangle dest, System.Drawing.Rectangle source, System.Drawing.Color color, float depth)
+        void IFontStashRenderer.Draw(
+            ITexture2D texture,
+            System.Drawing.Rectangle dest,
+            System.Drawing.Rectangle source,
+            System.Drawing.Color color,
+            float depth)
         {
-            var colorF = new RgbaFloat(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);
-            DrawTexture2D((texture as FontTexture).Texture, new Vector2(dest.X, dest.Y), new Rectangle(source.X, source.Y, source.Width, source.Height), null, null, 0f, colorF);
+            var colorB = new RgbaByte(color.R, color.G, color.B, color.A);
+
+            DrawTexture2D(
+                (texture as FontTexture).Texture,
+                new Vector2(dest.X, dest.Y),
+                new Rectangle(source.X, source.Y, source.Width, source.Height),
+                null,
+                null,
+                0f,
+                colorB);
         }
 
-        public void DrawSprite(Sprite sprite, Vector2 position)
-        {
-            sprite.Draw(this, position);
-        }
-
-        public void DrawTexture2D(Texture2D texture, Rectangle destination, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
+        public void DrawTexture2D(
+            Texture2D texture,
+            Rectangle destination,
+            Rectangle? sourceRect = null,
+            Vector2? scale = null,
+            Vector2? origin = null,
+            float rotation = 0f,
+            RgbaByte? color = null,
+            SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!scale.HasValue)
                 scale = Vector2.One;
@@ -350,13 +365,21 @@ namespace ElementEngine
             DrawTexture2D(texture, new Vector2(destination.X, destination.Y), sourceRect, scale, origin, rotation, color, flip);
         }
 
-        public void DrawTexture2D(Texture2D texture, Vector2 position, Rectangle? sourceRect = null, Vector2? scale = null, Vector2? origin = null, float rotation = 0f, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
+        public void DrawTexture2D(
+            Texture2D texture,
+            Vector2 position,
+            Rectangle? sourceRect = null,
+            Vector2? scale = null,
+            Vector2? origin = null,
+            float rotation = 0f,
+            RgbaByte? color = null,
+            SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
 
             if (!color.HasValue)
-                color = RgbaFloat.White;
+                color = RgbaByte.White;
             if (!sourceRect.HasValue)
                 sourceRect = new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
             if (!origin.HasValue)
@@ -482,7 +505,7 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
                         flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                    Color = color.Value
+                    Color = color.Value.ToRgbaByte()
                 },
                 new Vertex2DPositionTexCoordsColor() // top right
                 {
@@ -490,7 +513,7 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
                         flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                    Color = color.Value
+                    Color = color.Value.ToRgbaByte()
                 },
                 new Vertex2DPositionTexCoordsColor() // bottom left
                 {
@@ -498,7 +521,7 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
                         flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                    Color = color.Value
+                    Color = color.Value.ToRgbaByte()
                 },
                 new Vertex2DPositionTexCoordsColor() // bottom right
                 {
@@ -506,7 +529,7 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
                         flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                    Color = color.Value
+                    Color = color.Value.ToRgbaByte()
                 }
             );
         }
