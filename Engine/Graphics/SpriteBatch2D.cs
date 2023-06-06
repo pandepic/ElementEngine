@@ -1,11 +1,9 @@
-﻿using FontStashSharp.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
+using FontStashSharp.Interfaces;
 using Veldrid;
 using Veldrid.Sdl2;
-using Veldrid.SPIRV;
 
 namespace ElementEngine
 {
@@ -299,23 +297,7 @@ namespace ElementEngine
 
         public void Begin(SamplerType samplerType, Matrix4x4? view = null)
         {
-            switch (samplerType)
-            {
-                case SamplerType.Point:
-                    Begin(GraphicsDevice.PointSampler, view);
-                    break;
-
-                case SamplerType.Linear:
-                    Begin(GraphicsDevice.LinearSampler, view);
-                    break;
-
-                case SamplerType.Aniso4x:
-                    Begin(GraphicsDevice.Aniso4xSampler, view);
-                    break;
-
-                default:
-                    throw new ArgumentException("Unknown value", "samplerType");
-            }
+            Begin(GraphicsHelper.GetSampler(GraphicsDevice, samplerType), view);
         }
 
         public unsafe void Begin(Sampler sampler, Matrix4x4? view = null)
@@ -474,8 +456,7 @@ namespace ElementEngine
             };
 
             AddQuad(texture, topLeft, topRight, bottomLeft, bottomRight);
-
-        } // DrawTexture2D
+        }
 
         public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, Rectangle? sourceRect = null, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
         {
@@ -528,7 +509,7 @@ namespace ElementEngine
                     Color = color.Value
                 }
             );
-        } // DrawTexture2D
+        }
 
         protected void AddQuad(Texture2D texture, Vertex2DPositionTexCoordsColor topLeft, Vertex2DPositionTexCoordsColor topRight, Vertex2DPositionTexCoordsColor bottomLeft, Vertex2DPositionTexCoordsColor bottomRight)
         {

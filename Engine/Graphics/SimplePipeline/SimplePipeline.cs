@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Veldrid;
 
 namespace ElementEngine
@@ -50,6 +51,22 @@ namespace ElementEngine
             CullMode = cullMode;
             BlendState = blendState;
             Output = output;
+        }
+
+        public void SetupForSpritebatch(SamplerType samplerType)
+        {
+            var viewProjectionBuffer = new SimpleUniformBuffer<Matrix4x4>(
+                ElementGlobals.GraphicsDevice,
+                "ProjectionViewBuffer",
+                2,
+                ShaderStages.Vertex);
+
+            viewProjectionBuffer.SetValue(0, Matrix4x4.Identity);
+            viewProjectionBuffer.SetValue(1, Matrix4x4.Identity);
+            viewProjectionBuffer.UpdateBuffer();
+
+            AddUniformBuffer(viewProjectionBuffer);
+            AddPipelineTexture(new(GraphicsDevice, "fTexture", samplerType));
         }
 
         public void AddUniformBuffer(ISimpleUniformBuffer uniformBuffer)

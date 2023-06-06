@@ -29,7 +29,7 @@ namespace ElementEngine
         public int Width { get => (int)_texture.Width; }
         public int Height { get => (int)_texture.Height; }
         public Vector2I Size { get => new Vector2I(Width, Height); }
-        public Vector2 SizeF { get => Size.ToVector2(); }
+        public Vector2 SizeF { get => new Vector2(Width, Height); }
 
         protected Framebuffer _framebuffer = null;
         protected SpriteBatch2D _renderTargetSpriteBatch2D = null;
@@ -87,6 +87,9 @@ namespace ElementEngine
 
         public Texture2D(int width, int height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
             : this((uint)width, (uint)height, color, name, format, usage) { }
+
+        public Texture2D(Vector2I size, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
+            : this((uint)size.X, (uint)size.Y, color, name, format, usage) { }
 
         public unsafe Texture2D(uint width, uint height, RgbaByte color, string name = null, PixelFormat format = PixelFormat.R8_G8_B8_A8_UNorm, TextureUsage usage = TextureUsage.Sampled | TextureUsage.RenderTarget)
             : this(width, height, name, format, usage)
@@ -284,6 +287,11 @@ namespace ElementEngine
 
             ElementGlobals.ResetFramebuffer(commandList);
             ElementGlobals.ResetViewport(commandList);
+        }
+
+        public void RenderTargetClear(RgbaByte color, CommandList commandList = null)
+        {
+            RenderTargetClear(color.ToRgbaFloat(), commandList);
         }
 
         public void RenderTargetClear(RgbaFloat color, CommandList commandList = null)

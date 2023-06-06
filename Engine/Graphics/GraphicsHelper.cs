@@ -1,13 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 using Veldrid;
 
 namespace ElementEngine
 {
     public static class GraphicsHelper
     {
+        public static Sampler GetSampler(SamplerType samplerType)
+        {
+            return GetSampler(ElementGlobals.GraphicsDevice, samplerType);
+        }
+
+        public static Sampler GetSampler(GraphicsDevice graphicsDevice, SamplerType samplerType)
+        {
+            return samplerType switch
+            {
+                SamplerType.Point => graphicsDevice.PointSampler,
+                SamplerType.Linear => graphicsDevice.LinearSampler,
+                SamplerType.Aniso4x => graphicsDevice.Aniso4xSampler,
+                _ => throw new ArgumentException($"Unsupported sampler type: {samplerType}", nameof(samplerType)),
+            };
+        }
+
         public static Texture2D Create3SliceTextureHorizontal(int width, Texture2D left, Texture2D center, Texture2D right, string name = null)
         {
             var height = left.Height;

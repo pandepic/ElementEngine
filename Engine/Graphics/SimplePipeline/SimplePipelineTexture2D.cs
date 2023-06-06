@@ -28,9 +28,14 @@ namespace ElementEngine
         }
 
         public SimplePipelineTexture2D(GraphicsDevice graphicsDevice, string name, SamplerType samplerType)
+            : this(graphicsDevice, name, GraphicsHelper.GetSampler(graphicsDevice, samplerType))
+        {
+        }
+
+        public SimplePipelineTexture2D(GraphicsDevice graphicsDevice, string name, Sampler sampler)
         {
             GraphicsDevice = graphicsDevice;
-            Sampler = GetSampler(samplerType);
+            Sampler = sampler;
 
             ResourceLayout = ResourceFactory.CreateResourceLayout(
                 new ResourceLayoutDescription(
@@ -49,17 +54,6 @@ namespace ElementEngine
             var resourceSet = ResourceFactory.CreateResourceSet(textureSetDescription);
 
             return resourceSet;
-        }
-
-        internal Sampler GetSampler(SamplerType samplerType)
-        {
-            return samplerType switch
-            {
-                SamplerType.Point => GraphicsDevice.PointSampler,
-                SamplerType.Linear => GraphicsDevice.LinearSampler,
-                SamplerType.Aniso4x => GraphicsDevice.Aniso4xSampler,
-                _ => throw new ArgumentException("Unknown value", "samplerType"),
-            };
         }
     }
 }
