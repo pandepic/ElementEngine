@@ -109,7 +109,7 @@ namespace ElementEngine.UI
             }
         }
 
-        public void Draw()
+        public bool Draw()
         {
             if (_showFilter)
             {
@@ -117,7 +117,7 @@ namespace ElementEngine.UI
                     Reload();
             }
 
-            ImGui.Combo(Label, ref _comboIndex, _comboData, _filteredData.Count);
+            return ImGui.Combo(Label, ref _comboIndex, _comboData, _filteredData.Count);
         }
 
         public bool TrySetIndex(int index)

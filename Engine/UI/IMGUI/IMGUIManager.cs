@@ -1,8 +1,7 @@
-﻿using ImGuiNET;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
+using ImGuiNET;
 using Veldrid;
 
 namespace ElementEngine.UI
@@ -56,7 +55,7 @@ namespace ElementEngine.UI
             return imguiTexture;
         }
     }
-    
+
     public static class IMGUIManager
     {
         public static bool IsEnabled { get; private set; }
@@ -104,7 +103,7 @@ namespace ElementEngine.UI
                     modal.End();
                 }
             }
-            
+
             Renderer.Render(ElementGlobals.GraphicsDevice, ElementGlobals.CommandList);
         }
 
@@ -115,6 +114,9 @@ namespace ElementEngine.UI
 
         public static void RemoveTexture(Texture2D texture)
         {
+            if (texture == null)
+                return;
+
             Renderer.RemoveImGuiBinding(texture.Texture);
         }
 

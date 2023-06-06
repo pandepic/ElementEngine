@@ -58,11 +58,15 @@ namespace ElementEngine.UI
                     {
                         if (mouseFrameIndex <= _selectedFrameRange.Value.Max)
                             _selectedFrameRange = new RangeI(mouseFrameIndex, _selectedFrameRange.Value.Max);
+                        else
+                            _selectedFrameRange = new RangeI(mouseFrameIndex, mouseFrameIndex);
                     }
                     else
                     {
                         if (mouseFrameIndex >= _selectedFrameRange.Value.Min)
                             _selectedFrameRange = new RangeI(_selectedFrameRange.Value.Min, mouseFrameIndex);
+                        else
+                            _selectedFrameRange = new RangeI(mouseFrameIndex, mouseFrameIndex);
                     }
                 }
 

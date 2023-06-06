@@ -166,6 +166,5 @@ namespace ElementEngine
 
             return rotatedPoint;
         }
-
-    } // MathHelper
+    }
 }
