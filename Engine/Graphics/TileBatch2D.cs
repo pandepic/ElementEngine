@@ -62,7 +62,7 @@ namespace ElementEngine
         protected static Dictionary<string, Shader[]> _cachedShaders = new();
 
         // Shared static resources
-        protected static Sampler _sampler = ElementGlobals.GraphicsDevice.PointSampler;
+        protected static Sampler _sampler = ElementGlobals.GraphicsDevice?.PointSampler;
 
         protected static Vertex2DTileBatch[] _vertexData = new Vertex2DTileBatch[6]
         {
@@ -199,6 +199,7 @@ namespace ElementEngine
 
             var factory = GraphicsDevice.ResourceFactory;
 
+            #region tile animations
             if (tileAnimations != null && tileAnimations.Count > 0)
             {
                 _animations = new TileBatch2DAnimation[tileAnimations.Count];
@@ -239,7 +240,9 @@ namespace ElementEngine
 
             for (var i = 0; i < _animationOffsets.Length; i++)
                 _animationOffsets[i] = Vector4.Zero;
+            #endregion
 
+            #region shader
             var wrapX = false;
             var wrapY = false;
 
@@ -268,50 +271,112 @@ namespace ElementEngine
                 _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: invertY));
                 _cachedShaders.Add(shaderKey, _shaders);
             }
+            #endregion
 
-            // transform uniforms
-            _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector2) * _transformBufferData.Length), BufferUsage.UniformBuffer));
+            #region transform uniforms
+            _transformBuffer = factory.CreateBuffer(
+                new BufferDescription(
+                    (uint)(sizeof(Vector2) * _transformBufferData.Length),
+                    BufferUsage.UniformBuffer));
+
             _transformBuffer.Name = "TransformBuffer";
             GraphicsDevice.UpdateBuffer(_transformBuffer, 0, _transformBufferData);
 
-            _transformLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("TransformBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex | ShaderStages.Fragment)));
-            _transformSet = factory.CreateResourceSet(new ResourceSetDescription(_transformLayout, _transformBuffer));
+            _transformLayout = factory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription(
+                        "TransformBuffer",
+                        ResourceKind.UniformBuffer,
+                        ShaderStages.Vertex | ShaderStages.Fragment)));
 
-            // animation uniforms
-            _animationBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Vector4) * _animationOffsets.Length), BufferUsage.UniformBuffer));
+            _transformSet = factory.CreateResourceSet(
+                new ResourceSetDescription(
+                    _transformLayout,
+                    _transformBuffer));
+            #endregion
+
+            #region animation uniforms
+            _animationBuffer = factory.CreateBuffer(
+                new BufferDescription(
+                    (uint)(sizeof(Vector4) * _animationOffsets.Length),
+                    BufferUsage.UniformBuffer));
+
             _animationBuffer.Name = "AnimationBuffer";
             GraphicsDevice.UpdateBuffer(_animationBuffer, 0, _animationOffsets);
 
-            _animationLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(new ResourceLayoutElementDescription("AnimationBuffer", ResourceKind.UniformBuffer, ShaderStages.Fragment)));
-            _animationSet = factory.CreateResourceSet(new ResourceSetDescription(_animationLayout, _animationBuffer));
+            _animationLayout = factory.CreateResourceLayout(
+                new ResourceLayoutDescription(
+                    new ResourceLayoutElementDescription(
+                        "AnimationBuffer",
+                        ResourceKind.UniformBuffer,
+                        ShaderStages.Fragment)));
 
-            // texture layouts
+            _animationSet = factory.CreateResourceSet(
+                new ResourceSetDescription(
+                    _animationLayout,
+                    _animationBuffer));
+            #endregion
+
+            #region texture layouts
             _textureLayoutData = factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("fDataImage", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("fDataImageSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
+                    new ResourceLayoutElementDescription(
+                        "fDataImage",
+                        ResourceKind.TextureReadOnly,
+                        ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription(
+                        "fDataImageSampler",
+                        ResourceKind.Sampler,
+                        ShaderStages.Fragment)));
 
             _textureLayoutAtlas = factory.CreateResourceLayout(
                 new ResourceLayoutDescription(
-                    new ResourceLayoutElementDescription("fAtlasImage", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
-                    new ResourceLayoutElementDescription("fAtlasImageSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
+                    new ResourceLayoutElementDescription(
+                        "fAtlasImage",
+                        ResourceKind.TextureReadOnly,
+                        ShaderStages.Fragment),
+                    new ResourceLayoutElementDescription(
+                        "fAtlasImageSampler",
+                        ResourceKind.Sampler,
+                        ShaderStages.Fragment)));
 
-            _textureSetAtlas = GraphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(_textureLayoutData, AtlasTexture.Texture, _sampler));
+            _textureSetAtlas = GraphicsDevice.ResourceFactory.CreateResourceSet(
+                new ResourceSetDescription(
+                    _textureLayoutData,
+                    AtlasTexture.Texture,
+                    _sampler));
+            #endregion
 
-            _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(Vertex2DTileBatch)), BufferUsage.VertexBuffer));
-            GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_vertexData.Length * sizeof(Vertex2DTileBatch)));
+            _vertexBuffer = factory.CreateBuffer(
+                new BufferDescription(
+                    (uint)(_vertexData.Length * sizeof(Vertex2DTileBatch)),
+                    BufferUsage.VertexBuffer));
+
+            GraphicsDevice.UpdateBuffer(
+                _vertexBuffer,
+                0,
+                ref _vertexData[0],
+                (uint)(_vertexData.Length * sizeof(Vertex2DTileBatch)));
 
             GraphicsPipelineDescription pipelineDescription = new GraphicsPipelineDescription
             {
                 BlendState = BlendStateDescription.SingleAlphaBlend,
-                DepthStencilState = new DepthStencilStateDescription(depthTestEnabled: true, depthWriteEnabled: true, ComparisonKind.LessEqual),
+                DepthStencilState = new DepthStencilStateDescription(
+                    depthTestEnabled: true,
+                    depthWriteEnabled: true,
+                    ComparisonKind.LessEqual),
                 RasterizerState = new RasterizerStateDescription
                 {
                     DepthClipEnabled = true,
                     CullMode = FaceCullMode.None,
                 },
                 PrimitiveTopology = PrimitiveTopology.TriangleList,
-                ShaderSet = new ShaderSetDescription(vertexLayouts: new VertexLayoutDescription[] { Vertex2DTileBatch.VertexLayout }, shaders: _shaders),
+                ShaderSet = new ShaderSetDescription(
+                    vertexLayouts: new VertexLayoutDescription[]
+                    {
+                        Vertex2DTileBatch.VertexLayout
+                    },
+                    shaders: _shaders),
                 ResourceLayouts = new ResourceLayout[]
                 {
                     _transformLayout,
@@ -330,7 +395,13 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public void SetTransformBuffer(Vector2 inverseTileTextureSize, Vector2 inverseSpriteTextureSize, Vector2 tileSize, Vector2 viewOffset, Vector2 viewportSize, Vector2 inverseTileSize)
+        public void SetTransformBuffer(
+            Vector2 inverseTileTextureSize,
+            Vector2 inverseSpriteTextureSize,
+            Vector2 tileSize,
+            Vector2 viewOffset,
+            Vector2 viewportSize,
+            Vector2 inverseTileSize)
         {
             _transformBufferData[0] = inverseTileTextureSize;
             _transformBufferData[1] = inverseSpriteTextureSize;
@@ -358,8 +429,9 @@ namespace ElementEngine
                     _dataArray[index] = new RgbaByte(EMPTY_TILE_X, EMPTY_TILE_Y, 0, 255);
                 }
             }
-        } // ClearDataArray
+        }
 
+        #region Set Data Functions
         public void SetTileAtPosition(int posx, int posy, byte x, byte y, byte animIndex = 0)
         {
             var index = posx + MapWidth * posy;
@@ -477,6 +549,7 @@ namespace ElementEngine
 
             Layers[layer].DataTexture.SetData(buffer, area);
         }
+        #endregion
 
         public void BeginBuild()
         {
@@ -496,7 +569,12 @@ namespace ElementEngine
             };
 
             newLayer.DataTexture.SetData(_dataArray);
-            newLayer.TextureSetData = GraphicsDevice.ResourceFactory.CreateResourceSet(new ResourceSetDescription(_textureLayoutData, newLayer.DataTexture.Texture, _sampler));
+            newLayer.TextureSetData =
+                GraphicsDevice.ResourceFactory.CreateResourceSet(
+                    new ResourceSetDescription(
+                        _textureLayoutData,
+                        newLayer.DataTexture.Texture,
+                        _sampler));
 
             Layers.Add(newLayer);
             ClearDataArray();
@@ -547,8 +625,9 @@ namespace ElementEngine
                     _animationOffsets[animation.Index] = currentFramePos - firstFramePos;
                 }
             }
-        } // Update
+        }
 
+        #region Draw Functions
         public void DrawAll(Camera2D camera, float scale = 1f) => DrawAll(camera, Vector2.Zero, scale);
         public void DrawAll(Camera2D camera, Vector2 position, float scale = 1f)
         {
@@ -632,5 +711,6 @@ namespace ElementEngine
                 CommandList.Draw((uint)_vertexData.Length);
             }
         }
-    } // TileBatch2D
+        #endregion
+    }
 }
