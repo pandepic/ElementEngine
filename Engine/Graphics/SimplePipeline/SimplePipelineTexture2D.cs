@@ -5,12 +5,11 @@ namespace ElementEngine
 {
     public class SimplePipelineTexture2D : IDisposable
     {
-        public ResourceLayout ResourceLayout;
-
         public readonly GraphicsDevice GraphicsDevice;
-        public readonly Texture2D Texture;
-
         public ResourceFactory ResourceFactory => GraphicsDevice.ResourceFactory;
+
+        public Texture2D Texture;
+        public ResourceLayout ResourceLayout;
 
         protected bool _isDisposed = false;
 
