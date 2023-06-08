@@ -1,6 +1,7 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -17,6 +18,8 @@ namespace ElementEngine
         public Texture Texture { get => _texture; }
 
         public TextureDescription Description { get; protected set; }
+
+        public Dictionary<Sampler, Dictionary<ResourceLayout, ResourceSet>> ResourceSets = new();
 
         public string TextureName { get; set; }
         public string AssetName { get; set; }
@@ -52,6 +55,12 @@ namespace ElementEngine
                     _texture?.Dispose();
                     _framebuffer?.Dispose();
                     _renderTargetSpriteBatch2D?.Dispose();
+
+                    foreach (var (_, layoutSets) in ResourceSets)
+                    {
+                        foreach (var (_, set) in layoutSets)
+                            set.Dispose();
+                    }
                 }
 
                 _disposed = true;
@@ -252,6 +261,25 @@ namespace ElementEngine
 
             var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
+        }
+
+        public ResourceSet GetResourceSet(Sampler sampler, ResourceLayout layout)
+        {
+            if (!ResourceSets.TryGetValue(sampler, out var layoutSets))
+            {
+                layoutSets = new();
+                ResourceSets.Add(sampler, layoutSets);
+            }
+
+            if (!layoutSets.TryGetValue(layout, out var resourceSet))
+            {
+                var textureSetDescription = new ResourceSetDescription(layout, Texture, sampler);
+                resourceSet = GraphicsDevice.ResourceFactory.CreateResourceSet(textureSetDescription);
+
+                layoutSets.Add(layout, resourceSet);
+            }
+
+            return resourceSet;
         }
 
         #region Render target methods

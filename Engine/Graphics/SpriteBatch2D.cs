@@ -54,7 +54,6 @@ namespace ElementEngine
         protected ResourceSet _transformSet;
         protected ResourceLayout _textureLayout;
 
-        protected Dictionary<string, ResourceSet> _textureSets;
         protected Sampler _sampler;
 
         // Shared static resources
@@ -92,11 +91,7 @@ namespace ElementEngine
 
             _vertexBuffer?.Dispose();
             _indexBuffer?.Dispose();
-
             _simplePipeline?.Dispose();
-
-            foreach (var set in _textureSets)
-                set.Value?.Dispose();
 
             _isDisposed = true;
         }
@@ -109,8 +104,6 @@ namespace ElementEngine
         public unsafe SpriteBatch2D(int width, int height, OutputDescription output, SimplePipeline simplePipeline = null, bool invertY = false)
         {
             CommandList = ElementGlobals.CommandList;
-
-            _textureSets = new Dictionary<string, ResourceSet>();
 
             var factory = GraphicsDevice.ResourceFactory;
 
@@ -594,26 +587,15 @@ namespace ElementEngine
                 }
             }
 
-            if (_textureSets.TryGetValue(texture.AssetName, out ResourceSet textureSet))
-            {
-                CommandList.SetGraphicsResourceSet(resourceSetIndex, textureSet);
-                resourceSetIndex += 1;
-            }
-            else
-            {
-                var textureSetDescription = new ResourceSetDescription(_textureLayout, texture.Texture, _sampler);
-                var newTextureSet = GraphicsDevice.ResourceFactory.CreateResourceSet(textureSetDescription);
-                _textureSets.Add(texture.AssetName, newTextureSet);
-                CommandList.SetGraphicsResourceSet(resourceSetIndex, newTextureSet);
-                resourceSetIndex += 1;
-            }
+            CommandList.SetGraphicsResourceSet(resourceSetIndex, texture.GetResourceSet(_sampler, _textureLayout));
+            resourceSetIndex += 1;
 
             if (_simplePipeline.PipelineTextures.Count > 1)
             {
                 for (var i = 1; i < _simplePipeline.PipelineTextures.Count; i++)
                 {
                     var pipelineTexture = _simplePipeline.PipelineTextures[i];
-                    CommandList.SetGraphicsResourceSet(resourceSetIndex, pipelineTexture.ResourceSet);
+                    CommandList.SetGraphicsResourceSet(resourceSetIndex, pipelineTexture.GetResourceSet(_sampler));
                     resourceSetIndex += 1;
                 }
             }
