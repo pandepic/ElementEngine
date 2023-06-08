@@ -29,6 +29,11 @@ namespace ElementEngine
         {
         }
 
+        public SimplePipelineTexture2D(string name, Texture2D texture) : this(texture.GraphicsDevice, name)
+        {
+            Texture = texture;
+        }
+
         public SimplePipelineTexture2D(GraphicsDevice graphicsDevice, string name)
         {
             GraphicsDevice = graphicsDevice;
@@ -37,10 +42,6 @@ namespace ElementEngine
                 new ResourceLayoutDescription(
                     new ResourceLayoutElementDescription(name, ResourceKind.TextureReadOnly, ShaderStages.Fragment),
                     new ResourceLayoutElementDescription(name + "Sampler", ResourceKind.Sampler, ShaderStages.Fragment)));
-        }
-
-        public SimplePipelineTexture2D(string name, Texture2D texture) : this(texture.GraphicsDevice, name)
-        {
         }
 
         public ResourceSet GetResourceSet(Sampler sampler)

@@ -110,8 +110,7 @@ namespace ElementEngine
             InvertY = invertY;
             SetViewSize(new Vector2(width, height));
 
-            if (simplePipeline == null)
-                simplePipeline = GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, output, null);
+            simplePipeline ??= GetDefaultSimplePipeline(ElementGlobals.GraphicsDevice, output, null);
 
             _simplePipeline = simplePipeline;
             _simplePipeline.GeneratePipeline();
@@ -122,9 +121,20 @@ namespace ElementEngine
             _transformSet = _simplePipeline.UniformBuffers[0].ResourceSet;
             _textureLayout = _simplePipeline.PipelineTextures[0].ResourceLayout;
 
+            #region Vertex Buffer
             _vertexData = new Vertex2DPositionTexCoordsColor[_maxBatchSize * VerticesPerQuad];
-            _vertexBuffer = factory.CreateBuffer(new BufferDescription((uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)), BufferUsage.VertexBuffer));
-            GraphicsDevice.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)));
+            
+            _vertexBuffer = factory.CreateBuffer(
+                new BufferDescription(
+                    (uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)),
+                    BufferUsage.VertexBuffer));
+
+            GraphicsDevice.UpdateBuffer(
+                _vertexBuffer,
+                0,
+                ref _vertexData[0],
+                (uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)));
+            #endregion
 
             // if culling this is the right order for bottom left
             var indicesTemplate = new ushort[]
@@ -157,8 +167,16 @@ namespace ElementEngine
                 indices[startIndex + 5] = (ushort)(indicesTemplate[5] + offset);
             }
 
-            _indexBuffer = factory.CreateBuffer(new BufferDescription((uint)(indices.Length * sizeof(ushort)), BufferUsage.IndexBuffer));
-            GraphicsDevice.UpdateBuffer(_indexBuffer, 0, ref indices[0], (uint)(indices.Length * sizeof(ushort)));
+            _indexBuffer = factory.CreateBuffer(
+                new BufferDescription(
+                    (uint)(indices.Length * sizeof(ushort)),
+                    BufferUsage.IndexBuffer));
+            
+            GraphicsDevice.UpdateBuffer(
+                _indexBuffer,
+                0,
+                ref indices[0],
+                (uint)(indices.Length * sizeof(ushort)));
         }
 
         public void SetViewSize(Vector2 size)
@@ -171,26 +189,42 @@ namespace ElementEngine
 
         public static SimplePipeline GetDefaultSimplePipeline(SimpleShader shader)
         {
-            return GetDefaultSimplePipeline(shader.GraphicsDevice, shader.GraphicsDevice.SwapchainFramebuffer.OutputDescription, shader);
+            return GetDefaultSimplePipeline(
+                shader.GraphicsDevice,
+                shader.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
+                shader);
         }
 
-        public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, Texture2D target, SimpleShader shader = null)
+        public static SimplePipeline GetDefaultSimplePipeline(
+            GraphicsDevice graphicsDevice,
+            Texture2D target,
+            SimpleShader shader = null)
         {
             return GetDefaultSimplePipeline(graphicsDevice, target.GetFramebuffer().OutputDescription, shader);
         }
 
-        public static SimplePipeline GetDefaultSimplePipeline(GraphicsDevice graphicsDevice, OutputDescription? output = null, SimpleShader shader = null)
+        public static SimplePipeline GetDefaultSimplePipeline(
+            GraphicsDevice graphicsDevice,
+            OutputDescription? output = null,
+            SimpleShader shader = null)
         {
-            if (_defaultSimpleShader == null)
-                _defaultSimpleShader = new SimpleShader(graphicsDevice, DefaultShaders.DefaultSpriteVS, DefaultShaders.DefaultSpriteFS, Vertex2DPositionTexCoordsColor.VertexLayout);
+            _defaultSimpleShader ??= new SimpleShader(
+                graphicsDevice,
+                DefaultShaders.DefaultSpriteVS,
+                DefaultShaders.DefaultSpriteFS,
+                Vertex2DPositionTexCoordsColor.VertexLayout);
 
-            if (shader == null)
-                shader = _defaultSimpleShader;
+            shader ??= _defaultSimpleShader;
 
             if (!output.HasValue)
                 output = ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
 
-            var pipeline = new SimplePipeline(graphicsDevice, shader, output.Value, BlendStateDescription.SingleAlphaBlend, FaceCullMode.None);
+            var pipeline = new SimplePipeline(
+                graphicsDevice,
+                shader,
+                output.Value,
+                BlendStateDescription.SingleAlphaBlend,
+                FaceCullMode.None);
 
             if (shader == _defaultSimpleShader)
                 pipeline.CanDisposeShader = false;
@@ -200,6 +234,7 @@ namespace ElementEngine
             return pipeline;
         }
 
+        #region Scissor Rect
         public Rectangle? GetCurrentScissorRect(uint index)
         {
             if (!_scissorStack.ContainsKey(index))
@@ -268,18 +303,7 @@ namespace ElementEngine
             else
                 CommandList.SetFullScissorRect(index);
         }
-
-        //public void SetScissorRect(Rectangle rect, uint index = 0)
-        //{
-        //    Flush(_currentTexture);
-        //    CommandList.SetScissorRect(index, (uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
-        //}
-
-        //public void ResetScissorRect(uint index = 0)
-        //{
-        //    Flush(_currentTexture);
-        //    CommandList.SetFullScissorRect(index);
-        //}
+        #endregion
 
         public void Begin(SamplerType samplerType, Matrix4x4? view = null)
         {
@@ -474,13 +498,18 @@ namespace ElementEngine
             AddQuad(texture, topLeft, topRight, bottomLeft, bottomRight);
         }
 
-        public void DrawTexture2D(Texture2D texture, Matrix3x2 worldMatrix, Rectangle? sourceRect = null, RgbaFloat? color = null, SpriteFlipType flip = SpriteFlipType.None)
+        public void DrawTexture2D(
+            Texture2D texture,
+            Matrix3x2 worldMatrix,
+            Rectangle? sourceRect = null,
+            RgbaByte? color = null,
+            SpriteFlipType flip = SpriteFlipType.None)
         {
             if (!_begin)
                 throw new Exception("You must begin a batch before you can call Draw.");
 
             if (!color.HasValue)
-                color = RgbaFloat.White;
+                color = RgbaByte.White;
             if (!sourceRect.HasValue)
                 sourceRect = new Rectangle(0, 0, (int)texture.Width, (int)texture.Height);
 
@@ -498,7 +527,7 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
                         flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                    Color = color.Value.ToRgbaByte()
+                    Color = color.Value
                 },
                 new Vertex2DPositionTexCoordsColor() // top right
                 {
@@ -506,7 +535,7 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
                         flipY ? (source.Y + source.Height) * texelHeight : source.Y * texelHeight),
-                    Color = color.Value.ToRgbaByte()
+                    Color = color.Value
                 },
                 new Vertex2DPositionTexCoordsColor() // bottom left
                 {
@@ -514,7 +543,7 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? (source.X + source.Width) * texelWidth : source.X * texelWidth,
                         flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                    Color = color.Value.ToRgbaByte()
+                    Color = color.Value
                 },
                 new Vertex2DPositionTexCoordsColor() // bottom right
                 {
@@ -522,12 +551,17 @@ namespace ElementEngine
                     TexCoords = new Vector2(
                         flipX ? source.X * texelWidth : (source.X + source.Width) * texelWidth,
                         flipY ? source.Y * texelHeight : (source.Y + source.Height) * texelHeight),
-                    Color = color.Value.ToRgbaByte()
+                    Color = color.Value
                 }
             );
         }
 
-        protected void AddQuad(Texture2D texture, Vertex2DPositionTexCoordsColor topLeft, Vertex2DPositionTexCoordsColor topRight, Vertex2DPositionTexCoordsColor bottomLeft, Vertex2DPositionTexCoordsColor bottomRight)
+        protected void AddQuad(
+            Texture2D texture,
+            Vertex2DPositionTexCoordsColor topLeft,
+            Vertex2DPositionTexCoordsColor topRight,
+            Vertex2DPositionTexCoordsColor bottomLeft,
+            Vertex2DPositionTexCoordsColor bottomRight)
         {
             if (_currentTexture == null || _currentTexture != texture)
             {
@@ -569,14 +603,23 @@ namespace ElementEngine
             _batchFlushCount += 1;
             uint resourceSetIndex = 0;
 
-            CommandList.UpdateBuffer(_vertexBuffer, 0, ref _vertexData[0], (uint)(_currentBatchCount * VerticesPerQuad * sizeof(Vertex2DPositionTexCoordsColor)));
+            #region Update Vertex Buffer
+            CommandList.UpdateBuffer(
+                _vertexBuffer,
+                0,
+                ref _vertexData[0],
+                (uint)(_currentBatchCount * VerticesPerQuad * sizeof(Vertex2DPositionTexCoordsColor)));
+
             CommandList.SetVertexBuffer(0, _vertexBuffer);
+            #endregion
+
             CommandList.SetIndexBuffer(_indexBuffer, IndexFormat.UInt16);
             CommandList.SetPipeline(_pipeline);
 
             CommandList.SetGraphicsResourceSet(resourceSetIndex, _transformSet);
             resourceSetIndex += 1;
 
+            // bind uniform buffers for the shader
             if (_simplePipeline.UniformBuffers.Count > 1)
             {
                 for (var i = 1; i < _simplePipeline.UniformBuffers.Count; i++)
@@ -587,9 +630,11 @@ namespace ElementEngine
                 }
             }
 
+            // bind the current spritebatch texture for the shader
             CommandList.SetGraphicsResourceSet(resourceSetIndex, texture.GetResourceSet(_sampler, _textureLayout));
             resourceSetIndex += 1;
 
+            // bind all other textures for the shader
             if (_simplePipeline.PipelineTextures.Count > 1)
             {
                 for (var i = 1; i < _simplePipeline.PipelineTextures.Count; i++)
