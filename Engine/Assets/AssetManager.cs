@@ -80,7 +80,7 @@ namespace ElementEngine
             stopWatch.Stop();
             Logging.Information("[{component}] {count} mod assets loaded from {path} in {time:0.00} ms.", "AssetManager", _assetData.Count, modsPath, stopWatch.Elapsed.TotalMilliseconds);
         } // Load
-        
+
         private void LoadAssetsFile(string path = null, LoadAssetsMode? mode = null)
         {
             var assetsFilePath = Path.Combine(path, "Assets.xml");
@@ -307,6 +307,14 @@ namespace ElementEngine
             Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
         }
 
+        public T GetFromCache<T>(string assetName)
+        {
+            if (TryGetFromCache<T>(assetName, out T t))
+                return t;
+
+            return default;
+        }
+
         public bool TryGetFromCache<T>(string assetName, out T asset)
         {
             asset = default;
@@ -335,7 +343,7 @@ namespace ElementEngine
             _assetCache.Add(assetName, asset);
             return true;
         }
-        
+
         public T LoadJSON<T>(string assetName, JsonSerializer serializer = null, List<JsonConverter> converters = null)
         {
             if (TryGetFromCache<T>(assetName, out var cachedAsset))
@@ -346,7 +354,7 @@ namespace ElementEngine
             using var fileStream = GetAssetStream(assetName);
             using var streamReader = new StreamReader(fileStream);
             using var jsonTextReader = new JsonTextReader(streamReader);
-            
+
             if (serializer == null)
                 serializer = new JsonSerializer();
 
@@ -366,10 +374,10 @@ namespace ElementEngine
 
         public Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<Texture2D>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -402,12 +410,30 @@ namespace ElementEngine
             return newTexture;
         }
 
+        public Texture2D LoadTexture2DFromAssetPack(string packName, AssetPackFile packFile, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
+        {
+            var assetName = $"{packName}/{packFile.Name}";
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var textureData = Image.Load<Rgba32>(packFile.Bytes);
+            var newTexture = new Texture2D(textureData.Width, textureData.Height, name);
+            newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
+
+            TryAddToCache(assetName, newTexture);
+
+            if (log)
+                LogLoaded("Texture2D", $"Asset Pack: {assetName}", stopWatch);
+
+            return newTexture;
+        }
+
         public SpriteFont LoadSpriteFont(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<SpriteFont>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -422,10 +448,10 @@ namespace ElementEngine
 
         public TiledMap LoadTiledMap(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<TiledMap>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -440,10 +466,10 @@ namespace ElementEngine
 
         public TiledTileset LoadTiledTileset(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<TiledTileset>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -458,10 +484,10 @@ namespace ElementEngine
 
         public OgmoLevel LoadOgmoLevel(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<OgmoLevel>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -479,10 +505,10 @@ namespace ElementEngine
         /// </summary>
         public AudioSource LoadAudioSourceByExtension(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<AudioSource>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var path = GetAssetPath(assetName);
             var extension = Path.GetExtension(path);
@@ -497,10 +523,10 @@ namespace ElementEngine
 
         public AudioSource LoadAudioSourceWAV(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<AudioSource>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -520,10 +546,10 @@ namespace ElementEngine
 
         public AudioSource LoadAudioSourceOggVorbis(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<AudioSource>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -543,10 +569,10 @@ namespace ElementEngine
 
         public EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
         {
-            if (!_assetData.ContainsKey(assetName))
-                return null;
             if (TryGetFromCache<EndlessTilesWorld>(assetName, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(assetName))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
@@ -561,10 +587,10 @@ namespace ElementEngine
 
         public TexturePackerAtlas LoadTexturePackerAtlas(string textureAsset, string dataAsset)
         {
-            if (!_assetData.ContainsKey(dataAsset))
-                return null;
             if (TryGetFromCache<TexturePackerAtlas>(dataAsset, out var cachedAsset))
                 return cachedAsset;
+            if (!_assetData.ContainsKey(dataAsset))
+                return null;
 
             var stopWatch = Stopwatch.StartNew();
 
