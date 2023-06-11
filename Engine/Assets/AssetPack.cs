@@ -115,22 +115,23 @@ namespace ElementEngine
             writer.Write(bytes);
         }
 
-        public void AddFile(string fileName, byte[] bytes)
+        public void AddFile(string fileName, byte[] bytes, string customData = null)
         {
             Files.Add(new()
             {
                 Name = fileName,
                 Bytes = bytes,
+                CustomData = customData,
             });
         }
 
-        public void AddFile(string filePath)
+        public void AddFile(string filePath, string customData = null)
         {
             using var fs = File.OpenRead(filePath);
-            AddFile(fs);
+            AddFile(fs, customData);
         }
 
-        public void AddFile(FileStream fs)
+        public void AddFile(FileStream fs, string customData = null)
         {
             var fileName = Path.GetFileName(fs.Name);
             var bytes = new byte[fs.Length];
@@ -140,6 +141,7 @@ namespace ElementEngine
             {
                 Name = fileName,
                 Bytes = bytes,
+                CustomData = customData,
             };
 
             Files.Add(packFile);
