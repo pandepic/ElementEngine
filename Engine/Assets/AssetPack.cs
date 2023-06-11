@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 
 namespace ElementEngine
@@ -8,6 +9,7 @@ namespace ElementEngine
     {
         public string Name;
         public byte[] Bytes;
+        public string CustomData;
     }
 
     public class AssetPack
@@ -57,20 +59,22 @@ namespace ElementEngine
                 bytes = Compression.Unzip(bytes);
 
             using var ms = new MemoryStream(bytes);
-            using var innerReader = new BinaryReader(ms);
+            using var msReader = new BinaryReader(ms);
 
-            var fileCount = innerReader.ReadInt32();
+            var fileCount = msReader.ReadInt32();
 
             for (var i = 0; i < fileCount; i++)
             {
-                var fileName = innerReader.ReadString();
-                var fileLength = innerReader.ReadInt32();
-                var fileBytes = innerReader.ReadBytes(fileLength);
-                
+                var fileName = msReader.ReadString();
+                var fileLength = msReader.ReadInt32();
+                var fileBytes = msReader.ReadBytes(fileLength);
+                var fileCustomData = msReader.ReadString();
+
                 var packFile = new AssetPackFile()
                 {
                     Name = fileName,
                     Bytes = fileBytes,
+                    CustomData = fileCustomData,
                 };
 
                 Files.Add(packFile);
@@ -99,6 +103,7 @@ namespace ElementEngine
                 msWriter.Write(file.Name);
                 msWriter.Write(file.Bytes.Length);
                 msWriter.Write(file.Bytes);
+                msWriter.Write(file.CustomData ?? "");
             }
 
             var bytes = ms.ToArray();
@@ -108,6 +113,15 @@ namespace ElementEngine
 
             writer.Write(bytes.Length);
             writer.Write(bytes);
+        }
+
+        public void AddFile(string fileName, byte[] bytes)
+        {
+            Files.Add(new()
+            {
+                Name = fileName,
+                Bytes = bytes,
+            });
         }
 
         public void AddFile(string filePath)
@@ -131,12 +145,66 @@ namespace ElementEngine
             Files.Add(packFile);
         }
 
-        public void ImportToAssetManager<T>(AssetManager assetManager)
+        /// <summary>
+        /// Tries to auto detect file types from their extensions and import them as the correct type.
+        /// </summary>
+        public void ImportToAssetManagerAuto(AssetManager assetManager, bool log = true)
         {
             foreach (var file in Files)
             {
+                var lastDot = file.Name.LastIndexOf('.');
+                if (lastDot < 0)
+                    continue;
+
+                var extension = file.Name.Substring(lastDot).ToLower();
+                var assetName = $"{file.Name}/{Name}";
+
+                using var ms = new MemoryStream(file.Bytes);
+
+                switch (extension)
+                {
+                    case ".jpeg":
+                    case ".jpg":
+                    case ".png":
+                    case ".bmp":
+                        assetManager.LoadTexture2DFromStream(ms, assetName, log: log) ;
+                        break;
+
+                    case ".ttf":
+                        assetManager.LoadSpriteFontFromStream(ms, assetName, log: log);
+                        break;
+
+                    case ".tmx":
+                        assetManager.LoadTiledMapFromStream(ms, assetName, log: log);
+                        break;
+
+                    case ".tsx":
+                        assetManager.LoadTiledTilesetFromStream(ms, assetName, log: log);
+                        break;
+
+                    case ".wav":
+                        assetManager.LoadAudioSourceWAVFromStream(ms, assetName, log: log);
+                        break;
+
+                    case ".ogg":
+                        assetManager.LoadAudioSourceOggVorbisStream(ms, assetName, log: log);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Assumes all files in the pack have the same type T.
+        /// </summary>
+        public void ImportToAssetManager<T>(AssetManager assetManager, bool log = true)
+        {
+            foreach (var file in Files)
+            {
+                var assetName = $"{file.Name}/{Name}";
+                using var ms = new MemoryStream(file.Bytes);
+
                 if (typeof(T) == typeof(Texture2D))
-                    assetManager.LoadTexture2DFromAssetPack(Name, file);
+                    assetManager.LoadTexture2DFromStream(ms, assetName, log: log);
                 else
                     throw new ArgumentException($"Unsupported generic type: {typeof(T).FullName}", "T");
             }

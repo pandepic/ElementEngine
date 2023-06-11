@@ -74,9 +74,18 @@ namespace ElementEngine
 
         public SpriteFont(FileStream fs)
         {
-            using var ms = new MemoryStream();
+            LoadFromStream(fs);
+        }
 
-            fs.CopyTo(ms);
+        public SpriteFont(Stream stream)
+        {
+            LoadFromStream(stream);
+        }
+
+        private void LoadFromStream(Stream stream)
+        {
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
             FontData = ms.ToArray();
         }
 

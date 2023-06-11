@@ -10,7 +10,7 @@ namespace ElementEngine.Tiled
     {
         public Dictionary<int, TileAnimation> TileAnimations { get; set; } = new Dictionary<int, TileAnimation>();
 
-        public TiledTileset(FileStream fs)
+        public TiledTileset(Stream fs)
         {
             var doc = XDocument.Load(fs);
             

@@ -5,6 +5,7 @@ using ElementEngine.Tiled;
 using NAudio.Vorbis;
 using NAudio.Wave;
 using Newtonsoft.Json;
+using SharpGen.Runtime.Win32;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -372,6 +373,7 @@ namespace ElementEngine
             return obj;
         }
 
+        #region Texture2D
         public Texture2D LoadTexture2D(string assetName, TexturePremultiplyType premultiply = TexturePremultiplyType.None)
         {
             if (TryGetFromCache<Texture2D>(assetName, out var cachedAsset))
@@ -382,7 +384,7 @@ namespace ElementEngine
             var stopWatch = Stopwatch.StartNew();
 
             using var fs = GetAssetStream(assetName);
-            var newTexture = LoadTexture2DFromStream(fs, premultiply, assetName, false);
+            var newTexture = LoadTexture2DFromStream(fs, assetName, premultiply, false);
 
             TryAddToCache(assetName, newTexture);
             LogLoaded("Texture2D", assetName, stopWatch);
@@ -390,44 +392,48 @@ namespace ElementEngine
             return newTexture;
         }
 
-        public Texture2D LoadTexture2DFromPath(string path, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
+        public Texture2D LoadTexture2DFromPath(
+            string path,
+            TexturePremultiplyType premultiply = TexturePremultiplyType.None,
+            string name = null,
+            bool log = true)
         {
             using var fs = File.OpenRead(path);
-            return LoadTexture2DFromStream(fs, premultiply, name, log);
+            return LoadTexture2DFromStream(fs, fs.Name, premultiply, log);
         }
 
-        public Texture2D LoadTexture2DFromStream(FileStream fs, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
+        public Texture2D LoadTexture2DFromStream(
+            Stream fs,
+            string name = null,
+            TexturePremultiplyType premultiply = TexturePremultiplyType.None,
+            bool log = true)
         {
+            if (UseCache & !string.IsNullOrEmpty(name))
+            {
+                if (TryGetFromCache<Texture2D>(name, out var cachedAsset))
+                    return cachedAsset;
+            }
+
             var stopWatch = Stopwatch.StartNew();
 
             using var textureData = Image.Load<Rgba32>(fs);
             var newTexture = new Texture2D(textureData.Width, textureData.Height, name);
-            newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
+            newTexture.SetData(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
 
-            if (log)
-                LogLoaded("Texture2D", fs.Name, stopWatch);
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (log)
+                    LogLoaded("Texture2D", name, stopWatch);
 
-            return newTexture;
-        }
-
-        public Texture2D LoadTexture2DFromAssetPack(string packName, AssetPackFile packFile, TexturePremultiplyType premultiply = TexturePremultiplyType.None, string name = null, bool log = true)
-        {
-            var assetName = $"{packName}/{packFile.Name}";
-
-            var stopWatch = Stopwatch.StartNew();
-
-            using var textureData = Image.Load<Rgba32>(packFile.Bytes);
-            var newTexture = new Texture2D(textureData.Width, textureData.Height, name);
-            newTexture.SetData<Rgba32>(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
-
-            TryAddToCache(assetName, newTexture);
-
-            if (log)
-                LogLoaded("Texture2D", $"Asset Pack: {assetName}", stopWatch);
+                if (UseCache)
+                    TryAddToCache(name, newTexture);
+            }
 
             return newTexture;
         }
+        #endregion
 
+        #region SpriteFont
         public SpriteFont LoadSpriteFont(string assetName)
         {
             if (TryGetFromCache<SpriteFont>(assetName, out var cachedAsset))
@@ -435,17 +441,40 @@ namespace ElementEngine
             if (!_assetData.ContainsKey(assetName))
                 return null;
 
-            var stopWatch = Stopwatch.StartNew();
-
             using var fs = GetAssetStream(assetName);
-            var newFont = new SpriteFont(fs);
+            var newFont = LoadSpriteFontFromStream(fs, assetName, true);
 
             TryAddToCache(assetName, newFont);
-            LogLoaded("SpriteFont", assetName, stopWatch);
 
             return newFont;
         }
 
+        public SpriteFont LoadSpriteFontFromStream(Stream stream, string name = null, bool log = true)
+        {
+            if (UseCache & !string.IsNullOrEmpty(name))
+            {
+                if (TryGetFromCache<SpriteFont>(name, out var cachedAsset))
+                    return cachedAsset;
+            }
+
+            var stopWatch = Stopwatch.StartNew();
+            var newFont = new SpriteFont(stream);
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (log)
+                    LogLoaded("SpriteFont", name, stopWatch);
+
+                if (UseCache)
+                    TryAddToCache(name, newFont);
+            }
+
+            return newFont;
+        }
+        #endregion
+
+        #region Tiled
+        #region Tiled Map
         public TiledMap LoadTiledMap(string assetName)
         {
             if (TryGetFromCache<TiledMap>(assetName, out var cachedAsset))
@@ -453,17 +482,39 @@ namespace ElementEngine
             if (!_assetData.ContainsKey(assetName))
                 return null;
 
-            var stopWatch = Stopwatch.StartNew();
-
             using var fs = GetAssetStream(assetName);
-            var newMap = new TiledMap(fs);
+            var newMap = LoadTiledMapFromStream(fs, assetName, true);
 
             TryAddToCache(assetName, newMap);
-            LogLoaded("TiledMap", assetName, stopWatch);
 
             return newMap;
         }
 
+        public TiledMap LoadTiledMapFromStream(Stream stream, string name = null, bool log = true)
+        {
+            if (UseCache & !string.IsNullOrEmpty(name))
+            {
+                if (TryGetFromCache<TiledMap>(name, out var cachedAsset))
+                    return cachedAsset;
+            }
+
+            var stopWatch = Stopwatch.StartNew();
+            var newMap = new TiledMap(stream);
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (log)
+                    LogLoaded("TiledMap", name, stopWatch);
+
+                if (UseCache)
+                    TryAddToCache(name, newMap);
+            }
+
+            return newMap;
+        }
+        #endregion
+
+        #region Tiled Tileset
         public TiledTileset LoadTiledTileset(string assetName)
         {
             if (TryGetFromCache<TiledTileset>(assetName, out var cachedAsset))
@@ -471,16 +522,38 @@ namespace ElementEngine
             if (!_assetData.ContainsKey(assetName))
                 return null;
 
-            var stopWatch = Stopwatch.StartNew();
-
             using var fs = GetAssetStream(assetName);
-            var newSet = new TiledTileset(fs);
+            var newSet = LoadTiledTilesetFromStream(fs, assetName, true);
 
             TryAddToCache(assetName, newSet);
-            LogLoaded("TiledTileset", assetName, stopWatch);
 
             return newSet;
         }
+
+        public TiledTileset LoadTiledTilesetFromStream(Stream stream, string name = null, bool log = true)
+        {
+            if (UseCache & !string.IsNullOrEmpty(name))
+            {
+                if (TryGetFromCache<TiledTileset>(name, out var cachedAsset))
+                    return cachedAsset;
+            }
+
+            var stopWatch = Stopwatch.StartNew();
+            var newSet = new TiledTileset(stream);
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (log)
+                    LogLoaded("TiledTileset", name, stopWatch);
+
+                if (UseCache)
+                    TryAddToCache(name, newSet);
+            }
+
+            return newSet;
+        }
+        #endregion
+        #endregion
 
         public OgmoLevel LoadOgmoLevel(string assetName)
         {
@@ -500,6 +573,7 @@ namespace ElementEngine
             return newLevel;
         }
 
+        #region Audio Source
         /// <summary>
         /// Try to auto detect the audio format and load from the correct source type
         /// </summary>
@@ -544,6 +618,35 @@ namespace ElementEngine
             return newSource;
         }
 
+        public AudioSource LoadAudioSourceWAVFromStream(Stream stream, string name = null, bool log = true)
+        {
+            if (UseCache & !string.IsNullOrEmpty(name))
+            {
+                if (TryGetFromCache<AudioSource>(name, out var cachedAsset))
+                    return cachedAsset;
+            }
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var wav = new WaveFileReader(stream);
+
+            var newSource = new AudioSource(wav)
+            {
+                AssetName = name ?? ""
+            };
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (log)
+                    LogLoaded("AudioSource", name, stopWatch);
+
+                if (UseCache)
+                    TryAddToCache(name, newSource);
+            }
+
+            return newSource;
+        }
+
         public AudioSource LoadAudioSourceOggVorbis(string assetName)
         {
             if (TryGetFromCache<AudioSource>(assetName, out var cachedAsset))
@@ -566,6 +669,36 @@ namespace ElementEngine
 
             return newSource;
         }
+
+        public AudioSource LoadAudioSourceOggVorbisStream(Stream stream, string name = null, bool log = true)
+        {
+            if (UseCache & !string.IsNullOrEmpty(name))
+            {
+                if (TryGetFromCache<AudioSource>(name, out var cachedAsset))
+                    return cachedAsset;
+            }
+
+            var stopWatch = Stopwatch.StartNew();
+
+            using var vorbis = new VorbisWaveReader(stream);
+
+            var newSource = new AudioSource(vorbis)
+            {
+                AssetName = name ?? ""
+            };
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                if (log)
+                    LogLoaded("AudioSource", name, stopWatch);
+
+                if (UseCache)
+                    TryAddToCache(name, newSource);
+            }
+
+            return newSource;
+        }
+        #endregion
 
         public EndlessTilesWorld LoadEndlessTilesWorld(string assetName)
         {

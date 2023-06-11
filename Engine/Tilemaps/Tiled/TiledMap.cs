@@ -39,9 +39,9 @@ namespace ElementEngine.Tiled
         public Vector2I MapSize { get; set; } = Vector2I.Zero; // in tiles
         public Vector2I MapPixelSize => MapSize * TileSize;
 
-        public TiledMap(FileStream fs)
+        public TiledMap(Stream stream)
         {
-            var doc = XDocument.Load(fs);
+            var doc = XDocument.Load(stream);
 
             TileSize = new Vector2I(int.Parse(doc.Root.Attribute("tilewidth").Value), int.Parse(doc.Root.Attribute("tileheight").Value));
             MapSize = new Vector2I(int.Parse(doc.Root.Attribute("width").Value), int.Parse(doc.Root.Attribute("height").Value));
@@ -89,7 +89,7 @@ namespace ElementEngine.Tiled
 
                 Layers.Add(newLayer);
             } // foreach layer
-        } // TiledMap
+        }
 
         public TiledCustomProperty GetCustomProperty(string name)
         {
@@ -100,7 +100,7 @@ namespace ElementEngine.Tiled
             }
 
             return null;
-        } // GetCustomProperty
+        }
 
         public List<TiledMapLayer> GetLayersByCustomProperty(string name, string value)
         {
@@ -116,7 +116,7 @@ namespace ElementEngine.Tiled
             }
 
             return layers;
-        } // GetLayersByCustomProperty
+        }
 
         public TiledMapLayer GetLayerByName(string name)
         {
@@ -127,7 +127,6 @@ namespace ElementEngine.Tiled
             }
 
             return null;
-        } // GetLayerByName
-
-    } // TiledMap
+        }
+    }
 }
