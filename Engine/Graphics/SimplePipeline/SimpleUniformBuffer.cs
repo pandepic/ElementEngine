@@ -55,9 +55,14 @@ namespace ElementEngine
                 GraphicsDevice.UpdateBuffer(Buffer, (uint)(index * sizeof(T)), Data[index]);
         }
 
-        public void UpdateBuffer()
+        public void UpdateBufferImmediate()
         {
             GraphicsDevice.UpdateBuffer(Buffer, 0, Data);
+        }
+
+        public void UpdateBuffer(CommandList commandList)
+        {
+            commandList.UpdateBuffer(Buffer, 0, Data);
         }
     }
 }

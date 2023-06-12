@@ -13,6 +13,7 @@ namespace ElementEngine
         public Pipeline Pipeline;
         public GraphicsPipelineDescription PipelineDescription;
 
+        public readonly CommandList CommandList;
         public readonly GraphicsDevice GraphicsDevice;
         public readonly SimpleShader Shader;
         public readonly FaceCullMode CullMode;
@@ -44,13 +45,21 @@ namespace ElementEngine
         }
         #endregion
 
-        public SimplePipeline(GraphicsDevice graphicsDevice, SimpleShader shader, OutputDescription output, BlendStateDescription blendState, FaceCullMode cullMode)
+        public SimplePipeline(
+            GraphicsDevice graphicsDevice,
+            SimpleShader shader,
+            OutputDescription output,
+            BlendStateDescription blendState,
+            FaceCullMode cullMode,
+            CommandList commandList = null)
         {
             GraphicsDevice = graphicsDevice;
             Shader = shader;
             CullMode = cullMode;
             BlendState = blendState;
             Output = output;
+
+            CommandList = commandList ?? ElementGlobals.CommandList;
         }
 
         public void SetupForSpritebatch(SamplerType samplerType)
@@ -63,7 +72,7 @@ namespace ElementEngine
 
             viewProjectionBuffer.SetValue(0, Matrix4x4.Identity);
             viewProjectionBuffer.SetValue(1, Matrix4x4.Identity);
-            viewProjectionBuffer.UpdateBuffer();
+            viewProjectionBuffer.UpdateBufferImmediate();
 
             AddUniformBuffer(viewProjectionBuffer);
             AddPipelineTexture(new(GraphicsDevice, "fTexture", samplerType));
@@ -116,5 +125,9 @@ namespace ElementEngine
             return Pipeline;
         }
 
+        public void UpdateBuffer<T>(SimpleUniformBuffer<T> buffer) where T : unmanaged
+        {
+            buffer.UpdateBuffer(CommandList);
+        }
     }
 }
