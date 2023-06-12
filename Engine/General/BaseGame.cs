@@ -82,7 +82,13 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public unsafe void SetupWindow(Rectangle windowRect, string windowTitle, GraphicsBackend? graphicsBackend = null, bool vsync = false, WindowState? windowState = null)
+        public unsafe void SetupWindow(
+            Rectangle windowRect,
+            string windowTitle,
+            GraphicsBackend? graphicsBackend = null,
+            bool vsync = false,
+            WindowState? windowState = null,
+            bool debug = false)
         {
             windowState ??= WindowState.Normal;
 
@@ -96,16 +102,21 @@ namespace ElementEngine
                 WindowTitle = windowTitle,
             };
 
-            SetupWindow(windowInfo, graphicsBackend, vsync);
+            SetupWindow(windowInfo, graphicsBackend, vsync, debug);
 
             var platformName = Marshal.PtrToStringUTF8((IntPtr)SDL2.SDL_GetPlatform());
             PlatformType = PlatformMapping.GetPlatformTypeBySDLName(platformName);
         }
 
-        public void SetupWindow(WindowCreateInfo windowInfo, GraphicsBackend? graphicsBackend = null, bool vsync = false)
+        public void SetupWindow(
+            WindowCreateInfo windowInfo,
+            GraphicsBackend? graphicsBackend = null,
+            bool vsync = false,
+            bool debug = false)
         {
             VeldridStartup.CreateWindowAndGraphicsDevice(windowInfo, new GraphicsDeviceOptions()
             {
+                Debug = debug,
                 SyncToVerticalBlank = vsync,
                 PreferStandardClipSpaceYDirection = true,
             }, graphicsBackend ?? VeldridStartup.GetPlatformDefaultBackend(), out ElementGlobals.Window, out ElementGlobals.GraphicsDevice);
