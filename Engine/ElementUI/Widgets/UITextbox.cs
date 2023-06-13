@@ -103,12 +103,25 @@ namespace ElementEngine.ElementUI
         protected override void InternalUpdate(GameTimer gameTimer)
         {
             Style.BackgroundNormal?.Update(gameTimer);
+            Style.BackgroundFocused?.Update(gameTimer);
             Style.BackgroundDisabled?.Update(gameTimer);
+        }
+
+        protected UISprite GetCurrentSprite()
+        {
+            var sprite = Style.BackgroundNormal;
+
+            if (!IsActive)
+                sprite = Style.BackgroundDisabled ?? Style.BackgroundNormal;
+            else if (IsFocused)
+                sprite = Style.BackgroundFocused ?? Style.BackgroundNormal;
+
+            return sprite;
         }
 
         protected override void InnerDraw(SpriteBatch2D spriteBatch)
         {
-            var sprite = IsActive ? Style.BackgroundNormal : Style.BackgroundDisabled;
+            var sprite = GetCurrentSprite();
             sprite?.Draw(this, spriteBatch, DrawPosition, _size);
         }
 

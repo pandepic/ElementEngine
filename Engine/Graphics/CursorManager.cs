@@ -21,7 +21,7 @@ namespace ElementEngine
             else
                 Offset = Vector2.Zero;
         }
-    } // Cursor
+    }
 
     public static class CursorManager
     {
@@ -37,8 +37,7 @@ namespace ElementEngine
             var newCursor = new Cursor(name.ToString(), assetName, offset);
             Cursors.Add(newCursor.Name, newCursor);
             CurrentCursor = newCursor;
-
-        } // AddCursor
+        }
 
         public static void SetCursor<T>(T name)
         {
@@ -61,5 +60,5 @@ namespace ElementEngine
                 ElementGlobals.ScreenSpaceSpriteBatch2D,
                 InputManager.MousePosition + CurrentCursor.Offset);
         }
-    } // CursorManager
+    }
 }

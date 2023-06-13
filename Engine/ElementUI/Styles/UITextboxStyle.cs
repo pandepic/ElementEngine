@@ -10,6 +10,7 @@ namespace ElementEngine.ElementUI
     public class UITextboxStyle : UIStyle
     {
         public UISprite BackgroundNormal;
+        public UISprite BackgroundFocused;
         public UISprite BackgroundDisabled;
         public UILabelStyle TextStyle;
 
@@ -22,6 +23,7 @@ namespace ElementEngine.ElementUI
         {
             TextStyle = copyFrom.TextStyle;
             BackgroundNormal = copyFrom.BackgroundNormal;
+            BackgroundFocused = copyFrom.BackgroundFocused;
             BackgroundDisabled = copyFrom.BackgroundDisabled;
             CursorHeight = copyFrom.CursorHeight;
             CursorWidth = copyFrom.CursorWidth;
@@ -36,6 +38,7 @@ namespace ElementEngine.ElementUI
         public UITextboxStyle(
             UILabelStyle textStyle,
             UISprite backgroundNormal,
+            UISprite backgroundFocused = null,
             UISprite backgroundDisabled = null,
             int? cursorHeight = null,
             int cursorWidth = 1,
@@ -44,6 +47,7 @@ namespace ElementEngine.ElementUI
         {
             TextStyle = textStyle;
             BackgroundNormal = backgroundNormal;
+            BackgroundFocused = backgroundFocused;
             BackgroundDisabled = backgroundDisabled;
             CursorHeight = cursorHeight;
             CursorWidth = cursorWidth;

@@ -4,16 +4,11 @@
     {
         public static Rectangle GetFrameRect(Texture2D texture, Vector2I frameSize, int frame, bool zeroBased = false)
         {
-            if (!zeroBased)
-                frame -= 1;
-
-            return new Rectangle()
-            {
-                X = frame % (texture.Width / frameSize.X) * frameSize.X,
-                Y = frame / (texture.Width / frameSize.X) * frameSize.Y,
-                Width = frameSize.X,
-                Height = frameSize.Y,
-            };
+            return GetFrameRect(
+                texture.Size,
+                frameSize,
+                frame,
+                zeroBased);
         }
 
         public static Rectangle GetFrameRect(Vector2I textureSize, Vector2I frameSize, int frame, bool zeroBased = false)
