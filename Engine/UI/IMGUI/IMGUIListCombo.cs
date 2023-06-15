@@ -131,7 +131,12 @@ namespace ElementEngine.UI
 
         public bool TrySetValue(T value)
         {
-            return TrySetIndex(_filteredData.IndexOf(value));
+            var index = _filteredData.IndexOf(value);
+
+            if (index == 0 && HasEmptyOption)
+                index += 1;
+
+            return TrySetIndex(index);
         }
 
         public bool TrySetValue(string value)

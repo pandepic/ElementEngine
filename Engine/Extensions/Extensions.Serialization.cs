@@ -99,7 +99,7 @@ namespace ElementEngine
             var intVal = reader.ReadInt32();
 
             if (intVal == 0)
-                return new();
+                return Entity.Empty;
 
             return registry.CreateEntity(intVal);
         }

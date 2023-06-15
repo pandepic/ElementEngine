@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ElementEngine.ElementUI
+﻿namespace ElementEngine.ElementUI
 {
     public class UISprite3SliceHorizontal : UISprite
     {

@@ -383,6 +383,5 @@ namespace ElementEngine.ElementUI
 
             return false;
         }
-
-    } // UITextbox
+    }
 }
