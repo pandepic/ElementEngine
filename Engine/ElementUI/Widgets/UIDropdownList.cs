@@ -55,7 +55,13 @@ namespace ElementEngine.ElementUI
         }
     }
 
-    public class UIDropdownList<T> : UIObject
+    public interface IUIDropdownList
+    {
+        void Collapse();
+        void Expand();
+    }
+
+    public class UIDropdownList<T> : UIObject, IUIDropdownList
     {
         public new UIDropdownListStyle Style => (UIDropdownListStyle)_style;
         public event Action<UIOnValueChangedArgs<UIDropdownListItem<T>>> OnValueChanged;
@@ -183,8 +189,14 @@ namespace ElementEngine.ElementUI
 
             foreach (var item in Items)
             {
-                var itemButton = new UIButton(Name + "_ListContainer_" + item.Value.ToString(), Style.ItemButtonStyle);
-                var itemLabel = new UILabel(Name + "_ListContainer_" + item.Value.ToString() + "_Label", Style.ItemButtonLabelStyle, item.Text);
+                var itemButton = new UIButton(
+                    Name + "_ListContainer_" + (item.Value?.ToString() ?? "NULL"),
+                    Style.ItemButtonStyle);
+
+                var itemLabel = new UILabel(
+                    Name + "_ListContainer_" + (item.Value?.ToString() ?? "NULL") + "_Label",
+                    Style.ItemButtonLabelStyle,
+                    item.Text);
 
                 itemButton.AddChild(itemLabel);
                 itemButton.SetPosition(nextButtonPosition);

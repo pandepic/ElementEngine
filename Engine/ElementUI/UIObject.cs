@@ -674,6 +674,34 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public bool IsDrawn
+        {
+            get
+            {
+                if (Parent == null)
+                    return IsVisible;
+
+                if (!IsVisible)
+                    return false;
+                else
+                    return Parent.IsDrawn;
+            }
+        }
+
+        public bool IsUpdated
+        {
+            get
+            {
+                if (Parent == null)
+                    return IsActive;
+
+                if (!IsActive)
+                    return false;
+                else
+                    return Parent.IsUpdated;
+            }
+        }
+
         public bool IsHidden
         {
             get => _isHidden;
@@ -1088,10 +1116,13 @@ namespace ElementEngine.ElementUI
 
             if (this is UIScreen screen && screen.ExpandedDropdown != null)
             {
-                if (screen.ExpandedDropdown.IsActive)
-                    screen.ExpandedDropdown.Update(gameTimer);
+                if (!screen.CheckCloseExpandedDropdown())
+                {
+                    if (screen.ExpandedDropdown.IsActive)
+                        screen.ExpandedDropdown.Update(gameTimer);
 
-                skip = screen.ExpandedDropdown;
+                    skip = screen.ExpandedDropdown;
+                }
             }
 
             foreach (var child in Children)
@@ -1142,7 +1173,10 @@ namespace ElementEngine.ElementUI
             UIObject skip = null;
 
             if (this is UIScreen screen && screen.ExpandedDropdown != null)
-                skip = screen.ExpandedDropdown;
+            {
+                if (!screen.CheckCloseExpandedDropdown())
+                    skip = screen.ExpandedDropdown;
+            }
 
             foreach (var child in Children)
             {

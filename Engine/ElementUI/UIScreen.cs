@@ -12,9 +12,21 @@ namespace ElementEngine.ElementUI
         internal UIContainer TooltipContainer;
         internal UIObject TooltipTarget;
 
+        protected bool _removeTooltip;
+
         internal UIObject ExpandedDropdown;
 
-        protected bool _removeTooltip;
+        internal bool CheckCloseExpandedDropdown()
+        {
+            if (!ExpandedDropdown.IsDrawn || !ExpandedDropdown.IsUpdated)
+            {
+                (ExpandedDropdown as IUIDropdownList).Collapse();
+                ExpandedDropdown = null;
+                return true;
+            }
+
+            return false;
+        }
 
         public UIScreen(Vector2I? position = null, Vector2I? size = null, string name = "Screen", bool blockInputWhenConsumed = true) : base(name)
         {
