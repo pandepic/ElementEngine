@@ -53,7 +53,7 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        internal void Register()
+        public void Register()
         {
             if (_registered)
                 return;
@@ -66,7 +66,7 @@ namespace ElementEngine
             _registered = true;
         }
 
-        internal void DeRegister()
+        public void DeRegister()
         {
             if (!_registered)
                 return;

@@ -12,6 +12,8 @@ namespace ElementEngine.ElementUI
         internal UIContainer TooltipContainer;
         internal UIObject TooltipTarget;
 
+        internal UIObject ExpandedDropdown;
+
         protected bool _removeTooltip;
 
         public UIScreen(Vector2I? position = null, Vector2I? size = null, string name = "Screen", bool blockInputWhenConsumed = true) : base(name)
@@ -170,7 +172,13 @@ namespace ElementEngine.ElementUI
         #region Input Handling
         internal override bool InternalHandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
-            var captured = base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
+            var captured = false;
+
+            if (ExpandedDropdown != null)
+                captured = ExpandedDropdown.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
+
+            if (!captured)
+                captured = base.InternalHandleMouseMotion(mousePosition, prevMousePosition, gameTimer);
 
             if (captured && BlockInputWhenConsumed)
                 InputManager._mouseMotionBlocked = true;
@@ -182,7 +190,13 @@ namespace ElementEngine.ElementUI
         {
             FocusedObject = null;
 
-            var captured = base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
+            var captured = false;
+
+            if (ExpandedDropdown != null)
+                captured = ExpandedDropdown.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
+
+            if (!captured)
+                captured = base.InternalHandleMouseButtonPressed(mousePosition, button, gameTimer);
 
             if (captured && BlockInputWhenConsumed)
                 InputManager._mouseButtonPressedBlocked = true;
@@ -192,7 +206,13 @@ namespace ElementEngine.ElementUI
 
         internal override bool InternalHandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-            var captured = base.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
+            var captured = false;
+
+            if (ExpandedDropdown != null)
+                captured = ExpandedDropdown.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
+
+            if (!captured)
+                captured = base.InternalHandleMouseButtonReleased(mousePosition, button, gameTimer);
 
             if (captured && BlockInputWhenConsumed)
                 InputManager._mouseButtonReleasedBlocked = true;
@@ -202,7 +222,13 @@ namespace ElementEngine.ElementUI
 
         internal override bool InternalHandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
-            var captured = base.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
+            var captured = false;
+
+            if (ExpandedDropdown != null)
+                captured = ExpandedDropdown.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
+
+            if (!captured)
+                captured = base.InternalHandleMouseButtonDown(mousePosition, button, gameTimer);
 
             if (captured && BlockInputWhenConsumed)
                 InputManager._mouseButtonDownBlocked = true;
@@ -212,7 +238,13 @@ namespace ElementEngine.ElementUI
 
         internal override bool InternalHandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
-            var captured = base.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+            var captured = false;
+
+            if (ExpandedDropdown != null)
+                captured = ExpandedDropdown.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
+
+            if (!captured)
+                captured = base.InternalHandleMouseWheel(mousePosition, type, mouseWheelDelta, gameTimer);
 
             if (captured && BlockInputWhenConsumed)
                 InputManager._mouseWheelBlocked = true;
@@ -260,6 +292,5 @@ namespace ElementEngine.ElementUI
             return captured;
         }
         #endregion
-
-    } // UIScreen
+    }
 }

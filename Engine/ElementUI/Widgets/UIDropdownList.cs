@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ElementEngine.ElementUI
 {
@@ -13,7 +10,7 @@ namespace ElementEngine.ElementUI
 
         public UIDropdownListItem(T value)
         {
-            Text = value.ToString();
+            Text = value?.ToString() ?? "";
             Value = value;
         }
 
@@ -88,6 +85,9 @@ namespace ElementEngine.ElementUI
         public readonly UILabel ButtonExpandedLabel;
         public readonly UIContainer ListContainer;
 
+        protected bool _isExpanded;
+        public bool IsExpanded { get => _isExpanded; }
+
         public UIDropdownList(string name, UIDropdownListStyle style, List<UIDropdownListItem<T>> items) : base(name)
         {
             if (items.Count == 0)
@@ -95,8 +95,8 @@ namespace ElementEngine.ElementUI
 
             ApplyStyle(style);
             ApplyDefaultSize(Style.ButtonCollapsed.ImageNormal.Sprite);
-            
-            Style.OverflowType = OverflowType.Scroll;
+
+            Style.OverflowType = OverflowType.Show;
             Style.ListContainer.OverflowType = OverflowType.Scroll;
 
             Items = items;
@@ -144,7 +144,11 @@ namespace ElementEngine.ElementUI
             ListContainer.Hide();
             ListContainer.Disable();
 
-            OverrideDefaultSize(Style.ButtonCollapsed.ImageNormal.Sprite);
+            if (Parent != null && ParentScreen.ExpandedDropdown == this)
+                ParentScreen.ExpandedDropdown = null;
+
+            _isExpanded = false;
+            _inputSize = null;
         }
 
         public void Expand()
@@ -156,7 +160,11 @@ namespace ElementEngine.ElementUI
             ListContainer.Show();
             ListContainer.Enable();
 
-            OverrideDefaultSize(Style.ButtonCollapsed.ImageNormal.Sprite.Size + new Vector2I(0, ListContainer.Height));
+            if (Parent != null)
+                ParentScreen.ExpandedDropdown = this;
+
+            _isExpanded = true;
+            _inputSize = _size + new Vector2I(0, ListContainer.Height);
         }
 
         public void SetSelectedValue(T value)
@@ -177,7 +185,7 @@ namespace ElementEngine.ElementUI
             {
                 var itemButton = new UIButton(Name + "_ListContainer_" + item.Value.ToString(), Style.ItemButtonStyle);
                 var itemLabel = new UILabel(Name + "_ListContainer_" + item.Value.ToString() + "_Label", Style.ItemButtonLabelStyle, item.Text);
-                
+
                 itemButton.AddChild(itemLabel);
                 itemButton.SetPosition(nextButtonPosition);
                 itemButton.UpdateLayout();
@@ -192,5 +200,5 @@ namespace ElementEngine.ElementUI
                 };
             }
         }
-    } // UIDropdownList
+    }
 }

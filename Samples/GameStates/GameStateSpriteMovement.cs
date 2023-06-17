@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
 using ElementEngine;
 using ElementEngine.ECS;
 using ImGuiNET;
@@ -67,7 +62,7 @@ namespace Samples
             SpriteBatch.End();
 
             ref var ballTransform = ref BallEntity.GetComponent<Transform>();
-            
+
             ImGui.Begin("Ball Debug", ImGuiWindowFlags.AlwaysAutoResize);
             ImGui.InputFloat("X", ref ballTransform.Position.X);
             ImGui.InputFloat("Y", ref ballTransform.Position.Y);

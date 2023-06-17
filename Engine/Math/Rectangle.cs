@@ -304,6 +304,32 @@ namespace ElementEngine
         public static bool Intersect(Rectangle rect, CircleI circle) => rect.Intersect(circle);
         public static bool Intersect(Rectangle rect, CircleF circle) => rect.Intersect(circle);
 
+        public void ExpandToContain(Rectangle rect)
+        {
+            var newRect = ExpandToContain(this, rect);
+            X = newRect.X;
+            Y = newRect.Y;
+            Width = newRect.Width;
+            Height = newRect.Height;
+        }
+
+        public static Rectangle ExpandToContain(Rectangle rect1, Rectangle rect2)
+        {
+            if (rect1.Contains(rect2))
+                return rect1;
+
+            if (rect1.X > rect2.X)
+                rect1.X = rect2.X;
+            if (rect1.Right < rect2.Right)
+                rect1.Right = rect2.Right;
+            if (rect1.Y > rect2.Y)
+                rect1.Y = rect2.Y;
+            if (rect1.Bottom < rect2.Bottom)
+                rect1.Bottom = rect2.Bottom;
+
+            return rect1;
+        }
+
         public override string ToString()
         {
             return string.Format("{0}, {1}, {2}, {3}, {4}, {5}", X, Y, Width, Height, Right, Bottom);

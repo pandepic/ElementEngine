@@ -339,6 +339,19 @@ namespace ElementEngine.ElementUI
             }
         }
 
+        public Rectangle InputBounds
+        {
+            get
+            {
+                var bounds = new Rectangle(DrawPosition, _inputSize ?? _size);
+
+                foreach (var child in Children)
+                    bounds.ExpandToContain(child.InputBounds);
+
+                return bounds;
+            }
+        }
+
         public Rectangle Bounds
         {
             get => new Rectangle(DrawPosition, _size);
@@ -744,6 +757,7 @@ namespace ElementEngine.ElementUI
         internal Vector2I _childOrigin;
         internal Vector2I _childOffset;
         internal Vector2I _size;
+        internal Vector2I? _inputSize;
         internal UISpacing _margins;
         internal UISpacing _padding;
 
@@ -1070,8 +1084,21 @@ namespace ElementEngine.ElementUI
         {
             InternalUpdate(gameTimer);
 
+            UIObject skip = null;
+
+            if (this is UIScreen screen && screen.ExpandedDropdown != null)
+            {
+                if (screen.ExpandedDropdown.IsActive)
+                    screen.ExpandedDropdown.Update(gameTimer);
+
+                skip = screen.ExpandedDropdown;
+            }
+
             foreach (var child in Children)
             {
+                if (child == skip)
+                    continue;
+
                 if (child.IsActive)
                     child.Update(gameTimer);
             }
@@ -1112,22 +1139,38 @@ namespace ElementEngine.ElementUI
 
             InnerPreDraw(spriteBatch);
 
+            UIObject skip = null;
+
+            if (this is UIScreen screen && screen.ExpandedDropdown != null)
+                skip = screen.ExpandedDropdown;
+
             foreach (var child in Children)
             {
-                if (!child.IsVisible)
-                    continue;
-                if (_useScissorRect && !child.IgnoreOverflow && !Bounds.Intersects(child.Bounds))
+                if (child == skip)
                     continue;
 
-                child.PreDraw(spriteBatch);
-                child.Draw(spriteBatch);
-                child.PostDraw(spriteBatch);
+                DrawChild(child, spriteBatch);
             }
+
+            if (skip != null)
+                DrawChild(skip, spriteBatch);
 
             InnerPostDraw(spriteBatch);
 
             if (_useScissorRect)
                 spriteBatch.PopScissorRect(0);
+        }
+
+        internal void DrawChild(UIObject child, SpriteBatch2D spriteBatch)
+        {
+            if (!child.IsVisible)
+                return;
+            if (_useScissorRect && !child.IgnoreOverflow && !Bounds.Intersects(child.Bounds))
+                return;
+
+            child.PreDraw(spriteBatch);
+            child.Draw(spriteBatch);
+            child.PostDraw(spriteBatch);
         }
 
         internal void ShowTooltip()

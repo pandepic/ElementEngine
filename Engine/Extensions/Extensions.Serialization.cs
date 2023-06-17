@@ -98,7 +98,7 @@ namespace ElementEngine
         {
             var intVal = reader.ReadInt32();
 
-            if (intVal == 0)
+            if (intVal <= 0)
                 return Entity.Empty;
 
             return registry.CreateEntity(intVal);
