@@ -393,11 +393,11 @@ namespace ElementEngine
             _mouseButtonDownBlocked = false;
             _mouseWheelBlocked = false;
 
+            PrevMousePosition = MousePosition;
+            MousePosition = snapshot.MousePosition;
+
             if (!IMGUIManager.WantCaptureMouse())
             {
-                PrevMousePosition = MousePosition;
-                MousePosition = snapshot.MousePosition;
-
                 if (MousePosition != PrevMousePosition)
                     HandleMouseMotion(gameTimer);
 

@@ -41,7 +41,7 @@ namespace ElementEngine.UI
 
         protected List<char> _recentlyAdded = new List<char>();
 
-        public RgbaByte Colour { get; set; } = RgbaByte.White;
+        public RgbaByte Color { get; set; } = RgbaByte.White;
 
         #region IDisposable
         protected bool _disposed = false;
@@ -115,11 +115,11 @@ namespace ElementEngine.UI
             _font = AssetManager.Instance.LoadSpriteFont(GetXMLElement("FontName").Value);
             FontSize = int.Parse(GetXMLElement("FontSize").Value);
             _text = GetXMLElement("Text").Value;
-            Colour = new RgbaByte().FromHex(GetXMLElement("Color").Value);
+            Color = new RgbaByte().FromHex(GetXMLElement("Color").Value);
             _cursorPadding = (GetXMLAttribute("CursorPadding") == null ? 0 : int.Parse(GetXMLAttribute("CursorPadding").Value));
             _cursorIndex = _text.Length;
             
-            var cursorTexture = new Texture2D(2, (uint)(_background.Height - (_cursorPadding * 2)), Colour);
+            var cursorTexture = new Texture2D(2, (uint)(_background.Height - (_cursorPadding * 2)), Color);
             _cursor = new Sprite(cursorTexture);
             
             _textRect.X = 0;
@@ -305,7 +305,7 @@ namespace ElementEngine.UI
                     var drawPosition = offsetPosition + _textPosition + Position + ParentPosition;
 
                     //spriteBatch.SetScissorRect(new Rectangle(drawPosition, _textRect.SizeF));
-                    spriteBatch.DrawText(_font, _text, drawPosition + cursorOffset, Colour, FontSize);
+                    spriteBatch.DrawText(_font, _text, drawPosition + cursorOffset, Color, FontSize);
                     //spriteBatch.ResetScissorRect();
                 }
                 catch (ArgumentException)
