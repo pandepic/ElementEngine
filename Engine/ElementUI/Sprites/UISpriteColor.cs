@@ -6,6 +6,14 @@ namespace ElementEngine.ElementUI
     {
         public static Texture2D Texture;
 
+        public UISpriteColor(UISpriteColor copyFrom, bool baseCopy = false)
+        {
+            Color = copyFrom.Color;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         static UISpriteColor()
         {
             Texture = new Texture2D(1, 1, RgbaByte.White);

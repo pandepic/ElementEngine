@@ -8,6 +8,16 @@ namespace ElementEngine.ElementUI
         public UITexture Right;
         public UITexture Center;
 
+        public UISprite3SliceHorizontal(UISprite3SliceHorizontal copyFrom, bool baseCopy = false)
+        {
+            Left = copyFrom.Left;
+            Right = copyFrom.Right;
+            Center = copyFrom.Center;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UISprite3SliceHorizontal(string assetNameLeft, string assetNameRight, string assetNameCenter, Vector2I? size = null)
             : this(new UITexture(AssetManager.Instance.LoadTexture2D(assetNameLeft)),
                   new UITexture(AssetManager.Instance.LoadTexture2D(assetNameRight)),

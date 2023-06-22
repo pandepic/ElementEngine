@@ -10,6 +10,15 @@ namespace ElementEngine.ElementUI
         public bool IgnoreSize;
         public RgbaByte? Color;
 
+        public void BaseCopy(UISprite copyFrom)
+        {
+            Size = copyFrom.Size;
+            Position = copyFrom.Position;
+            Margin = copyFrom.Margin;
+            IgnoreSize = copyFrom.IgnoreSize;
+            Color = copyFrom.Color;
+        }
+
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0f) { }
 

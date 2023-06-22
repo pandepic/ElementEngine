@@ -7,6 +7,14 @@ namespace ElementEngine.ElementUI
     {
         public UITexture Texture;
 
+        public UISpriteStatic(UISpriteStatic copyFrom, bool baseCopy = false)
+        {
+            Texture = copyFrom.Texture;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UISpriteStatic(string assetName)
             : this(new UITexture(AssetManager.Instance.LoadTexture2D(assetName)))
         {

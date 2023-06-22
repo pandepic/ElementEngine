@@ -8,6 +8,24 @@ namespace ElementEngine.ElementUI
         public UITexture MiddleLeft, MiddleRight, MiddleCenter;
         public UITexture BottomLeft, BottomRight, BottomCenter;
 
+        public UISprite9Slice(UISprite9Slice copyFrom, bool baseCopy = false)
+        {
+            TopLeft = copyFrom.TopLeft;
+            TopRight = copyFrom.TopRight;
+            TopCenter = copyFrom.TopCenter;
+
+            MiddleLeft = copyFrom.MiddleLeft;
+            MiddleRight = copyFrom.MiddleRight;
+            MiddleCenter = copyFrom.MiddleCenter;
+
+            BottomLeft = copyFrom.BottomLeft;
+            BottomRight = copyFrom.BottomRight;
+            BottomCenter = copyFrom.BottomCenter;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UISprite9Slice(string assetNameAll)
             : this(assetNameAll, assetNameAll, assetNameAll,
                   assetNameAll, assetNameAll, assetNameAll,

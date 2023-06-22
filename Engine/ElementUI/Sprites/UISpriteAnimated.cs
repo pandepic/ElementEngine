@@ -10,6 +10,17 @@ namespace ElementEngine.ElementUI
         public float CurrentFrameTime = 0f;
         public bool IsPlaying = false;
 
+        public UISpriteAnimated(UISpriteAnimated copyFrom, bool baseCopy = false)
+        {
+            Animation = copyFrom.Animation;
+            CurrentFrame = copyFrom.CurrentFrame;
+            CurrentFrameTime = copyFrom.CurrentFrameTime;
+            IsPlaying = copyFrom.IsPlaying;
+
+            if (baseCopy)
+                BaseCopy(copyFrom);
+        }
+
         public UISpriteAnimated(UITextureAnimation animation, bool autoPlay)
         {
             Animation = animation;
