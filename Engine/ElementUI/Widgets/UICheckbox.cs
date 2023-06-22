@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Veldrid;
 
 namespace ElementEngine.ElementUI
@@ -40,7 +37,7 @@ namespace ElementEngine.ElementUI
                     checkChild.IsChecked = false;
             }
         }
-        
+
         public UICheckbox GetSelected()
         {
             foreach (var child in Children)
@@ -51,7 +48,7 @@ namespace ElementEngine.ElementUI
 
             return null;
         }
-    } // UIRadioSelectionGroup
+    }
 
     public class UICheckbox : UIObject
     {
@@ -65,9 +62,9 @@ namespace ElementEngine.ElementUI
 
         public bool IsRadioButton => RadioGroup != null;
         public UILabelStyle TextStyle => IsHovered ? Style.TextStyleHover ?? Style.TextStyleNormal : Style.TextStyleNormal;
-        
+
         public event Action<UIOnValueChangedArgs<bool>> OnValueChanged;
-        
+
         internal bool _isChecked;
         public bool IsChecked
         {
@@ -210,5 +207,5 @@ namespace ElementEngine.ElementUI
 
             return false;
         }
-    } // UICheckbox
+    }
 }

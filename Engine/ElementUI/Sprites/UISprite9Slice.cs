@@ -1,10 +1,19 @@
-﻿namespace ElementEngine.ElementUI
+﻿using Veldrid;
+
+namespace ElementEngine.ElementUI
 {
     public class UISprite9Slice : UISprite
     {
         public UITexture TopLeft, TopRight, TopCenter;
         public UITexture MiddleLeft, MiddleRight, MiddleCenter;
         public UITexture BottomLeft, BottomRight, BottomCenter;
+
+        public UISprite9Slice(string assetNameAll)
+            : this(assetNameAll, assetNameAll, assetNameAll,
+                  assetNameAll, assetNameAll, assetNameAll,
+                  assetNameAll, assetNameAll, assetNameAll)
+        {
+        }
 
         public UISprite9Slice(
             string assetNameTopLeft, string assetNameTopRight, string assetNameTopCenter,
@@ -20,6 +29,13 @@
                   new UITexture(AssetManager.Instance.LoadTexture2D(assetNameBottomLeft)),
                   new UITexture(AssetManager.Instance.LoadTexture2D(assetNameBottomRight)),
                   new UITexture(AssetManager.Instance.LoadTexture2D(assetNameBottomCenter)))
+        {
+        }
+
+        public UISprite9Slice(UITexture all)
+            : this(all, all, all,
+                  all, all, all,
+                  all, all, all)
         {
         }
 
@@ -41,7 +57,10 @@
 
         public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0)
         {
-            UIRendering.Render9Slice(spriteBatch, GetDrawPosition(parent, position, size ?? Size), size ?? Size,
+            UIRendering.Render9Slice(spriteBatch,
+                Color ?? RgbaByte.White,
+                GetDrawPosition(parent, position, size ?? Size),
+                size ?? Size,
                 TopLeft, TopRight, TopCenter,
                 MiddleLeft, MiddleRight, MiddleCenter,
                 BottomLeft, BottomRight, BottomCenter);

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Veldrid;
-
-using Rectangle = ElementEngine.Rectangle;
 
 namespace ElementEngine.ElementUI
 {
@@ -31,7 +28,7 @@ namespace ElementEngine.ElementUI
         public int ScrollSpeed = 15;
 
         public List<UIAnimation> UIAnimations = new();
-        
+
         public bool IsFocused => ParentScreen.FocusedObject == this;
         public bool CanFocus = true;
         public bool IgnoreOverflow = false;
@@ -59,7 +56,7 @@ namespace ElementEngine.ElementUI
         public event Action<OnHoverArgs> OnHoverEnter;
         public event Action<OnHoverArgs> OnHoverExit;
         #endregion
-        
+
         #region Position, Size & Bounds
         internal bool _ignoreParentPadding;
         public bool IgnoreParentPadding
@@ -551,6 +548,11 @@ namespace ElementEngine.ElementUI
                 _padding.Bottom = value;
                 SetLayoutDirty();
             }
+        }
+
+        public void SetPadding(UISpacing padding)
+        {
+            SetPadding(padding.Left, padding.Right, padding.Top, padding.Bottom);
         }
 
         public void SetPadding(int padding)
@@ -1498,6 +1500,5 @@ namespace ElementEngine.ElementUI
         {
             return $"{GetType().Name} - {Name} [{Bounds}]";
         }
-
-    } // UIObject
+    }
 }

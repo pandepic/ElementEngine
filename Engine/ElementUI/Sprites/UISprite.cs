@@ -1,4 +1,6 @@
-﻿namespace ElementEngine.ElementUI
+﻿using Veldrid;
+
+namespace ElementEngine.ElementUI
 {
     public class UISprite
     {
@@ -6,6 +8,7 @@
         public UIPosition Position;
         public UISpacing Margin;
         public bool IgnoreSize;
+        public RgbaByte? Color;
 
         public virtual void Update(GameTimer gameTimer) { }
         public virtual void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0f) { }

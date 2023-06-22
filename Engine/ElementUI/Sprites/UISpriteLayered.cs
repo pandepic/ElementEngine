@@ -31,6 +31,5 @@ namespace ElementEngine.ElementUI
             foreach (var sprite in Sprites)
                 sprite.Draw(parent, spriteBatch, position, size, rotation);
         }
-
-    } // UISpriteLayered
+    }
 }

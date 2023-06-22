@@ -1,9 +1,12 @@
-﻿namespace ElementEngine.ElementUI
+﻿using Veldrid;
+
+namespace ElementEngine.ElementUI
 {
     public static class UIRendering
     {
         public static void Render3SliceHorizontal(
             SpriteBatch2D spriteBatch,
+            RgbaByte color,
             Vector2I position,
             Vector2I size,
             UITexture left,
@@ -52,6 +55,7 @@
 
         public static void Render3SliceVertical(
             SpriteBatch2D spriteBatch,
+            RgbaByte color,
             Vector2I position,
             Vector2I size,
             UITexture top,
@@ -100,7 +104,7 @@
         }
 
         public static void Render9Slice(
-            SpriteBatch2D spriteBatch, Vector2I position, Vector2I size,
+            SpriteBatch2D spriteBatch, RgbaByte color, Vector2I position, Vector2I size,
             UITexture topLeft, UITexture topRight, UITexture topCenter,
             UITexture middleLeft, UITexture middleRight, UITexture middleCenter,
             UITexture bottomLeft, UITexture bottomRight, UITexture bottomCenter)
@@ -112,7 +116,14 @@
             var middleHeight = (int)(size.Y - topTextureHeight - bottomTextureHeight);
             var middleDrawPos = new Vector2I(0, topTextureHeight);
 
-            Render3SliceHorizontal(spriteBatch, position, size, topLeft, topRight, topCenter);
+            Render3SliceHorizontal(
+                spriteBatch,
+                color,
+                position,
+                size,
+                topLeft,
+                topRight,
+                topCenter);
 
             while (middleHeight > 0)
             {
@@ -125,6 +136,7 @@
                 {
                     Render3SliceHorizontal(
                         spriteBatch,
+                        color,
                         position + middleDrawPos,
                         size,
                         middleLeft,
@@ -141,6 +153,7 @@
             {
                 Render3SliceHorizontal(
                     spriteBatch,
+                    color,
                     position + middleDrawPos,
                     size,
                     bottomLeft,

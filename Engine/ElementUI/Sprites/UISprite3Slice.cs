@@ -1,4 +1,6 @@
-﻿namespace ElementEngine.ElementUI
+﻿using Veldrid;
+
+namespace ElementEngine.ElementUI
 {
     public class UISprite3SliceHorizontal : UISprite
     {
@@ -26,10 +28,16 @@
 
         public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0)
         {
-            UIRendering.Render3SliceHorizontal(spriteBatch, GetDrawPosition(parent, position, size ?? Size), size ?? Size, Left, Right, Center);
+            UIRendering.Render3SliceHorizontal(
+                spriteBatch,
+                Color ?? RgbaByte.White,
+                GetDrawPosition(parent, position, size ?? Size),
+                size ?? Size,
+                Left,
+                Right,
+                Center);
         }
-
-    } // UISprite3SliceHorizontal
+    }
 
     public class UISprite3SliceVertical : UISprite
     {
@@ -57,8 +65,14 @@
 
         public override void Draw(UIObject parent, SpriteBatch2D spriteBatch, Vector2I position, Vector2I? size = null, float rotation = 0)
         {
-            UIRendering.Render3SliceVertical(spriteBatch, GetDrawPosition(parent, position, size ?? Size), size ?? Size, Top, Bottom, Center);
+            UIRendering.Render3SliceVertical(
+                spriteBatch,
+                Color ?? RgbaByte.White,
+                GetDrawPosition(parent, position, size ?? Size),
+                size ?? Size,
+                Top,
+                Bottom,
+                Center);
         }
-
-    } // UISprite3SliceVertical
+    }
 }

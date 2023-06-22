@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using ElementEngine.ECS;
 using ImGuiNET;
-using Vortice.Direct3D;
 
 namespace ElementEngine
 {

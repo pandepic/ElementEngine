@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -59,8 +60,14 @@ namespace ElementEngine.ElementUI
             if (size.HasValue)
                 scale = size.Value.ToVector2() / Size.ToVector2();
 
-            Animation.Texture.Draw(spriteBatch, GetDrawPosition(parent, position, size ?? Size).ToVector2(), sourceRect, scale, rotation);
+            Animation.Texture.Draw(
+                spriteBatch,
+                GetDrawPosition(parent, position, size ?? Size).ToVector2(),
+                sourceRect,
+                scale,
+                rotation,
+                null,
+                Color ?? RgbaByte.White);
         }
-
-    } // UISpriteAnimated
+    }
 }

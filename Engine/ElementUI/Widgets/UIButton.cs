@@ -57,7 +57,7 @@ namespace ElementEngine.ElementUI
 
             return null;
         }
-    } // UIButtonTabGroup
+    }
 
     public class UIButton : UIObject
     {
@@ -163,7 +163,12 @@ namespace ElementEngine.ElementUI
                 currentImage.ShowEnable();
                 _prevImage = currentImage;
             }
-        } // UpdateCurrentImage
+        }
+
+        public void TriggerClick(MouseButton? button = null)
+        {
+            OnClick?.Invoke(new UIOnClickArgs(this, button ?? MouseButton.Left));
+        }
 
         protected override void InternalUpdate(GameTimer gameTimer)
         {
