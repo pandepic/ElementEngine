@@ -1,72 +1,45 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ElementEngine
 {
-    public class SparseSet : IEnumerable<int>
+    public class SparseSet
     {
-        public struct Enumerator : IEnumerator, IEnumerator<int>
+        public ref struct Enumerator
         {
-            private int _current;
-            private SparseSet _set;
+            private readonly SparseSet _sparseSet;
             private int _index;
 
-            public int Current
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal Enumerator(SparseSet sparseSet)
             {
-                get
-                {
-                    if (_index > -1)
-                        return _current;
-                    else if (_index == -1)
-                        throw new InvalidOperationException("Enumerator not yet started");
-                    else
-                        throw new InvalidOperationException("Enumerator reached end");
-                }
-            }
-
-            object IEnumerator.Current
-            {
-                get
-                {
-                    return Current;
-                }
-            }
-
-            internal Enumerator(SparseSet set)
-            {
-                _set = set;
+                _sparseSet = sparseSet;
                 _index = -1;
-                _current = default;
             }
 
-            void IDisposable.Dispose()
-            {
-            }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                if (_index > -2 && _index < _set.Size - 1)
+                int index = _index + 1;
+                if (index < _sparseSet.Size)
                 {
-                    _current = _set[++_index];
+                    _index = index;
                     return true;
                 }
-                else
-                {
-                    _index = -2; // -2 indicates "past the end"
-                    return false;
-                }
+
+                return false;
             }
 
-            public void Reset()
+            public ref int Current
             {
-                _index = -1;
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => ref _sparseSet[_index];
             }
-        } // Enumerator
+        }
+
+        public Enumerator GetEnumerator() => new Enumerator(this);
 
         protected int _arraySize;
 
@@ -78,7 +51,7 @@ namespace ElementEngine
         public int ArraySize { get => _arraySize; }
         public bool AllowResize { get; protected set; }
 
-        public int this[int index] => Dense[index];
+        public ref int this[int index] => ref Dense[index];
 
         public SparseSet(int maxValue, bool allowResize = true)
         {
@@ -183,75 +156,43 @@ namespace ElementEngine
 
             return true;
         }
+    }
 
-        public IEnumerator<int> GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    } // SparseSet
-
-    public class SparseSet<T> : SparseSet, IEnumerable<T>
+    public class SparseSet<T> : SparseSet
     {
-        public new struct Enumerator : IEnumerator, IEnumerator<T>
+        public new ref struct Enumerator
         {
-            private T _current;
-            private SparseSet<T> _set;
+            private readonly SparseSet<T> _sparseSet;
             private int _index;
 
-            public T Current
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal Enumerator(SparseSet<T> sparseSet)
             {
-                get
-                {
-                    if (_index > -1)
-                        return _current;
-                    else if (_index == -1)
-                        throw new InvalidOperationException("Enumerator not yet started");
-                    else
-                        throw new InvalidOperationException("Enumerator reached end");
-                }
-            }
-
-            object IEnumerator.Current
-            {
-                get
-                {
-                    return Current;
-                }
-            }
-
-            internal Enumerator(SparseSet<T> set)
-            {
-                _set = set;
+                _sparseSet = sparseSet;
                 _index = -1;
-                _current = default;
             }
 
-            void IDisposable.Dispose()
-            {
-            }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                if (_index > -2 && _index < _set.Size - 1)
+                int index = _index + 1;
+                if (index < _sparseSet.Size)
                 {
-                    _current = _set.Data[++_index];
+                    _index = index;
                     return true;
                 }
-                else
-                {
-                    _index = -2; // -2 indicates "past the end"
-                    return false;
-                }
+
+                return false;
             }
 
-            public void Reset()
+            public ref T Current
             {
-                _index = -1;
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => ref _sparseSet[_index];
             }
-        } // Enumerator
+        }
+
+        public new Enumerator GetEnumerator() => new Enumerator(this);
 
         public T[] Data;
         protected int _nextID = 0;
@@ -344,11 +285,5 @@ namespace ElementEngine
 
             return false;
         }
-
-        public new IEnumerator<T> GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
-
-    } // SparseSet<T>
+    }
 }
