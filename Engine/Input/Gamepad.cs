@@ -7,11 +7,11 @@ namespace ElementEngine
 {
     internal struct AxisMotionEvent
     {
-        internal GameControllerInputType InputType;
-        internal GameControllerAxisMotionType MotionType;
+        internal GamepadInputType InputType;
+        internal GamepadAxisMotionType MotionType;
         internal float Value;
 
-        public AxisMotionEvent(GameControllerInputType inputType, GameControllerAxisMotionType motionType, float value)
+        public AxisMotionEvent(GamepadInputType inputType, GamepadAxisMotionType motionType, float value)
         {
             InputType = inputType;
             MotionType = motionType;
@@ -19,13 +19,13 @@ namespace ElementEngine
         }
     }
 
-    internal struct GameControllerButtonEvent
+    internal struct GamepadButtonEvent
     {
-        internal GameControllerButtonType ButtonType;
+        internal GamepadButtonType ButtonType;
         internal bool IsPressed;
         internal bool PrevIsPressed;
 
-        public GameControllerButtonEvent(GameControllerButtonType buttonType, bool isPressed, bool prevIsPressed)
+        public GamepadButtonEvent(GamepadButtonType buttonType, bool isPressed, bool prevIsPressed)
         {
             ButtonType = buttonType;
             IsPressed = isPressed;
@@ -33,29 +33,29 @@ namespace ElementEngine
         }
     }
 
-    public class GameController : IDisposable
+    public class Gamepad : IDisposable
     {
-        public readonly SDL_GameController Controller;
+        public readonly SDL_GameController SDLController;
 
         public int ControllerIndex;
         public string ControllerName;
         public float Deadzone;
 
         internal readonly Dictionary<SDL_GameControllerAxis, float> AxisValues = new();
-        internal readonly Dictionary<GameControllerButtonType, bool> ButtonsPressed = new();
-        internal readonly List<GameControllerButtonEvent> ButtonEvents = new();
+        internal readonly Dictionary<GamepadButtonType, bool> ButtonsPressed = new();
+        internal readonly List<GamepadButtonEvent> ButtonEvents = new();
         internal readonly List<AxisMotionEvent> AxisMotionEvents = new();
 
         public void Dispose()
         {
-            Sdl2Native.SDL_GameControllerClose(Controller);
+            Sdl2Native.SDL_GameControllerClose(SDLController);
         }
 
-        public unsafe GameController(int controllerIndex, float deadzone)
+        public unsafe Gamepad(int controllerIndex, float deadzone)
         {
             ControllerIndex = controllerIndex;
-            Controller = Sdl2Native.SDL_GameControllerOpen(controllerIndex);
-            ControllerName = Marshal.PtrToStringUTF8((IntPtr)Sdl2Native.SDL_GameControllerName(Controller));
+            SDLController = Sdl2Native.SDL_GameControllerOpen(controllerIndex);
+            ControllerName = Marshal.PtrToStringUTF8((IntPtr)Sdl2Native.SDL_GameControllerName(SDLController));
             Deadzone = deadzone;
         }
 
@@ -71,7 +71,7 @@ namespace ElementEngine
             return pressed;
         }
 
-        public bool IsButtonPressed(GameControllerButtonType button)
+        public bool IsButtonPressed(GamepadButtonType button)
         {
             ButtonsPressed.TryGetValue(button, out bool pressed);
             return pressed;

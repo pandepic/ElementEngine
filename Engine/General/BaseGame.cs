@@ -135,15 +135,15 @@ namespace ElementEngine
 
         } // SetupWindow
 
-        public void EnableGameControllers(bool applyMappings = false)
+        public void EnableGamepads(bool applyMappings = false)
         {
             Sdl2Native.SDL_Init(SDLInitFlags.GameController);
 
             if (applyMappings)
-                GameControllerMapping.ApplyMappings(PlatformType);
+                GamepadMapping.ApplyMappings(PlatformType);
 
-            InputManager.LoadGameControllers();
-            Sdl2Events.Subscribe(InputManager.ProcessGameControllerEvents);
+            InputManager.LoadGamepads();
+            Sdl2Events.Subscribe(InputManager.ProcessGamepadEvents);
 
             Logging.Information("Controller input enabled.");
         }

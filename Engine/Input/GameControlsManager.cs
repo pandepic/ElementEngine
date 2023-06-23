@@ -22,7 +22,7 @@ namespace ElementEngine
     {
         Keyboard,
         Mouse,
-        GameController,
+        Gamepad,
     }
 
     public class KeyboardGameControl
@@ -38,31 +38,31 @@ namespace ElementEngine
         public List<MouseWheelChangeType> WheelInputs { get; set; }
     };
 
-    public class GameControllerGameControl
+    public class GamepadGameControl
     {
         public string Name { get; set; }
-        public GameControllerInputType InputType { get; set; }
-        public List<List<GameControllerButtonType>> ControlButtons { get; set; }
+        public GamepadInputType InputType { get; set; }
+        public List<List<GamepadButtonType>> ControlButtons { get; set; }
     }
 
     public interface IGameControlHandler
     {
         public void HandleGameControl(string controlName, GameControlState state, GameTimer gameTimer);
-        public void HandleControllerGameControl(GameController controller, string controlName, GameControlState state, GameTimer gameTimer);
-        public void HandleControllerAxisMotion(GameController controller, string controlName, GameControllerAxisMotionType motionType, float value, GameTimer gameTimer);
+        public void HandleGamepadGameControl(Gamepad controller, string controlName, GameControlState state, GameTimer gameTimer);
+        public void HandleGamepadAxisMotion(Gamepad controller, string controlName, GamepadAxisMotionType motionType, float value, GameTimer gameTimer);
     }
 
-    public class GameControlsManager : IKeyboardHandler, IMouseHandler, IGameControllerHandler
+    public class GameControlsManager : IKeyboardHandler, IMouseHandler, IGamepadHandler
     {
         public int KeyboardPriority { get; set; } = 0;
         public int MousePriority { get; set; } = 0;
-        public int GameControllerPriority { get; set; } = 0;
+        public int GamepadPriority { get; set; } = 0;
 
         public List<IGameControlHandler> Handlers = new List<IGameControlHandler>();
 
         public List<KeyboardGameControl> KeyboardControls = new List<KeyboardGameControl>();
         public List<MouseGameControl> MouseControls = new List<MouseGameControl>();
-        public List<GameControllerGameControl> GameControllerControls = new List<GameControllerGameControl>();
+        public List<GamepadGameControl> GamepadControls = new List<GamepadGameControl>();
 
         public GameControlsManager(string settingsSection)
         {
@@ -132,38 +132,38 @@ namespace ElementEngine
 
                     Logging.Information("[{component}] loaded mouse control {name}.", "GameControlsManager", newMouseControl.Name);
                 }
-                else if (controlType == GameControlInputType.GameController)
+                else if (controlType == GameControlInputType.Gamepad)
                 {
-                    var newControl = new GameControllerGameControl()
+                    var newControl = new GamepadGameControl()
                     {
                         Name = setting.Name,
                         ControlButtons = new(),
                     };
 
-                    if (Enum.TryParse<GameControllerInputType>(setting.Value, out var inputType))
+                    if (Enum.TryParse<GamepadInputType>(setting.Value, out var inputType))
                     {
                         newControl.InputType = inputType;
                     }
                     else
                     {
-                        newControl.InputType = GameControllerInputType.Button;
+                        newControl.InputType = GamepadInputType.Button;
 
                         foreach (var controlComboInfo in controlComboSplit)
                         {
-                            var controlButtonList = new List<GameControllerButtonType>();
+                            var controlButtonList = new List<GamepadButtonType>();
                             var controlSplit = controlComboInfo.Split("+", StringSplitOptions.RemoveEmptyEntries);
 
                             foreach (var controlInfo in controlSplit)
-                                controlButtonList.Add(controlInfo.ToEnum<GameControllerButtonType>());
+                                controlButtonList.Add(controlInfo.ToEnum<GamepadButtonType>());
 
                             newControl.ControlButtons.Add(controlButtonList);
                         }
                     }
 
-                    GameControllerControls.Add(newControl);
+                    GamepadControls.Add(newControl);
                     loadedCount += 1;
 
-                    Logging.Information("[{component}] loaded controller control {name}.", "GameControlsManager", newControl.Name);
+                    Logging.Information("[{component}] loaded gamepad control {name}.", "GameControlsManager", newControl.Name);
                 }
             } // foreach setting
 
@@ -176,22 +176,19 @@ namespace ElementEngine
         {
             foreach (var control in KeyboardControls)
                 CheckKeyboardControl(control, key, GameControlState.Pressed, gameTimer);
-
-        } // HandleKeyPressed
+        }
 
         public void HandleKeyReleased(Key key, GameTimer gameTimer)
         {
             foreach (var control in KeyboardControls)
                 CheckKeyboardControl(control, key, GameControlState.Released, gameTimer);
-
-        } // HandleKeyReleased
+        }
 
         public void HandleKeyDown(Key key, GameTimer gameTimer)
         {
             foreach (var control in KeyboardControls)
                 CheckKeyboardControl(control, key, GameControlState.Down, gameTimer);
-
-        } // HandleKeyDown
+        }
 
         public void CheckKeyboardControl(KeyboardGameControl control, Key key, GameControlState state, GameTimer gameTimer)
         {
@@ -232,7 +229,7 @@ namespace ElementEngine
                 if (mainKey && otherKeys)
                     TriggerGameControl(control.Name, state, gameTimer);
             }
-        } // CheckKeyboardControl
+        }
 
         public void HandleMouseMotion(Vector2 mousePosition, Vector2 prevMousePosition, GameTimer gameTimer)
         {
@@ -248,8 +245,7 @@ namespace ElementEngine
                         TriggerGameControl(control.Name, GameControlState.Pressed, gameTimer);
                 }
             }
-
-        } // HandleMouseButtonPressed
+        }
 
         public void HandleMouseButtonReleased(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
@@ -261,7 +257,7 @@ namespace ElementEngine
                         TriggerGameControl(control.Name, GameControlState.Released, gameTimer);
                 }
             }
-        } // HandleMouseButtonReleased
+        }
 
         public void HandleMouseButtonDown(Vector2 mousePosition, MouseButton button, GameTimer gameTimer)
         {
@@ -273,7 +269,7 @@ namespace ElementEngine
                         TriggerGameControl(control.Name, GameControlState.Down, gameTimer);
                 }
             }
-        } // HandleMouseButtonDown
+        }
 
         public void HandleMouseWheel(Vector2 mousePosition, MouseWheelChangeType type, float mouseWheelDelta, GameTimer gameTimer)
         {
@@ -285,27 +281,27 @@ namespace ElementEngine
                         TriggerGameControl(control.Name, type == MouseWheelChangeType.WheelUp ? GameControlState.WheelUp : GameControlState.WheelDown, gameTimer);
                 }
             }
-        } // HandleMouseWheel
+        }
         
-        public void HandleControllerButtonPressed(GameController controller, GameControllerButtonType button, GameTimer gameTimer)
+        public void HandleGamepadButtonPressed(Gamepad gamepad, GamepadButtonType button, GameTimer gameTimer)
         {
-            foreach (var control in GameControllerControls)
-                CheckGameControllerControl(controller, control, button, GameControlState.Pressed, gameTimer);
+            foreach (var control in GamepadControls)
+                CheckGamepadControl(gamepad, control, button, GameControlState.Pressed, gameTimer);
         }
 
-        public void HandleControllerButtonReleased(GameController controller, GameControllerButtonType button, GameTimer gameTimer)
+        public void HandleGamepadButtonReleased(Gamepad gamepad, GamepadButtonType button, GameTimer gameTimer)
         {
-            foreach (var control in GameControllerControls)
-                CheckGameControllerControl(controller, control, button, GameControlState.Released, gameTimer);
+            foreach (var control in GamepadControls)
+                CheckGamepadControl(gamepad, control, button, GameControlState.Released, gameTimer);
         }
 
-        public void HandleControllerButtonDown(GameController controller, GameControllerButtonType button, GameTimer gameTimer)
+        public void HandleGamepadButtonDown(Gamepad gamepad, GamepadButtonType button, GameTimer gameTimer)
         {
-            foreach (var control in GameControllerControls)
-                CheckGameControllerControl(controller, control, button, GameControlState.Down, gameTimer);
+            foreach (var control in GamepadControls)
+                CheckGamepadControl(gamepad, control, button, GameControlState.Down, gameTimer);
         }
 
-        public void CheckGameControllerControl(GameController controller, GameControllerGameControl control, GameControllerButtonType button, GameControlState state, GameTimer gameTimer)
+        public void CheckGamepadControl(Gamepad gamepad, GamepadGameControl control, GamepadButtonType button, GameControlState state, GameTimer gameTimer)
         {
             foreach (var controlButtonList in control.ControlButtons)
             {
@@ -326,7 +322,7 @@ namespace ElementEngine
                     {
                         var buttonFound = false;
 
-                        if (controller.IsButtonPressed(controlButton))
+                        if (gamepad.IsButtonPressed(controlButton))
                             buttonFound = true;
 
                         if (firstOtherButton && buttonFound)
@@ -342,18 +338,18 @@ namespace ElementEngine
                 }
 
                 if (mainButton && otherButtons)
-                    TriggerControllerGameControl(controller, control.Name, state, gameTimer);
+                    TriggerGamepadGameControl(gamepad, control.Name, state, gameTimer);
             }
         }
 
-        public void HandleControllerAxisMotion(GameController controller, GameControllerInputType inputType, GameControllerAxisMotionType motionType, float value, GameTimer gameTimer)
+        public void HandleGamepadAxisMotion(Gamepad gamepad, GamepadInputType inputType, GamepadAxisMotionType motionType, float value, GameTimer gameTimer)
         {
-            foreach (var control in GameControllerControls)
+            foreach (var control in GamepadControls)
             {
                 if (control.InputType == inputType)
                 {
                     foreach (var handler in Handlers)
-                        handler.HandleControllerAxisMotion(controller, control.Name, motionType, value, gameTimer);
+                        handler.HandleGamepadAxisMotion(gamepad, control.Name, motionType, value, gameTimer);
                 }
             }
         }
@@ -364,11 +360,10 @@ namespace ElementEngine
                 handler.HandleGameControl(name, state, gameTimer);
         }
 
-        public void TriggerControllerGameControl(GameController controller, string name, GameControlState state, GameTimer gameTimer)
+        public void TriggerGamepadGameControl(Gamepad gamepad, string name, GameControlState state, GameTimer gameTimer)
         {
             foreach (var handler in Handlers)
-                handler.HandleControllerGameControl(controller, name, state, gameTimer);
+                handler.HandleGamepadGameControl(gamepad, name, state, gameTimer);
         }
-
-    } // GameControlManager
+    }
 }

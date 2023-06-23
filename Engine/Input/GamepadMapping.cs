@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Veldrid.Sdl2;
 
 namespace ElementEngine.Input
 {
-    internal static class GameControllerMapping
+    internal static class GamepadMapping
     {
         /// <summary>
         /// Auto generated using a tool from https://github.com/gabomdq/SDL_GameControllerDB/blob/master/gamecontrollerdb.txt
