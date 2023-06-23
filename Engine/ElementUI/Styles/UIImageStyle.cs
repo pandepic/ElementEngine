@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ElementEngine.ElementUI
+﻿namespace ElementEngine.ElementUI
 {
     public class UIImageStyle : UIStyle
     {
@@ -25,6 +19,5 @@ namespace ElementEngine.ElementUI
             Sprite = sprite;
             ScaleType = scaleType;
         }
-
-    } // UIImageStyle
+    }
 }

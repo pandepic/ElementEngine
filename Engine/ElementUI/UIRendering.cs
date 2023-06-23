@@ -24,7 +24,8 @@ namespace ElementEngine.ElementUI
                 spriteBatch.DrawTexture2D(
                     left.Texture,
                     (new Vector2I(0, 0) + position).ToVector2(),
-                    left.SourceRect);
+                    left.SourceRect,
+                    color: color);
             }
 
             if (right != null)
@@ -34,7 +35,8 @@ namespace ElementEngine.ElementUI
                 spriteBatch.DrawTexture2D(
                     right.Texture,
                     (new Vector2I(endX, 0) + position).ToVector2(),
-                    right.SourceRect);
+                    right.SourceRect,
+                    color: color);
             }
 
             while (currentX < endX)
@@ -47,7 +49,8 @@ namespace ElementEngine.ElementUI
                 spriteBatch.DrawTexture2D(
                     center.Texture,
                     new Rectangle(currentX + position.X, 0 + position.Y, drawWidth, center.Height),
-                    center.SourceRect);
+                    center.SourceRect,
+                    color: color);
 
                 currentX += center.Width;
             }
@@ -74,7 +77,8 @@ namespace ElementEngine.ElementUI
                 spriteBatch.DrawTexture2D(
                     top.Texture,
                     (new Vector2I(0, 0) + position).ToVector2(),
-                    top.SourceRect);
+                    top.SourceRect,
+                    color: color);
             }
 
             if (bottom != null)
@@ -84,7 +88,8 @@ namespace ElementEngine.ElementUI
                 spriteBatch.DrawTexture2D(
                     bottom.Texture,
                     (new Vector2I(0, endY) + position).ToVector2(),
-                    bottom.SourceRect);
+                    bottom.SourceRect,
+                    color: color);
             }
 
             while (currentY < endY)
@@ -97,7 +102,8 @@ namespace ElementEngine.ElementUI
                 spriteBatch.DrawTexture2D(
                     center.Texture,
                     new Rectangle(0 + position.X, currentY + position.Y, center.Width, drawHeight),
-                    center.SourceRect);
+                    center.SourceRect,
+                    color: color);
                 
                 currentY += center.Height;
             }

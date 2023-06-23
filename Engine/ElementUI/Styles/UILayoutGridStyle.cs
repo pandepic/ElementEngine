@@ -21,10 +21,10 @@ namespace ElementEngine.ElementUI
         }
 
         public UILayoutGridStyle(
-            UISpacing cellPadding,
+            UISpacing? cellPadding = null,
             int? maxColumns = null)
         {
-            CellPadding = cellPadding;
+            CellPadding = cellPadding ?? new();
             MaxColumns = maxColumns;
         }
     }
