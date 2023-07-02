@@ -8,6 +8,8 @@ namespace ElementEngine
 {
     public static class MathHelper
     {
+        private static Random _rng = new();
+
         public const float ToRadians = (MathF.PI * 2f) / 360f;
         public const float ToDegrees = 360f / (MathF.PI * 2f);
 
@@ -165,6 +167,15 @@ namespace ElementEngine
             var rotatedPoint = origin + rotatedOffset;
 
             return rotatedPoint;
+        }
+
+        public static Vector2I RandomPointInRect(Rectangle rect, Random rng = null)
+        {
+            rng ??= _rng;
+
+            return new(
+                rect.X + rng.Next(0, rect.Width + 1),
+                rect.Y + rng.Next(0, rect.Height + 1));
         }
     }
 }

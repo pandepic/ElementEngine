@@ -94,6 +94,11 @@ namespace ElementEngine.ElementUI
         protected bool _isExpanded;
         public bool IsExpanded { get => _isExpanded; }
 
+        public UIDropdownList(string name, UIDropdownListStyle style, List<T> items)
+            : this(name, style, UIDropdownHelper.ItemsFrom(items))
+        {
+        }
+
         public UIDropdownList(string name, UIDropdownListStyle style, List<UIDropdownListItem<T>> items) : base(name)
         {
             if (items.Count == 0)
