@@ -9,13 +9,13 @@ namespace ElementEngine
     {
         public ref struct Enumerator
         {
-            private readonly SparseSet _sparseSet;
+            private readonly Span<int> _span;
             private int _index;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Enumerator(SparseSet sparseSet)
             {
-                _sparseSet = sparseSet;
+                _span = new Span<int>(sparseSet.Dense, 0, sparseSet.Size);
                 _index = -1;
             }
 
@@ -23,7 +23,7 @@ namespace ElementEngine
             public bool MoveNext()
             {
                 int index = _index + 1;
-                if (index < _sparseSet.Size)
+                if (index < _span.Length)
                 {
                     _index = index;
                     return true;
@@ -35,7 +35,7 @@ namespace ElementEngine
             public ref int Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => ref _sparseSet[_index];
+                get => ref _span[_index];
             }
         }
 
@@ -162,13 +162,13 @@ namespace ElementEngine
     {
         public new ref struct Enumerator
         {
-            private readonly SparseSet<T> _sparseSet;
+            private readonly Span<T> _span;
             private int _index;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Enumerator(SparseSet<T> sparseSet)
             {
-                _sparseSet = sparseSet;
+                _span = new Span<T>(sparseSet.Data, 0, sparseSet.Size);
                 _index = -1;
             }
 
@@ -176,7 +176,7 @@ namespace ElementEngine
             public bool MoveNext()
             {
                 int index = _index + 1;
-                if (index < _sparseSet.Size)
+                if (index < _span.Length)
                 {
                     _index = index;
                     return true;
@@ -188,7 +188,7 @@ namespace ElementEngine
             public ref T Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => ref _sparseSet[_index];
+                get => ref _span[_index];
             }
         }
 
