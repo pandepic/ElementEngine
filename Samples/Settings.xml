@@ -22,8 +22,8 @@
 		<Setting Name="MoveLeft" Value="A,Left" Type="Keyboard" />
 		<Setting Name="MoveRight" Value="D,Right" Type="Keyboard" />
 		
-		<Setting Name="ControllerMove" Value="LeftAxis" Type="GameController" />
-		<Setting Name="ControllerInteract" Value="A" Type="GameController" />
+		<Setting Name="ControllerMove" Value="LeftAxis" Type="Gamepad" />
+		<Setting Name="ControllerInteract" Value="A" Type="Gamepad" />
 		
 		<Setting Name="MouseInteract" Value="Right" Type="Mouse" />
 	</Section>
