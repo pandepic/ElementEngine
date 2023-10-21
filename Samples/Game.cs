@@ -72,7 +72,7 @@ namespace Samples
             Globals.SetLanguage(SettingsManager.GetSetting<string>("UI", "Language"));
             InputManager.LoadGameControls();
 
-            EnableGameControllers();
+            EnableGamepads();
             UpdateAudioVolume();
 
             Window.Resizable = false;
