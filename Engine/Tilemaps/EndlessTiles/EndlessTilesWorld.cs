@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using ElementEngine.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace ElementEngine.EndlessTiles
 {
@@ -152,10 +151,7 @@ namespace ElementEngine.EndlessTiles
 
         public void LoadFromStream(FileStream fs)
         {
-            var serializer = new JsonSerializer();
-            using var sr = new StreamReader(fs);
-            using var jsonTextReader = new JsonTextReader(sr);
-            var Data = serializer.Deserialize<EndlessTilesWorldData>(jsonTextReader);
+            var Data = JSONUtil.LoadJSON<EndlessTilesWorldData>(fs);
 
             Name = Data.Name;
             Chunks = new Dictionary<Vector2I, EndlessTilesWorldChunk>();

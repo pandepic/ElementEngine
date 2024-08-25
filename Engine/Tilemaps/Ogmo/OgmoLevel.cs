@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using ElementEngine.Util;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace ElementEngine.Ogmo
 {
@@ -61,11 +59,7 @@ namespace ElementEngine.Ogmo
 
         public OgmoLevel(FileStream fs)
         {
-            using var streamReader = new StreamReader(fs);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-
-            var serializer = new JsonSerializer();
-            Data = serializer.Deserialize<OgmoLevelData>(jsonTextReader);
+            Data = JSONUtil.LoadJSON<OgmoLevelData>(fs);
 
             var firstLayer = Data.layers[0];
             LevelSize = new Vector2I(firstLayer.gridCellsX, firstLayer.gridCellsY);

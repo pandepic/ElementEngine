@@ -2,9 +2,9 @@
 using ElementEngine.Ogmo;
 using ElementEngine.TexturePacker;
 using ElementEngine.Tiled;
+using ElementEngine.Util;
 using NAudio.Vorbis;
 using NAudio.Wave;
-using Newtonsoft.Json;
 using SharpGen.Runtime.Win32;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
@@ -15,6 +15,8 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Xml.Linq;
 
 namespace ElementEngine
@@ -292,12 +294,18 @@ namespace ElementEngine
             return _assetData[assetName].FilePath;
         }
 
-        public FileStream GetAssetStream(string assetName, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read)
+        public FileStream GetAssetStream(
+            string assetName,
+            FileMode mode = FileMode.Open,
+            FileAccess access = FileAccess.Read)
         {
             return new FileStream(GetAssetPath(assetName), mode, access);
         }
 
-        public FileStream GetFileStream(string path, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read)
+        public FileStream GetFileStream(
+            string path,
+            FileMode mode = FileMode.Open,
+            FileAccess access = FileAccess.Read)
         {
             return new FileStream(path, mode, access);
         }
@@ -305,7 +313,13 @@ namespace ElementEngine
         private void LogLoaded(string type, string assetName, Stopwatch stopWatch)
         {
             stopWatch.Stop();
-            Logging.Information("[{component}] {type} loaded from asset {name} in {time:0.00} ms.", "AssetManager", type, assetName, stopWatch.Elapsed.TotalMilliseconds);
+
+            Logging.Information(
+                "[{component}] {type} loaded from asset {name} in {time:0.00} ms.",
+                "AssetManager",
+                type,
+                assetName,
+                stopWatch.Elapsed.TotalMilliseconds);
         }
 
         public T GetFromCache<T>(string assetName)
@@ -345,27 +359,18 @@ namespace ElementEngine
             return true;
         }
 
-        public T LoadJSON<T>(string assetName, JsonSerializer serializer = null, List<JsonConverter> converters = null)
+        public T LoadJSON<T>(
+            string assetName,
+            JsonSerializerOptions serializerOptions = null,
+            List<JsonConverter> converters = null)
         {
             if (TryGetFromCache<T>(assetName, out var cachedAsset))
                 return cachedAsset;
 
             var stopWatch = Stopwatch.StartNew();
 
-            using var fileStream = GetAssetStream(assetName);
-            using var streamReader = new StreamReader(fileStream);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-
-            if (serializer == null)
-                serializer = new JsonSerializer();
-
-            if (converters != null)
-            {
-                foreach (var converter in converters)
-                    serializer.Converters.Add(converter);
-            }
-
-            var obj = serializer.Deserialize<T>(jsonTextReader);
+            var json = File.ReadAllText(GetAssetPath(assetName));
+            var obj = JSONUtil.LoadJSON<T>(json, serializerOptions, converters);
 
             TryAddToCache(assetName, obj);
             LogLoaded("JSON (" + typeof(T).ToString() + ")", assetName, stopWatch);

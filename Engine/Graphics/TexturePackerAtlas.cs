@@ -1,11 +1,9 @@
 ﻿using ElementEngine.ElementUI;
-using Newtonsoft.Json;
+using ElementEngine.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace ElementEngine.TexturePacker
 {
@@ -83,11 +81,7 @@ namespace ElementEngine.TexturePacker
             if (assetManager == null)
                 assetManager = AssetManager.Instance;
 
-            var serializer = new JsonSerializer();
-            using var sr = new StreamReader(fs);
-            using var jsonTextReader = new JsonTextReader(sr);
-
-            Data = serializer.Deserialize<TexturePackerAtlasData>(jsonTextReader);
+            Data = JSONUtil.LoadJSON<TexturePackerAtlasData>(fs);
             TextureAsset = textureAsset;
             DataAsset = dataAsset;
 
