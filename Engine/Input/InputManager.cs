@@ -668,6 +668,8 @@ namespace ElementEngine
 
         public static void AddGameControlHandler(IGameControlHandler handler)
         {
+            if (_gameControlsManager == null)
+                return;
             if (_gameControlsManager.Handlers.Contains(handler))
                 return;
 

@@ -81,7 +81,11 @@ namespace ElementEngine.TexturePacker
             if (assetManager == null)
                 assetManager = AssetManager.Instance;
 
-            Data = JSONUtil.LoadJSON<TexturePackerAtlasData>(fs);
+            Data = JSONUtil.LoadJSON<TexturePackerAtlasData>(fs, new JsonSerializerOptions()
+            {
+                IncludeFields = true,
+            });
+
             TextureAsset = textureAsset;
             DataAsset = dataAsset;
 
