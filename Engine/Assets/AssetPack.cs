@@ -135,7 +135,7 @@ namespace ElementEngine
         {
             var fileName = Path.GetFileName(fs.Name);
             var bytes = new byte[fs.Length];
-            fs.Read(bytes, 0, bytes.Length);
+            fs.ReadExactly(bytes);
 
             var packFile = new AssetPackFile()
             {
@@ -169,7 +169,7 @@ namespace ElementEngine
                     case ".jpg":
                     case ".png":
                     case ".bmp":
-                        assetManager.LoadTexture2DFromStream(ms, assetName, log: log) ;
+                        assetManager.LoadTexture2DFromStream(ms, assetName, log: log);
                         break;
 
                     case ".ttf":

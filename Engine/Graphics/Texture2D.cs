@@ -215,7 +215,7 @@ namespace ElementEngine
 
         public Span<T> GetData<T>() where T : unmanaged
         {
-            return MemoryMarshal.Cast<byte, T>(GetData());
+            return MemoryMarshal.Cast<byte, T>(GetData().AsSpan());
         }
 
         public TextureView GetTextureView()
@@ -230,7 +230,7 @@ namespace ElementEngine
             if (type == TexturePremultiplyType.None)
                 return;
 
-            var data = MemoryMarshal.Cast<byte, RgbaByte>(GetData());
+            var data = MemoryMarshal.Cast<byte, RgbaByte>(GetData().AsSpan());
 
             for (var i = 0; i < data.Length; i++)
             {

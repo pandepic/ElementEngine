@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Engine/ElementEngine.csproj" />
+  <Project Path="Samples/Samples.csproj" />
+</Solution>
