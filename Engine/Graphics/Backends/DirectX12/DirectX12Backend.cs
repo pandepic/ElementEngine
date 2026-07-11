@@ -15,6 +15,15 @@ namespace ElementEngine;
 
 internal unsafe sealed partial class DirectX12Backend : IGraphicsBackend
 {
+    // PublicationOnly so a failed load is retried on the next backend creation instead of
+    // caching the exception for the process lifetime.
+    private static readonly Lazy<ProcessLifetimeNativeContext> D3D12Context = new(
+        () => new ProcessLifetimeNativeContext("d3d12.dll"),
+        LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<ProcessLifetimeNativeContext> DxgiContext = new(
+        () => new ProcessLifetimeNativeContext("dxgi.dll"),
+        LazyThreadSafetyMode.PublicationOnly);
+
     private const int FrameCount = 3;
     private const uint ShaderResourceDescriptorCapacity = 16384;
     private const uint SamplerDescriptorCapacity = 2048;
@@ -76,10 +85,8 @@ internal unsafe sealed partial class DirectX12Backend : IGraphicsBackend
 
         _window = window;
         _options = options;
-        _d3d12 = D3D12Api.GetApi();
-#pragma warning disable CS0618 // ElementEngine owns the Win32 window and selects native DXGI without Silk.NET.Windowing.
-        _dxgi = DXGIApi.GetApi();
-#pragma warning restore CS0618
+        _d3d12 = new D3D12Api(D3D12Context.Value);
+        _dxgi = new DXGIApi(DxgiContext.Value);
 
         for (var index = 0; index < FrameCount; index++)
             _frameTransients[index] = [];

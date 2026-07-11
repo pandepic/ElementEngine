@@ -3,7 +3,6 @@ using ElementEngine.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 
 namespace ElementEngine.TexturePacker
 {
@@ -81,10 +80,7 @@ namespace ElementEngine.TexturePacker
             if (assetManager == null)
                 assetManager = AssetManager.Instance;
 
-            Data = JSONUtil.LoadJSON<TexturePackerAtlasData>(fs, new JsonSerializerOptions()
-            {
-                IncludeFields = true,
-            });
+            Data = JSONUtil.LoadJSON(fs, EngineJsonContext.Default.TexturePackerAtlasData);
 
             TextureAsset = textureAsset;
             DataAsset = dataAsset;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
@@ -239,7 +240,11 @@ namespace ElementEngine.ECS
                 store.Value.Clear();
         }
 
-        public bool TryAddComponent<T>(Entity entity, T component) where T : struct
+        public bool TryAddComponent<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] T>(
+            Entity entity,
+            T component)
+            where T : struct
         {
             var typeHash = typeof(T).GetHashCode();
 

@@ -14,6 +14,8 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 
 namespace ElementEngine;
@@ -356,18 +358,29 @@ public class AssetManager
         return true;
     }
 
+    [RequiresDynamicCode("Use the overload that accepts JsonTypeInfo<T> when publishing with NativeAOT.")]
+    [RequiresUnreferencedCode("Use the overload that accepts JsonTypeInfo<T> when trimming.")]
     public T LoadJSON<T>(
         string assetName,
         JsonSerializerOptions serializerOptions = null,
         List<JsonConverter> converters = null)
+    {
+        return LoadJSONCore<T>(assetName, path => JSONUtil.LoadJSON<T>(path, serializerOptions, converters));
+    }
+
+    public T LoadJSON<T>(string assetName, JsonTypeInfo<T> typeInfo)
+    {
+        return LoadJSONCore(assetName, path => JSONUtil.LoadJSON(path, typeInfo));
+    }
+
+    private T LoadJSONCore<T>(string assetName, Func<string, T> loader)
     {
         if (TryGetFromCache<T>(assetName, out var cachedAsset))
             return cachedAsset;
 
         var stopWatch = Stopwatch.StartNew();
 
-        var path = GetAssetPath(assetName);
-        var obj = JSONUtil.LoadJSON<T>(path, serializerOptions, converters);
+        var obj = loader(GetAssetPath(assetName));
 
         TryAddToCache(assetName, obj);
         LogLoaded("JSON (" + typeof(T).ToString() + ")", assetName, stopWatch);

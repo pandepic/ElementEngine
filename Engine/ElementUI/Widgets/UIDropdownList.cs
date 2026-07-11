@@ -23,23 +23,23 @@ namespace ElementEngine.ElementUI
 
     public static class UIDropdownHelper
     {
-        public static UIDropdownList<E> CreateFromEnum<E>(string name, UIDropdownListStyle style) where E : Enum
+        public static UIDropdownList<E> CreateFromEnum<E>(string name, UIDropdownListStyle style) where E : struct, Enum
         {
             var items = new List<UIDropdownListItem<E>>();
 
-            foreach (E enumVal in Enum.GetValues(typeof(E)))
-                items.Add(new UIDropdownListItem<E>(Enum.GetName(typeof(E), enumVal), enumVal));
+            foreach (var enumVal in Enum.GetValues<E>())
+                items.Add(new UIDropdownListItem<E>(Enum.GetName(enumVal), enumVal));
 
             var ddl = new UIDropdownList<E>(name, style, items);
             return ddl;
         }
 
-        public static List<UIDropdownListItem<E>> ItemsFromEnum<E>() where E : Enum
+        public static List<UIDropdownListItem<E>> ItemsFromEnum<E>() where E : struct, Enum
         {
             var items = new List<UIDropdownListItem<E>>();
 
-            foreach (E enumVal in Enum.GetValues(typeof(E)))
-                items.Add(new UIDropdownListItem<E>(Enum.GetName(typeof(E), enumVal), enumVal));
+            foreach (var enumVal in Enum.GetValues<E>())
+                items.Add(new UIDropdownListItem<E>(Enum.GetName(enumVal), enumVal));
 
             return items;
         }

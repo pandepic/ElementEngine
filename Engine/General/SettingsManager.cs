@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -125,7 +126,10 @@ namespace ElementEngine
             doc.Save(filePath);
         } // Save
 
-        public static T GetSetting<T>(string section, string name)
+        public static T GetSetting<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(
+            string section,
+            string name)
         {
             var setting = Sections[section].Settings[name].Value;
 

@@ -3,13 +3,14 @@
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="FontStashSharp" Version="0.8.3" />
 		<PackageReference Include="FontStashSharp.StbTrueTypeSharp" Version="0.8.3" />
 		<!--<PackageReference Include="ImGui.NET" Version="1.89.5.1" />-->
-		<PackageReference Include="ImGui.NET" Version="1.87.3" />
+		<PackageReference Include="ImGui.NET" Version="1.87.3" GeneratePathProperty="true" />
 		<PackageReference Include="NVorbis" Version="0.10.5" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
@@ -27,6 +28,17 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Input/GamepadMappings.Linux.txt" LogicalName="ElementEngine.GamepadMappings.Linux.txt" />
+	</ItemGroup>
+
+	<!-- 'osx-universal' is not in the RID graph, so NuGet never maps this native for osx targets.
+	     Bundled unconditionally: this library builds RID-less under ProjectReference publish flows,
+	     so the consuming app's target RID is not visible here. -->
+	<ItemGroup>
+		<Content Include="$(PkgImGui_NET)/runtimes/osx-universal/native/libcimgui.dylib">
+			<Link>runtimes/osx-universal/native/libcimgui.dylib</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 	</ItemGroup>
 
 </Project>

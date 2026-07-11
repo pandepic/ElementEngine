@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ElementEngine.Util;
 
 namespace ElementEngine
 {
@@ -58,7 +59,9 @@ namespace ElementEngine
                 Languages.Add(languageName, language);
             }
 
-            var strings = AssetManager.Instance.LoadJSON<Dictionary<string, string>>(assetName);
+            var strings = AssetManager.Instance.LoadJSON(
+                assetName,
+                EngineJsonContext.Default.DictionaryStringString);
 
             foreach (var str in strings)
             {

@@ -1,11 +1,19 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ElementEngine
 {
     public static partial class Extensions
     {
-        public static T ConvertTo<T>(this object value)
+        [UnconditionalSuppressMessage(
+            "Trimming",
+            "IL2026",
+            Justification = "Nullable<T> resolves through TypeDescriptor's intrinsic converters and " +
+                "custom converters are rooted via TypeConverterAttribute's annotated constructor; " +
+                "verified under NativeAOT and full trimming.")]
+        public static T ConvertTo<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T>(this object value)
         {
             if (value is T t)
             {

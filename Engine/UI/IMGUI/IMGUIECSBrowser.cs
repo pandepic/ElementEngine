@@ -14,8 +14,6 @@ namespace ElementEngine
         public static HashSet<Type> IncludeComponents = new();
         public static HashSet<Type> ExcludeComponents = new();
 
-        public static Dictionary<Type, Func<Entity, object>> GetComponentMethods = new();
-
         public static void SelectRegistry(Registry registry)
         {
             if (SelectedRegistry == registry)
@@ -114,12 +112,15 @@ namespace ElementEngine
                     {
                         foreach (var componentType in status.ComponentTypes)
                         {
-                            var component = GetComponent(componentType, entity);
-
                             ImGui.Text(componentType.Name);
 
-                            foreach (var fieldInfo in componentType.GetFields())
-                                ImGui.Text($"{fieldInfo.Name}: {fieldInfo.GetValue(component)}");
+                            if (SelectedRegistry.ComponentStores.TryGetValue(componentType.GetHashCode(), out var store)
+                                && store is IComponentDebugView componentStore
+                                && componentStore.GetBoxed(entity.ID) is object component)
+                            {
+                                foreach (var fieldInfo in componentStore.PublicFields)
+                                    ImGui.Text($"{fieldInfo.Name}: {fieldInfo.GetValue(component)}");
+                            }
 
                             ImGui.Separator();
                         }
@@ -130,24 +131,5 @@ namespace ElementEngine
             ImGui.End();
         }
 
-        public static object GetComponent(Type type, Entity entity)
-        {
-            if (!GetComponentMethods.TryGetValue(type, out var method))
-            {
-                method = (Func<Entity, object>)Delegate.CreateDelegate(
-                    typeof(Func<Entity, object>),
-                    null,
-                    typeof(IMGUIECSBrowser).GetMethod(nameof(GetComponentGeneric)).MakeGenericMethod(type));
-
-                GetComponentMethods.Add(type, method);
-            }
-
-            return method.Invoke(entity);
-        }
-
-        public static object GetComponentGeneric<T>(Entity entity) where T : struct
-        {
-            return entity.GetComponent<T>();
-        }
     }
 }

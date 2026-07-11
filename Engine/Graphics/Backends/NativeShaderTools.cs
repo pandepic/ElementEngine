@@ -1,4 +1,3 @@
-using Silk.NET.Core.Contexts;
 using Silk.NET.SPIRV.Cross;
 using System;
 using System.IO;
@@ -27,8 +26,7 @@ internal static class NativeShaderTools
     private static ProcessLifetimeNativeContext CreateProcessLifetimeContext(string baseName)
     {
         var libraryName = GetLibraryName(baseName);
-        return new ProcessLifetimeNativeContext(
-            new DefaultNativeContext(FindBundledLibrary(libraryName) ?? libraryName));
+        return new ProcessLifetimeNativeContext(FindBundledLibrary(libraryName) ?? libraryName);
     }
 
     private static string FindBundledLibrary(string libraryName)
@@ -76,23 +74,5 @@ internal static class NativeShaderTools
         if (OperatingSystem.IsMacOS())
             return $"lib{baseName}.dylib";
         return $"lib{baseName}.so";
-    }
-
-    private sealed class ProcessLifetimeNativeContext(INativeContext context) : INativeContext
-    {
-        public nint GetProcAddress(string proc, int? slot = default)
-        {
-            return context.GetProcAddress(proc, slot);
-        }
-
-        public bool TryGetProcAddress(string proc, out nint addr, int? slot = default)
-        {
-            return context.TryGetProcAddress(proc, out addr, slot);
-        }
-
-        public void Dispose()
-        {
-            // API wrappers share this native library, which remains loaded until process exit.
-        }
     }
 }

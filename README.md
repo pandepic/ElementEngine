@@ -41,6 +41,23 @@ Audio assets support mono and stereo PCM and IEEE float WAV files plus Ogg Vorbi
 Linux audio output requires the system ALSA library (`libasound.so.2`).
 On machines without a working audio device the engine logs an error, continues without sound, and periodically retries the device so audio recovers when one appears.
 
+### NativeAOT
+ElementEngine is annotated for NativeAOT and trimming compatibility.
+Publish the executable project for the current platform with `dotnet publish -c Release -r <rid> -p:PublishAot=true`.
+The existing reflection-based `LoadJSON<T>` overloads remain available for non-AOT applications.
+NativeAOT applications should call the overload that accepts `JsonTypeInfo<T>` and provide source-generated metadata for application-defined JSON types.
+
+```csharp
+[JsonSerializable(typeof(GameLevel))]
+internal partial class GameJsonContext : JsonSerializerContext
+{
+}
+
+var level = JSONUtil.LoadJSON(path, GameJsonContext.Default.GameLevel);
+```
+
+The sample's bundled ImGui native assets support Windows x86/x64, Linux x64, and macOS x64/ARM64.
+
 ### Sample Projects
 In the future some better sample projects for specific features will be created, but for now here are some of my open source projects that use this engine:
 

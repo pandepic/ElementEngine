@@ -1,12 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ElementEngine.ECS
 {
+    internal interface IComponentDebugView
+    {
+        object GetBoxed(int entityID);
+        IReadOnlyList<FieldInfo> PublicFields { get; }
+    }
+
     public interface IComponentStore
     {
         public bool Contains(int entityID);
@@ -17,11 +25,25 @@ namespace ElementEngine.ECS
         public int[] GetDense();
     }
 
-    public class ComponentStore<T> : SparseSet<T>, IComponentStore where T : struct
+    public class ComponentStore<T> : SparseSet<T>, IComponentStore, IComponentDebugView where T : struct
     {
+        private FieldInfo[] _publicFields;
+
         public ComponentStore(int maxComponents) : base(maxComponents)
         {
         }
+
+        IReadOnlyList<FieldInfo> IComponentDebugView.PublicFields => _publicFields ??= GetPublicFields();
+
+        object IComponentDebugView.GetBoxed(int entityID) => Contains(entityID) ? this[entityID] : null;
+
+        [UnconditionalSuppressMessage(
+            "Trimming",
+            "IL2090",
+            Justification = "Component types reach stores via Registry.TryAddComponent, whose " +
+                "DynamicallyAccessedMembers annotation preserves their public fields; missing fields " +
+                "only degrade the debug view.")]
+        private static FieldInfo[] GetPublicFields() => typeof(T).GetFields();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetSize()

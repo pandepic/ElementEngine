@@ -11,6 +11,14 @@ namespace ElementEngine;
 
 internal sealed unsafe partial class VulkanGraphicsBackend : IGraphicsBackend
 {
+    // PublicationOnly so a failed load (e.g. missing Vulkan driver) is retried on the
+    // next backend creation instead of caching the exception for the process lifetime.
+    private static readonly Lazy<ProcessLifetimeNativeContext> VulkanContext = new(
+        () => OperatingSystem.IsWindows()
+            ? new ProcessLifetimeNativeContext("vulkan-1.dll")
+            : new ProcessLifetimeNativeContext("libvulkan.so.1", "libvulkan.so"),
+        System.Threading.LazyThreadSafetyMode.PublicationOnly);
+
     private const int FramesInFlight = 2;
     private const string SurfaceExtension = "VK_KHR_surface";
     private const string XlibSurfaceExtension = "VK_KHR_xlib_surface";
@@ -83,7 +91,9 @@ internal sealed unsafe partial class VulkanGraphicsBackend : IGraphicsBackend
 
         _window = window;
         _options = options;
-        _vk = Vk.GetApi();
+        // Unlike Vk.GetApi(), this resolves symbols from the loader's export table only; a
+        // post-1.0 core function on an old loader would need a vkGetInstanceProcAddr fallback.
+        _vk = new Vk(VulkanContext.Value);
 
         try
         {

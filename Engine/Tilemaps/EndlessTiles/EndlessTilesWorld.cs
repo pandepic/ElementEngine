@@ -151,7 +151,7 @@ namespace ElementEngine.EndlessTiles
 
         public void LoadFromStream(FileStream fs)
         {
-            var Data = JSONUtil.LoadJSON<EndlessTilesWorldData>(fs);
+            var Data = JSONUtil.LoadJSON(fs, EngineJsonContext.Default.EndlessTilesWorldData);
 
             Name = Data.Name;
             Chunks = new Dictionary<Vector2I, EndlessTilesWorldChunk>();

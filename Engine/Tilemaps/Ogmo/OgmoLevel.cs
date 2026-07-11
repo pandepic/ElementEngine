@@ -59,7 +59,7 @@ namespace ElementEngine.Ogmo
 
         public OgmoLevel(FileStream fs)
         {
-            Data = JSONUtil.LoadJSON<OgmoLevelData>(fs);
+            Data = JSONUtil.LoadJSON(fs, EngineJsonContext.Default.OgmoLevelData);
 
             var firstLayer = Data.layers[0];
             LevelSize = new Vector2I(firstLayer.gridCellsX, firstLayer.gridCellsY);

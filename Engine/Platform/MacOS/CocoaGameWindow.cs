@@ -585,7 +585,8 @@ internal sealed class CocoaGameWindow : GameWindow
         }
     }
 
-    private static void AddMethod(nint type, string selector, Delegate callback, string signature)
+    private static void AddMethod<TDelegate>(nint type, string selector, TDelegate callback, string signature)
+        where TDelegate : Delegate
     {
         if (!CocoaNative.AddMethod(type, CocoaNative.Selector(selector), Marshal.GetFunctionPointerForDelegate(callback), signature))
             throw new InvalidOperationException($"Failed to add Cocoa method {selector}.");

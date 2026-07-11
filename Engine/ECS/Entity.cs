@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
@@ -32,7 +33,9 @@ namespace ElementEngine.ECS
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryAddComponent<T>(T component) where T : struct
+        public bool TryAddComponent<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicFields)] T>(T component)
+            where T : struct
         {
             return Registry.TryAddComponent(this, component);
         }

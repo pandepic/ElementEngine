@@ -1,12 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace ElementEngine.Util;
 
 public static class JSONUtil
 {
+    [RequiresDynamicCode("Use the overload that accepts JsonTypeInfo<T> when publishing with NativeAOT.")]
+    [RequiresUnreferencedCode("Use the overload that accepts JsonTypeInfo<T> when trimming.")]
     public static T LoadJSON<T>(
             string path,
             JsonSerializerOptions serializerOptions = null,
@@ -28,6 +32,14 @@ public static class JSONUtil
         return obj;
     }
 
+    public static T LoadJSON<T>(string path, JsonTypeInfo<T> typeInfo)
+    {
+        using var fs = File.OpenRead(path);
+        return JsonSerializer.Deserialize(fs, typeInfo);
+    }
+
+    [RequiresDynamicCode("Use the overload that accepts JsonTypeInfo<T> when publishing with NativeAOT.")]
+    [RequiresUnreferencedCode("Use the overload that accepts JsonTypeInfo<T> when trimming.")]
     public static T LoadJSON<T>(
             FileStream fs,
             JsonSerializerOptions serializerOptions = null,
@@ -48,5 +60,10 @@ public static class JSONUtil
         var obj = JsonSerializer.Deserialize<T>(json, serializerOptions);
 
         return obj;
+    }
+
+    public static T LoadJSON<T>(FileStream fs, JsonTypeInfo<T> typeInfo)
+    {
+        return JsonSerializer.Deserialize(fs, typeInfo);
     }
 }
