@@ -54,7 +54,7 @@ namespace ElementEngine.ElementUI
         Contain,
         Center,
     }
-    
+
     public enum UIScaleType
     {
         Scale,

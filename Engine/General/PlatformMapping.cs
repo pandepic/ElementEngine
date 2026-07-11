@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System;
 
 namespace ElementEngine
 {
@@ -12,42 +12,25 @@ namespace ElementEngine
         Android,
     }
 
-    public unsafe static class PlatformMapping
+    public static class PlatformMapping
     {
-        public static Dictionary<string, PlatformType> Map = new()
+        public static PlatformType Current
         {
+            get
             {
-                "Windows",
-                PlatformType.Windows
-            },
+                if (OperatingSystem.IsWindows())
+                    return PlatformType.Windows;
+                if (OperatingSystem.IsMacOS())
+                    return PlatformType.MacOSX;
+                if (OperatingSystem.IsLinux())
+                    return PlatformType.Linux;
+                if (OperatingSystem.IsIOS())
+                    return PlatformType.iOS;
+                if (OperatingSystem.IsAndroid())
+                    return PlatformType.Android;
 
-            {
-                "Mac OS X",
-                PlatformType.MacOSX
-            },
-
-            {
-                "Linux",
-                PlatformType.Linux
-            },
-
-            {
-                "iOS",
-                PlatformType.iOS
-            },
-
-            {
-                "Android",
-                PlatformType.Android
-            },
-        };
-
-        internal static PlatformType GetPlatformTypeBySDLName(string sdlName)
-        {
-            if (Map.TryGetValue(sdlName, out var type))
-                return type;
-
-            return PlatformType.Unknown;
+                return PlatformType.Unknown;
+            }
         }
     }
 }

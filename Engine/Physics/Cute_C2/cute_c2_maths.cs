@@ -33,7 +33,7 @@ namespace Cute_C2
         // a transform with a vector, and transpose the transform".
 
         #region vector ops
-        
+
         public static C2v C2V(float x, float y) { C2v a; a.x = x; a.y = y; return a; }
         public static C2v C2Add(C2v a, C2v b) { a.x += b.x; a.y += b.y; return a; }
         public static C2v C2Sub(C2v a, C2v b) { a.x -= b.x; a.y -= b.y; return a; }

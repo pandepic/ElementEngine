@@ -1,20 +1,16 @@
-﻿using ElementEngine.Input;
-using ElementEngine.Timer;
+﻿using ElementEngine.Timer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.InteropServices;
+using System.Runtime.ExceptionServices;
 using System.Threading;
-using Veldrid;
-using Veldrid.Sdl2;
-using Veldrid.StartupUtilities;
 
 namespace ElementEngine
 {
     public class BaseGame : IDisposable
     {
-        public Sdl2Window Window => ElementGlobals.Window;
+        public GameWindow Window => ElementGlobals.Window;
         public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
         public CommandList CommandList => ElementGlobals.CommandList;
         public SpriteBatch2D ScreenSpaceSpriteBatch2D => ElementGlobals.ScreenSpaceSpriteBatch2D;
@@ -48,25 +44,39 @@ namespace ElementEngine
 
         public void Dispose()
         {
-            Logging.Dispose();
-
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            try
+            {
+                Dispose(true);
+            }
+            catch (Exception disposeException)
+            {
+                // Throwing from Dispose would replace an in-flight exception unwinding
+                // through a using block, hiding the root cause; log teardown failures.
+                Logging.Error("Game disposal failed: {exception}", disposeException.ToString());
+            }
+            finally
+            {
+                Logging.Dispose();
+                GC.SuppressFinalize(this);
+            }
         }
 
         protected void Dispose(bool disposing)
         {
             if (!_disposed)
             {
-                if (disposing)
+                try
                 {
-                    ElementGlobals.Unload();
-                    TileBatch2D.DisposeCache();
-
-                    Unload();
+                    if (disposing)
+                        Unload();
                 }
+                finally
+                {
+                    if (disposing)
+                        ElementGlobals.Unload();
 
-                _disposed = true;
+                    _disposed = true;
+                }
             }
         }
         #endregion
@@ -74,7 +84,22 @@ namespace ElementEngine
         public BaseGame()
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-            Load();
+            try
+            {
+                Load();
+            }
+            catch (Exception loadException)
+            {
+                var exceptions = new List<Exception> { loadException };
+                CaptureException(exceptions, ElementGlobals.Unload);
+                CaptureException(exceptions, AssetManager.Instance.Clear);
+                CaptureException(exceptions, InputManager.Dispose);
+
+                if (exceptions.Count == 1)
+                    ExceptionDispatchInfo.Capture(loadException).Throw();
+
+                throw new AggregateException("Game loading and cleanup both failed.", exceptions);
+            }
         }
 
         ~BaseGame()
@@ -82,7 +107,7 @@ namespace ElementEngine
             Dispose(false);
         }
 
-        public unsafe void SetupWindow(
+        public void SetupWindow(
             Rectangle windowRect,
             string windowTitle,
             GraphicsBackend? graphicsBackend = null,
@@ -103,9 +128,6 @@ namespace ElementEngine
             };
 
             SetupWindow(windowInfo, graphicsBackend, vsync, debug);
-
-            var platformName = Marshal.PtrToStringUTF8((IntPtr)SDL2.SDL_GetPlatform());
-            PlatformType = PlatformMapping.GetPlatformTypeBySDLName(platformName);
         }
 
         public void SetupWindow(
@@ -114,19 +136,37 @@ namespace ElementEngine
             bool vsync = false,
             bool debug = false)
         {
-            VeldridStartup.CreateWindowAndGraphicsDevice(windowInfo, new GraphicsDeviceOptions()
+            if (ElementGlobals.Window != null || ElementGlobals.GraphicsDevice != null)
+                throw new InvalidOperationException("The game window has already been created.");
+
+            ElementGlobals.Window = NativeWindowFactory.Create(windowInfo);
+            try
             {
-                Debug = debug,
-                SyncToVerticalBlank = vsync,
-                PreferStandardClipSpaceYDirection = true,
-            }, graphicsBackend ?? VeldridStartup.GetPlatformDefaultBackend(), out ElementGlobals.Window, out ElementGlobals.GraphicsDevice);
+                ElementGlobals.GraphicsDevice = GraphicsDevice.Create(
+                    ElementGlobals.Window,
+                    new GraphicsDeviceOptions(Debug: debug, SyncToVerticalBlank: vsync),
+                    graphicsBackend);
+            }
+            catch
+            {
+                ElementGlobals.Window.Dispose();
+                ElementGlobals.Window = null;
+                throw;
+            }
+            PlatformType = PlatformMapping.Current;
 
             CreateGraphicsResources();
 
             GameTitle = $"{windowInfo.WindowTitle} [{ElementGlobals.GraphicsDevice.BackendType}]";
 
             ElementGlobals.Load(this);
-            ElementGlobals.Viewport = new Viewport(0f, 0f, ElementGlobals.Window.Width, ElementGlobals.Window.Height, 0f, 1f);
+            ElementGlobals.Viewport = new Viewport(
+                0f,
+                0f,
+                ElementGlobals.Window.FramebufferWidth,
+                ElementGlobals.Window.FramebufferHeight,
+                0f,
+                1f);
 
             ElementGlobals.Window.Resized += () =>
             {
@@ -135,33 +175,25 @@ namespace ElementEngine
 
         } // SetupWindow
 
+        /// <summary>
+        /// Enables gamepad input. <paramref name="applyMappings"/> applies the SDL-style
+        /// controller mapping database and is currently honored on Linux only; Windows
+        /// (XInput) and macOS (GameController framework) report standardized layouts,
+        /// and generic HID pads on those platforms use a heuristic default layout.
+        /// </summary>
         public void EnableGamepads(bool applyMappings = false)
         {
-            Sdl2Native.SDL_Init(SDLInitFlags.GameController);
+            if (applyMappings && !OperatingSystem.IsLinux())
+                Logging.Warning("Gamepad mappings are only applied on Linux; the applyMappings flag has no effect on this platform.");
 
-            if (applyMappings)
-                GamepadMapping.ApplyMappings(PlatformType);
-
-            InputManager.LoadGamepads();
-            Sdl2Events.Subscribe(InputManager.ProcessGamepadEvents);
+            InputManager.LoadGamepads(applyMappings);
 
             Logging.Information("Controller input enabled.");
         }
 
-        public unsafe SDL_DisplayMode GetCurrentDisplayMode(int displayIndex = 0)
+        public DisplayMode GetCurrentDisplayMode(int displayIndex = 0)
         {
-            Sdl2Native.SDL_Init(SDLInitFlags.Video);
-
-            var displayMode = new SDL_DisplayMode();
-            var result = Sdl2Native.SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
-
-            if (result == -1)
-            {
-                var error = StringHelper.GetString(Sdl2Native.SDL_GetError());
-                throw new Exception($"GetCurrentDisplayMode SDL error: {error}");
-            }
-
-            return displayMode;
+            return Window?.GetCurrentDisplayMode(displayIndex) ?? NativeDisplay.GetCurrentDisplayMode(displayIndex);
         }
 
         public void SetupAssets(string modsPath = "Mods")
@@ -188,6 +220,7 @@ namespace ElementEngine
 
         public void SetGameState(GameState newState)
         {
+            GraphicsDevice.WaitForIdle();
             CommandList.Begin();
 
             CurrentGameState?.DeRegister();
@@ -204,6 +237,20 @@ namespace ElementEngine
 
         public void Quit() => _quit = true;
 
+        private static void SleepUntilNextUpdate(TimeSpan remaining)
+        {
+            // Thread.Sleep can overshoot by the OS timer period (~15.6ms on Windows),
+            // so sleep coarsely and spin the final stretch to hold high target rates.
+            var start = Stopwatch.GetTimestamp();
+            var coarseSleep = remaining - TimeSpan.FromMilliseconds(OperatingSystem.IsWindows() ? 16 : 2);
+
+            if (coarseSleep > TimeSpan.Zero)
+                Thread.Sleep(coarseSleep);
+
+            while (Stopwatch.GetElapsedTime(start) < remaining)
+                Thread.Yield();
+        }
+
         public void Run()
         {
             GameTimer = new GameTimer();
@@ -211,6 +258,12 @@ namespace ElementEngine
 
             while (Window.Exists && !_quit)
             {
+                var inputSnapshot = Window.PumpEvents();
+                if (!Window.Exists)
+                    break;
+
+                InputManager.Update(inputSnapshot, GameTimer);
+
                 _currentTicks = _stopWatch.Elapsed.Ticks;
                 var newTicks = TimeSpan.FromTicks(_currentTicks - _prevTicks);
                 _totalFrameTime += newTicks;
@@ -229,9 +282,9 @@ namespace ElementEngine
                         TimerManager.Update(GameTimer);
                     }
 
-                    var sleepTime = (_totalFrameTime - _targetFrameTime).TotalMilliseconds;
-                    if (sleepTime > 1.0f)
-                        Thread.Sleep((int)sleepTime);
+                    var sleepTime = _targetFrameTime - _totalFrameTime;
+                    if (sleepTime.TotalMilliseconds > 1.0)
+                        SleepUntilNextUpdate(sleepTime);
                 }
                 else
                 {
@@ -243,29 +296,39 @@ namespace ElementEngine
                     TimerManager.Update(GameTimer);
                 }
 
-                HandleDraw();
+                var renderedFrame = Window.FramebufferWidth > 0 &&
+                                    Window.FramebufferHeight > 0 &&
+                                    Window.State is not WindowState.Minimized and not WindowState.Hidden;
+                if (renderedFrame)
+                {
+                    HandleDraw();
+
+                    if (TitleShowFPS)
+                    {
+                        _fpsCounter += GameTimer.RawFrameTime;
+                        _frameCounter += 1;
+
+                        if (_fpsCounter >= TimeSpan.FromSeconds(1))
+                        {
+                            Window.Title = $"{GameTitle} {_frameCounter}fps";
+                            _fpsCounter -= TimeSpan.FromSeconds(1);
+                            _frameCounter = 0;
+                        }
+                    }
+                }
+                else if (!IsFixedTimeStep)
+                {
+                    Thread.Sleep(16);
+                }
 
                 CurrentGameState?.EndOfFrame(GameTimer);
                 EndOfFrame(GameTimer);
 
-                if (TitleShowFPS)
-                {
-                    _fpsCounter += GameTimer.RawFrameTime;
-                    _frameCounter += 1;
-
-                    if (_fpsCounter >= TimeSpan.FromSeconds(1))
-                    {
-                        Window.Title = $"{GameTitle} {_frameCounter}fps";
-                        _fpsCounter -= TimeSpan.FromSeconds(1);
-                        _frameCounter = 0;
-                    }
-                }
-
-                var inputSnapshot = Window.PumpEvents();
-                InputManager.Update(inputSnapshot, GameTimer);
                 SoundManager.Update();
             }
 
+            GraphicsDevice.WaitForIdle();
+            CurrentGameState?.DeRegister();
             CurrentGameState?.Unload();
             AssetManager.Instance.Clear();
             InputManager.Dispose();
@@ -306,11 +369,32 @@ namespace ElementEngine
 
         public virtual void OnWindowResized(Rectangle windowRect)
         {
-            ElementGlobals.GraphicsDevice.ResizeMainWindow((uint)windowRect.Width, (uint)windowRect.Height);
-            ElementGlobals.Viewport = new Viewport(0f, 0f, windowRect.Width, windowRect.Height, 0f, 1f);
+            ElementGlobals.GraphicsDevice.ResizeMainWindow(
+                (uint)Window.FramebufferWidth,
+                (uint)Window.FramebufferHeight);
+            ElementGlobals.Viewport = new Viewport(
+                0f,
+                0f,
+                Window.FramebufferWidth,
+                Window.FramebufferHeight,
+                0f,
+                1f);
             ElementGlobals.ScreenSpaceSpriteBatch2D?.SetViewSize(ElementGlobals.TargetResolutionSizeF);
+            UI.IMGUIManager.WindowResized(windowRect.Width, windowRect.Height);
 
             CurrentGameState?.OnWindowResized(windowRect);
+        }
+
+        private static void CaptureException(List<Exception> exceptions, Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception exception)
+            {
+                exceptions.Add(exception);
+            }
         }
 
     } // BaseGame

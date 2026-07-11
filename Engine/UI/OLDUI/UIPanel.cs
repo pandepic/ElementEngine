@@ -167,7 +167,7 @@ namespace ElementEngine.UI
             {
                 var offset = 0;
                 if (FullPanelRect.X < 0)
-                    offset  = FullPanelRect.X * -1;
+                    offset = FullPanelRect.X * -1;
 
                 ScrollOffset.X = HScrollBar.Value * -1f + offset;
             }

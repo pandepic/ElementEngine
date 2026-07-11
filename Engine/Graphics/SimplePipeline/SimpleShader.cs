@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Text;
-using Veldrid;
-using Veldrid.SPIRV;
 
 namespace ElementEngine
 {
@@ -36,7 +34,7 @@ namespace ElementEngine
             var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(vertexShader), "main");
             var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragmentShader), "main");
 
-            Shaders = GraphicsDevice.ResourceFactory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
+            Shaders = GraphicsDevice.ResourceFactory.CreateShaders(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
         }
     }
 }

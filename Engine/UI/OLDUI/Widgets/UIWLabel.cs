@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Xml.Linq;
-using Veldrid;
 
 namespace ElementEngine.UI
 {

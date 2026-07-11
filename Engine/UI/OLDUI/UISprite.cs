@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using System.Xml.Linq;
-using Veldrid;
 
 namespace ElementEngine.UI
 {
@@ -439,7 +438,7 @@ namespace ElementEngine.UI
 
         public UISpriteAuto9Slice(UIWidget widget, string elName) : base(widget, elName)
         {
-            Init();   
+            Init();
         }
 
         protected void Init()

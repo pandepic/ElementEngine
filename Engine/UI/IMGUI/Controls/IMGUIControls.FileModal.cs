@@ -94,7 +94,7 @@ namespace ElementEngine.UI
 
                     if (!string.IsNullOrEmpty(modal.Search) && !dirInfo.Name.ToUpper().Contains(modal.Search.ToUpper()))
                         continue;
-                    
+
                     if (ImGui.Button(dirInfo.Name))
                     {
                         _fileModalPaths[name].SetPath(dirInfo.FullName);
@@ -127,7 +127,7 @@ namespace ElementEngine.UI
                         }
                     }
                 }
-                
+
                 ImGui.EndChild();
 
                 if (mode == FileModalMode.SaveFile)

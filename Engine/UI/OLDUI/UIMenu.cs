@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Veldrid;
 
 namespace ElementEngine.UI
 {
@@ -94,14 +93,14 @@ namespace ElementEngine.UI
             foreach (Match match in matches)
             {
                 var importAsset = match.Value.Replace("@Import=\"", "").Replace("\"", "");
-                
+
                 using var importFS = AssetManager.Instance.GetAssetStream(importAsset);
                 using var importSR = new StreamReader(importFS);
                 var importString = importSR.ReadToEnd();
 
                 xml = xml.Replace(match.Value, importString);
             }
-            
+
             XDocument doc = XDocument.Parse(xml);
             XElement menuRoot = doc.Element("Menu");
 

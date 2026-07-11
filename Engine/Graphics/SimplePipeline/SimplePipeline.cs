@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Veldrid;
 
 namespace ElementEngine
 {
@@ -65,7 +64,7 @@ namespace ElementEngine
         public void SetupForSpritebatch(SamplerType samplerType)
         {
             var viewProjectionBuffer = new SimpleUniformBuffer<Matrix4x4>(
-                ElementGlobals.GraphicsDevice,
+                GraphicsDevice,
                 "ProjectionViewBuffer",
                 2,
                 ShaderStages.Vertex);
@@ -108,7 +107,10 @@ namespace ElementEngine
             PipelineDescription = new GraphicsPipelineDescription
             {
                 BlendState = BlendState,
-                DepthStencilState = new DepthStencilStateDescription(depthTestEnabled: true, depthWriteEnabled: true, ComparisonKind.LessEqual),
+                DepthStencilState = new DepthStencilStateDescription(
+                    depthTestEnabled: false,
+                    depthWriteEnabled: false,
+                    ComparisonKind.Always),
                 RasterizerState = new RasterizerStateDescription
                 {
                     DepthClipEnabled = true,

@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using Veldrid;
-using Veldrid.Sdl2;
 
 namespace ElementEngine
 {
@@ -282,7 +280,7 @@ namespace ElementEngine
                 }
             }
         }
-        
+
         public void HandleGamepadButtonPressed(Gamepad gamepad, GamepadButtonType button, GameTimer gameTimer)
         {
             foreach (var control in GamepadControls)

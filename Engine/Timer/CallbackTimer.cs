@@ -47,6 +47,6 @@ namespace ElementEngine.Timer
         public void Start() => TimerStatus = TimerStatus.Running;
         public void Pause() => TimerStatus = TimerStatus.Paused;
         public void Stop() => TimerStatus = TimerStatus.Finished;
-        
+
     } // CallbackTimer
 }

@@ -5,7 +5,6 @@ using ElementEngine.Tiled;
 using ElementEngine.Util;
 using NAudio.Vorbis;
 using NAudio.Wave;
-using SharpGen.Runtime.Win32;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -423,7 +422,11 @@ public class AssetManager
 
         using var textureData = Image.Load<Rgba32>(fs);
         var newTexture = new Texture2D(textureData.Width, textureData.Height, name);
-        newTexture.SetData(textureData.GetPixelMemoryGroup()[0].Span, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
+
+        // ImageSharp allocates large images in non-contiguous chunks, so copy into one buffer.
+        var pixelData = new Rgba32[textureData.Width * textureData.Height];
+        textureData.CopyPixelDataTo(pixelData);
+        newTexture.SetData<Rgba32>(pixelData, new Rectangle(0, 0, textureData.Width, textureData.Height), premultiply);
 
         if (!string.IsNullOrEmpty(name))
         {

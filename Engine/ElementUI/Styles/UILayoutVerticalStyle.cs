@@ -19,7 +19,7 @@ namespace ElementEngine.ElementUI
             if (baseCopy)
                 BaseCopy(copyFrom);
         }
-        
+
         public UILayoutVerticalStyle(
             int cellPaddingTop = 0,
             int cellPaddingBottom = 0)

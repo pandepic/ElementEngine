@@ -14,7 +14,7 @@ namespace ElementEngine.UI
         private static Dictionary<string, List<string>> _selectedAssets = new();
         private static Dictionary<string, string> _nameFilters = new();
 
-        private static Texture2D _selectedTextureBG = new Texture2D(1, 1, new Veldrid.RgbaByte(255, 0, 0, 80));
+        private static Texture2D _selectedTextureBG = new Texture2D(1, 1, new RgbaByte(255, 0, 0, 80));
         private static IntPtr _selectedTextureBGPtr;
         private static bool _selectedTextureBGLoaded = false;
 

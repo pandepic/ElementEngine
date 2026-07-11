@@ -1,4 +1,3 @@
-﻿using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -104,7 +103,7 @@ namespace ElementEngine.ElementUI
                     new Rectangle(0 + position.X, currentY + position.Y, center.Width, drawHeight),
                     center.SourceRect,
                     color: color);
-                
+
                 currentY += center.Height;
             }
         }

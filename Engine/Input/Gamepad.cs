@@ -1,87 +1,140 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Veldrid.Sdl2;
 
 namespace ElementEngine
 {
-    internal struct AxisMotionEvent
+    public enum GamepadAxis
     {
-        internal GamepadInputType InputType;
-        internal GamepadAxisMotionType MotionType;
-        internal float Value;
-
-        public AxisMotionEvent(GamepadInputType inputType, GamepadAxisMotionType motionType, float value)
-        {
-            InputType = inputType;
-            MotionType = motionType;
-            Value = value;
-        }
+        LeftX,
+        LeftY,
+        RightX,
+        RightY,
+        LeftTrigger,
+        RightTrigger,
     }
 
-    internal struct GamepadButtonEvent
-    {
-        internal GamepadButtonType ButtonType;
-        internal bool IsPressed;
-        internal bool PrevIsPressed;
+    internal readonly record struct AxisMotionEvent(
+        GamepadInputType InputType,
+        GamepadAxisMotionType MotionType,
+        float Value);
 
-        public GamepadButtonEvent(GamepadButtonType buttonType, bool isPressed, bool prevIsPressed)
-        {
-            ButtonType = buttonType;
-            IsPressed = isPressed;
-            PrevIsPressed = prevIsPressed;
-        }
+    internal readonly record struct GamepadButtonEvent(
+        GamepadButtonType ButtonType,
+        bool IsPressed,
+        bool PrevIsPressed);
+
+    internal readonly record struct NativeGamepadState(
+        IReadOnlyDictionary<GamepadAxis, float> Axes,
+        IReadOnlySet<GamepadButtonType> PressedButtons);
+
+    internal interface INativeGamepad : IDisposable
+    {
+        int DeviceId { get; }
+        string Name { get; }
+        bool TryPoll(out NativeGamepadState state);
     }
 
-    public class Gamepad : IDisposable
+    public sealed class Gamepad : IDisposable
     {
-        public readonly SDL_GameController SDLController;
+        private readonly INativeGamepad _device;
+        private bool _disposed;
 
-        public int ControllerIndex;
-        public string ControllerName;
-        public float Deadzone;
+        public int ControllerIndex => _device.DeviceId;
+        public string ControllerName => _device.Name;
+        public float Deadzone { get; set; }
 
-        internal readonly Dictionary<SDL_GameControllerAxis, float> AxisValues = new();
+        internal readonly Dictionary<GamepadAxis, float> AxisValues = new();
         internal readonly Dictionary<GamepadButtonType, bool> ButtonsPressed = new();
         internal readonly List<GamepadButtonEvent> ButtonEvents = new();
         internal readonly List<AxisMotionEvent> AxisMotionEvents = new();
 
-        public void Dispose()
+        internal Gamepad(INativeGamepad device, float deadzone)
         {
-            Sdl2Native.SDL_GameControllerClose(SDLController);
-        }
-
-        public unsafe Gamepad(int controllerIndex, float deadzone)
-        {
-            ControllerIndex = controllerIndex;
-            SDLController = Sdl2Native.SDL_GameControllerOpen(controllerIndex);
-            ControllerName = Marshal.PtrToStringUTF8((IntPtr)Sdl2Native.SDL_GameControllerName(SDLController));
+            _device = device;
             Deadzone = deadzone;
         }
 
-        public float GetAxis(SDL_GameControllerAxis axis)
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _device.Dispose();
+            _disposed = true;
+        }
+
+        public float GetAxis(GamepadAxis axis)
         {
             AxisValues.TryGetValue(axis, out var value);
             return value;
         }
 
-        public bool IsSDLButtonPressed(SDL_GameControllerButton button)
-        {
-            ButtonsPressed.TryGetValue(InputManager.FromSDLControllerButton(button), out bool pressed);
-            return pressed;
-        }
-
         public bool IsButtonPressed(GamepadButtonType button)
         {
-            ButtonsPressed.TryGetValue(button, out bool pressed);
+            ButtonsPressed.TryGetValue(button, out var pressed);
             return pressed;
         }
 
-        internal static float NormalizeAxis(short value)
+        internal bool Poll()
         {
-            return value < 0
-                ? -(value / (float)short.MinValue)
-                : (value / (float)short.MaxValue);
+            if (!_device.TryPoll(out var state))
+                return false;
+
+            foreach (var button in Enum.GetValues<GamepadButtonType>())
+            {
+                if (button is GamepadButtonType.Invalid
+                    or GamepadButtonType.LeftTrigger
+                    or GamepadButtonType.RightTrigger
+                    or GamepadButtonType.Max)
+                    continue;
+
+                var wasPressed = IsButtonPressed(button);
+                var isPressed = state.PressedButtons.Contains(button);
+                ButtonsPressed[button] = isPressed;
+
+                if (wasPressed != isPressed || isPressed)
+                    ButtonEvents.Add(new GamepadButtonEvent(button, isPressed, wasPressed));
+            }
+
+            UpdateAxis(state, GamepadAxis.LeftX, GamepadInputType.LeftAxis, GamepadAxisMotionType.X);
+            UpdateAxis(state, GamepadAxis.LeftY, GamepadInputType.LeftAxis, GamepadAxisMotionType.Y);
+            UpdateAxis(state, GamepadAxis.RightX, GamepadInputType.RightAxis, GamepadAxisMotionType.X);
+            UpdateAxis(state, GamepadAxis.RightY, GamepadInputType.RightAxis, GamepadAxisMotionType.Y);
+            UpdateTrigger(state, GamepadAxis.LeftTrigger, GamepadButtonType.LeftTrigger);
+            UpdateTrigger(state, GamepadAxis.RightTrigger, GamepadButtonType.RightTrigger);
+            return true;
+        }
+
+        private void UpdateAxis(
+            NativeGamepadState state,
+            GamepadAxis axis,
+            GamepadInputType inputType,
+            GamepadAxisMotionType motionType)
+        {
+            state.Axes.TryGetValue(axis, out var value);
+            AxisValues.TryGetValue(axis, out var previousValue);
+            AxisValues[axis] = value;
+
+            var filteredValue = MathF.Abs(value) < Deadzone ? 0f : value;
+            var filteredPreviousValue = MathF.Abs(previousValue) < Deadzone ? 0f : previousValue;
+
+            if (filteredValue != filteredPreviousValue)
+                AxisMotionEvents.Add(new AxisMotionEvent(inputType, motionType, filteredValue));
+        }
+
+        private void UpdateTrigger(
+            NativeGamepadState state,
+            GamepadAxis axis,
+            GamepadButtonType button)
+        {
+            state.Axes.TryGetValue(axis, out var value);
+            AxisValues[axis] = value;
+            var wasPressed = IsButtonPressed(button);
+            var isPressed = value > Deadzone;
+            ButtonsPressed[button] = isPressed;
+
+            if (wasPressed != isPressed || isPressed)
+                ButtonEvents.Add(new GamepadButtonEvent(button, isPressed, wasPressed));
         }
     }
 }

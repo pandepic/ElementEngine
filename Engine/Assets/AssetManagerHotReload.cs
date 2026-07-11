@@ -18,7 +18,7 @@
 //    public static class AssetManagerHotReload
 //    {
 //        internal static Dictionary<string, AssetManagerHotReloadWatcher> AssetWatchers { get; set; } = new Dictionary<string, AssetManagerHotReloadWatcher>();
-        
+
 //        public static void AddHotReloadAsset(string assetName, Action<string, string, string> action)
 //        {
 //            if (AssetWatchers.ContainsKey(assetName))
@@ -29,7 +29,7 @@
 //            var fileInfo = new FileInfo(path);
 //            var exeDir = new DirectoryInfo(fileInfo.DirectoryName);
 //            var exeFile = new FileInfo(Path.Combine(exeDir.FullName, fileInfo.Name));
-            
+
 //            var devDirPath = Path.Combine(new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName, exeFile.Directory.FullName.Replace(AppDomain.CurrentDomain.BaseDirectory, ""));
 //            var devFilePath = Path.Combine(devDirPath, exeFile.Name);
 //            var devFile = new FileInfo(devFilePath);

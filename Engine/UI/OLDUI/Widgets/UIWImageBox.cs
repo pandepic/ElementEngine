@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Xml.Linq;
-using Veldrid;
 
 namespace ElementEngine.UI
 {
@@ -42,7 +41,7 @@ namespace ElementEngine.UI
         public override void Load(UIFrame parent, XElement el)
         {
             _image = UISprite.CreateUISprite(this, "Image");
-            
+
             Width = _image.Width;
             Height = _image.Height;
         }

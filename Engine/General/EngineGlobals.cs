@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Veldrid;
-using Veldrid.Sdl2;
+using System.Runtime.ExceptionServices;
 
 namespace ElementEngine
 {
@@ -11,7 +10,7 @@ namespace ElementEngine
         protected static bool _loaded = false;
 
         // Graphics resources
-        public static Sdl2Window Window;
+        public static GameWindow Window;
         public static GraphicsDevice GraphicsDevice;
         public static CommandList CommandList;
         public static Viewport Viewport;
@@ -63,20 +62,52 @@ namespace ElementEngine
 
         public static void Unload()
         {
-            if (!_loaded)
+            if (!_loaded && CommandList == null && GraphicsDevice == null && Window == null)
                 return;
 
-            CommandList?.Dispose();
+            var exceptions = new List<Exception>();
+            var graphicsDevice = GraphicsDevice;
+            var commandList = CommandList;
+            var screenSpaceSpriteBatch = ScreenSpaceSpriteBatch2D;
+            var window = Window;
+
             CommandList = null;
-
-            GraphicsDevice?.Dispose();
-            GraphicsDevice = null;
-
-            ScreenSpaceSpriteBatch2D?.Dispose();
             ScreenSpaceSpriteBatch2D = null;
-
+            GraphicsDevice = null;
+            Window = null;
+            ScreenSpaceDrawList.Clear();
+            Game = null;
+            Viewport = default;
             _loaded = false;
+
+            CaptureException(exceptions, () => graphicsDevice?.WaitForIdle());
+            CaptureException(exceptions, UI.IMGUIManager.Dispose);
+            CaptureException(exceptions, () => commandList?.Dispose());
+            CaptureException(exceptions, () => screenSpaceSpriteBatch?.Dispose());
+            CaptureException(exceptions, SpriteBatch2D.DisposeCache);
+            CaptureException(exceptions, PrimitiveBatch.DisposeCache);
+            CaptureException(exceptions, TileBatch2D.DisposeCache);
+            CaptureException(exceptions, () => graphicsDevice?.Dispose());
+            CaptureException(exceptions, () => window?.Dispose());
+
+            if (exceptions.Count == 1)
+                ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+
+            if (exceptions.Count > 1)
+                throw new AggregateException("One or more errors occurred while unloading the engine.", exceptions);
         } // Unload
+
+        private static void CaptureException(List<Exception> exceptions, Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception exception)
+            {
+                exceptions.Add(exception);
+            }
+        }
 
         internal static void TryRegisterScreenSpaceDraw(Action action)
         {

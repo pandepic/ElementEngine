@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -48,7 +47,7 @@ namespace ElementEngine.ElementUI
     public struct OnHoverArgs
     {
         public UIObject Object;
-        
+
         public OnHoverArgs(UIObject obj)
         {
             Object = obj;

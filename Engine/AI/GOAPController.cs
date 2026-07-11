@@ -56,7 +56,7 @@ namespace ElementEngine
             {
                 var action = AvailableActions[i];
                 var matches = Request.All(action.Provides.Contains);
-                
+
                 if (matches)
                     Result = action;
             }

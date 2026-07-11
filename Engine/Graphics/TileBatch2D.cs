@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
-using Veldrid;
-using Veldrid.Sdl2;
-using Veldrid.SPIRV;
 
 namespace ElementEngine
 {
@@ -38,7 +35,7 @@ namespace ElementEngine
         public const byte EMPTY_TILE_Y = 255;
         public const int EMPTY_TILE_INDEX = -1;
 
-        public Sdl2Window Window => ElementGlobals.Window;
+        public GameWindow Window => ElementGlobals.Window;
         public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
         public CommandList CommandList => ElementGlobals.CommandList;
 
@@ -114,17 +111,18 @@ namespace ElementEngine
                 if (disposing)
                 {
                     _pipeline?.Dispose();
+                    _transformSet?.Dispose();
+                    _animationSet?.Dispose();
+                    _textureSetAtlas?.Dispose();
+                    ClearLayers();
+
                     _vertexBuffer?.Dispose();
                     _transformBuffer?.Dispose();
-                    _transformLayout?.Dispose();
-                    _transformSet?.Dispose();
                     _animationBuffer?.Dispose();
+                    _transformLayout?.Dispose();
                     _animationLayout?.Dispose();
-                    _animationSet?.Dispose();
                     _textureLayoutData?.Dispose();
                     _textureLayoutAtlas?.Dispose();
-
-                    ClearLayers();
                 }
 
                 _disposed = true;
@@ -138,6 +136,9 @@ namespace ElementEngine
                 foreach (var shader in shaders)
                     shader.Dispose();
             }
+
+            _cachedShaders.Clear();
+            _sampler = null;
         }
         #endregion
 
@@ -183,6 +184,8 @@ namespace ElementEngine
             Dictionary<int, TileAnimation> tileAnimations = null,
             bool invertY = false)
         {
+            _sampler = GraphicsDevice.PointSampler;
+
             MapWidth = mapWidth;
             MapHeight = mapHeight;
 
@@ -268,7 +271,7 @@ namespace ElementEngine
                     .Replace("{WRAP_Y}", wrapY ? "" : "if (fTexCoord.y < 0 || fTexCoord.y > 1) { discard; }")
                     ), "main");
 
-                _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: invertY));
+                _shaders = factory.CreateShaders(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: invertY));
                 _cachedShaders.Add(shaderKey, _shaders);
             }
             #endregion
@@ -342,7 +345,7 @@ namespace ElementEngine
 
             _textureSetAtlas = GraphicsDevice.ResourceFactory.CreateResourceSet(
                 new ResourceSetDescription(
-                    _textureLayoutData,
+                    _textureLayoutAtlas,
                     AtlasTexture.Texture,
                     _sampler));
             #endregion
@@ -362,9 +365,9 @@ namespace ElementEngine
             {
                 BlendState = BlendStateDescription.SingleAlphaBlend,
                 DepthStencilState = new DepthStencilStateDescription(
-                    depthTestEnabled: true,
-                    depthWriteEnabled: true,
-                    ComparisonKind.LessEqual),
+                    depthTestEnabled: false,
+                    depthWriteEnabled: false,
+                    ComparisonKind.Always),
                 RasterizerState = new RasterizerStateDescription
                 {
                     DepthClipEnabled = true,
@@ -414,7 +417,10 @@ namespace ElementEngine
         public void ClearLayers()
         {
             foreach (var layer in Layers)
+            {
+                layer?.TextureSetData?.Dispose();
                 layer?.DataTexture?.Dispose();
+            }
 
             Layers.Clear();
         }

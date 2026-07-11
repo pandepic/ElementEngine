@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Xml.Linq;
 using TextCopy;
-using Veldrid;
 
 namespace ElementEngine.UI
 {
@@ -118,10 +117,10 @@ namespace ElementEngine.UI
             Color = new RgbaByte().FromHex(GetXMLElement("Color").Value);
             _cursorPadding = (GetXMLAttribute("CursorPadding") == null ? 0 : int.Parse(GetXMLAttribute("CursorPadding").Value));
             _cursorIndex = _text.Length;
-            
+
             var cursorTexture = new Texture2D(2, (uint)(_background.Height - (_cursorPadding * 2)), Color);
             _cursor = new Sprite(cursorTexture);
-            
+
             _textRect.X = 0;
             _textRect.Y = 0;
             _textRect.Width = (int)(Width - (_textPosition.X * 2));

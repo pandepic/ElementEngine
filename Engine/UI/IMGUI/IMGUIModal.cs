@@ -42,7 +42,7 @@ namespace ElementEngine.UI
             if (IsOpen)
                 ImGui.OpenPopup(Name);
             else
-               return false;
+                return false;
 
             ImGui.SetNextWindowSizeConstraints(Vector2.Zero, MaxSize.ToVector2());
             _result = ImGui.BeginPopupModal(Name, ref IsOpen, Flags);

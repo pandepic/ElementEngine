@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Xml.Linq;
-using Veldrid;
 
 namespace ElementEngine.UI
 {
@@ -374,7 +373,7 @@ namespace ElementEngine.UI
         public void AnchorRight() { X = (Panel != null ? Panel.Width : Parent.Width) - Width; }
         public void CenterX() { X = ((Panel != null ? Panel.Width : Parent.Width) / 2) - (Width / 2); }
         public void CenterY() { Y = ((Panel != null ? Panel.Height : Parent.Height) / 2) - (Height / 2); }
-        
+
         internal void TriggerUIEvent(UIEventType type)
         {
             Parent.TriggerUIEvent(type, this);

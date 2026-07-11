@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -23,7 +22,7 @@ namespace ElementEngine.ElementUI
             get => _internalText;
             set => SetText(value);
         }
-        
+
         public string DisplayText
         {
             get => _text;

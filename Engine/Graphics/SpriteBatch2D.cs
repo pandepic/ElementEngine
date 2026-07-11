@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using FontStashSharp.Interfaces;
-using Veldrid;
-using Veldrid.Sdl2;
 
 namespace ElementEngine
 {
@@ -34,7 +32,7 @@ namespace ElementEngine
     {
         private static SimpleShader _defaultSimpleShader;
 
-        public Sdl2Window Window => ElementGlobals.Window;
+        public GameWindow Window => ElementGlobals.Window;
         public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
         public CommandList CommandList;
 
@@ -70,6 +68,8 @@ namespace ElementEngine
         // Rendering
         protected Matrix4x4 _projection;
         protected Matrix4x4 _view;
+        protected Vector2 _viewSize;
+        protected Texture2D _renderTarget;
 
         // Batch state
         protected int _maxBatchSize = 10000;
@@ -95,11 +95,29 @@ namespace ElementEngine
 
             _isDisposed = true;
         }
+
+        internal static void DisposeCache()
+        {
+            _defaultSimpleShader?.Dispose();
+            _defaultSimpleShader = null;
+
+            if (_shaders != null)
+            {
+                foreach (var shader in _shaders)
+                    shader?.Dispose();
+            }
+
+            _shaders = null;
+            _staticResLoaded = false;
+        }
         #endregion
 
         public SpriteBatch2D() : this(ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight) { }
         public SpriteBatch2D(int width, int height, SimplePipeline simplePipeline = null, bool invertY = false) : this(width, height, ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription, simplePipeline: simplePipeline, invertY: invertY) { }
-        public SpriteBatch2D(Texture2D target, SimplePipeline simplePipeline = null, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, simplePipeline: simplePipeline, invertY: invertY) { }
+        public SpriteBatch2D(Texture2D target, SimplePipeline simplePipeline = null, bool invertY = false) : this(target.Width, target.Height, target.GetFramebuffer().OutputDescription, simplePipeline: simplePipeline, invertY: invertY)
+        {
+            _renderTarget = target;
+        }
 
         public unsafe SpriteBatch2D(int width, int height, OutputDescription output, SimplePipeline simplePipeline = null, bool invertY = false)
         {
@@ -123,7 +141,7 @@ namespace ElementEngine
 
             #region Vertex Buffer
             _vertexData = new Vertex2DPositionTexCoordsColor[_maxBatchSize * VerticesPerQuad];
-            
+
             _vertexBuffer = factory.CreateBuffer(
                 new BufferDescription(
                     (uint)(_vertexData.Length * sizeof(Vertex2DPositionTexCoordsColor)),
@@ -171,7 +189,7 @@ namespace ElementEngine
                 new BufferDescription(
                     (uint)(indices.Length * sizeof(ushort)),
                     BufferUsage.IndexBuffer));
-            
+
             GraphicsDevice.UpdateBuffer(
                 _indexBuffer,
                 0,
@@ -181,9 +199,10 @@ namespace ElementEngine
 
         public void SetViewSize(Vector2 size)
         {
+            _viewSize = size;
             _projection = Matrix4x4.CreateOrthographicOffCenter(0f, size.X, size.Y, 0f, 0f, 1f);
 
-            if (InvertY && !GraphicsDevice.IsUvOriginTopLeft)
+            if (InvertY)
                 _projection = Matrix4x4.CreateOrthographicOffCenter(0f, size.X, 0f, size.Y, 0f, 1f);
         }
 
@@ -217,7 +236,7 @@ namespace ElementEngine
             shader ??= _defaultSimpleShader;
 
             if (!output.HasValue)
-                output = ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription;
+                output = graphicsDevice.SwapchainFramebuffer.OutputDescription;
 
             var pipeline = new SimplePipeline(
                 graphicsDevice,
@@ -235,6 +254,33 @@ namespace ElementEngine
         }
 
         #region Scissor Rect
+        protected Vector2 GetScissorScale()
+        {
+            if (_viewSize.X <= 0f || _viewSize.Y <= 0f)
+                return Vector2.One;
+
+            // Scissor rects are given in view coordinates, but the backend consumes
+            // framebuffer pixels, which differ from window points on scaled displays.
+            var outputSize = _renderTarget?.SizeF
+                ?? (Window == null
+                    ? _viewSize
+                    : new Vector2(Window.FramebufferWidth, Window.FramebufferHeight));
+
+            return outputSize / _viewSize;
+        }
+
+        protected void SetScaledScissorRect(uint index, Rectangle rect)
+        {
+            var scale = GetScissorScale();
+
+            CommandList.SetScissorRect(
+                index,
+                (uint)MathF.Round(rect.X * scale.X),
+                (uint)MathF.Round(rect.Y * scale.Y),
+                (uint)MathF.Round(rect.Width * scale.X),
+                (uint)MathF.Round(rect.Height * scale.Y));
+        }
+
         public Rectangle? GetCurrentScissorRect(uint index)
         {
             if (!_scissorStack.ContainsKey(index))
@@ -275,7 +321,7 @@ namespace ElementEngine
                     rect = useRect;
                 }
 
-                CommandList.SetScissorRect(index, (uint)useRect.X, (uint)useRect.Y, (uint)useRect.Width, (uint)useRect.Height);
+                SetScaledScissorRect(index, useRect);
             }
             else
             {
@@ -299,7 +345,7 @@ namespace ElementEngine
             var rect = _scissorStack[index].Count > 0 ? _scissorStack[index].Peek() : null;
 
             if (rect.HasValue)
-                CommandList.SetScissorRect(index, (uint)rect.Value.X, (uint)rect.Value.Y, (uint)rect.Value.Width, (uint)rect.Value.Height);
+                SetScaledScissorRect(index, rect.Value);
             else
                 CommandList.SetFullScissorRect(index);
         }

@@ -185,6 +185,6 @@ namespace ElementEngine
 
             return SharedCellSet;
         }
-        
+
     } // SpatialHash
 }

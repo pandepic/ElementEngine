@@ -3,7 +3,6 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using ElementEngine.ECS;
-using Veldrid;
 
 namespace ElementEngine
 {

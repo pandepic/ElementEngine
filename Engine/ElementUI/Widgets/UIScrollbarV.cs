@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -271,7 +270,7 @@ namespace ElementEngine.ElementUI
         {
             if (!IsSliding)
                 return;
-            
+
             if (!InputManager.IsMouseButtonDown(MouseButton.Left))
             {
                 IsSliding = false;

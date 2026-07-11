@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Veldrid;
 
 namespace ElementEngine.ElementUI
 {
@@ -162,7 +161,7 @@ namespace ElementEngine.ElementUI
 
             ScrollbarH.CurrentValue = ScrollbarH.MinValue;
         }
-        
+
         public void ScrollToRight()
         {
             if (ScrollbarH == null)
@@ -178,7 +177,7 @@ namespace ElementEngine.ElementUI
 
             ScrollbarV.CurrentValue = ScrollbarV.MinValue;
         }
-        
+
         public void ScrollToBottom()
         {
             if (ScrollbarV == null)

@@ -4,7 +4,6 @@ using System.IO;
 using System.Numerics;
 using FontStashSharp;
 using FontStashSharp.Interfaces;
-using Veldrid;
 
 namespace ElementEngine
 {
@@ -25,10 +24,22 @@ namespace ElementEngine
 
         public void SetData(System.Drawing.Rectangle bounds, byte[] data)
         {
-            if (data.Length % 4 != 0)
-                throw new Exception("Byte buffer has invalid format, must be 4 bytes per pixel in RGBA order.");
+            ArgumentNullException.ThrowIfNull(data);
 
-            Texture.SetData(data, new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height));
+            if (bounds.Width <= 0 || bounds.Height <= 0)
+                throw new ArgumentOutOfRangeException(nameof(bounds), "Font texture update dimensions must be greater than zero.");
+
+            var requiredByteCount = checked(bounds.Width * bounds.Height * 4);
+            if (data.Length < requiredByteCount)
+            {
+                throw new ArgumentException(
+                    $"The font texture update contains {data.Length} bytes but requires at least {requiredByteCount}.",
+                    nameof(data));
+            }
+
+            Texture.SetData(
+                data.AsSpan(0, requiredByteCount),
+                new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height));
         }
     }
 

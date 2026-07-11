@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
-using Veldrid;
 
 namespace ElementEngine.UI
 {
@@ -18,12 +17,18 @@ namespace ElementEngine.UI
 
         public void Dispose()
         {
+            if (_disposed)
+                return;
+
             if (Texture != null)
             {
                 IMGUIManager.RemoveTexture(Texture);
                 Texture.Dispose();
                 Texture = null;
             }
+
+            IntPtr = IntPtr.Zero;
+            _disposed = true;
         }
         #endregion
 
@@ -67,6 +72,9 @@ namespace ElementEngine.UI
 
         public static void Setup()
         {
+            if (Renderer != null)
+                throw new InvalidOperationException("ImGui has already been initialized.");
+
             Renderer = new ImGuiRenderer(ElementGlobals.GraphicsDevice,
                 ElementGlobals.GraphicsDevice.SwapchainFramebuffer.OutputDescription,
                 ElementGlobals.TargetResolutionWidth, ElementGlobals.TargetResolutionHeight);
@@ -74,14 +82,27 @@ namespace ElementEngine.UI
             IsEnabled = true;
         }
 
+        public static void Dispose()
+        {
+            foreach (var texture in IMGUITexture.Cache.Values)
+                texture.Dispose();
+
+            IMGUITexture.Cache.Clear();
+            Renderer?.Dispose();
+            Renderer = null;
+            IsEnabled = false;
+            _pushedStyleColors.Clear();
+            Modals.Clear();
+        }
+
         public static void WindowResized(int width, int height)
         {
-            Renderer.WindowResized(width, height);
+            Renderer?.WindowResized(width, height);
         }
 
         public static void Update(GameTimer gameTimer)
         {
-            if (InputManager.PrevSnapshot == null)
+            if (Renderer == null || InputManager.PrevSnapshot == null)
                 return;
 
             Renderer.Update(gameTimer.RawDeltaS, InputManager.PrevSnapshot);
@@ -95,6 +116,9 @@ namespace ElementEngine.UI
 
         public static void Draw()
         {
+            if (Renderer == null)
+                return;
+
             foreach (var (_, modal) in Modals)
             {
                 if (modal.Begin())
@@ -117,7 +141,7 @@ namespace ElementEngine.UI
             if (texture == null)
                 return;
 
-            Renderer.RemoveImGuiBinding(texture.Texture);
+            Renderer?.RemoveImGuiBinding(texture.Texture);
         }
 
         public static void PushStyleColor(ImGuiCol type, Vector4 val)

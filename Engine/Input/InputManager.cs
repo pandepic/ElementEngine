@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Text;
 using ElementEngine.UI;
-using Veldrid;
-using Veldrid.Sdl2;
 
 namespace ElementEngine
 {
@@ -84,7 +80,10 @@ namespace ElementEngine
         private readonly static List<IGamepadHandler> _gamepadHandlers = new();
 
         private static GameControlsManager _gameControlsManager;
-        
+        private static bool _gamepadsEnabled;
+        private static bool _applyGamepadMappings;
+        private static float _gamepadRefreshTimer;
+
         internal static bool _keyPressedBlocked;
         internal static bool _keyReleasedBlocked;
         internal static bool _keyDownBlocked;
@@ -101,129 +100,71 @@ namespace ElementEngine
         internal static bool _gamepadButtonDownBlocked;
         internal static bool _gamepadAxisMotionBlocked;
 
-        internal static GamepadButtonType FromSDLControllerButton(SDL_GameControllerButton button)
-        {
-            return button switch
-            {
-                SDL_GameControllerButton.Invalid => GamepadButtonType.Invalid,
-                SDL_GameControllerButton.A => GamepadButtonType.A,
-                SDL_GameControllerButton.B => GamepadButtonType.B,
-                SDL_GameControllerButton.X => GamepadButtonType.X,
-                SDL_GameControllerButton.Y => GamepadButtonType.Y,
-                SDL_GameControllerButton.Back => GamepadButtonType.Back,
-                SDL_GameControllerButton.Guide => GamepadButtonType.Guide,
-                SDL_GameControllerButton.Start => GamepadButtonType.Start,
-                SDL_GameControllerButton.LeftStick => GamepadButtonType.LeftStick,
-                SDL_GameControllerButton.RightStick => GamepadButtonType.RightStick,
-                SDL_GameControllerButton.LeftShoulder => GamepadButtonType.LeftShoulder,
-                SDL_GameControllerButton.RightShoulder => GamepadButtonType.RightShoulder,
-                SDL_GameControllerButton.DPadUp => GamepadButtonType.DPadUp,
-                SDL_GameControllerButton.DPadDown => GamepadButtonType.DPadDown,
-                SDL_GameControllerButton.DPadLeft => GamepadButtonType.DPadLeft,
-                SDL_GameControllerButton.DPadRight => GamepadButtonType.DPadRight,
-                SDL_GameControllerButton.Max => GamepadButtonType.Max,
-                _ => throw new NotImplementedException(),
-            };
-        }
-        internal static SDL_GameControllerButton ToSDLControllerButton(GamepadButtonType button)
-        {
-            return button switch
-            {
-                GamepadButtonType.Invalid => SDL_GameControllerButton.Invalid,
-                GamepadButtonType.A => SDL_GameControllerButton.A,
-                GamepadButtonType.B => SDL_GameControllerButton.B,
-                GamepadButtonType.X => SDL_GameControllerButton.X,
-                GamepadButtonType.Y => SDL_GameControllerButton.Y,
-                GamepadButtonType.Back => SDL_GameControllerButton.Back,
-                GamepadButtonType.Guide => SDL_GameControllerButton.Guide,
-                GamepadButtonType.Start => SDL_GameControllerButton.Start,
-                GamepadButtonType.LeftStick => SDL_GameControllerButton.LeftStick,
-                GamepadButtonType.RightStick => SDL_GameControllerButton.RightStick,
-                GamepadButtonType.LeftShoulder => SDL_GameControllerButton.LeftShoulder,
-                GamepadButtonType.RightShoulder => SDL_GameControllerButton.RightShoulder,
-                GamepadButtonType.DPadUp => SDL_GameControllerButton.DPadUp,
-                GamepadButtonType.DPadDown => SDL_GameControllerButton.DPadDown,
-                GamepadButtonType.DPadLeft => SDL_GameControllerButton.DPadLeft,
-                GamepadButtonType.DPadRight => SDL_GameControllerButton.DPadRight,
-                GamepadButtonType.Max => SDL_GameControllerButton.Max,
-                _ => throw new NotImplementedException(),
-            };
-        }
-        
-        private static bool TryConvertSDLControllerAxis(SDL_GameControllerAxis axis, out GamepadInputType inputType, out GamepadAxisMotionType motionType)
-        {
-            inputType = GamepadInputType.Button;
-            motionType = GamepadAxisMotionType.X;
-
-            if (axis == SDL_GameControllerAxis.Invalid || axis == SDL_GameControllerAxis.Max)
-                return false;
-
-            inputType = axis switch
-            {
-                SDL_GameControllerAxis.LeftX => GamepadInputType.LeftAxis,
-                SDL_GameControllerAxis.LeftY => GamepadInputType.LeftAxis,
-                SDL_GameControllerAxis.RightX => GamepadInputType.RightAxis,
-                SDL_GameControllerAxis.RightY => GamepadInputType.RightAxis,
-                SDL_GameControllerAxis.TriggerLeft => GamepadInputType.Button,
-                SDL_GameControllerAxis.TriggerRight => GamepadInputType.Button,
-                SDL_GameControllerAxis.Invalid => throw new NotImplementedException(),
-                SDL_GameControllerAxis.Max => throw new NotImplementedException(),
-                _ => throw new NotImplementedException(),
-            };
-
-            motionType = axis switch
-            {
-                SDL_GameControllerAxis.LeftX => GamepadAxisMotionType.X,
-                SDL_GameControllerAxis.LeftY => GamepadAxisMotionType.Y,
-                SDL_GameControllerAxis.RightX => GamepadAxisMotionType.X,
-                SDL_GameControllerAxis.RightY => GamepadAxisMotionType.Y,
-                SDL_GameControllerAxis.TriggerLeft => GamepadAxisMotionType.X,
-                SDL_GameControllerAxis.TriggerRight => GamepadAxisMotionType.X,
-                SDL_GameControllerAxis.Invalid => throw new NotImplementedException(),
-                SDL_GameControllerAxis.Max => throw new NotImplementedException(),
-                _ => throw new NotImplementedException(),
-            };
-
-            return true;
-        }
-
         internal static void Dispose()
         {
+            UnregisterGameControlsManager();
+
             foreach (var (_, controller) in Gamepads)
                 controller?.Dispose();
+
+            Gamepads.Clear();
+            DefaultGamepad = null;
+            _gamepadsEnabled = false;
+            _applyGamepadMappings = false;
+            _gamepadRefreshTimer = 0f;
+            KeysDown.Clear();
+            MouseButtonsDown.Clear();
+            PrevSnapshot = null;
+            PrevMousePosition = Vector2.Zero;
+            MousePosition = Vector2.Zero;
+            MouseWheelDelta = 0f;
         }
 
-        internal static void LoadGamepads()
+        internal static void LoadGamepads(bool applyMappings = false)
         {
             foreach (var (_, controller) in Gamepads)
                 controller?.Dispose();
 
             Gamepads.Clear();
+            DefaultGamepad = null;
+            _gamepadsEnabled = true;
+            _applyGamepadMappings = applyMappings;
+            _gamepadRefreshTimer = 0f;
 
-            var joystickCount = Sdl2Native.SDL_NumJoysticks();
-
-            for (var i = 0; i < joystickCount; i++)
-                TryAddGamepad(i);
+            AddEnumeratedGamepads(NativeGamepadProvider.Enumerate(_applyGamepadMappings));
         }
 
-        internal static bool TryAddGamepad(int index)
+        internal static bool TryAddGamepad(INativeGamepad device)
         {
-            if (!Sdl2Native.SDL_IsGameController(index))
-                return false;
-            if (Gamepads.ContainsKey(index))
-                return false;
+            ArgumentNullException.ThrowIfNull(device);
 
-            var gamepad = new Gamepad(index, DefaultGamepadDeadzone);
+            if (Gamepads.ContainsKey(device.DeviceId))
+            {
+                device.Dispose();
+                return false;
+            }
+
+            var gamepad = new Gamepad(device, DefaultGamepadDeadzone);
 
             if (DefaultGamepad == null)
                 DefaultGamepad = gamepad;
 
-            Gamepads.Add(index, gamepad);
-            OnGamepadAdded?.Invoke(gamepad);
+            Gamepads.Add(device.DeviceId, gamepad);
+            try
+            {
+                OnGamepadAdded?.Invoke(gamepad);
+                Logging.Information("Gamepad detected [Index:{index}] [Name:{name}].", gamepad.ControllerIndex, gamepad.ControllerName);
+                return true;
+            }
+            catch
+            {
+                Gamepads.Remove(device.DeviceId);
+                if (DefaultGamepad == gamepad)
+                    SelectDefaultGamepad();
 
-            Logging.Information("Gamepad detected [Index:{index}] [Name:{name}].", gamepad.ControllerIndex, gamepad.ControllerName);
-
-            return true;
+                gamepad.Dispose();
+                throw;
+            }
         }
 
         internal static bool TryRemoveGamepad(int index)
@@ -231,17 +172,50 @@ namespace ElementEngine
             if (!Gamepads.TryGetValue(index, out var gamepad))
                 return false;
 
-            gamepad.Dispose();
-
-            if (DefaultGamepad == gamepad)
-                DefaultGamepad = null;
-
             Gamepads.Remove(index);
-            OnGamepadRemoved?.Invoke(gamepad);
+            if (DefaultGamepad == gamepad)
+                SelectDefaultGamepad();
 
-            Logging.Information("Gamepad removed [Index:{index}] [Name:{name}].", gamepad.ControllerIndex, gamepad.ControllerName);
+            try
+            {
+                OnGamepadRemoved?.Invoke(gamepad);
+                Logging.Information("Gamepad removed [Index:{index}] [Name:{name}].", gamepad.ControllerIndex, gamepad.ControllerName);
+            }
+            finally
+            {
+                gamepad.Dispose();
+            }
 
             return true;
+        }
+
+        private static void SelectDefaultGamepad()
+        {
+            DefaultGamepad = null;
+
+            foreach (var controller in Gamepads.Values)
+            {
+                DefaultGamepad = controller;
+                break;
+            }
+        }
+
+        private static void AddEnumeratedGamepads(IReadOnlyList<INativeGamepad> devices)
+        {
+            for (var index = 0; index < devices.Count; index++)
+            {
+                try
+                {
+                    TryAddGamepad(devices[index]);
+                }
+                catch
+                {
+                    for (var remainingIndex = index + 1; remainingIndex < devices.Count; remainingIndex++)
+                        devices[remainingIndex].Dispose();
+
+                    throw;
+                }
+            }
         }
 
         public static void SetGamepadDeadzones(float value)
@@ -252,90 +226,26 @@ namespace ElementEngine
             DefaultGamepadDeadzone = value;
         }
 
-        private static void HandleTriggerEvent(Gamepad gamepad, GamepadButtonType buttonType, short value)
-        {
-            var pressed = value != 0;
-            var prevPressed = gamepad.IsButtonPressed(buttonType);
-
-            gamepad.ButtonsPressed[buttonType] = pressed;
-            gamepad.ButtonEvents.Add(new(buttonType, gamepad.IsButtonPressed(buttonType), prevPressed));
-        }
-
-        internal static void ProcessGamepadEvents(ref SDL_Event ev)
-        {
-            switch (ev.type)
-            {
-                case SDL_EventType.ControllerAxisMotion:
-                    {
-                        var axisEvent = Unsafe.As<SDL_Event, SDL_ControllerAxisEvent>(ref ev);
-
-                        if (Gamepads.TryGetValue(axisEvent.which, out var gamepad))
-                        {
-                            if (axisEvent.axis == SDL_GameControllerAxis.TriggerLeft)
-                            {
-                                HandleTriggerEvent(gamepad, GamepadButtonType.LeftTrigger, axisEvent.value);
-                                return;
-                            }
-                            else if (axisEvent.axis == SDL_GameControllerAxis.TriggerRight)
-                            {
-                                HandleTriggerEvent(gamepad, GamepadButtonType.RightTrigger, axisEvent.value);
-                                return;
-                            }
-
-                            var normalizedValue = Gamepad.NormalizeAxis(axisEvent.value);
-
-                            gamepad.AxisValues[axisEvent.axis] = normalizedValue;
-
-                            var eventValue = normalizedValue;
-
-                            if (MathF.Abs(eventValue) < gamepad.Deadzone)
-                                eventValue = 0f;
-
-                            if (TryConvertSDLControllerAxis(axisEvent.axis, out var inputType, out var motionType))
-                                gamepad.AxisMotionEvents.Add(new(inputType, motionType, eventValue));
-                        }
-                    }
-                    break;
-
-                case SDL_EventType.ControllerButtonDown:
-                case SDL_EventType.ControllerButtonUp:
-                    {
-                        var buttonEvent = Unsafe.As<SDL_Event, SDL_ControllerButtonEvent>(ref ev);
-
-                        if (Gamepads.TryGetValue(buttonEvent.which, out var gamepad))
-                        {
-                            var buttonType = FromSDLControllerButton(buttonEvent.button);
-                            var prevPressed = gamepad.IsButtonPressed(buttonType);
-
-                            gamepad.ButtonsPressed[buttonType] = buttonEvent.state == 1;
-                            gamepad.ButtonEvents.Add(new(buttonType, gamepad.IsButtonPressed(buttonType), prevPressed));
-                        }
-                    }
-                    break;
-
-                case SDL_EventType.ControllerDeviceRemoved:
-                    {
-                        var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
-                        TryRemoveGamepad(deviceEvent.which);
-                    }
-                    break;
-
-                case SDL_EventType.ControllerDeviceAdded:
-                    {
-                        var deviceEvent = Unsafe.As<SDL_Event, SDL_ControllerDeviceEvent>(ref ev);
-                        TryAddGamepad(deviceEvent.which);
-                    }
-                    break;
-            }
-        }
-
         public static void LoadGameControls(string settingsSection = "Controls")
         {
-            _gameControlsManager = new GameControlsManager(settingsSection);
+            var gameControlsManager = new GameControlsManager(settingsSection);
+            UnregisterGameControlsManager();
+            _gameControlsManager = gameControlsManager;
 
             AddKeyboardHandler(_gameControlsManager);
             AddMouseHandler(_gameControlsManager);
             AddGamepadHandler(_gameControlsManager);
+        }
+
+        private static void UnregisterGameControlsManager()
+        {
+            if (_gameControlsManager == null)
+                return;
+
+            RemoveKeyboardHandler(_gameControlsManager);
+            RemoveMouseHandler(_gameControlsManager);
+            RemoveGamepadHandler(_gameControlsManager);
+            _gameControlsManager = null;
         }
 
         public static Key GetGameControlKey(string name)
@@ -392,93 +302,118 @@ namespace ElementEngine
             _mouseButtonReleasedBlocked = false;
             _mouseButtonDownBlocked = false;
             _mouseWheelBlocked = false;
+            _gamepadButtonPressedBlocked = false;
+            _gamepadButtonReleasedBlocked = false;
+            _gamepadButtonDownBlocked = false;
+            _gamepadAxisMotionBlocked = false;
 
             PrevMousePosition = MousePosition;
             MousePosition = snapshot.MousePosition;
+            var captureMouse = IMGUIManager.WantCaptureMouse();
+            var captureKeyboard = IMGUIManager.WantCaptureKeyboard();
+            MouseWheelDelta = captureMouse ? 0f : snapshot.WheelDelta;
 
-            if (!IMGUIManager.WantCaptureMouse())
+            if (!captureMouse)
             {
                 if (MousePosition != PrevMousePosition)
                     HandleMouseMotion(gameTimer);
-
-                MouseWheelDelta = snapshot.WheelDelta;
 
                 if (MouseWheelDelta != 0)
                     HandleMouseWheel(gameTimer);
             }
 
-            if (!IMGUIManager.WantCaptureKeyboard())
+            if (!captureKeyboard)
             {
                 for (var i = 0; i < snapshot.KeyCharPresses.Count; i++)
                 {
+                    _textInputBlocked = false;
+
                     for (var h = 0; h < _keyboardHandlers.Count; h++)
+                    {
+                        if (_textInputBlocked)
+                            break;
+
                         _keyboardHandlers[h]?.HandleTextInput(snapshot.KeyCharPresses[i], gameTimer);
-                }
-
-                for (var i = 0; i < snapshot.KeyEvents.Count; i++)
-                {
-                    var keyEvent = snapshot.KeyEvents[i];
-
-                    if (KeysDown.ContainsKey(keyEvent.Key))
-                    {
-                        if (KeysDown[keyEvent.Key] != keyEvent.Down)
-                        {
-                            KeysDown[keyEvent.Key] = keyEvent.Down;
-
-                            if (keyEvent.Down)
-                                HandleKeyPressed(keyEvent.Key, gameTimer);
-                            else
-                                HandleKeyReleased(keyEvent.Key, gameTimer);
-                        }
-                        else if (keyEvent.Down)
-                        {
-                            HandleKeyDown(keyEvent.Key, gameTimer);
-                        }
-                    }
-                    else
-                    {
-                        KeysDown.Add(keyEvent.Key, keyEvent.Down);
-
-                        if (keyEvent.Down)
-                            HandleKeyPressed(keyEvent.Key, gameTimer);
-                        else
-                            HandleKeyReleased(keyEvent.Key, gameTimer);
                     }
                 }
             }
 
-            if (!IMGUIManager.WantCaptureMouse())
+            for (var i = 0; i < snapshot.KeyEvents.Count; i++)
             {
-                for (var i = 0; i < snapshot.MouseEvents.Count; i++)
+                var keyEvent = snapshot.KeyEvents[i];
+                var hadPreviousState = KeysDown.TryGetValue(keyEvent.Key, out var wasDown);
+                KeysDown[keyEvent.Key] = keyEvent.Down;
+
+                if (captureKeyboard)
+                    continue;
+
+                if (!hadPreviousState || wasDown != keyEvent.Down)
                 {
-                    var mouseEvent = snapshot.MouseEvents[i];
-
-                    if (MouseButtonsDown.ContainsKey(mouseEvent.MouseButton))
-                    {
-                        if (MouseButtonsDown[mouseEvent.MouseButton].Down != mouseEvent.Down)
-                        {
-                            MouseButtonsDown[mouseEvent.MouseButton].Down = mouseEvent.Down;
-
-                            if (mouseEvent.Down)
-                                HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
-                            else
-                                HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
-                        }
-                        else if (mouseEvent.Down)
-                        {
-                            HandleMouseButtonDown(mouseEvent.MouseButton, gameTimer);
-                        }
-                    }
+                    if (keyEvent.Down)
+                        HandleKeyPressed(keyEvent.Key, gameTimer);
                     else
-                    {
-                        MouseButtonsDown.Add(mouseEvent.MouseButton, new MouseButtonDownState() { Down = mouseEvent.Down });
-
-                        if (mouseEvent.Down)
-                            HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
-                        else
-                            HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
-                    }
+                        HandleKeyReleased(keyEvent.Key, gameTimer);
                 }
+                else if (keyEvent.Down)
+                {
+                    HandleKeyDown(keyEvent.Key, gameTimer);
+                }
+            }
+
+            for (var i = 0; i < snapshot.MouseEvents.Count; i++)
+            {
+                var mouseEvent = snapshot.MouseEvents[i];
+                var hadPreviousState = MouseButtonsDown.TryGetValue(mouseEvent.MouseButton, out var state);
+                state ??= new MouseButtonDownState();
+                var wasDown = state.Down;
+                state.Down = mouseEvent.Down;
+
+                if (!hadPreviousState)
+                    MouseButtonsDown.Add(mouseEvent.MouseButton, state);
+
+                if (wasDown != mouseEvent.Down)
+                    state.RepeatTimer = 0f;
+
+                if (captureMouse)
+                    continue;
+
+                if (!hadPreviousState || wasDown != mouseEvent.Down)
+                {
+                    if (mouseEvent.Down)
+                        HandleMouseButtonPressed(mouseEvent.MouseButton, gameTimer);
+                    else
+                        HandleMouseButtonReleased(mouseEvent.MouseButton, gameTimer);
+                }
+                else if (mouseEvent.Down)
+                {
+                    HandleMouseButtonDown(mouseEvent.MouseButton, gameTimer);
+                }
+            }
+
+            if (_gamepadsEnabled)
+            {
+                _gamepadRefreshTimer -= gameTimer.DeltaS;
+                if (_gamepadRefreshTimer <= 0f)
+                {
+                    _gamepadRefreshTimer = 1f;
+                    AddEnumeratedGamepads(NativeGamepadProvider.Enumerate(_applyGamepadMappings));
+                }
+            }
+
+            List<int> disconnectedGamepads = null;
+            foreach (var (deviceId, controller) in Gamepads)
+            {
+                if (controller.Poll())
+                    continue;
+
+                disconnectedGamepads ??= new List<int>();
+                disconnectedGamepads.Add(deviceId);
+            }
+
+            if (disconnectedGamepads != null)
+            {
+                foreach (var deviceId in disconnectedGamepads)
+                    TryRemoveGamepad(deviceId);
             }
 
             foreach (var (_, controller) in Gamepads)
@@ -506,7 +441,7 @@ namespace ElementEngine
                 controller.AxisMotionEvents.Clear();
             }
 
-            if (!IMGUIManager.WantCaptureMouse() && MouseButtonDownAutoRepeat)
+            if (!captureMouse && MouseButtonDownAutoRepeat)
             {
                 foreach (var (button, mouseDown) in MouseButtonsDown)
                 {
@@ -679,6 +614,6 @@ namespace ElementEngine
         public static void RemoveKeyboardHandler(IKeyboardHandler handler) => _keyboardHandlers.Remove(handler);
         public static void RemoveMouseHandler(IMouseHandler handler) => _mouseHandlers.Remove(handler);
         public static void RemoveGamepadHandler(IGamepadHandler handler) => _gamepadHandlers.Remove(handler);
-        public static void RemoveGameControlHandler(IGameControlHandler handler) => _gameControlsManager.Handlers.Remove(handler);
+        public static void RemoveGameControlHandler(IGameControlHandler handler) => _gameControlsManager?.Handlers.Remove(handler);
     }
 }

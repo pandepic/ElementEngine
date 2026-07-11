@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ElementEngine;
 using ElementEngine.UI;
 using ImGuiNET;
-using Veldrid;
 
 namespace Samples
 {
@@ -17,7 +16,19 @@ namespace Samples
 
     internal class Game : BaseGame
     {
+        internal static bool RendererSmokeChecksEnabled { get; set; }
+        internal static GraphicsBackend? RequestedGraphicsBackend { get; set; }
+        internal static bool GraphicsDebugEnabled { get; set; }
+
+        private readonly int? _smokeFrameLimit;
+        private int _renderedFrames;
+
         public Dictionary<GameStateType, GameState> GameStates = new Dictionary<GameStateType, GameState>();
+
+        public Game(int? smokeFrameLimit = null)
+        {
+            _smokeFrameLimit = smokeFrameLimit;
+        }
 
         public override void Load()
         {
@@ -65,7 +76,17 @@ namespace Samples
                     Globals.PossibleResolutions.RemoveAt(i);
             }
 
-            SetupWindow(windowRect, "Element Engine Samples", GraphicsBackend.Direct3D11, vsync: vsync, windowState: windowState);
+            SetupWindow(
+                windowRect,
+                "Element Engine Samples",
+                RequestedGraphicsBackend,
+                vsync,
+                windowState,
+                debug: GraphicsDebugEnabled);
+
+            if (RendererSmokeChecksEnabled)
+                RendererSmokeChecks.Run();
+
             SetupAssets("Mods");
 
             IMGUIManager.Setup();
@@ -120,6 +141,14 @@ namespace Samples
             }
 
             IMGUIManager.Draw();
+
+            if (_smokeFrameLimit.HasValue)
+            {
+                RendererSmokeChecks.VerifySwapchainMultiPass();
+
+                if (++_renderedFrames >= _smokeFrameLimit.Value)
+                    Quit();
+            }
         }
     }
 }

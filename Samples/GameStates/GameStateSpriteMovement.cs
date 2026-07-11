@@ -2,7 +2,6 @@
 using ElementEngine;
 using ElementEngine.ECS;
 using ImGuiNET;
-using Veldrid;
 
 namespace Samples
 {

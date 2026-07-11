@@ -87,7 +87,7 @@ namespace ElementEngine
                 if (!SetPathResult(AStarPathResultType.StartEqualsEnd, ref result))
                     return result;
             }
-            
+
             _openList.Clear();
             Graph.Reset();
 

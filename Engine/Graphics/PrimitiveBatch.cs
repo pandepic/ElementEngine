@@ -2,22 +2,19 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
-using Veldrid;
-using Veldrid.Sdl2;
-using Veldrid.SPIRV;
 
 namespace ElementEngine
 {
     public class PrimitiveBatch : IDisposable
     {
-        public Sdl2Window Window => ElementGlobals.Window;
+        public GameWindow Window => ElementGlobals.Window;
         public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
         public CommandList CommandList => ElementGlobals.CommandList;
 
         // Shared static resources
         protected static bool _staticResLoaded = false;
         protected static Shader[] _shaders;
-        protected static Sampler _sampler = ElementGlobals.GraphicsDevice.PointSampler;
+        protected static Sampler _sampler;
 
         protected static Vector2[] _rectVertexTemplate = new Vector2[]
         {
@@ -65,14 +62,27 @@ namespace ElementEngine
                     _pipelineTriangleList?.Dispose();
                     _pipelineTriangleStrip?.Dispose();
                     _pipelineLineLoop?.Dispose();
-                    _vertexBuffer?.Dispose();
-                    _transformBuffer?.Dispose();
-                    _transformLayout?.Dispose();
                     _transformSet?.Dispose();
+                    _vertexBuffer?.Dispose();
+                    _transformLayout?.Dispose();
+                    _transformBuffer?.Dispose();
                 }
 
                 _disposed = true;
             }
+        }
+
+        internal static void DisposeCache()
+        {
+            if (_shaders != null)
+            {
+                foreach (var shader in _shaders)
+                    shader?.Dispose();
+            }
+
+            _shaders = null;
+            _sampler = null;
+            _staticResLoaded = false;
         }
         #endregion
 
@@ -87,7 +97,7 @@ namespace ElementEngine
 
             _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, height, 0f, 0f, 1f);
 
-            if (invertY && !GraphicsDevice.IsUvOriginTopLeft)
+            if (invertY)
                 _projection = Matrix4x4.CreateOrthographicOffCenter(0f, width, 0f, height, 0f, 1f);
 
             _transformBuffer = factory.CreateBuffer(new BufferDescription((uint)(sizeof(Matrix4x4) * 2), BufferUsage.UniformBuffer));
@@ -106,7 +116,7 @@ namespace ElementEngine
             GraphicsPipelineDescription pipelineDescription = new GraphicsPipelineDescription
             {
                 BlendState = BlendStateDescription.SingleAlphaBlend,
-                DepthStencilState = new DepthStencilStateDescription(depthTestEnabled: true, depthWriteEnabled: true, ComparisonKind.LessEqual),
+                DepthStencilState = new DepthStencilStateDescription(depthTestEnabled: false, depthWriteEnabled: false, ComparisonKind.Always),
                 RasterizerState = new RasterizerStateDescription
                 {
                     DepthClipEnabled = true,
@@ -138,7 +148,7 @@ namespace ElementEngine
             var vertexShaderDesc = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(DefaultShaders.DefaultPrimitiveVS), "main");
             var fragmentShaderDesc = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(DefaultShaders.DefaultPrimitiveFS), "main");
 
-            _shaders = factory.CreateFromSpirv(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
+            _shaders = factory.CreateShaders(vertexShaderDesc, fragmentShaderDesc, new CrossCompileOptions(fixClipSpaceZ: true, invertVertexOutputY: false));
             _staticResLoaded = true;
         }
 

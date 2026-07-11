@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Xml.Linq;
-using Veldrid;
 
 namespace ElementEngine.UI
 {
@@ -195,7 +194,7 @@ namespace ElementEngine.UI
             if (Font != null)
             {
                 LabelText = LabelTemplate.Replace("{value}", _currentValue.ToString()).Replace("{fvalue}", FValue.ToString("0.00"));
-                
+
                 var labelSize = Font.MeasureText(LabelText, FontSize);
                 int textX = (_labelCenterX == false ? _labelOffsetX : (int)((Width / 2) - (labelSize.X / 2)));
                 int textY = (_labelCenterY == false ? _labelOffsetY : (int)((Height / 2) - (labelSize.Y / 2)));

@@ -1,7 +1,6 @@
 ﻿using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Globalization;
-using Veldrid;
 
 namespace ElementEngine
 {
@@ -12,7 +11,7 @@ namespace ElementEngine
             return new TextureDescription(texture.Width, texture.Height, texture.Depth, texture.MipLevels, texture.ArrayLayers, texture.Format, texture.Usage, texture.Type);
         }
 
-        #region Veldrid color extensions
+        #region Color extensions
         public static RgbaByte ToRgbaByte(this RgbaFloat color)
         {
             return new RgbaByte((byte)(255f * color.R), (byte)(255f * color.G), (byte)(255f * color.B), (byte)(255f * color.A));
@@ -20,7 +19,7 @@ namespace ElementEngine
 
         public static RgbaVector ToRgbaVector(this RgbaFloat color)
         {
-            return new RgbaVector(color.R, color.G, color.G, color.A);
+            return new RgbaVector(color.R, color.G, color.B, color.A);
         }
 
         public static RgbaFloat ToRgbaFloat(this RgbaByte color)
@@ -80,7 +79,7 @@ namespace ElementEngine
         }
         #endregion
 
-        #region Veldrid buffer extensions
+        #region Buffer extensions
 
         [Obsolete("Inefficient")]
         public static RgbaByte[] ToRgbaByte(this byte[] buffer)

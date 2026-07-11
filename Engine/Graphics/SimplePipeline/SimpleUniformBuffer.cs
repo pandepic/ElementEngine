@@ -1,5 +1,4 @@
 ﻿using System;
-using Veldrid;
 
 namespace ElementEngine
 {
@@ -22,9 +21,9 @@ namespace ElementEngine
             if (_isDisposed)
                 return;
 
-            Buffer?.Dispose();
-            ResourceLayout?.Dispose();
             ResourceSet?.Dispose();
+            ResourceLayout?.Dispose();
+            Buffer?.Dispose();
 
             _isDisposed = true;
         }
@@ -39,7 +38,7 @@ namespace ElementEngine
             var dataSize = size * sizeof(T);
             // make sure the size is in multiples of 16
             var bufferSize = (dataSize / 16 + (dataSize % 16 > 0 ? 1 : 0)) * 16;
-            
+
             Buffer = GraphicsDevice.ResourceFactory.CreateBuffer(new BufferDescription((uint)bufferSize, BufferUsage.UniformBuffer));
             Buffer.Name = Name;
 

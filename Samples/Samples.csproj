@@ -28,4 +28,12 @@
 		<ProjectReference Include="..\Engine\ElementEngine.csproj" />
 	</ItemGroup>
 
+	<Target Name="RejectUnsupportedImGuiPublishTarget"
+			BeforeTargets="Publish"
+			Condition="('$(RuntimeIdentifier)' != 'win-x64' And '$(RuntimeIdentifier)' != 'win-x86' And $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))) Or
+					   ('$(RuntimeIdentifier)' != 'linux-x64' And $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux-'))) Or
+					   ('$(RuntimeIdentifier)' != 'osx-x64' And '$(RuntimeIdentifier)' != 'osx-arm64' And $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-')))">
+		<Error Text="The ElementEngine sample uses ImGui.NET 1.87.3. Its native assets support Windows x86/x64, Linux x64, and macOS universal only. Publish with win-x86, win-x64, linux-x64, osx-x64, or osx-arm64." />
+	</Target>
+
 </Project>

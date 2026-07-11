@@ -48,7 +48,7 @@ namespace ElementEngine
         {
             if (frame < 1 || frame > TotalFrames)
                 return;
-            
+
             SourceRect.X = ((frame - 1) % (Texture.Width / FrameSize.X)) * FrameSize.X;
             SourceRect.Y = ((frame - 1) / (Texture.Width / FrameSize.X)) * FrameSize.Y;
             SourceRect.Width = FrameSize.X;

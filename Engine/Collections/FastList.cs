@@ -85,7 +85,7 @@ namespace ElementEngine
             Count = 0;
         }
 
-		public void Sort()
+        public void Sort()
         {
             Array.Sort(Data, 0, Count);
         }

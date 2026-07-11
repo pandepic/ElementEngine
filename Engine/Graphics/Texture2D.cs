@@ -6,13 +6,12 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Veldrid;
 
 namespace ElementEngine
 {
     public class Texture2D : IDisposable
     {
-        public GraphicsDevice GraphicsDevice => ElementGlobals.GraphicsDevice;
+        public GraphicsDevice GraphicsDevice => _texture?.GraphicsDevice ?? ElementGlobals.GraphicsDevice;
 
         protected Texture _texture;
         public Texture Texture { get => _texture; }
@@ -52,8 +51,6 @@ namespace ElementEngine
             {
                 if (disposing)
                 {
-                    _texture?.Dispose();
-                    _framebuffer?.Dispose();
                     _renderTargetSpriteBatch2D?.Dispose();
 
                     foreach (var (_, layoutSets) in ResourceSets)
@@ -61,6 +58,9 @@ namespace ElementEngine
                         foreach (var (_, set) in layoutSets)
                             set.Dispose();
                     }
+
+                    _framebuffer?.Dispose();
+                    _texture?.Dispose();
                 }
 
                 _disposed = true;
@@ -75,8 +75,9 @@ namespace ElementEngine
 
         public Texture2D(Texture texture, string name = null)
         {
-            _texture = texture;
+            _texture = texture ?? throw new ArgumentNullException(nameof(texture));
             Description = _texture.GetDescription();
+            BytesPerPixel = GraphicsHelper.GetPixelFormatBytesPerPixel(Description.Format);
             Setup(name);
         }
 
@@ -166,51 +167,71 @@ namespace ElementEngine
 
             var temp = new Texture2D(Width, Height, null, Description.Format, TextureUsage.Staging);
 
-            var commandList = GraphicsDevice.ResourceFactory.CreateCommandList();
-            commandList.Begin();
-            commandList.CopyTexture(Texture, temp.Texture);
-            commandList.End();
-            GraphicsDevice.SubmitCommands(commandList);
-            GraphicsDevice.WaitForIdle();
-            commandList.Dispose();
+            try
+            {
+                using var commandList = GraphicsDevice.ResourceFactory.CreateCommandList();
+                commandList.Begin();
+                commandList.CopyTexture(Texture, temp.Texture);
+                commandList.End();
+                GraphicsDevice.SubmitCommands(commandList);
+                GraphicsDevice.WaitForIdle();
 
-            texture = temp;
-            return true;
+                texture = temp;
+                return true;
+            }
+            catch
+            {
+                temp.Dispose();
+                throw;
+            }
         }
 
         public unsafe byte[] GetData()
         {
+            if (Description.Format is PixelFormat.ETC2_R8_G8_B8_UNorm or PixelFormat.ETC2_R8_G8_B8_A8_UNorm)
+                throw new NotSupportedException("Texture2D CPU readback does not expose block-compressed texture data.");
+
             var disposeMapTexture = TryCreateStagingCopy(out var mapTexture);
 
-            var view = GraphicsDevice.Map<byte>(mapTexture.Texture, MapMode.Read);
-            var tempData = new byte[view.SizeInBytes];
-            Marshal.Copy(view.MappedResource.Data, tempData, 0, (int)view.SizeInBytes);
-            GraphicsDevice.Unmap(mapTexture.Texture);
-
-            var data = new byte[Texture.Width * Texture.Height * BytesPerPixel];
-            var textureByteWidth = Texture.Width * BytesPerPixel;
-            var dataIndex = 0;
-            var totalRows = 0;
-
-            while (dataIndex < data.Length)
+            try
             {
-                var rowCounter = 0;
-
-                for (var i = 0; i < view.MappedResource.RowPitch && rowCounter < textureByteWidth; i++)
+                var view = GraphicsDevice.Map<byte>(mapTexture.Texture, MapMode.Read);
+                try
                 {
-                    data[dataIndex] = tempData[totalRows * view.MappedResource.RowPitch + i];
-                    dataIndex += 1;
-                    rowCounter += 1;
+                    var tempData = new byte[view.SizeInBytes];
+                    Marshal.Copy(view.MappedResource.Data, tempData, 0, (int)view.SizeInBytes);
+
+                    var data = new byte[Texture.Width * Texture.Height * BytesPerPixel];
+                    var textureByteWidth = Texture.Width * BytesPerPixel;
+                    var dataIndex = 0;
+                    var totalRows = 0;
+
+                    while (dataIndex < data.Length)
+                    {
+                        var rowCounter = 0;
+
+                        for (var i = 0; i < view.MappedResource.RowPitch && rowCounter < textureByteWidth; i++)
+                        {
+                            data[dataIndex] = tempData[totalRows * view.MappedResource.RowPitch + i];
+                            dataIndex += 1;
+                            rowCounter += 1;
+                        }
+
+                        totalRows += 1;
+                    }
+
+                    return data;
                 }
-
-                totalRows += 1;
+                finally
+                {
+                    GraphicsDevice.Unmap(mapTexture.Texture);
+                }
             }
-
-            if (disposeMapTexture)
-                mapTexture.Dispose();
-
-            return data;
-
+            finally
+            {
+                if (disposeMapTexture)
+                    mapTexture.Dispose();
+            }
         }
 
         public Span<T> GetData<T>() where T : unmanaged
@@ -240,7 +261,13 @@ namespace ElementEngine
                 if (type == TexturePremultiplyType.Premultiply)
                     data[i] = new RgbaByte((byte)(color.R * ratio), (byte)(color.G * ratio), (byte)(color.B * ratio), color.A);
                 else if (type == TexturePremultiplyType.UnPremultiply)
-                    data[i] = new RgbaByte((byte)(color.R / ratio), (byte)(color.G / ratio), (byte)(color.B / ratio), color.A);
+                    data[i] = ratio == 0f
+                        ? RgbaByte.Clear
+                        : new RgbaByte(
+                            (byte)Math.Clamp(color.R / ratio, 0f, 255f),
+                            (byte)Math.Clamp(color.G / ratio, 0f, 255f),
+                            (byte)Math.Clamp(color.B / ratio, 0f, 255f),
+                            color.A);
             }
 
             SetData(data);
@@ -248,7 +275,7 @@ namespace ElementEngine
 
         public void SaveAsPng(string filePath)
         {
-            using var fs = new FileStream(filePath, FileMode.OpenOrCreate);
+            using var fs = new FileStream(filePath, FileMode.Create);
             SaveAsPng(fs);
         }
 
@@ -259,7 +286,7 @@ namespace ElementEngine
 
             // TODO: optimize by loading staging texture directly
 
-            var image = Image.LoadPixelData(data, Width, Height);
+            using var image = Image.LoadPixelData(data, Width, Height);
             image.SaveAsPng(fs);
         }
 
@@ -287,7 +314,7 @@ namespace ElementEngine
         {
             if (_framebuffer == null)
             {
-                _framebuffer = ElementGlobals.GraphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription()
+                _framebuffer = GraphicsDevice.ResourceFactory.CreateFramebuffer(new FramebufferDescription()
                 {
                     ColorTargets = new FramebufferAttachmentDescription[]
                     {

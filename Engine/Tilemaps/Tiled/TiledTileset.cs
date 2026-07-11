@@ -13,7 +13,7 @@ namespace ElementEngine.Tiled
         public TiledTileset(Stream fs)
         {
             var doc = XDocument.Load(fs);
-            
+
             foreach (var tile in doc.Root.Elements("tile"))
             {
                 var tileID = int.Parse(tile.Attribute("id").Value);

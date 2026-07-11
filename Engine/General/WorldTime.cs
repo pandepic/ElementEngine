@@ -52,7 +52,7 @@ namespace ElementEngine
         public ulong TotalYears => TotalDays / (ulong)DaysPerYear;
 
         public int DayOfYear => (int)(TotalDays - (TotalYears * (ulong)DaysPerYear));
-        
+
         public WorldTimeMonth CurrentMonth
         {
             get

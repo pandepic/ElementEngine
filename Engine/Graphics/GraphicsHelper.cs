@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Veldrid;
 
 namespace ElementEngine
 {
@@ -190,13 +189,13 @@ namespace ElementEngine
 
             while (currentY < endY)
             {
-                var drawHeight = center.Width;
+                var drawHeight = center.Height;
 
                 if ((currentY + drawHeight) > endY)
                     drawHeight = endY - currentY;
 
                 spriteBatch.DrawTexture2D(atlas, new Rectangle(0, currentY, center.Width, drawHeight), center);
-                currentY += center.Width;
+                currentY += center.Height;
             }
 
             spriteBatch.End();
@@ -305,7 +304,7 @@ namespace ElementEngine
                 PixelFormat.R32_G32_B32_A32_Float => 16,
                 PixelFormat.R32_Float => 4,
                 PixelFormat.D24_UNorm_S8_UInt => 4,
-                PixelFormat.D32_Float_S8_UInt => 5,
+                PixelFormat.D32_Float_S8_UInt => 8,
                 PixelFormat.R32_G32_B32_A32_UInt => 16,
                 PixelFormat.R8_G8_SNorm => 2,
                 PixelFormat.R8_SNorm => 1,
@@ -338,7 +337,7 @@ namespace ElementEngine
                 PixelFormat.R16_G16_B16_A16_Float => 8,
                 PixelFormat.R32_G32_B32_A32_SInt => 16,
                 PixelFormat.ETC2_R8_G8_B8_UNorm => 8,
-                PixelFormat.ETC2_R8_G8_B8_A8_UNorm => 24,
+                PixelFormat.ETC2_R8_G8_B8_A8_UNorm => 16,
                 PixelFormat.R8_G8_B8_A8_UNorm_SRgb => 4,
                 PixelFormat.B8_G8_R8_A8_UNorm_SRgb => 4,
                 _ => throw new Exception("Bytes per pixel not covered for format " + format.ToString()),
