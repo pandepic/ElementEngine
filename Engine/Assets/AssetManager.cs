@@ -3,8 +3,6 @@ using ElementEngine.Ogmo;
 using ElementEngine.TexturePacker;
 using ElementEngine.Tiled;
 using ElementEngine.Util;
-using NAudio.Vorbis;
-using NAudio.Wave;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -615,12 +613,8 @@ public class AssetManager
         var stopWatch = Stopwatch.StartNew();
 
         using var fs = GetAssetStream(assetName);
-        using var wav = new WaveFileReader(fs);
-
-        var newSource = new AudioSource(wav)
-        {
-            AssetName = assetName
-        };
+        var newSource = AudioDecoder.DecodeWav(fs);
+        newSource.AssetName = assetName;
 
         TryAddToCache(assetName, newSource);
         LogLoaded("AudioSource", assetName, stopWatch);
@@ -638,12 +632,8 @@ public class AssetManager
 
         var stopWatch = Stopwatch.StartNew();
 
-        using var wav = new WaveFileReader(stream);
-
-        var newSource = new AudioSource(wav)
-        {
-            AssetName = name ?? ""
-        };
+        var newSource = AudioDecoder.DecodeWav(stream);
+        newSource.AssetName = name ?? "";
 
         if (!string.IsNullOrEmpty(name))
         {
@@ -667,12 +657,8 @@ public class AssetManager
         var stopWatch = Stopwatch.StartNew();
 
         using var fs = GetAssetStream(assetName);
-        using var vorbis = new VorbisWaveReader(fs);
-
-        var newSource = new AudioSource(vorbis)
-        {
-            AssetName = assetName
-        };
+        var newSource = AudioDecoder.DecodeOggVorbis(fs);
+        newSource.AssetName = assetName;
 
         TryAddToCache(assetName, newSource);
         LogLoaded("AudioSource", assetName, stopWatch);
@@ -690,12 +676,8 @@ public class AssetManager
 
         var stopWatch = Stopwatch.StartNew();
 
-        using var vorbis = new VorbisWaveReader(stream);
-
-        var newSource = new AudioSource(vorbis)
-        {
-            AssetName = name ?? ""
-        };
+        var newSource = AudioDecoder.DecodeOggVorbis(stream);
+        newSource.AssetName = name ?? "";
 
         if (!string.IsNullOrEmpty(name))
         {

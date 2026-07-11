@@ -35,6 +35,12 @@ Windows gamepad input uses XInput (up to four controllers, no Guide button) plus
 macOS gamepad input uses the GameController framework for MFi and licensed controllers (Xbox, PlayStation, Switch Pro) plus an IOHIDManager fallback for generic USB HID pads on macOS 11 and later.
 HID fallback pads use a heuristic button/axis layout; the SDL-style controller mapping database (`EnableGamepads(applyMappings: true)`) is currently applied on Linux only, so unusual HID pads may need remapping in game settings.
 
+### Audio Backends
+ElementEngine mixes audio in-engine and sends PCM output through native WinMM on Windows, ALSA on Linux, and CoreAudio on macOS.
+Audio assets support mono and stereo PCM and IEEE float WAV files plus Ogg Vorbis files.
+Linux audio output requires the system ALSA library (`libasound.so.2`).
+On machines without a working audio device the engine logs an error, continues without sound, and periodically retries the device so audio recovers when one appears.
+
 ### Sample Projects
 In the future some better sample projects for specific features will be created, but for now here are some of my open source projects that use this engine:
 

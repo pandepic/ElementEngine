@@ -1,282 +1,458 @@
-﻿using NAudio.Vorbis;
-using NAudio.Wave;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
-namespace ElementEngine
+namespace ElementEngine;
+
+public enum AudioSourceType
 {
-    public enum AudioSourceType
+    Auto,
+    Ogg,
+    WAV
+}
+
+public enum PlaybackState
+{
+    Stopped,
+    Playing,
+    Paused
+}
+
+public readonly record struct AudioFormat(int SampleRate, int Channels)
+{
+    public TimeSpan GetDuration(int sampleCount) =>
+        TimeSpan.FromSeconds((double)sampleCount / Channels / SampleRate);
+}
+
+public sealed class AudioSource : IDisposable
+{
+    private float[] _samples;
+    private bool _disposed;
+
+    public AudioFormat Format { get; }
+    public ReadOnlyMemory<float> Samples => _samples;
+    public TimeSpan Duration => Format.GetDuration(_samples.Length);
+    public string AssetName { get; set; } = "";
+
+    public AudioSource(AudioFormat format, float[] samples)
     {
-        Auto,
-        Ogg,
-        WAV
+        ArgumentNullException.ThrowIfNull(samples);
+
+        if (format.SampleRate <= 0)
+            throw new ArgumentOutOfRangeException(nameof(format), "The sample rate must be positive.");
+        if (format.Channels <= 0)
+            throw new ArgumentOutOfRangeException(nameof(format), "The channel count must be positive.");
+        if (samples.Length % format.Channels != 0)
+            throw new ArgumentException("Interleaved sample data must contain complete frames.", nameof(samples));
+
+        Format = format;
+        _samples = samples;
     }
 
-    public class AudioSource : IDisposable
+    // Instances share this buffer instead of copying it; nothing mutates it, and a
+    // captured reference stays valid even if the source is disposed mid-playback.
+    internal float[] GetSampleBuffer()
     {
-        public WaveFormat Format { get; set; }
-        public MemoryStream Data { get; set; }
-        public string AssetName { get; set; }
-
-        #region IDisposable
-        protected bool _disposed = false;
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    Data?.Dispose();
-                }
-
-                _disposed = true;
-            }
-        }
-        #endregion
-
-        public AudioSource(IWaveProvider provider)
-        {
-            Data = new MemoryStream();
-            Format = provider.WaveFormat;
-            WaveFileWriter.WriteWavFileToStream(Data, provider);
-        }
-
-        ~AudioSource()
-        {
-            Dispose(false);
-        }
-    } // AudioSource
-
-    public class AudioInstance : IDisposable
-    {
-        public WaveOutEvent WaveOut { get; set; }
-        public MemoryStream Data { get; set; }
-        public RawSourceWaveStream WaveStream { get; set; }
-        public long StreamStartPosition { get; set; }
-
-        public int InstanceID { get; set; }
-        public bool Looping { get; set; } = false;
-        public int Type { get; set; }
-        public string AssetName { get; set; }
-
-        public float Volume
-        {
-            get => WaveOut.Volume;
-            set => WaveOut.Volume = value;
-        }
-
-        public PlaybackState PlaybackState { get => WaveOut.PlaybackState; }
-
-        #region IDisposable
-        protected bool _disposed = false;
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    WaveOut?.Dispose();
-                    WaveStream?.Dispose();
-                    Data?.Dispose();
-                }
-
-                _disposed = true;
-            }
-        }
-        #endregion
-
-        public AudioInstance(AudioSource source)
-        {
-            AssetName = source.AssetName;
-
-            Data?.Dispose();
-            Data = new MemoryStream(source.Data.ToArray());
-            StreamStartPosition = source.Data.Position;
-
-            WaveStream = new RawSourceWaveStream(Data, source.Format);
-            WaveOut = new WaveOutEvent();
-            WaveOut.Init(WaveStream);
-        }
-
-        ~AudioInstance()
-        {
-            Dispose(false);
-        }
-
-        public void Play()
-        {
-            Data.Position = StreamStartPosition;
-            WaveOut.Play();
-        }
-
-        public void Stop() => WaveOut.Stop();
-        public void Pause() => WaveOut.Pause();
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        return _samples;
     }
 
-    public static class SoundManager
+    public void Dispose()
     {
-        public static int UISoundType = -1;
-        public static float DefaultVolume { get; set; } = 0.5f;
-        public static float MasterVolume { get; set; } = 1f;
+        if (_disposed)
+            return;
 
-        public static Dictionary<int, AudioInstance> AudioInstances { get; set; } = new Dictionary<int, AudioInstance>();
-        public static Dictionary<int, float> VolumeSettings { get; set; } = new Dictionary<int, float>();
+        _samples = [];
+        _disposed = true;
+    }
+}
 
-        private static List<int> _removeList = new List<int>();
-        private static int _nextID = 0;
+public sealed class AudioInstance : IDisposable
+{
+    private readonly object _sync = new();
+    private readonly float[] _samples;
+    private readonly AudioFormat _format;
+    private double _framePosition;
+    private float _volume = 1f;
+    private PlaybackState _playbackState = PlaybackState.Stopped;
+    // Volatile because the game thread writes it without a lock while the mixer
+    // thread reads it inside Mix.
+    private volatile bool _looping;
+    private bool _disposed;
 
-        public static void Update()
+    public int InstanceID { get; set; }
+    public int Type { get; set; }
+    public string AssetName { get; set; }
+
+    public bool Looping
+    {
+        get => _looping;
+        set => _looping = value;
+    }
+
+    // Managed instances register with the mixer when played; tests opt out so
+    // they can drive Mix deterministically without the engine running.
+    internal bool Managed { get; init; } = true;
+
+    public float Volume
+    {
+        get
         {
-            foreach (var instance in AudioInstances)
-            {
-                if (instance.Value.PlaybackState == PlaybackState.Stopped)
-                {
-                    if (instance.Value.Looping)
-                        instance.Value.Play();
-                    else
-                        _removeList.Add(instance.Key);
-                }
-            }
-
-            for (var i = 0; i < _removeList.Count; i++)
-                AudioInstances.Remove(_removeList[i]);
-
-            _removeList.Clear();
-        } // Update
-
-        public static AudioInstance Play(string assetName, int type, AudioSourceType sourceType = AudioSourceType.Auto, bool loop = false, bool allowDuplicates = false)
+            lock (_sync)
+                return _volume;
+        }
+        set
         {
-            switch (sourceType)
-            {
-                case AudioSourceType.Auto:
-                    return Play(AssetManager.Instance.LoadAudioSourceByExtension(assetName), type, loop, allowDuplicates);
+            lock (_sync)
+                _volume = Math.Clamp(value, 0f, 1f);
+        }
+    }
 
-                case AudioSourceType.Ogg:
-                    return Play(AssetManager.Instance.LoadAudioSourceOggVorbis(assetName), type, loop, allowDuplicates);
+    public PlaybackState PlaybackState
+    {
+        get
+        {
+            lock (_sync)
+                return _playbackState;
+        }
+    }
 
-                case AudioSourceType.WAV:
-                    return Play(AssetManager.Instance.LoadAudioSourceWAV(assetName), type, loop, allowDuplicates);
-            }
+    public AudioInstance(AudioSource source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        AssetName = source.AssetName;
+        _format = source.Format;
+        _samples = source.GetSampleBuffer();
+    }
 
-            return null;
+    public void Play()
+    {
+        lock (_sync)
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
+            if (_playbackState != PlaybackState.Paused)
+                _framePosition = 0;
+
+            _playbackState = PlaybackState.Playing;
         }
 
-        public static AudioInstance Play(AudioSource source, int type, bool loop = false, bool allowDuplicates = false)
+        // Outside the instance lock: every other path nests manager -> instance,
+        // so re-registering under the instance lock could deadlock against the mixer.
+        if (Managed)
         {
-            if (source == null)
-                throw new ArgumentException("Can't play sound from a null audio source.", "source");
+            AudioEngine.EnsureStarted();
+            SoundManager.Register(this);
+        }
+    }
+
+    public void Stop()
+    {
+        lock (_sync)
+        {
+            _framePosition = 0;
+            _playbackState = PlaybackState.Stopped;
+        }
+    }
+
+    public void Pause()
+    {
+        lock (_sync)
+        {
+            if (_playbackState == PlaybackState.Playing)
+                _playbackState = PlaybackState.Paused;
+        }
+    }
+
+    internal void Mix(Span<float> destination, int outputSampleRate)
+    {
+        if (destination.Length % 2 != 0)
+            throw new ArgumentException("The destination buffer must contain complete interleaved stereo frames.", nameof(destination));
+
+        lock (_sync)
+        {
+            if (_disposed || _playbackState != PlaybackState.Playing)
+                return;
+
+            var sourceFrameCount = _samples.Length / _format.Channels;
+            if (sourceFrameCount == 0)
+            {
+                _playbackState = PlaybackState.Stopped;
+                return;
+            }
+
+            // Hoisted so one mix pass sees a consistent looping/volume snapshot.
+            var looping = _looping;
+            var volume = _volume;
+            var frameStep = (double)_format.SampleRate / outputSampleRate;
+            for (var outputIndex = 0; outputIndex < destination.Length; outputIndex += 2)
+            {
+                if (_framePosition >= sourceFrameCount)
+                {
+                    if (!looping)
+                    {
+                        _playbackState = PlaybackState.Stopped;
+                        break;
+                    }
+
+                    _framePosition %= sourceFrameCount;
+                }
+
+                var firstFrame = (int)_framePosition;
+                var secondFrame = firstFrame + 1;
+                if (secondFrame >= sourceFrameCount)
+                    secondFrame = looping ? 0 : firstFrame;
+
+                var fraction = (float)(_framePosition - firstFrame);
+                ReadStereoFrame(firstFrame, out var firstLeft, out var firstRight);
+                ReadStereoFrame(secondFrame, out var secondLeft, out var secondRight);
+                destination[outputIndex] += (firstLeft + ((secondLeft - firstLeft) * fraction)) * volume;
+                destination[outputIndex + 1] += (firstRight + ((secondRight - firstRight) * fraction)) * volume;
+                _framePosition += frameStep;
+            }
+
+            if (!looping && _framePosition >= sourceFrameCount)
+                _playbackState = PlaybackState.Stopped;
+        }
+    }
+
+    private void ReadStereoFrame(int frame, out float left, out float right)
+    {
+        var offset = frame * _format.Channels;
+        left = _samples[offset];
+        right = _format.Channels == 1 ? left : _samples[offset + 1];
+    }
+
+    public void Dispose()
+    {
+        lock (_sync)
+        {
+            if (_disposed)
+                return;
+
+            _playbackState = PlaybackState.Stopped;
+            _disposed = true;
+        }
+    }
+}
+
+public static class SoundManager
+{
+    private static readonly object Sync = new();
+    private static int _nextID;
+
+    public static int UISoundType = -1;
+    public static float DefaultVolume { get; set; } = 0.5f;
+    public static float MasterVolume { get; set; } = 1f;
+    public static Dictionary<int, AudioInstance> AudioInstances { get; } = [];
+    public static Dictionary<int, float> VolumeSettings { get; } = [];
+
+    public static void Update()
+    {
+        lock (Sync)
+        {
+            foreach (var (id, instance) in AudioInstances)
+            {
+                if (instance.PlaybackState == PlaybackState.Stopped)
+                    AudioInstances.Remove(id);
+            }
+        }
+    }
+
+    public static AudioInstance Play(
+        string assetName,
+        int type,
+        AudioSourceType sourceType = AudioSourceType.Auto,
+        bool loop = false,
+        bool allowDuplicates = false)
+    {
+        return sourceType switch
+        {
+            AudioSourceType.Auto => Play(
+                AssetManager.Instance.LoadAudioSourceByExtension(assetName),
+                type,
+                loop,
+                allowDuplicates),
+            AudioSourceType.Ogg => Play(
+                AssetManager.Instance.LoadAudioSourceOggVorbis(assetName),
+                type,
+                loop,
+                allowDuplicates),
+            AudioSourceType.WAV => Play(
+                AssetManager.Instance.LoadAudioSourceWAV(assetName),
+                type,
+                loop,
+                allowDuplicates),
+            _ => throw new ArgumentOutOfRangeException(nameof(sourceType)),
+        };
+    }
+
+    public static AudioInstance Play(
+        AudioSource source,
+        int type,
+        bool loop = false,
+        bool allowDuplicates = false)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        lock (Sync)
+        {
+            // Started before the duplicate check so that a faulted engine is
+            // revived even when this call is suppressed as a duplicate.
+            AudioEngine.EnsureStarted();
 
             if (!allowDuplicates)
             {
-                foreach (var kvp in AudioInstances)
+                foreach (var existingInstance in AudioInstances.Values)
                 {
-                    if (kvp.Value.AssetName == source.AssetName)
+                    if (existingInstance.AssetName == source.AssetName)
                         return null;
                 }
             }
 
-            if (!VolumeSettings.ContainsKey(type))
-                VolumeSettings.Add(type, DefaultVolume);
+            if (!VolumeSettings.TryGetValue(type, out var typeVolume))
+            {
+                typeVolume = DefaultVolume;
+                VolumeSettings.Add(type, typeVolume);
+            }
 
             var instance = new AudioInstance(source)
             {
                 Type = type,
                 Looping = loop,
-                InstanceID = _nextID,
+                InstanceID = GetNextID(),
+                Volume = typeVolume * MasterVolume,
             };
 
-            _nextID += 1;
-
-            if (_nextID >= (int.MaxValue - 1))
-                _nextID = 0;
-
-            instance.Volume = VolumeSettings[type] * MasterVolume;
-            instance.Play();
-
             AudioInstances.Add(instance.InstanceID, instance);
+            instance.Play();
             return instance;
+        }
+    }
 
-        } // Play
+    public static void SetMasterVolume(float volume)
+    {
+        volume = Math.Clamp(volume, 0f, 1f);
 
-        public static void SetMasterVolume(float volume)
+        lock (Sync)
         {
             if (MasterVolume == volume)
                 return;
 
             MasterVolume = volume;
+            foreach (var instance in AudioInstances.Values)
+                instance.Volume = GetTypeVolume(instance.Type) * MasterVolume;
+        }
+    }
 
-            foreach (var instance in AudioInstances)
-                instance.Value.Volume = VolumeSettings[instance.Value.Type] * MasterVolume;
+    public static void SetVolume(int type, float volume)
+    {
+        volume = Math.Clamp(volume, 0f, 1f);
 
-        } // SetMasterVolume
-
-        public static void SetVolume(int type, float volume)
+        lock (Sync)
         {
-            if (!VolumeSettings.ContainsKey(type))
-                VolumeSettings.Add(type, volume);
-            else
-                VolumeSettings[type] = volume;
-
-            foreach (var instance in AudioInstances)
+            VolumeSettings[type] = volume;
+            foreach (var instance in AudioInstances.Values)
             {
-                if (instance.Value.Type == type)
-                    instance.Value.Volume = VolumeSettings[type] * MasterVolume;
+                if (instance.Type == type)
+                    instance.Volume = volume * MasterVolume;
             }
-        } // SetVolume
+        }
+    }
 
-        public static void StopByInstance(AudioInstance instance) => StopByID(instance.InstanceID);
+    public static void StopByInstance(AudioInstance instance)
+    {
+        ArgumentNullException.ThrowIfNull(instance);
+        StopByID(instance.InstanceID);
+    }
 
-        public static void StopByID(int id)
+    public static void StopByID(int id)
+    {
+        lock (Sync)
         {
-            if (AudioInstances.TryGetValue(id, out var instance))
-            {
+            if (AudioInstances.Remove(id, out var instance))
                 instance.Stop();
-                AudioInstances.Remove(id);
-            }
-        } // StopByID
+        }
+    }
 
-        public static void StopByType(int type)
+    public static void StopByType(int type)
+    {
+        lock (Sync)
         {
-            foreach (var instance in AudioInstances)
+            foreach (var (id, instance) in AudioInstances)
             {
-                if (instance.Value.Type != type)
-                    continue;
-
-                instance.Value.Stop();
-                _removeList.Add(instance.Key);
+                if (instance.Type == type)
+                {
+                    AudioInstances.Remove(id);
+                    instance.Stop();
+                }
             }
+        }
+    }
 
-            for (var i = 0; i < _removeList.Count; i++)
-                AudioInstances.Remove(_removeList[i]);
-
-            _removeList.Clear();
-
-        } // StopByType
-
-        public static void StopAll()
+    public static void StopAll()
+    {
+        lock (Sync)
         {
-            foreach (var instance in AudioInstances)
-                instance.Value.Stop();
+            foreach (var instance in AudioInstances.Values)
+                instance.Stop();
 
             AudioInstances.Clear();
-        } // StopAll
+        }
+    }
 
-    } // SoundManager
+    public static void Shutdown()
+    {
+        StopAll();
+        AudioEngine.Shutdown();
+    }
+
+    // The manager stops tracking finished or stopped instances, but callers may
+    // retain the handle and replay it; Play() re-registers it here.
+    internal static void Register(AudioInstance instance)
+    {
+        lock (Sync)
+        {
+            if (AudioInstances.TryGetValue(instance.InstanceID, out var existing) && ReferenceEquals(existing, instance))
+                return;
+
+            if (AudioInstances.ContainsKey(instance.InstanceID))
+                instance.InstanceID = GetNextID();
+
+            AudioInstances.Add(instance.InstanceID, instance);
+        }
+    }
+
+    internal static void CopyActiveInstances(List<AudioInstance> destination)
+    {
+        lock (Sync)
+        {
+            destination.Clear();
+            destination.AddRange(AudioInstances.Values);
+        }
+    }
+
+    internal static void ResetForTests()
+    {
+        lock (Sync)
+        {
+            StopAll();
+            VolumeSettings.Clear();
+            DefaultVolume = 0.5f;
+            MasterVolume = 1f;
+            _nextID = 0;
+        }
+    }
+
+    private static float GetTypeVolume(int type) =>
+        VolumeSettings.TryGetValue(type, out var volume) ? volume : DefaultVolume;
+
+    private static int GetNextID()
+    {
+        while (AudioInstances.ContainsKey(_nextID))
+            _nextID = _nextID == int.MaxValue ? 0 : _nextID + 1;
+
+        var id = _nextID;
+        _nextID = _nextID == int.MaxValue ? 0 : _nextID + 1;
+        return id;
+    }
 }

@@ -1,9 +1,7 @@
 ﻿using ElementEngine.Timer;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 
 namespace ElementEngine
@@ -63,21 +61,20 @@ namespace ElementEngine
 
         protected void Dispose(bool disposing)
         {
-            if (!_disposed)
-            {
-                try
-                {
-                    if (disposing)
-                        Unload();
-                }
-                finally
-                {
-                    if (disposing)
-                        ElementGlobals.Unload();
+            if (_disposed)
+                return;
 
-                    _disposed = true;
-                }
+            if (!disposing)
+            {
+                _disposed = true;
+                return;
             }
+
+            var collector = new TeardownCollector();
+            collector.Run(Unload);
+            TeardownEngine(collector);
+            _disposed = true;
+            collector.ThrowIfFailed("Game teardown failed.");
         }
         #endregion
 
@@ -90,15 +87,10 @@ namespace ElementEngine
             }
             catch (Exception loadException)
             {
-                var exceptions = new List<Exception> { loadException };
-                CaptureException(exceptions, ElementGlobals.Unload);
-                CaptureException(exceptions, AssetManager.Instance.Clear);
-                CaptureException(exceptions, InputManager.Dispose);
-
-                if (exceptions.Count == 1)
-                    ExceptionDispatchInfo.Capture(loadException).Throw();
-
-                throw new AggregateException("Game loading and cleanup both failed.", exceptions);
+                var collector = new TeardownCollector(loadException);
+                TeardownEngine(collector);
+                collector.ThrowIfFailed("Game loading and cleanup both failed.");
+                throw;
             }
         }
 
@@ -332,6 +324,7 @@ namespace ElementEngine
             CurrentGameState?.Unload();
             AssetManager.Instance.Clear();
             InputManager.Dispose();
+            SoundManager.Shutdown();
 
             Exit();
 
@@ -385,16 +378,14 @@ namespace ElementEngine
             CurrentGameState?.OnWindowResized(windowRect);
         }
 
-        private static void CaptureException(List<Exception> exceptions, Action action)
+        // Every engine subsystem is torn down here, in order, on both the dispose
+        // and the load-failure paths, so the two cannot drift apart.
+        private static void TeardownEngine(TeardownCollector collector)
         {
-            try
-            {
-                action();
-            }
-            catch (Exception exception)
-            {
-                exceptions.Add(exception);
-            }
+            collector.Run(ElementGlobals.Unload);
+            collector.Run(AssetManager.Instance.Clear);
+            collector.Run(InputManager.Dispose);
+            collector.Run(SoundManager.Shutdown);
         }
 
     } // BaseGame
